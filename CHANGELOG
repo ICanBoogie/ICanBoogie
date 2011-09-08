@@ -1,0 +1,35 @@
+2011-08-20 # 1.0.0-dev
+
+ICanBoogie is born !
+
+ICanBoogie is a fork of the [WdCore](https://github.com/Weirdog/WdCore) framework.
+
+[NEW] ICanBoogie can be used as a Phar.
+
+[NEW] Image::compute_final_size().
+
+[NEW] Strategies to prevent cross-site request forgeries, session hijacking and session fixation.
+
+[NEW] The Route::contextualize() and Route::decontextualize() methods.
+
+[NEW] The REQUEST_PATH key added to $_SERVER.
+
+[NEW] Operation supports session token control.
+
+[NEW] The Object::instantiate() method.
+
+[CHG] Moved elements related JS code to the BrickRouge package.
+
+[CHG] 'primary' is now handled as an option in schemas, making it easier to create multi-column
+primary keys.
+
+[CHG] Operation::__get_form() fires the `get_form` event to retrieve the form associated with the
+operation.
+
+[CHG] Renamed the 'create' key of the Operation\ActiveRecord\Save response as 'new'.
+
+[CHG] The model is now passed to the ActiveRecord during construct.
+
+[REM] Removed the Core::contextualize_api_string() and Core::decontextualize_api_string() methods.
+
+[FIX] Configurations of disabled modules are not discarted.
