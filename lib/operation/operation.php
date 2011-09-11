@@ -509,6 +509,16 @@ abstract class Operation extends Object
 		return array();
 	}
 
+	/**
+	 * Returns the object use to log errors.
+	 *
+	 * @return Errors
+	 */
+	protected function __get_errors()
+	{
+		return new Errors();
+	}
+
 	const T_PARENT = 'parent';
 
 	protected $parent;
@@ -654,8 +664,6 @@ abstract class Operation extends Object
 	 */
 	public function __invoke(array $params=array())
 	{
-		global $core;
-
 		self::$nesting++;
 
 		if (func_num_args() > 0)
@@ -738,16 +746,39 @@ abstract class Operation extends Object
 					continue;
 				}
 
-				$logs = array('done', 'error');
+				$success = Debug::fetch_messages($type);
 
-				foreach ($logs as $type)
+				if ($success)
 				{
-					$this->response->log[$type] = Debug::fetch_messages($type);
+					$this->response->log['success'] = $success;
 				}
 
-				if (isset($this->form) && $this->form)
+				if (isset($this->errors) && count($this->errors))
 				{
-					$this->response->log['form'] = $this->form->fetch_log();
+					$errors = array();
+
+					foreach ($this->errors as $identifier => $message)
+					{
+						if (!$identifier)
+						{
+							$identifier = '_base';
+						}
+
+						if (isset($errors[$identifier]))
+						{
+							$errors[$identifier] .= '; ' . $message;
+						}
+						else
+						{
+							$errors[$identifier] = $message;
+						}
+					}
+
+					$this->response->errors = $errors;
+				}
+				else
+				{
+					$this->response->errors = null;
 				}
 
 				$rc = $this->$format_callback();
@@ -1034,7 +1065,7 @@ abstract class Operation extends Object
 	{
 		$form = $this->form;
 
-		return ($form && $form->validate($this->params));
+		return ($form && $form->validate($this->params, $this->errors));
 	}
 
 	/**

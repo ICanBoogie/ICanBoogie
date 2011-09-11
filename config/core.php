@@ -1,10 +1,12 @@
 <?php
 
-$ar = $path . 'lib/activerecord/';
-$core = $path . 'lib/core/';
-$i18n = $path . 'lib/i18n/';
-$operation = $path . 'lib/operation/';
-$toolkit = $path . 'lib/toolkit/';
+$lib = $path . 'lib' . DIRECTORY_SEPARATOR;
+$ar = $lib . 'activerecord' . DIRECTORY_SEPARATOR;
+$core = $lib . 'core' . DIRECTORY_SEPARATOR;
+$http = $lib . 'http' . DIRECTORY_SEPARATOR;
+$i18n = $lib . 'i18n' . DIRECTORY_SEPARATOR;
+$operation = $lib . 'operation' . DIRECTORY_SEPARATOR;
+$toolkit = $lib . 'toolkit' . DIRECTORY_SEPARATOR;
 
 return array
 (
@@ -39,6 +41,7 @@ return array
 		'ICanBoogie\I18n\Translator\Proxi' => $i18n . 'proxi.php',
 
 		'ICanBoogie\Debug' => $toolkit . 'debug.php',
+		'ICanBoogie\Errors' => $toolkit . 'errors.php',
 		'ICanBoogie\FileCache' => $toolkit . 'filecache.php',
 		'ICanBoogie\Hook' => $toolkit . 'hook.php',
 		'ICanBoogie\Image' => $toolkit . 'image.php',
