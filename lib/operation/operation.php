@@ -746,7 +746,7 @@ abstract class Operation extends Object
 					continue;
 				}
 
-				$success = Debug::fetch_messages($type);
+				$success = Debug::fetch_messages('done');
 
 				if ($success)
 				{

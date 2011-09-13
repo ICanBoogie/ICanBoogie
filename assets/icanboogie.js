@@ -53,4 +53,29 @@
 		return url = api_base + url;
 	};
 
+	Element.Properties.dataset = {
+
+		get: function() {
+
+			var dataset = {};
+			var attributes = this.attributes;
+
+			for (var i = 0, y = attributes.length ; i < y ; i++)
+			{
+				var attr = attributes[i];
+
+				if (!attr.name.match(/^data-/))
+				{
+					continue;
+				}
+
+				var name = attr.name.substring(5).camelCase();
+
+				dataset[name] = attr.value;
+			}
+
+			return dataset;
+		}
+	};
+
 }) ();
