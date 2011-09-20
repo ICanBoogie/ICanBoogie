@@ -154,13 +154,14 @@ class Module extends Object
 	}
 
 	/**
-	 * Check wheter or not the module is installed.
+	 * Checks if the module is installed.
+	 *
+	 * @param Errors $errors An object use to collect errors.
 	 *
 	 * @return mixed TRUE if the module is installed, FALSE if the module
 	 * (or parts of) is not installed, NULL if the module has no installation.
-	 *
 	 */
-	public function is_installed()
+	public function is_installed(Errors $errors)
 	{
 		if (empty($this->tags[self::T_MODELS]))
 		{
@@ -183,16 +184,15 @@ class Module extends Object
 	/**
 	 * Install the module.
 	 *
-	 * It basically install the models defined by the module.
+	 * If the module has models they are installed.
 	 *
-	 * One may override the method to extend the installation.
+	 * @param Errors $errors An object use to collect errors.
 	 *
-	 * @return mixed TRUE if the module has successfully been installed. FALSE if the
-	 * module (or parts of the module) fails to install. NULL if the module has
-	 * not installation process.
-	 *
+	 * @return boolean|null true if the module has successfully been installed, false if the
+	 * module (or parts of the module) fails to install or null if the module has
+	 * no installation process.
 	 */
-	public function install()
+	public function install(Errors $errors)
 	{
 		if (empty($this->tags[self::T_MODELS]))
 		{
@@ -203,22 +203,16 @@ class Module extends Object
 
 		foreach ($this->tags[self::T_MODELS] as $name => $tags)
 		{
-			//wd_log('install %module, install model %model', array('%module' => $this->id, '%model' => $name));
-
 			$model = $this->model($name);
 
 			if ($model->is_installed())
 			{
-				//wd_log('model %model already installed', array('%model' => $name));
-
 				continue;
 			}
 
-			//wd_log('install model: %model', array('%model' => $name));
-
 			if (!$model->install())
 			{
-				//wd_log('Model %model failed to install', array('%model' => $name));
+				$errors[$this->id] = t('Unable to install model %model', array('%model' => $name));
 
 				$rc = false;
 			}
