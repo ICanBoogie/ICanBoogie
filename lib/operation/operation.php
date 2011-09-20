@@ -11,6 +11,9 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\Exception;
+use ICanBoogie\HTTP;
+
 abstract class Operation extends Object
 {
 	const DESTINATION = '#destination';

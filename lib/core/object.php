@@ -31,7 +31,7 @@ class Object
 	 *
 	 * @return Object The new instance.
 	 */
-	public static function instantiate(array $properties=array(), array $construct_args=array(), $class_name=null)
+	public static function from(array $properties=array(), array $construct_args=array(), $class_name=null)
 	{
 		if (!$class_name)
 		{

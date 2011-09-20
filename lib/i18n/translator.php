@@ -338,7 +338,7 @@ class Translator extends Object implements \ArrayAccess
 				{
 					case ':': break;
 					case '!': $value = wd_entities($value); break;
-					case '%': $value = '<em>' . wd_entities($value) . '</em>'; break;
+					case '%': $value = '<q>' . wd_entities($value) . '</q>'; break;
 				}
 			}
 

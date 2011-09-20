@@ -18,7 +18,7 @@ class Exception extends \Exception
 	public $code;
 	public $title = 'Exception';
 
-	public function __construct($message, array $params=array(), $code=500)
+	public function __construct($message, array $params=array(), $code=500, $previous=null)
 	{
 		static $codes = array
 		(
@@ -67,7 +67,7 @@ class Exception extends \Exception
 
 		$message = t($message, $params);
 
-		parent::__construct($message);
+		parent::__construct($message, $code, $previous);
 	}
 
 	public function __toString()

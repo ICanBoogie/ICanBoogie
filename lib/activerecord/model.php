@@ -192,10 +192,10 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 
 		if (is_array($key))
 		{
-			$records = array_combine($key, $key);
+			$records = array_combine($key, array_fill(0, count($key), null));
 			$missing = $records;
 
-			foreach ($records as $key)
+			foreach ($records as $key => $dummy)
 			{
 				$record = $this->retrieve($key);
 
@@ -211,7 +211,7 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 			if ($missing)
 			{
 				$primary = $this->primary;
-				$query_records = $this->where(array($primary => $missing))->all;
+				$query_records = $this->where(array($primary => array_keys($missing)))->all;
 
 				foreach ($query_records as $record)
 				{
@@ -227,14 +227,32 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 			{
 				if (count($missing) > 1)
 				{
-					throw new Exception\MissingRecord('Records %keys do not exists in model %model.', array('%model' => $this->name_unprefixed, '%keys' => implode(', ', array_keys($missing))), 404);
+					throw new Exception\MissingRecord
+					(
+						'Records %keys do not exists in model %model.', array
+						(
+							'%model' => $this->name_unprefixed,
+							'%keys' => implode(', ', array_keys($missing))
+						),
+
+						404, null, $records
+					);
 				}
 				else
 				{
 					$key = array_keys($missing);
 					$key = array_shift($key);
 
-					throw new Exception\MissingRecord('Record %key does not exists in model %model.', array('%model' => $this->name_unprefixed, '%key' => $key), 404);
+					throw new Exception\MissingRecord
+					(
+						'Record %key does not exists in model %model.', array
+						(
+							'%model' => $this->name_unprefixed,
+							'%key' => $key
+						),
+
+						404, null, $records
+					);
 				}
 			}
 
@@ -249,7 +267,16 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 
 			if (!$record)
 			{
-				throw new Exception\MissingRecord('Record %key does not exists in model %model.', array('%model' => $this->name_unprefixed, '%key' => $key), 404);
+				throw new Exception\MissingRecord
+				(
+					'Record %key does not exists in model %model.', array
+					(
+						'%model' => $this->name_unprefixed,
+						'%key' => $key
+					),
+
+					404, null, array($key => null)
+				);
 			}
 
 			$this->store($record);
@@ -627,5 +654,12 @@ namespace ICanBoogie\Exception;
 
 class MissingRecord extends \ICanBoogie\Exception
 {
+	public $rc;
 
+	public function __construct($message, array $params=array(), $code=500, $previous=null, $rc)
+	{
+		$this->rc = $rc;
+
+		parent::__construct($message, $params, $code, $previous);
+	}
 }

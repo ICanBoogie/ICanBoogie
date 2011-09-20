@@ -95,6 +95,12 @@ class Vars implements \ArrayAccess
 		}
 
 		$filename = $this->resolve_filename($key);
+		$dir = dirname($filename);
+
+		if (!file_exists($dir))
+		{
+			mkdir($dir, 0755, true);
+		}
 
 		file_put_contents($filename, $value);
 	}

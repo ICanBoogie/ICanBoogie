@@ -97,43 +97,43 @@ EOT;
 		}
 
 		#
-		# prolog
-		#
-
-		$lines[] = '<strong>Error with the following message:</strong><br />';
-		$lines[] = $str . '<br />';
-		$lines[] = 'in <em>' . $file . '</em> at line <em>' . $line . '</em><br />';
-
-		#
-		# trace
+		# remove errorHandler trace & trigger trace
 		#
 
 		$stack = debug_backtrace();
-
-		#
-		# remove errorHandler trace & trigger trace
-		#
 
 		array_shift($stack);
 		array_shift($stack);
 
 		$config = self::get_config();
+		$more = '';
 
 		if ($config['stackTrace'])
 		{
-			$lines = array_merge($lines, self::format_trace($stack));
+			$m = self::format_trace($stack);
+			$more .= "\n" . $m;
 		}
 
 		if ($config['codeSample'])
 		{
-			$lines = array_merge($lines, self::codeSample($file, $line));
+			$m = self::format_line($file, $line);
+			$more .= "\n" . $m;
 		}
 
-		#
-		#
-		#
+		if ($more)
+		{
+			$more = "\n" . $more;
+		}
 
-		$rc = '<pre class="wd-core-debug"><code>' . implode('<br />', $lines) . '</code></pre><br />';
+		$rc = <<<EOT
+<pre class="alert-message error debug">
+<strong>Error with the following message:</strong>
+
+$str
+
+→ in <em>$file</em> at line <em>$line</em>$more
+</pre>
+EOT;
 
 		self::report($rc);
 
@@ -145,17 +145,22 @@ EOT;
 		}
 	}
 
-	static public function exception_handler($exception)
+	/**
+	 * Minimal exception handler.
+	 *
+	 * @param \Exception $exception
+	 */
+	static public function exception_handler(\Exception $exception)
 	{
 		if (!headers_sent())
 		{
-			header('HTTP/1.0 500 Exception with the following message: ' . strip_tags($exception->getMessage()));
+			header('HTTP/1.0 500 ' . get_class($exception) . ' with the following message: ' . strip_tags($exception->getMessage()));
 		}
 
-		exit((string) $exception);
+		exit(self::format_exception($exception));
 	}
 
-	static public function trigger($message, array $args=null)
+	static public function trigger($message, array $args=array())
 	{
 		$stack = debug_backtrace();
 		$caller = array_shift($stack);
@@ -217,7 +222,7 @@ EOT;
 			return $lines;
 		}
 
-		$file = substr($file, strlen($_SERVER['DOCUMENT_ROOT']));
+		$file = substr($file, strlen(\ICanBoogie\DOCUMENT_ROOT));
 
 		$lines[] = '<br />→ in <em>' . $file . '</em> at line <em>' . $line . '</em>';
 
@@ -231,22 +236,22 @@ EOT;
 
 	const MAX_STRING_LEN = 16;
 
-	static public function format_trace($stack, &$saveback=null)
+	/**
+	 * Formats a stack trace into an HTML element.
+	 *
+	 * @param array $trace
+	 *
+	 * @return string
+	 */
+	public static function format_trace(array $trace)
 	{
-		$lines = array();
-		$config = self::get_config();
+		$root = str_replace('\\', '/', realpath('.'));
+		$count = count($trace);
+		$count_max = strlen((string) $count);
 
-		if (!$stack || !$config['stackTrace'])
-		{
-			return $lines;
-		}
+		$rc = "<strong>Stack trace:</strong>\n";
 
-		$root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
-		$count = count($stack);
-
-		$lines[] = '<br /><strong>Stack trace:</strong><br />';
-
-		foreach ($stack as $i => $node)
+		foreach ($trace as $i => $node)
 		{
 			$trace_file = null;
 			$trace_line = 0;
@@ -273,6 +278,7 @@ EOT;
 						case 'array': $arg = 'Array'; break;
 						case 'object': $arg = 'Object of ' . get_class($arg); break;
 						case 'resource': $arg = 'Resource of type ' . get_resource_type($arg); break;
+						case 'null': $arg = 'null'; break;
 
 						default:
 						{
@@ -280,6 +286,8 @@ EOT;
 							{
 								$arg = substr($arg, 0, self::MAX_STRING_LEN) . '...';
 							}
+
+							$arg = '\'' . $arg .'\'';
 						}
 						break;
 					}
@@ -288,24 +296,49 @@ EOT;
 				}
 			}
 
-			$lines[] = sprintf
+			$rc .= sprintf
 			(
-				'%02d − %s(%d): %s%s%s(%s)',
+				"\n%{$count_max}d. %s(%d): %s%s%s(%s)",
 
 				$count - $i, $trace_file, $trace_line, $trace_class, $trace_type,
 				$trace_function, wd_entities(implode(', ', $params))
 			);
 		}
 
-		if (is_array($saveback))
-		{
-			$saveback = array_merge($saveback, self::format_trace($stack));
-		}
-
-		return $lines;
+		return $rc;
 	}
 
-	static public function codeSample($file, $line=0, &$saveback=null)
+	/**
+	 * Formats an exception into a HTML element.
+	 *
+	 * @param \Exception $exception
+	 *
+	 * @return string
+	 */
+	public static function format_exception(\Exception $exception)
+	{
+		$type = get_class($exception);
+		$path = $exception->getFile();
+		$line = $exception->getLine();
+		$message = $exception->getMessage();
+		$trace = self::format_trace($exception->getTrace());
+
+		$path = wd_strip_root($path);
+
+		return <<<EOT
+<pre class="alter-message exception">
+<strong>$type with the following message:</strong>
+
+$message
+
+→ in <em>$path</em> at line <em>$line</em>
+
+$trace
+</pre>
+EOT;
+	}
+
+	static public function format_line($file, $line=0)
 	{
 		$config = self::get_config();
 
@@ -321,12 +354,11 @@ EOT;
 			return array();
 		}
 
-		$lines = array('<br /><strong>Code sample:</strong><br />');
-
+		$sample = '';
 		$fh = new \SplFileObject($file);
-		$sample = new \LimitIterator($fh, $line < 5 ? 0 : $line - 5, 10);
+		$lines = new \LimitIterator($fh, $line < 5 ? 0 : $line - 5, 10);
 
-		foreach ($sample as $i => $str)
+		foreach ($lines as $i => $str)
 		{
 			$str = wd_entities(rtrim($str));
 
@@ -336,16 +368,14 @@ EOT;
 			}
 
 			$str = str_replace("\t", "\xC2\xA0\xC2\xA0\xC2\xA0\xC2\xA0", $str);
-
-			$lines[] = $str;
+			$sample .= "\n" . $str;
 		}
 
-		if (is_array($saveback))
-		{
-			$saveback = array_merge($saveback, $lines);
-		}
+		return <<<EOT
 
-		return $lines;
+<strong>Code sample:</strong>
+$sample
+EOT;
 	}
 
 	static public function report($message)
@@ -480,6 +510,16 @@ EOT;
 		self::$logs[$type] = array();
 
 		return $rc;
+	}
+
+	private function strip_root($str)
+	{
+		if (strpos($str, DOCUMENT_ROOT) === 0)
+		{
+			return substr($str, strlen(DOCUMENT_ROOT) - 1);
+		}
+
+		return $str;
 	}
 }
 
