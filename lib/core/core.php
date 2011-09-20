@@ -389,11 +389,13 @@ class Core extends Object
 		$this->run_modules();
 //		wd_log_time('run modules finish');
 
+		$this->request = HTTP\Request::from_globals();
+
 		$this->run_context();
 
-//		wd_log_time('run operation start');
-		$this->run_operation($_SERVER['REQUEST_PATH'], $_POST + $_GET);
-//		wd_log_time('run operation start');
+// 		wd_log_time('run request start');
+		$this->run_request($this->request);
+// 		wd_log_time('run request finish');
 	}
 
 	/**
@@ -439,20 +441,8 @@ class Core extends Object
 
 	}
 
-	/**
-	 * Dispatch the operation associated with the current request, if any.
-	 */
-	protected function run_operation($uri, array $params)
+	protected function run_request(HTTP\Request $request)
 	{
-		$operation = Operation::decode($uri, $params);
-
-		if (!$operation)
-		{
-			return;
-		}
-
-		$operation($operation->params);
-
-		return $operation;
+		$operation = $request();
 	}
 }

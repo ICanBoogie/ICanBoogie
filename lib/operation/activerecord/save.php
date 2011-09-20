@@ -88,7 +88,7 @@ class Save extends Operation
 	{
 		$schema = $this->module->model->extended_schema;
 		$fields = $schema['fields'];
-		$properties = array_intersect_key($this->params, $fields);
+		$properties = array_intersect_key($this->request->params, $fields);
 
 		foreach ($fields as $identifier => $definition)
 		{

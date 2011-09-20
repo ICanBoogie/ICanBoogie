@@ -31,58 +31,6 @@ abstract class Operation extends Object
 	);
 
 	/**
-	 * Encodes a RESful operation.
-	 *
-	 * @param string $pattern
-	 * @param array $params
-	 *
-	 * @return string The operation encoded as a RESTful relative URL.
-	 */
-	public static function encode($pattern, array $params=array())
-	{
-		$destination = null;
-		$name = null;
-		$key = null;
-
-		if (isset($params[self::DESTINATION]))
-		{
-			$destination = $params[self::DESTINATION];
-
-			unset($params[self::DESTINATION]);
-		}
-
-		if (isset($params[self::NAME]))
-		{
-			$name = $params[self::NAME];
-
-			unset($params[self::NAME]);
-		}
-
-		if (isset($params[self::KEY]))
-		{
-			$key = $params[self::KEY];
-
-			unset($params[self::KEY]);
-		}
-
-		$qs = http_build_query($params, '', '&');
-
-		$rc = self::RESTFUL_BASE . strtr
-		(
-			$pattern, array
-			(
-				'{destination}' => $destination,
-				'{name}' => $name,
-				'{key}' => $key
-			)
-		)
-
-		. ($qs ? '?' . $qs : '');
-
-		return Route::contextualize($rc);
-	}
-
-	/**
 	 * Decodes the specified request into an Operation instance.
 	 *
 	 * An operation can be defined as a route, in which case the path of the request starts with
@@ -146,89 +94,16 @@ abstract class Operation extends Object
 	 *
 	 * @return Operation|null The decoded operation or null if no operation was found.
 	 */
-	public static function decode($uri, array $params=array())
+	public static function from_request(HTTP\Request $request)
 	{
-		global $core;
+		$path = Route::decontextualize($request->path);
 
-		$uri = Route::decontextualize($uri);
-
-		if (substr($uri, 0, self::RESTFUL_BASE_LENGHT) == self::RESTFUL_BASE)
+		if (substr($path, 0, self::RESTFUL_BASE_LENGHT) == self::RESTFUL_BASE)
 		{
-			foreach (self::$formats as $extension => $format)
+			$operation = static::from_api_request($request, $path);
+
+			if ($operation)
 			{
-				$extension = '.' . $extension;
-				$extension_length = strlen($extension);
-
-				if (substr($uri, -$extension_length) == $extension)
-				{
-					$_SERVER['HTTP_ACCEPT'] = $format[0];
-
-					$uri = substr($uri, 0, -$extension_length);
-
-					break;
-				}
-			}
-
-			if ($uri{strlen($uri) - 1} == '/')
-			{
-				$uri = substr($uri, 0, -1);
-			}
-
-			$routes = $core->configs->synthesize('api', array(__CLASS__, 'api_constructor'), 'routes');
-
-			foreach ($routes as $pattern => $route)
-			{
-				$match = Route::match($uri, $pattern);
-
-				if (!$match)
-				{
-					continue;
-				}
-
-				#
-				# We found a matching route. The arguments captured from the route are merged with
-				# the request parameters. The route must define either a class for the operation
-				# instance (defined using the `class` key) or a callback to create that instance
-				# (defined using the `callback` key).
-				#
-
-				if (is_array($match))
-				{
-					$params = $match + $params;
-				}
-
-				if (isset($route['callback']) && isset($route['class']))
-				{
-					throw new Exception('Ambiguous definition for operation route, both callback and class are defined.');
-				}
-				else if (isset($route['callback']))
-				{
-					$operation = call_user_func($route['callback'], $params);
-
-					if (!($operation instanceof Operation))
-					{
-						throw new Exception('The operation route callback %callback failed to produce an operation object.', array('%callback' => implode('::', $route['callback'])));
-					}
-				}
-				else if (isset($route['class']))
-				{
-					$class = $route['class'];
-
-					if (!class_exists($class, true))
-					{
-						throw new Exception('Unable to create operation instance, the %class class is not defined.', array('%class' => $class));
-					}
-
-					$operation = new $class($route, $params);
-				}
-				else
-				{
-					throw new Exception('The operation route must either define a class or a callback.');
-				}
-
-				$operation->terminus = true;
-				$operation->method = 'GET';
-
 				return $operation;
 			}
 
@@ -237,66 +112,189 @@ abstract class Operation extends Object
 			# optional KEY from the URI.
 			#
 
-			preg_match('#^([a-z\.]+)/(([^/]+)/)?([a-zA-Z0-9_\-]+)$#', substr($uri, self::RESTFUL_BASE_LENGHT), $matches);
+			preg_match('#^([a-z\.]+)/(([^/]+)/)?([a-zA-Z0-9_\-]+)$#', substr($path, self::RESTFUL_BASE_LENGHT), $matches);
 
 			if (!$matches)
 			{
 				throw new Exception('Unknown operation %operation.', array('%operation' => $uri), 404);
 			}
 
+			list(, $module_id, , $operation_key, $operation_name) = $matches;
 
-			list(, $destination, , $operation_key, $name) = $matches;
+			$request[self::KEY] = $operation_key;
 
-			$params[self::DESTINATION] = $destination;
-			$params[self::NAME] = strtr($name, '-', '_');
-			$params[self::KEY] = $matches[2] ? $operation_key : null;
+			return static::from_module_request($request, $module_id, $operation_name, $operation_key);
 		}
 
-		#
-		# The request is not a API operation, we try to extract the operation information from the
-		# request parameters. If the DESTINATION and NAME request parameters are empty, we simply
-		# return because there is no operation to process.
-		#
+		$module_id = $request[self::DESTINATION];
+		$operation_name = $request[self::NAME];
+		$operation_key = $request[self::KEY];
 
-		if (empty($params[self::DESTINATION]) && empty($params[self::NAME]))
+		if (!$module_id && !$operation_name)
 		{
 			return;
 		}
-		else if (empty($params[self::DESTINATION]))
+		else if (!$module_id)
 		{
-			throw new Exception('The destination for the %operation operation is missing', array('%operation' => $params[self::NAME]));
+			throw new Exception('The destination for the %operation operation is missing', array('%operation' => $operation_name));
 		}
-		else if (empty($params[self::NAME]))
+		else if (!$operation_name)
 		{
-			throw new Exception('The operation for the %destination destination is missing', array('%destination' => $params[self::DESTINATION]));
+			throw new Exception('The operation for the %module module is missing', array('%module' => $module_id));
 		}
 
-		$name = $params[self::NAME];
-		$destination = $params[self::DESTINATION];
+		unset($request[self::DESTINATION]);
+		unset($request[self::NAME]);
 
-		unset($params[self::DESTINATION]);
-		unset($params[self::NAME]);
+		return static::from_module_request($request, $module_id, $operation_name, $operation_key);
+	}
 
-		$module = $core->modules[$destination];
-		$class = self::resolve_operation_class($name, $module);
+	protected static function from_api_request(HTTP\Request $request, $path)
+	{
+		global $core;
+
+		foreach (self::$formats as $extension => $format)
+		{
+			$extension = '.' . $extension;
+			$extension_length = strlen($extension);
+
+			if (substr($path, -$extension_length) == $extension)
+			{
+				$request->headers['Accept'] = $format[0];
+
+				$path = substr($path, 0, -$extension_length);
+
+				break;
+			}
+		}
+
+		$path = rtrim($path, '/');
+		$routes = $core->configs->synthesize('api', array(__CLASS__, 'api_constructor'), 'routes');
+
+		foreach ($routes as $pattern => $route)
+		{
+			$match = Route::match($path, $pattern);
+
+			if (!$match)
+			{
+				continue;
+			}
+
+			#
+			# We found a matching route. The arguments captured from the route are merged with
+			# the request parameters. The route must define either a class for the operation
+			# instance (defined using the `class` key) or a callback to create that instance
+			# (defined using the `callback` key).
+			#
+
+			if (is_array($match))
+			{
+				$request->params = $match + $request->params;
+			}
+
+			if (isset($route['callback']) && isset($route['class']))
+			{
+				throw new Exception('Ambiguous definition for operation route, both callback and class are defined.');
+			}
+			else if (isset($route['callback']))
+			{
+				$operation = call_user_func($route['callback'], $request);
+
+				if (!($operation instanceof Operation))
+				{
+					throw new Exception('The operation route callback %callback failed to produce an operation object.', array('%callback' => implode('::', $route['callback'])));
+				}
+			}
+			else if (isset($route['class']))
+			{
+				$class = $route['class'];
+
+				if (!class_exists($class, true))
+				{
+					throw new Exception('Unable to create operation instance, the %class class is not defined.', array('%class' => $class));
+				}
+
+				$operation = new $class($route);
+			}
+			else
+			{
+				throw new Exception('The operation route must either define a class or a callback.');
+			}
+
+			/*
+			$operation->terminus = true;
+			$operation->method = 'GET';
+			*/
+
+			return $operation;
+		}
+	}
+
+	protected static function from_module_request(HTTP\Request $request, $module_id, $operation_name, $operation_key)
+	{
+		global $core;
+
+		$module = $core->modules[$module_id];
+		$class = self::resolve_operation_class($operation_name, $module);
 
 		if (!$class)
 		{
-			throw new Exception\HTTP('Uknown operation %operation for the %module module.', array('%module' => (string) $module, '%operation' => $name), 404);
+			throw new Exception\HTTP('Uknown operation %operation for the %module module.', array('%module' => (string) $module, '%operation' => $operation_name), 404);
 		}
 
-		$operation = new $class($module, $params);
+		return new $class($module);
+	}
 
-		$method = $_SERVER['REQUEST_METHOD'];
+	/**
+	 * Encodes a RESful operation.
+	 *
+	 * @param string $pattern
+	 * @param array $params
+	 *
+	 * @return string The operation encoded as a RESTful relative URL.
+	 */
+	public static function encode($pattern, array $params=array())
+	{
+		$destination = null;
+		$name = null;
+		$key = null;
 
-		if (substr($uri, 0, self::RESTFUL_BASE_LENGHT) == self::RESTFUL_BASE || $method == 'GET')
+		if (isset($params[self::DESTINATION]))
 		{
-			$operation->terminus = true;
+			$destination = $params[self::DESTINATION];
+
+			unset($params[self::DESTINATION]);
 		}
 
-		$operation->method = $method;
+		if (isset($params[self::NAME]))
+		{
+			$name = $params[self::NAME];
 
-		return $operation;
+			unset($params[self::NAME]);
+		}
+
+		if (isset($params[self::KEY]))
+		{
+			$key = $params[self::KEY];
+
+			unset($params[self::KEY]);
+		}
+
+		$qs = http_build_query($params, '', '&');
+
+		$rc = self::RESTFUL_BASE . strtr
+		(
+			$pattern, array
+			(
+				'{destination}' => $destination,
+				'{name}' => $name,
+				'{key}' => $key
+			)
+		)
+
+		. ($qs ? '?' . $qs : '');
+
+		return Route::contextualize($rc);
 	}
 
 	/**
@@ -365,39 +363,13 @@ abstract class Operation extends Object
 		}
 	}
 
-	/**
-	 * Creates a module operation.
-	 *
-	 * The operation is created with the {@link ORIGIN_INTERNAL} origin.
-	 *
-	 * @param string $name Name of the operation.
-	 * @param string|Module $module Target module.
-	 * @param array $options[optional] Operation options.
-	 *
-	 * @return Operation
-	 */
-	public static function new_module_operation($name, $module, array $options=array())
-	{
-		global $core;
-
-		if (is_string($module))
-		{
-			$module = $core->modules[$module];
-		}
-
-		$class = self::resolve_operation_class($name, $module);
-
-		if (!$class)
-		{
-			throw new Exception('Unknown class for operation: %name.', array('%name' => $module . '/' . $name));
-		}
-
-		return new $class($module, array(), array(self::T_ORIGIN => self::ORIGIN_INTERNAL) + $options);
-	}
-
 	public $key;
 	public $destination;
-	public $params = array();
+
+	/**
+	 * @var \ICanBoogie\HTTP\Request The request triggring the operation.
+	 */
+	protected $request;
 
 	public $response;
 	public $terminus = false;
@@ -479,7 +451,7 @@ abstract class Operation extends Object
 	 *
 	 * - rc: The result of the event. Initialized to null, this is where the associated form must
 	 * be saved.
-	 * - params: The parameters supplied for the operation.
+	 * - request: The request triggring the operation.
 	 *
 	 * One can override this method to provide the form using another method. Or simply define the
 	 * {@link $form} property to circumvent the getter.
@@ -490,7 +462,7 @@ abstract class Operation extends Object
 	{
 		$form = null;
 
-		Event::fire('get_form', array('rc' => &$form, 'params' => $this->params), $this);
+		Event::fire('get_form', array('rc' => &$form, 'request' => $this->request), $this);
 
 		return $form;
 	}
@@ -546,31 +518,15 @@ abstract class Operation extends Object
 	 *
 	 * @param Module|array $destination The destination of the operation, either a module or a
 	 * route.
-	 * @param array $params The parameters of the operation.
 	 */
-	public function __construct($destination, array $params=array(), array $options=array())
+	public function __construct($destination)
 	{
 		unset($this->controls);
 
 		$this->destination = $destination;
-		$this->params = $params;
 
 		$this->target = $destination;
 		$this->module = $destination instanceof Module ? $destination : null;
-
-		if (isset($params[self::KEY]))
-		{
-			$this->key = $params[self::KEY];
-		}
-
-		foreach ($options as $option => $value)
-		{
-			switch ($option)
-			{
-				case self::T_ORIGIN: $this->origin = $value; break;
-				case self::T_PARENT: $this->parent = $value; break;
-			}
-		}
 	}
 
 	/**
@@ -661,38 +617,34 @@ abstract class Operation extends Object
 	 *
 	 * Note that exceptions are not caught by the method.
 	 *
-	 * @param array $params The parameters to process the operation with.
+	 * @param HTTP\Request $request The request triggering the operation.
 	 *
 	 * @return mixed The result of the operation.
 	 */
-	public function __invoke(array $params=array())
+	public function __invoke(HTTP\Request $request)
 	{
 		self::$nesting++;
 
-		if (func_num_args() > 0)
-		{
-			$this->params = $params;
-		}
-
+		$this->request = $request;
 		$this->reset();
 
 		$rc = null;
 
 		if (!$this->control($this->controls))
 		{
-			Event::fire('failure', array('type' => 'control'), $this);
+			Event::fire('failure', array('type' => 'control', 'request' => $request), $this);
 
 			wd_log('Operation control failed.');
 		}
 		else if (!$this->validate())
 		{
-			Event::fire('failure', array('type' => 'validation'), $this);
+			Event::fire('failure', array('type' => 'validation', 'request' => $request), $this);
 
 			wd_log('Operation validation failed.');
 		}
 		else
 		{
-			Event::fire('process:before', array(), $this);
+			Event::fire('process:before', array('request' => $request), $this);
 
 			$rc = $this->process();
 		}
@@ -715,7 +667,7 @@ abstract class Operation extends Object
 		}
 		else
 		{
-			Event::fire('process', array('rc' => &$this->response->rc), $this);
+			Event::fire('process', array('rc' => &$this->response->rc, 'request' => $request), $this);
 		}
 
 		if (--self::$nesting || $this->origin == self::ORIGIN_INTERNAL)
@@ -736,10 +688,10 @@ abstract class Operation extends Object
 
 		// FIXME-20101117: using $_SERVER is too global, we have to use an object related property
 
-		if (isset($_SERVER['HTTP_ACCEPT']))
-		{
-			$accept = $_SERVER['HTTP_ACCEPT'];
+		$accept = $request->headers['Accept'];
 
+		if ($accept)
+		{
 			foreach (self::$formats as $format)
 			{
 				list($format_mime, $format_callback) = $format;
@@ -799,7 +751,7 @@ abstract class Operation extends Object
 		if ($location && !headers_sent())
 		{
 			header('Location: ' . $location);
-			header('Referer: ' . $_SERVER['REQUEST_URI']);
+			header('Referer: ' . $_SERVER['REQUEST_URI']); // FIXME-20110918: this should be obtained from the request
 
 			exit;
 		}
@@ -849,6 +801,8 @@ abstract class Operation extends Object
 	 */
 	protected function reset()
 	{
+		// FIXME-20110918: the response object should be provided by the operation
+
 		$this->response = (object) array
 		(
 			'rc' => null,
@@ -858,6 +812,13 @@ abstract class Operation extends Object
 		unset($this->form);
 		unset($this->record);
 		unset($this->properties);
+
+		$key = $this->request[self::KEY];
+
+		if ($key)
+		{
+			$this->key = $key;
+		}
 	}
 
 	/**
@@ -1068,7 +1029,7 @@ abstract class Operation extends Object
 	{
 		$form = $this->form;
 
-		return ($form && $form->validate($this->params, $this->errors));
+		return ($form && $form->validate($this->request->params, $this->errors));
 	}
 
 	/**

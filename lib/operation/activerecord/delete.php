@@ -57,9 +57,9 @@ class Delete extends Operation
 			return;
 		}
 
-		if (isset($this->params['#location']))
+		if ($this->request['#location'])
 		{
-			$this->location = $this->params['#location'];
+			$this->location = $this->request['#location'];
 		}
 
 		wd_log_done('The record %key has been delete from %module.', array('%key' => $key, '%module' => $this->module->title), 'delete');

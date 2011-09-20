@@ -33,6 +33,9 @@ return array
 
 		'WdArray' => $toolkit . 'array.php',
 
+		'ICanBoogie\HTTP\Headers' => $http . 'headers.php',
+		'ICanBoogie\HTTP\Request' => $http . 'request.php',
+
 		'ICanBoogie\I18n' => $i18n . 'i18n.php',
 		'ICanBoogie\I18n\Locale' => $i18n . 'locale.php',
 		'ICanBoogie\I18n\Formatter\Date' => $i18n . 'formatter/date.php',
