@@ -36,7 +36,7 @@ class Delete extends Operation
 		+ parent::__get_controls();
 	}
 
-	protected function validate()
+	protected function validate(\ICanboogie\Errors $errors)
 	{
 		return true;
 	}
@@ -52,14 +52,14 @@ class Delete extends Operation
 
 		if (!$this->module->model->delete($key))
 		{
-			wd_log_error('Unable to delete the record %key from %module.', array('%key' => $key, '%module' => (string) $this->module));
+			$this->response->errors[] = t('Unable to delete the record %key from %module.', array('%key' => $key, '%module' => (string) $this->module));
 
 			return;
 		}
 
 		if ($this->request['#location'])
 		{
-			$this->location = $this->request['#location'];
+			$this->response->location = $this->request['#location'];
 		}
 
 		wd_log_done('The record %key has been delete from %module.', array('%key' => $key, '%module' => $this->module->title), 'delete');

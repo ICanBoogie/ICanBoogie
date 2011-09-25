@@ -96,14 +96,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 			return;
 		}
 
-		$rc = $operation($this);
-
-		if ($this->is_xhr)
-		{
-			exit;
-		}
-
-		return $rc;
+		return $operation($this);
 	}
 
 	/**

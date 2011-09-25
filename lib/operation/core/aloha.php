@@ -21,7 +21,7 @@ use ICanBoogie\Operation;
  */
 class Aloha extends Operation
 {
-	protected function validate()
+	protected function validate(\ICanboogie\Errors $errors)
 	{
 		return true;
 	}
@@ -48,13 +48,12 @@ class Aloha extends Operation
 		sort($enabled);
 		sort($disabled);
 
-		header('Content-Type: text/plain; charset=utf-8');
+		$this->response->content_type = 'text/plain';
 
 		$rc  = 'ICanBoogie v' . ICanBoogie\VERSION . ' is running here with:';
 		$rc .= PHP_EOL . PHP_EOL . implode(PHP_EOL, $enabled);
 		$rc .= PHP_EOL . PHP_EOL . 'Disabled modules:';
 		$rc .= PHP_EOL . PHP_EOL . implode(PHP_EOL, $disabled);
-		$rc .= PHP_EOL . PHP_EOL . strip_tags(implode(PHP_EOL, Debug::fetch_messages('debug')));
 
 		return $rc;
 	}

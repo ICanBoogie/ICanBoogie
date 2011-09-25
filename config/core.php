@@ -35,6 +35,7 @@ return array
 
 		'ICanBoogie\HTTP\Headers' => $http . 'headers.php',
 		'ICanBoogie\HTTP\Request' => $http . 'request.php',
+		'ICanBoogie\HTTP\Response' => $http . 'response.php',
 
 		'ICanBoogie\I18n' => $i18n . 'i18n.php',
 		'ICanBoogie\I18n\Locale' => $i18n . 'locale.php',
@@ -56,7 +57,8 @@ return array
 		'ICanBoogie\Operation\ActiveRecord\Delete' => $operation . 'activerecord/delete.php',
 		'ICanBoogie\Operation\ActiveRecord\Save' => $operation . 'activerecord/save.php',
 		'ICanBoogie\Operation\Core\Aloha' => $operation . 'core/aloha.php',
-		'ICanBoogie\Operation\Core\Ping' => $operation . 'core/ping.php'
+		'ICanBoogie\Operation\Core\Ping' => $operation . 'core/ping.php',
+		'ICanBoogie\Operation\Response' => $operation . 'response.php'
 	),
 
 	'cache configs' => false,

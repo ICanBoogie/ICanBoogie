@@ -443,6 +443,11 @@ class Core extends Object
 
 	protected function run_request(HTTP\Request $request)
 	{
-		$operation = $request();
+		$response = $request();
+
+		if ($response)
+		{
+			$response();
+		}
 	}
 }

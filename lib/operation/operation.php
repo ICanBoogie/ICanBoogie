@@ -372,8 +372,6 @@ abstract class Operation extends Object
 	protected $request;
 
 	public $response;
-	public $terminus = false;
-	public $location;
 	public $method;
 
 	/**
@@ -484,16 +482,6 @@ abstract class Operation extends Object
 		return array();
 	}
 
-	/**
-	 * Returns the object use to log errors.
-	 *
-	 * @return Errors
-	 */
-	protected function __get_errors()
-	{
-		return new Errors();
-	}
-
 	const T_PARENT = 'parent';
 
 	protected $parent;
@@ -546,9 +534,8 @@ abstract class Operation extends Object
 	 * -------------------
 	 *
 	 * The operation result is saved in a _response_ object, which may contain meta data describing
-	 * or accompanying the result. Operations can use the response object to provide additional
-	 * information with the result they return. For example, the `Operation` class returns the
-	 * success and error messages in the `log` property.
+	 * or accompanying the result. For example, the `Operation` class returns success and error
+	 * messages in the `success` and `errors` properties.
 	 *
 	 * Depending on the `Accept` header of the request, the response object can be formated as
 	 * JSON or XML. If the `Accept` header is "application/json" the response is formated as JSON.
@@ -619,7 +606,7 @@ abstract class Operation extends Object
 	 *
 	 * @param HTTP\Request $request The request triggering the operation.
 	 *
-	 * @return mixed The result of the operation.
+	 * @return Response The response of the operation.
 	 */
 	public function __invoke(HTTP\Request $request)
 	{
@@ -629,18 +616,15 @@ abstract class Operation extends Object
 		$this->reset();
 
 		$rc = null;
+		$response = $this->response;
 
 		if (!$this->control($this->controls))
 		{
 			Event::fire('failure', array('type' => 'control', 'request' => $request), $this);
-
-			wd_log('Operation control failed.');
 		}
-		else if (!$this->validate())
+		else if (!$this->validate($response->errors))
 		{
 			Event::fire('failure', array('type' => 'validation', 'request' => $request), $this);
-
-			wd_log('Operation validation failed.');
 		}
 		else
 		{
@@ -649,7 +633,7 @@ abstract class Operation extends Object
 			$rc = $this->process();
 		}
 
-		$this->response->rc = $rc;
+		$response->rc = $rc;
 
 		#
 		# If the operation succeed (its result is not null), the 'operation.<name>' event is fired.
@@ -660,136 +644,51 @@ abstract class Operation extends Object
 
 		if ($rc === null)
 		{
-			if (self::$nesting == 1 && !headers_sent())
+			if (self::$nesting == 1)
 			{
-				header('HTTP/1.0 400 Operation failed');
+				$response->status = array(400, 'Operation failed');
 			}
 		}
 		else
 		{
-			Event::fire('process', array('rc' => &$this->response->rc, 'request' => $request), $this);
+			Event::fire('process', array('rc' => &$response->rc, 'response' => $response, 'request' => $request), $this);
 		}
 
 		if (--self::$nesting || $this->origin == self::ORIGIN_INTERNAL)
 		{
-			return $this->response->rc;
+			return $response;
 		}
 
-		$terminus = $this->terminus;
-		$location = $this->location;
+		/*
+		 * Operation\Request rewrites the response body if the body is null, but we only want that
+		 * for XHR request, so we need to set the response body to some value, which should be
+		 * the operation result, or an empty string of the request is redirected.
+		 */
 
-		#
-		# The operation response can be requested as JSON or XML, in which case the script is
-		# terminated with the formated output of the response.
-		#
-
-		$rc = null;
-		$rc_type = null;
-
-		// FIXME-20101117: using $_SERVER is too global, we have to use an object related property
-
-		$accept = $request->headers['Accept'];
-
-		if ($accept)
+		if ($request->is_xhr)
 		{
-			foreach (self::$formats as $format)
-			{
-				list($format_mime, $format_callback) = $format;
-
-				if ($format_mime != $accept)
-				{
-					continue;
-				}
-
-				$success = Debug::fetch_messages('done');
-
-				if ($success)
-				{
-					$this->response->log['success'] = $success;
-				}
-
-				if (isset($this->errors) && count($this->errors))
-				{
-					$errors = array();
-
-					foreach ($this->errors as $identifier => $message)
-					{
-						if (!$identifier)
-						{
-							$identifier = '_base';
-						}
-
-						if (isset($errors[$identifier]))
-						{
-							$errors[$identifier] .= '; ' . $message;
-						}
-						else
-						{
-							$errors[$identifier] = $message;
-						}
-					}
-
-					$this->response->errors = $errors;
-				}
-				else
-				{
-					$this->response->errors = null;
-				}
-
-				$rc = $this->$format_callback();
-
-				header('Content-Type: ' . $format_mime);
-				header('Content-Length: '. strlen($rc));
-
-				$location = false;
-				$terminus = true;
-
-				break;
-			}
+			$response->content_type = $request->headers['Accept'];
+			$response->location = null;
 		}
-
-		if ($location && !headers_sent())
+		else if ($response->location)
 		{
-			header('Location: ' . $location);
-			header('Referer: ' . $_SERVER['REQUEST_URI']); // FIXME-20110918: this should be obtained from the request
-
-			exit;
+			$response->body = '';
+			$response->headers['Referer'] = $_SERVER['REQUEST_URI']; // FIXME-20110918: this should be obtained from the request
 		}
-
-		#
-		# If the `terminus` is set the script stops.
-		#
-		# note: The remaining messages in the Debug class logs are added in the HTTP header. This
-		# might be usefull for debugging.
-		#
-
-		if ($terminus)
+		else if ($response->status == 304)
 		{
-			if (!headers_sent())
-			{
-				$logs = array('done', 'error', 'debug');
-
-				foreach ($logs as $type)
-				{
-					$n = 1;
-
-					foreach (Debug::fetch_messages($type) as $message)
-					{
-						$message = strip_tags($message);
-						$message = str_replace("\r\n", "\n", $message);
-						$message = str_replace("\n", ' ### ', $message);
-
-						header(sprintf('X-Code-Debug-%s-%04d: %s', $type, $n++, $message));
-					}
-				}
-			}
-
-			echo $rc ? $rc : $this->response->rc;
-
-			exit;
+			$response->body = '';
+		}
+		else if (is_bool($response->rc))
+		{
+			return;
+		}
+		else
+		{
+			$response->body = $response->rc;
 		}
 
-		return $this->response->rc;
+		return $response;
 	}
 
 	/**
@@ -801,13 +700,7 @@ abstract class Operation extends Object
 	 */
 	protected function reset()
 	{
-		// FIXME-20110918: the response object should be provided by the operation
-
-		$this->response = (object) array
-		(
-			'rc' => null,
-			'log' => array()
-		);
+		$this->response = new Operation\Response;
 
 		unset($this->form);
 		unset($this->record);
@@ -962,7 +855,9 @@ abstract class Operation extends Object
 	{
 		global $core;
 
-		return isset($_POST['_session_token']) && $_POST['_session_token'] == $core->session->token;
+		$request = $this->request;
+
+		return isset($request->request_parameters['_session_token']) && $request->request_parameters['_session_token'] == $core->session->token;
 	}
 
 	/**
@@ -1029,7 +924,7 @@ abstract class Operation extends Object
 	{
 		$form = $this->form;
 
-		return ($form && $form->validate($this->request->params, $this->errors));
+		return ($form && $form->validate($this->request->params, $this->response->errors));
 	}
 
 	/**
@@ -1041,7 +936,7 @@ abstract class Operation extends Object
 	 *
 	 * @return bool true if the operation is valid, false otherwise.
 	 */
-	abstract protected function validate();
+	abstract protected function validate(Errors $errors);
 
 	/**
 	 * Processes the operation.
@@ -1051,24 +946,4 @@ abstract class Operation extends Object
 	 * @return mixed Depends on the implementation.
 	 */
 	abstract protected function process();
-
-	/**
-	 * Formats the operation response to the JSON format.
-	 *
-	 * @return string
-	 */
-	protected function format_json()
-	{
-		return json_encode($this->response);
-	}
-
-	/**
-	 * Formats the operation response to the XML format.
-	 *
-	 * @return string
-	 */
-	protected function format_xml()
-	{
-		return wd_array_to_xml($this->response, 'response');
-	}
 }

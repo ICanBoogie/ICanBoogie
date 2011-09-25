@@ -21,7 +21,7 @@ use ICanBoogie\Session;
  */
 class Ping extends Operation
 {
-	protected function validate()
+	protected function validate(\ICanboogie\Errors $errors)
 	{
 		return true;
 	}
@@ -30,7 +30,7 @@ class Ping extends Operation
 	{
 		global $core, $wddebug_time_reference;
 
-		header('Content-Type: text/plain; charset=utf-8');
+		$this->response->content_type = 'text/plain';
 
 		if (Session::exists())
 		{
@@ -39,7 +39,7 @@ class Ping extends Operation
 
 		$rc = 'pong';
 
-		if (isset($_GET['timer']))
+		if ($this->request['timer'] !== null)
 		{
 			$rc .= ', in ' . number_format(microtime(true) - $wddebug_time_reference, 3, '.', '') . ' secs.';
 		}
