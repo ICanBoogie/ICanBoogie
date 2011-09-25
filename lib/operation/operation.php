@@ -31,7 +31,7 @@ abstract class Operation extends Object
 	);
 
 	/**
-	 * Decodes the specified request into an Operation instance.
+	 * Creates an Operation instance from a request.
 	 *
 	 * An operation can be defined as a route, in which case the path of the request starts with
 	 * "/api/". An operation can also be defined using the request parameters, in which case
@@ -45,15 +45,15 @@ abstract class Operation extends Object
 	 * route.
 	 *
 	 * If no matching route could be found, the method tries to extract the DESTINATION, NAME and
-	 * optional KEY parameters from the URL using the `/api/:destination(/:key)/:name` pattern.
-	 * If the URL matches this pattern, captured parameters are merged with the request
+	 * optional KEY parameters from the route using the `/api/:destination(/:key)/:name` pattern.
+	 * If the route matches this pattern, captured parameters are merged with the request
 	 * parameters and the operation decoding continues as if the operation was defined using
 	 * parameters instead of the REST API.
 	 *
 	 * Finally, the method searches for the DESTINATION, NAME and optional KEY aparameters within
 	 * the request parameters to create the Operation instance.
 	 *
-	 * If no operation was found in the request, the method simply returns.
+	 * If no operation was found in the request, the method returns null.
 	 *
 	 *
 	 * Instancing using the matching route

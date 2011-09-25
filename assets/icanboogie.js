@@ -40,6 +40,13 @@
 			options.url = api_base + options.url;
 
 			this.parent(options);
+		},
+
+		onFailure: function()
+		{
+			var response = JSON.decode(this.xhr.responseText);
+
+			this.fireEvent('complete').fireEvent('failure', [this.xhr, response]);
 		}
 	});
 

@@ -110,19 +110,12 @@ EOT;
 
 		if ($config['stackTrace'])
 		{
-			$m = self::format_trace($stack);
-			$more .= "\n" . $m;
+			$more .= self::format_trace($stack);
 		}
 
 		if ($config['codeSample'])
 		{
-			$m = self::format_line($file, $line);
-			$more .= "\n" . $m;
-		}
-
-		if ($more)
-		{
-			$more = "\n" . $more;
+			$more .= self::format_line($file, $line);
 		}
 
 		$rc = <<<EOT
@@ -182,25 +175,17 @@ EOT;
 
 		$file = $caller['file'];
 		$line = $caller['line'];
+		$stack = self::format_trace($stack);
 
-		$lines = array
-		(
-			'<strong>Backtrace with the following message:</strong><br />',
-			$message . '<br />',
-			'in <em>' . $file . '</em> at line <em>' . $line . '</em><br />'
-		);
+		$rc = <<<EOT
+<pre class="alert-message debug">
+<strong>Backtrace with the following message:</strong>
 
-		#
-		# stack
-		#
+$message
 
-		$lines = array_merge($lines, self::format_trace($stack));
-
-		#
-		#
-		#
-
-		$rc = '<pre class="wd-core-debug"><code>' . implode("<br />\n", $lines) . '</code></pre><br />';
+in <em>$file</em> at line <em>$line</em>$stack
+</pre>
+EOT;
 
 		self::report($rc);
 
@@ -249,7 +234,7 @@ EOT;
 		$count = count($trace);
 		$count_max = strlen((string) $count);
 
-		$rc = "<strong>Stack trace:</strong>\n";
+		$rc = "\n\n<strong>Stack trace:</strong>\n";
 
 		foreach ($trace as $i => $node)
 		{
@@ -331,9 +316,7 @@ EOT;
 
 $message
 
-→ in <em>$path</em> at line <em>$line</em>
-
-$trace
+in <em>$path</em> at line <em>$line</em>$trace
 </pre>
 EOT;
 	}
@@ -371,11 +354,7 @@ EOT;
 			$sample .= "\n" . $str;
 		}
 
-		return <<<EOT
-
-<strong>Code sample:</strong>
-$sample
-EOT;
+		return "\n\n<strong>Code sample:</strong>\n$sample";
 	}
 
 	static public function report($message)
@@ -392,17 +371,19 @@ EOT;
 		# add location information
 		#
 
-		$message .= '<br /><br /><strong>Request URI:</strong><br /><br />' . wd_entities($_SERVER['REQUEST_URI']);
+		$more = "\n\n<strong>Request URI:</strong>\n\n" . wd_entities($_SERVER['REQUEST_URI']);
 
 		if (isset($_SERVER['HTTP_REFERER']))
 		{
-			$message .= '<br /><br /><strong>Referer:</strong><br /><br />' . wd_entities($_SERVER['HTTP_REFERER']);
+			$more = "\n\n<strong>Referer:</strong>\n\n" . wd_entities($_SERVER['HTTP_REFERER']);
 		}
 
 		if (isset($_SERVER['HTTP_USER_AGENT']))
 		{
-			$message .= '<br /><br /><strong>User Agent:</strong><br /><br />' . wd_entities($_SERVER['HTTP_USER_AGENT']);
+			$more = "\n\n<strong>User Agent:</strong>\n\n" . wd_entities($_SERVER['HTTP_USER_AGENT']);
 		}
+
+		$message = str_replace('</pre>', $more . '</pre>', $message);
 
 		#
 		# during the same session, same messages are only reported once
@@ -437,7 +418,7 @@ EOT;
 			$headers .= $key .= ': ' . $value . "\r\n";
 		}
 
-		mail($reportAddress, 'ICanBoogie\Debug: Report from ' . $host, $message, $headers);
+		mail($reportAddress, __CLASS__ . ': Report from ' . $host, $message, $headers);
 	}
 
 	static $logs = array();
