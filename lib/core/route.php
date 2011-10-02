@@ -79,18 +79,49 @@ class Route
 	 */
 	public static function routes_constructor(array $fragments)
 	{
+		global $core;
+
+		$paths = array();
+
+		foreach ($core->modules->descriptors as $module_id => $descriptor)
+		{
+			$paths[$descriptor[Module::T_PATH]] = $module_id;
+		}
+
 		$routes = array();
 
-		foreach ($fragments as $fragment)
+		foreach ($fragments as $path => $fragment)
 		{
-			foreach ($fragment as $pattern => $route)
+			$module_id = isset($paths[$path]) ? $paths[$path] : null;
+
+			foreach ($fragment as $id => $route)
 			{
-				if ($pattern{0} != '/')
+				if ($id{0} === '!')
 				{
-					continue;
+					$id = "$module_id:admin/" . substr($id, 1);
+				}
+				else if (empty($route['pattern']))
+				{
+					throw new \LogicException(t
+					(
+						"Route %route_id has no pattern in %path. !route", array
+						(
+							'%route_id' => $id,
+							'%path' => $path,
+							'!route' => $route
+						)
+					));
+				}
+				else if ($id{0} === ':' && $module_id)
+				{
+					$id = $module_id . $id;
 				}
 
-				$routes[$pattern] = $route;
+				$routes[$id] = $route + array
+				(
+					'pattern' => null,
+					'via' => 'any'
+				);
 			}
 		}
 
@@ -105,16 +136,34 @@ class Route
 	 * @param array $route The route definition for the pattern, or nothing if the pattern is
 	 * actually a set of routes.
 	 */
-	public static function add($pattern, array $route=array())
+	public static function add($id, array $route=array())
 	{
-		if (is_array($pattern))
+		if (is_array($id))
 		{
-			self::$routes = $pattern + self::$routes;
+			foreach ($id as $i => $route)
+			{
+				static::add($i, $route);
+			}
 
 			return;
 		}
 
-		self::$routes[$pattern] = $route;
+		if (empty($route['pattern']))
+		{
+			throw new \LogicException(t
+			(
+				"Route %id has no pattern. !route", array
+				(
+					'%id' => $id,
+					'!route' => $route
+				)
+			));
+		}
+
+		self::$routes[$id] = $route + array
+		(
+			'via' => 'any'
+		);
 	}
 
 	/**
@@ -216,12 +265,30 @@ class Route
 		return array_combine($params, $values);
 	}
 
-	public static function find($uri)
+	public static function find($uri, $method='any', $namespace=null)
 	{
 		$routes = self::routes();
+		$namespace_length = 0;
 
-		foreach ($routes as $pattern => $route)
+		if ($namespace)
 		{
+			$namespace = '/' . $namespace . '/';
+		}
+
+		foreach ($routes as $id => $route)
+		{
+			if ($id{0} === '!')
+			{
+				continue;
+			}
+
+			$pattern = $route['pattern'];
+
+			if ($namespace && strpos($pattern, $namespace) !== 0)
+			{
+				continue;
+			}
+
 			$match = self::match($uri, $pattern);
 
 			if (!$match)
@@ -229,7 +296,22 @@ class Route
 				continue;
 			}
 
-			return array($route, $match, $pattern);
+			$route_method = $route['via'];
+
+			if (is_array($route_method))
+			{
+				if (in_array($method, $route_method))
+				{
+					return array($route, $match, $pattern, $id);
+				}
+			}
+			else
+			{
+				if ($route_method === 'any' || $route_method === $method)
+				{
+					return array($route, $match, $pattern, $id);
+				}
+			}
 		}
 	}
 
