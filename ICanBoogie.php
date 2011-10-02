@@ -56,13 +56,21 @@ else
 	$_SERVER['REQUEST_PATH'] = $_SERVER['REQUEST_URI'];
 }
 
-require_once ROOT . '/lib/toolkit/helpers.php';
-require_once ROOT . '/lib/i18n/helpers.php';
-require_once ROOT . '/lib/core/debug.php';
-require_once ROOT . '/lib/core/object.php';
-require_once ROOT . '/lib/core/accessor/configs.php';
-require_once ROOT . '/lib/core/core.php';
-require_once ROOT . '/lib/i18n/translator.php'; // TODO-20110716: this is required because of the `format` function used by Debug. We should externalize the function as an helper.
+require_once ROOT . 'lib/toolkit/helpers.php';
+require_once ROOT . 'lib/i18n/helpers.php';
+
+if (file_exists(DOCUMENT_ROOT . 'repository/cache/icanboogie_bootstrap'))
+{
+	require_once DOCUMENT_ROOT . 'repository/cache/icanboogie_bootstrap';
+}
+else
+{
+	require_once ROOT . 'lib/core/debug.php';
+	require_once ROOT . 'lib/core/object.php';
+	require_once ROOT . 'lib/core/accessor/configs.php';
+	require_once ROOT . 'lib/core/core.php';
+	require_once ROOT . 'lib/i18n/translator.php'; // TODO-20110716: this is required because of the `format` function used by Debug. We should externalize the function as an helper.
+}
 
 /* TODO-20110716: THE FOLLOWING FUNCTIONS SHOULD BE MOVED TO OTHER PLACES */
 

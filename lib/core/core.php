@@ -396,6 +396,11 @@ class Core extends Object
 // 		wd_log_time('run request start');
 		$this->run_request($this->request);
 // 		wd_log_time('run request finish');
+
+		if ($this->config['cache bootstrap'])
+		{
+			$this->compact_classes();
+		}
 	}
 
 	/**
@@ -450,4 +455,57 @@ class Core extends Object
 			$response();
 		}
 	}
+
+	/**
+	 * Joins all declared classes also defined in the autoload index into a single file.
+	 */
+	protected function compact_classes()
+	{
+		$path = DOCUMENT_ROOT . 'repository/cache/icanboogie_bootstrap';
+
+		if (file_exists($path))
+		{
+			return;
+		}
+
+		$classes = get_declared_classes();
+		$autoload = self::$autoload;
+
+		$order = array_intersect_key(array_flip($classes), $autoload);
+
+		$included = array();
+		$out = fopen($path, 'w');
+
+		fwrite($out, '<?php' . PHP_EOL . PHP_EOL);
+
+		foreach ($order as $class => $weight)
+		{
+			$path = $autoload[$class];
+
+			if (isset($included[$path]))
+			{
+				continue;
+			}
+
+			$included[$path] = true;
+
+			$in = file_get_contents($path);
+
+			$in = preg_replace('#^\<\?php\s+#', '', $in);
+			$in = preg_replace('#^\/\*.+\*\/\s+#Us', '', $in);
+			$in = trim($in);
+			$in = "// original location: $path\n\n" . $in . PHP_EOL . PHP_EOL;
+
+			fwrite($out, $in, strlen($in));
+		}
+
+		fclose($out);
+	}
 }
+
+/*
+ * Possessions don't touch you in your heart.
+ * Possessions only tear you appart.
+ * Possessions cannot kiss you good night.
+ * Possessions will never hold you tight.
+ */

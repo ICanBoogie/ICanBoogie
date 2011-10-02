@@ -17,8 +17,10 @@ return array
 		'ICanBoogie\Accessor\Models' => $core . 'accessor/models.php',
 		'ICanBoogie\Accessor\Modules' => $core . 'accessor/modules.php',
 		'ICanBoogie\Accessor\Vars' => $core . 'accessor/vars.php',
+		'ICanBoogie\Core' => $core . 'core.php',
 		'ICanBoogie\Database' => $core . 'database.php',
 		'ICanBoogie\DatabaseTable' => $core . 'databasetable.php',
+		'ICanBoogie\Debug' => $core . 'debug.php',
 		'ICanBoogie\Event' => $core . 'event.php',
 		'ICanBoogie\Exception' => $core . 'exception.php',
 		'ICanBoogie\Exception\HTTP' => $core . 'exception.php',
@@ -44,7 +46,6 @@ return array
 		'ICanBoogie\I18n\Translator' => $i18n . 'translator.php',
 		'ICanBoogie\I18n\Translator\Proxi' => $i18n . 'proxi.php',
 
-		'ICanBoogie\Debug' => $toolkit . 'debug.php',
 		'ICanBoogie\Errors' => $toolkit . 'errors.php',
 		'ICanBoogie\FileCache' => $toolkit . 'filecache.php',
 		'ICanBoogie\Hook' => $toolkit . 'hook.php',
@@ -61,9 +62,10 @@ return array
 		'ICanBoogie\Operation\Response' => $operation . 'response.php'
 	),
 
+	'cache bootstrap' => true,
+	'cache catalogs' => false,
 	'cache configs' => false,
 	'cache modules' => false,
-	'cache catalogs' => false,
 
 	'classes aliases' => array
 	(
