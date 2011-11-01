@@ -62,7 +62,7 @@ return array
 		'ICanBoogie\Operation\Response' => $operation . 'response.php'
 	),
 
-	'cache bootstrap' => true,
+	'cache bootstrap' => false,
 	'cache catalogs' => false,
 	'cache configs' => false,
 	'cache modules' => false,

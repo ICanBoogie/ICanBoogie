@@ -41,21 +41,11 @@ define('ICanBoogie\CACHE_ACTIVERECORDS', false);
 /**
  * @var string Version string of the ICanBoogie framework.
  */
-define('ICanBoogie\VERSION', '0.11.0-dev (2011-08-01)');
+define('ICanBoogie\VERSION', '0.12.0-dev (2011-11-01)');
 
-/**
- * @var string The request path string correspond to the REQUEST_URI stripped of its QUERY_STRING.
- * It is added to the $_SERVER global array as 'REQUEST_PATH'.
+/*
+ * bootstrap
  */
-if ($_SERVER['QUERY_STRING'])
-{
-	$_SERVER['REQUEST_PATH'] = substr($_SERVER['REQUEST_URI'], 0, -strlen($_SERVER['QUERY_STRING']) - 1);
-}
-else
-{
-	$_SERVER['REQUEST_PATH'] = $_SERVER['REQUEST_URI'];
-}
-
 require_once ROOT . 'lib/toolkit/helpers.php';
 require_once ROOT . 'lib/i18n/helpers.php';
 
@@ -66,6 +56,7 @@ if (file_exists(DOCUMENT_ROOT . 'repository/cache/icanboogie_bootstrap'))
 else
 {
 	require_once ROOT . 'lib/core/debug.php';
+	require_once ROOT . 'lib/core/exception.php';
 	require_once ROOT . 'lib/core/object.php';
 	require_once ROOT . 'lib/core/accessor/configs.php';
 	require_once ROOT . 'lib/core/core.php';
@@ -113,4 +104,9 @@ function singularize($string)
 	);
 
 	return preg_replace(array_keys($rules), $rules, $string);
+}
+
+function format($str, $args=array())
+{
+	return I18n\Translator::format($str, $args);
 }

@@ -59,6 +59,10 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 
 	/**
 	 * The index for the available modules is created with the accessor object.
+	 *
+	 * @param array $paths The paths to look for modules.
+	 * @param bool $use_cache Should we use a cache for the module index ?
+	 * @param string $cache_repository The path to the cache repository.
 	 */
 	public function __construct($paths, $use_cache=false, $cache_repository='/repository/cache/core')
 	{

@@ -339,6 +339,9 @@ class Core extends Object
 	 * Returns the timezone used by the framework.
 	 *
 	 * @return string The timezone used by the framework.
+	 *
+	 * @todo should retrun an instance of http://php.net/manual/en/class.datetimezone.php,
+	 * __toString() should return its name.
 	 */
 	protected function __volatile_get_timezone()
 	{

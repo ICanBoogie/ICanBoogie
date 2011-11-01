@@ -311,7 +311,7 @@ EOT;
 		$path = wd_strip_root($path);
 
 		return <<<EOT
-<pre class="alter-message exception">
+<pre class="alert-message exception">
 <strong>$type with the following message:</strong>
 
 $message
