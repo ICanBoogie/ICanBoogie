@@ -346,6 +346,19 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		}
 	}
 
+	protected function __get_uri()
+	{
+		return $this->env['REQUEST_URI'];
+	}
+
+	protected function __set_uri($uri)
+	{
+		unset($this->path);
+		unset($this->query_string);
+
+		$this->env['REQUEST_URI'] = $uri;
+	}
+
 	protected function __get_path()
 	{
 		$path = $this->env['REQUEST_URI'];
@@ -357,6 +370,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		}
 
 		return $path;
+	}
+
+	protected function __get_extension()
+	{
+		return pathinfo($this->path, PATHINFO_EXTENSION);
 	}
 
 	protected function __get_params()
