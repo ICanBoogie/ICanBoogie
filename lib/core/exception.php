@@ -145,6 +145,171 @@ class Exception extends \Exception
 
 namespace ICanBoogie\Exception;
 
+/**
+ * Thrown when there is something wrong with a property.
+ *
+ * This is the root class for property exception, one should rather use the PropertyNotFound,
+ * PropertyNotReadable or PropertyNotWritable subclasses.
+ */
+class Property extends \RuntimeException
+{
+
+}
+
+/**
+ * Thrown when a property could not be found.
+ *
+ * For example, this could be triggered by an index out of bounds while setting an array value, or
+ * by an unreadable property while getting the value of an object.
+ */
+class PropertyNotFound extends Property
+{
+	public function __construct($message='', $code=0, $previous=null)
+	{
+		if (is_array($message))
+		{
+			list($property, $container) = $message + array(1 => null);
+
+			if (is_object($container))
+			{
+				$message = \ICanBoogie\format
+				(
+					'Unknown property %property for object of class %class.', array
+					(
+						'property' => $property,
+						'class' => get_class($container)
+					)
+				);
+			}
+			else if (is_array($container))
+			{
+				$message = \ICanBoogie\format
+				(
+					'Unknown index %property for the array: !array', array
+					(
+						'property' => $property,
+						'array' => $container
+					)
+				);
+			}
+			else
+			{
+				$message = \ICanBoogie\format
+				(
+					'Unknown property %property.', array
+					(
+						'property' => $property
+					)
+				);
+			}
+		}
+
+		parent::__construct($message, $code, $previous);
+	}
+}
+
+/**
+ * Thrown when a property is not readable.
+ *
+ * For example, this could be triggered when a private property is read from a public scope.
+ */
+class PropertyNotReadable extends Property
+{
+	public function __construct($message='', $code=0, $previous=null)
+	{
+		if (is_array($message))
+		{
+			list($property, $container) = $message + array(1 => null);
+
+			if (is_object($container))
+			{
+				$message = \ICanBoogie\format
+				(
+					'The property %property for object of class %class is not readable.', array
+					(
+						'property' => $property,
+						'class' => get_class($container)
+					)
+				);
+			}
+			else if (is_array($container))
+			{
+				$message = \ICanBoogie\format
+				(
+					'The index %property is not readable for the array: !array', array
+					(
+						'property' => $property,
+						'array' => $container
+					)
+				);
+			}
+			else
+			{
+				$message = \ICanBoogie\format
+				(
+					'The property %property is not readable.', array
+					(
+						'property' => $property
+					)
+				);
+			}
+		}
+
+		parent::__construct($message, $code, $previous);
+	}
+}
+
+/**
+ * Thrown when a property is not writable.
+ *
+ * For example, this could be triggered when a private property is written from a public scope.
+ */
+class PropertyNotWritable extends Property
+{
+	public function __construct($message='', $code=0, $previous=null)
+	{
+		if (is_array($message))
+		{
+			list($property, $container) = $message + array(1 => null);
+
+			if (is_object($container))
+			{
+				$message = \ICanBoogie\format
+				(
+					'The property %property for object of class %class is not writable.', array
+					(
+						'property' => $property,
+						'class' => get_class($container)
+					)
+				);
+			}
+			else if (is_array($container))
+			{
+				$message = \ICanBoogie\format
+				(
+					'The index %property is not writable for the array: !array', array
+					(
+						'property' => $property,
+						'array' => $container
+					)
+				);
+			}
+			else
+			{
+				$message = \ICanBoogie\format
+				(
+					'The property %property is not writable.', array
+					(
+						'property' => $property
+					)
+				);
+			}
+		}
+
+		parent::__construct($message, $code, $previous);
+	}
+}
+
 class HTTP extends \ICanBoogie\Exception
 {
 	public function __toString()

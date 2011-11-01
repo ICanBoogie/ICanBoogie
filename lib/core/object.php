@@ -277,7 +277,7 @@ class Object
 	/**
 	 * Returns the value of an innaccessible property.
 	 *
-	 * Multiple callbacks are tried in order to retrieve the value of the property :
+	 * Multiple callbacks are tried in order to retrieve the value of the property:
 	 *
 	 * 1. `__volatile_get_<property>`: Get and return the value of the property.The callback may
 	 * not be defined by the object's class, but one can extend the class using the mixin features
@@ -289,6 +289,13 @@ class Object
 	 * property.
 	 *
 	 * @param string $property
+	 *
+	 * @throws Exception\PropertyNotReadable when the property has a protected or private scope and
+	 * no suitable callback to retrieve its value.
+	 *
+	 * @throws Exception\PropertyNotFound when the property is undefined and there is no suitable
+	 * callback to retrieve its values.
+	 *
 	 * @return mixed The value of the innaccessible property. `null` is returned if the property
 	 * could not be retrieved, in which case an exception is raised.
 	 */
@@ -317,7 +324,7 @@ class Object
 
 		if ($getter)
 		{
-			return $this->$property = call_user_func($getter, $this, $property);
+			return call_user_func($getter, $this, $property);
 		}
 
 		$getter = $this->find_method_callback('__get_' . $property);
@@ -338,31 +345,35 @@ class Object
 			return $this->$property = $rc;
 		}
 
+		$reflexion_class = new \ReflectionClass($this);
+
+		try
+		{
+			$reflexion_property = $reflexion_class->getProperty($property);
+
+			throw new Exception\PropertyNotReadable(array($property, $this));
+		}
+		catch (\ReflectionException $e) { }
+
 		$properties = array_keys(get_object_vars($this));
 
 		if ($properties)
 		{
-			throw new Exception
+			throw new Exception\PropertyNotFound
 			(
-				'Unknow property %property for object of class %class (available properties: :list).', array
+				\ICanBoogie\format
 				(
-					'%property' => $property,
-					'%class' => get_class($this),
-					':list' => implode(', ', $properties)
+					'Unknow or unaccessible property %property for object of class %class (available properties: :list).', array
+					(
+						'property' => $property,
+						'class' => get_class($this),
+						'list' => implode(', ', $properties)
+					)
 				)
 			);
 		}
-		else
-		{
-			throw new Exception
-			(
-				'Unknow property %property for object of class %class (the object has no accessible property).', array
-				(
-					'%property' => $property,
-					'%class' => get_class($this)
-				)
-			);
-		}
+
+		throw new Exception\PropertyNotFound(array($property, $this));
 	}
 
 	protected function __defer_get($property, &$success)
@@ -431,22 +442,11 @@ class Object
 		}
 		*/
 
-		if (0)
+		$properties = get_object_vars($this);
+
+		if (array_key_exists($property, $properties))
 		{
-			echo "set $property<br />";
-
-			$class = get_class($this);
-			$reflection = new \ReflectionClass($class);
-
-			$properties = $reflection->getProperties(\ReflectionProperty::IS_PRIVATE | \ReflectionProperty::IS_PROTECTED);
-
-			foreach ($properties as $p)
-			{
-				if ($p->name == $property)
-				{
-					throw new Exception('Cannot access private/protected property %property', array('%property' => $class . '::' . $property));
-				}
-			}
+			throw new Exception\PropertyNotWritable(array($property, $this));
 		}
 
 		$this->$property = $value;
