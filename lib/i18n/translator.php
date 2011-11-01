@@ -326,7 +326,7 @@ class Translator extends Object implements \ArrayAccess
 			}
 			else if (is_bool($value))
 			{
-				$value = $value ? 'true' : 'false';
+				$value = $value ? '<em>true</em>' : '<em>false</em>';
 			}
 			else if (is_null($value))
 			{
@@ -339,10 +339,19 @@ class Translator extends Object implements \ArrayAccess
 					case ':': break;
 					case '!': $value = wd_entities($value); break;
 					case '%': $value = '<q>' . wd_entities($value) . '</q>'; break;
+
+					default:
+					{
+						$escaped_value = wd_entities($value);
+
+						$holders["!$key"] = $escaped_value;
+						$holders["%$key"] = '<q>' . $escaped_value . '</q>';
+
+						$key = ":$key";
+					}
 				}
 			}
-
-			if (is_numeric($key))
+			else if (is_numeric($key))
 			{
 				$key = '\\' . $i;
 				$holders['{' . $i . '}'] = $value;
