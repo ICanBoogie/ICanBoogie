@@ -211,16 +211,18 @@ class Object
 	 *
 	 * @return array The callbacks associated with the class of the object.
 	 */
-	protected static function find_external_methods($class)
+	protected static function find_external_methods()
 	{
 		global $core;
+
+		$class = get_called_class();
 
 		if (isset(self::$class_methods[$class]))
 		{
 			return self::$class_methods[$class];
 		}
 
-		if (self::$methods === null)
+		if (self::$methods === null && isset($core))
 		{
 			self::$methods = $core->configs['methods'];
 		}
@@ -255,7 +257,7 @@ class Object
 	 */
 	public function __call($method, $arguments)
 	{
-		$callback = $this->find_method_callback($method);
+		$callback = static::find_method_callback($method);
 
 		if (!$callback)
 		{
@@ -320,14 +322,14 @@ class Object
 		# in the methods.
 		#
 
-		$getter = $this->find_method_callback('__volatile_get_' . $property);
+		$getter = static::find_method_callback('__volatile_get_' . $property);
 
 		if ($getter)
 		{
 			return call_user_func($getter, $this, $property);
 		}
 
-		$getter = $this->find_method_callback('__get_' . $property);
+		$getter = static::find_method_callback('__get_' . $property);
 
 		if ($getter)
 		{
@@ -417,15 +419,6 @@ class Object
 			return $this->$setter($value);
 		}
 
-		/*
-		$setter = $this->find_method_callback($setter);
-
-		if ($setter)
-		{
-			return $this->$property = call_user_func($setter, $this, $property, $value);
-		}
-		*/
-
 		$setter = '__set_' . $property;
 
 		if (method_exists($this, $setter))
@@ -434,7 +427,14 @@ class Object
 		}
 
 		/*
-		$setter = $this->find_method_callback($setter);
+		$setter = static::find_method_callback('__volatile_set_' . $property);
+
+		if ($setter)
+		{
+			return call_user_func($setter, $this, $property, $value);
+		}
+
+		$setter = static::find_method_callback('__set_' . $property);
 
 		if ($setter)
 		{
@@ -475,7 +475,7 @@ class Object
 			return true;
 		}
 
-		$getter = $this->find_method_callback($getter);
+		$getter = static::find_method_callback($getter);
 
 		if ($getter)
 		{
@@ -489,7 +489,7 @@ class Object
 			return true;
 		}
 
-		$getter = $this->find_method_callback($getter);
+		$getter = static::find_method_callback($getter);
 
 		if ($getter)
 		{
@@ -516,7 +516,7 @@ class Object
 	 */
 	public function has_method($method)
 	{
-		return method_exists($this, $method) || $this->find_method_callback($method);
+		return method_exists($this, $method) || static::find_method_callback($method);
 	}
 
 	/**
@@ -527,24 +527,17 @@ class Object
 	 * @param $method
 	 * @return mixed Callback for the given unimplemented method.
 	 */
-	protected function find_method_callback($method)
+	protected static function find_method_callback($method)
 	{
 		global $core;
 
-		$methods = self::find_external_methods(get_class($this));
+		$methods = static::find_external_methods();
 
-		if (isset($methods[$method]))
+		if (empty($methods[$method]))
 		{
-			$callback = $methods[$method];
-
-			if (is_array($callback) && $callback[0][1] == ':' && $callback[0][0] == 'm')
-			{
-				$callback[0] = $core->modules[substr($callback[0], 2)];
-
-				// TODO-20100809: replace method definition
-			}
-
-			return $callback;
+			return;
 		}
+
+		return $methods[$method];
 	}
 }

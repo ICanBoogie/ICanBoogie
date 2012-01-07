@@ -60,6 +60,23 @@ class Query extends Object implements \IteratorAggregate
 	}
 
 	/**
+	 * Adds support for model's scopes.
+	 *
+	 * @see ICanBoogie.Object::__get()
+	 */
+	public function __get($property)
+	{
+		$scopes = $this->get_model_scope();
+
+		if (in_array($property, $scopes))
+		{
+			return $this->model->scope($property, array($this));
+		}
+
+		return parent::__get($property);
+	}
+
+	/**
 	 * Override the method to handle magic 'find_by_' methods.
 	 *
 	 * @see ICanBoogie.Object::__call()
@@ -69,6 +86,15 @@ class Query extends Object implements \IteratorAggregate
 		if (strpos($method, 'find_by_') === 0)
 		{
 			return $this->defered_dynamic_finder(substr($method, 8), $arguments); // 8 is for: strlen('find_by_')
+		}
+
+		$scopes = $this->get_model_scope();
+
+		if (in_array($method, $scopes))
+		{
+			array_unshift($this, $arguments, $var);
+
+			return $this->model->scope($method, $arguments);
 		}
 
 		return parent::__call($method, $arguments);
@@ -82,40 +108,47 @@ class Query extends Object implements \IteratorAggregate
 		return $rc;
 	}
 
-	// TODO-20110420: cache available model scope names by model class
+	/**
+	 * Caches available scopes by model class.
+	 *
+	 * @var array[]string
+	 */
+	protected static $scopes_by_classes=array();
 
 	/**
-	 * Override the method to handle scopes.
+	 * Returns the available scopes for a model class.
 	 *
-	 * @see ICanBoogie.Object::find_method_callback()
+	 * The method uses reflexion to find the scopes, the result is cached.
+	 *
+	 * @return array[]string
 	 */
-	protected function find_method_callback($method)
+	protected function get_model_scope()
 	{
-		if (strpos($method, '__volatile_get_') === 0)
+		$class = get_class($this->model);
+
+		if (isset(self::$scopes_by_classes[$class]))
 		{
-			if ($this->model->has_scope(substr($method, 15))) // 15 is for: strlen('__volatile_get_')
-			{
-				return array($this, '__scope');
-			}
+			return self::$scopes_by_classes[$class];
 		}
 
-		return parent::find_method_callback($method);
-	}
+		$reflexion = new \ReflectionClass($class);
+		$methods = $reflexion->getMethods(\ReflectionMethod::IS_PROTECTED);
 
-	/**
-	 * This is the method callback for scopes.
-	 *
-	 * @return Query
-	 */
-	protected function __scope()
-	{
-		$args = func_get_args();
+		$scopes = array();
 
-		$query = array_shift($args);
-		$scope_name = array_shift($args);
-		array_unshift($args, $query);
+		foreach ($methods as $method)
+		{
+			$name = $method->name;
 
-		return call_user_func(array($this->model, 'scope'), $scope_name, $args);
+			if (strpos($name, 'scope_') !== 0)
+			{
+				continue;
+			}
+
+			$scopes[] = substr($name, 6);
+		}
+
+		return self::$scopes_by_classes[$class] = $scopes;
 	}
 
 	/**
