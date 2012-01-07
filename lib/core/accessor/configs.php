@@ -95,7 +95,7 @@ class Configs implements \ArrayAccess
 			{
 				if (!file_exists($path))
 				{
-					ICanBoogie\Debug::trigger('Config path %path does not exists', array('%path' => $path));
+					trigger_error(ICanBoogie\format('Config path %path does not exists', array('path' => $path)));
 				}
 			}
 

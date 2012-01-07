@@ -2,7 +2,7 @@
 
 return array
 (
-	'reportAddress' => null,
+	'report_address' => null,
 	'verbose' => true,
 	'lineNumber' => true,
 	'stackTrace' => true,

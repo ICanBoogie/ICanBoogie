@@ -43,31 +43,28 @@ class Debug
 		return self::$config;
 	}
 
-	static public function shutdown_handler()
+	/**
+	 * Stores logged messages in the session and report fatal errors.
+	 */
+	public static function shutdown_handler()
 	{
 		global $core;
 
-		if (!self::$logs)
+		if (self::$logs)
 		{
-			return;
-		}
+			if (!headers_sent() && isset($core))
+			{
+				$core->session;
+			}
 
-		if (!headers_sent() && isset($core))
-		{
-			$core->session;
+			$_SESSION['wddebug']['messages'] = self::$logs;
 		}
-
-		$_SESSION['wddebug']['messages'] = self::$logs;
 
 		$error = error_get_last();
 
-		if ($error && $error['type'] == 1)
+		if ($error && $error['type'] == E_ERROR)
 		{
-			$message = <<<EOT
-<strong>Fatal error with the following message:</strong><br />
-$error[message].<br />
-in <em>$error[file]</em> at line <em>$error[line]</em><br />
-EOT;
+			$message = self::format_alert($error);
 
 			self::report($message);
 		}
@@ -93,53 +90,39 @@ EOT;
 	{
 		if (!headers_sent())
 		{
-			header('HTTP/1.0 500 Error with the following message: ' . strip_tags($str));
+			header('HTTP/1.0 500 ' . strip_tags($str));
 		}
 
-		#
-		# remove errorHandler trace & trigger trace
-		#
+		$trace = debug_backtrace();
 
-		$stack = debug_backtrace();
+		array_shift($trace); // remove the trace of our function
 
-		array_shift($stack);
-		array_shift($stack);
+		$message = self::format_alert
+		(
+			array
+			(
+				'type' => $no,
+				'message' => $str,
+				'file' => $file,
+				'line' => $line,
+				'trace' => $trace
+			)
+		);
+
+		self::report($message);
 
 		$config = self::get_config();
-		$more = '';
-
-		if ($config['stackTrace'])
-		{
-			$more .= self::format_trace($stack);
-		}
-
-		if ($config['codeSample'])
-		{
-			$more .= self::format_line($file, $line);
-		}
-
-		$rc = <<<EOT
-<pre class="alert-message error debug">
-<strong>Error with the following message:</strong>
-
-$str
-
-→ in <em>$file</em> at line <em>$line</em>$more
-</pre>
-EOT;
-
-		self::report($rc);
 
 		if ($config['verbose'])
 		{
-			echo $rc;
+			echo $message;
 
 			flush();
 		}
 	}
 
 	/**
-	 * Minimal exception handler.
+	 * Basic exception handler.
 	 *
 	 * @param \Exception $exception
 	 */
@@ -147,12 +130,17 @@ EOT;
 	{
 		if (!headers_sent())
 		{
-			header('HTTP/1.0 500 ' . get_class($exception) . ' with the following message: ' . strip_tags($exception->getMessage()));
+			header("HTTP/1.0 $exception->code " . strip_tags($exception->getMessage()));
 		}
 
-		exit(self::format_exception($exception));
+		$message = self::format_alert($exception);
+
+		self::report($message);
+
+		exit($message);
 	}
 
+	/*
 	static public function trigger($message, array $args=array())
 	{
 		$stack = debug_backtrace();
@@ -196,30 +184,86 @@ EOT;
 			echo '<br /> ' . $rc;
 		}
 	}
-
-	static public function lineNumber($file, $line, &$saveback=null)
-	{
-		$lines = array();
-		$config = self::get_config();
-
-		if (!$config['lineNumber'])
-		{
-			return $lines;
-		}
-
-		$file = substr($file, strlen(\ICanBoogie\DOCUMENT_ROOT));
-
-		$lines[] = '<br />→ in <em>' . $file . '</em> at line <em>' . $line . '</em>';
-
-		if (is_array($saveback))
-		{
-			$saveback = array_merge($saveback, $lines);
-		}
-
-		return $lines;
-	}
+	*/
 
 	const MAX_STRING_LEN = 16;
+
+	private static $error_names = array
+	(
+		E_ERROR => 'Error',
+		E_WARNING => 'Warning',
+		E_PARSE => 'Parse error',
+		E_NOTICE => 'Notice'
+	);
+
+	/**
+	 * Formats an alert into a HTML element.
+	 *
+	 * An alert can be an exception or an array representing an error triggered with the
+	 * trigger_error() function.
+	 *
+	 * @param \Exception|array $alert
+	 */
+	public static function format_alert($alert)
+	{
+		$type = 'Error';
+		$class = 'error';
+		$file = null;
+		$line = null;
+		$message = null;
+		$trace = null;
+		$more = null;
+
+		if (is_array($alert))
+		{
+			$file = $alert['file'];
+			$line = $alert['line'];
+			$message = $alert['message'];
+
+			if (isset(self::$error_names[$alert['type']]))
+			{
+				$type = self::$error_names[$alert['type']];
+			}
+
+			if (isset($alert['trace']))
+			{
+				$trace = $alert['trace'];
+			}
+		}
+		else if ($alert instanceof \Exception)
+		{
+			$type = get_class($alert);
+			$class = 'exception';
+			$file = $alert->getFile();
+			$line = $alert->getLine();
+			$message = $alert->getMessage();
+			$trace = $alert->getTrace();
+		}
+
+		$message = strip_tags($message, '<em><q><strong>');
+
+		if ($trace)
+		{
+			$more .= self::format_trace($trace);
+		}
+
+		if (is_array($alert) && $file)
+		{
+			$more .= self::format_code_sample($file, $line);
+		}
+
+		$file = self::strip_root($file);
+
+		return <<<EOT
+<pre class="alert-message $class">
+<strong>$type with the following message:</strong>
+
+$message
+
+in <em>$file</em> at line <em>$line</em>$more
+</pre>
+EOT;
+	}
 
 	/**
 	 * Formats a stack trace into an HTML element.
@@ -286,7 +330,7 @@ EOT;
 				"\n%{$count_max}d. %s(%d): %s%s%s(%s)",
 
 				$count - $i, $trace_file, $trace_line, $trace_class, $trace_type,
-				$trace_function, wd_entities(implode(', ', $params))
+				$trace_function, escape(implode(', ', $params))
 			);
 		}
 
@@ -294,96 +338,71 @@ EOT;
 	}
 
 	/**
-	 * Formats an exception into a HTML element.
+	 * Extracts and formats a code sample arround the line that triggered the alert.
 	 *
-	 * @param \Exception $exception
+	 * @param string $file
+	 * @param int $line
 	 *
 	 * @return string
 	 */
-	public static function format_exception(\Exception $exception)
+	public static function format_code_sample($file, $line=0)
 	{
-		$type = get_class($exception);
-		$path = $exception->getFile();
-		$line = $exception->getLine();
-		$message = $exception->getMessage();
-		$trace = self::format_trace($exception->getTrace());
-
-		$path = wd_strip_root($path);
-
-		return <<<EOT
-<pre class="alert-message exception">
-<strong>$type with the following message:</strong>
-
-$message
-
-in <em>$path</em> at line <em>$line</em>$trace
-</pre>
-EOT;
-	}
-
-	static public function format_line($file, $line=0)
-	{
-		$config = self::get_config();
-
-		if (!$config['codeSample'])
-		{
-			return array();
-		}
-
-		// TODO-20100718: runtime function have strange filenames.
-
-		if (!file_exists($file))
-		{
-			return array();
-		}
-
 		$sample = '';
 		$fh = new \SplFileObject($file);
 		$lines = new \LimitIterator($fh, $line < 5 ? 0 : $line - 5, 10);
 
 		foreach ($lines as $i => $str)
 		{
-			$str = wd_entities(rtrim($str));
+			$i++;
 
-			if (++$i == $line)
+			$str = escape(rtrim($str));
+
+			if ($i == $line)
 			{
 				$str = '<ins>' . $str . '</ins>';
 			}
 
 			$str = str_replace("\t", "\xC2\xA0\xC2\xA0\xC2\xA0\xC2\xA0", $str);
-			$sample .= "\n" . $str;
+			$sample .= sprintf("\n%6d. %s", $i, $str);
 		}
 
 		return "\n\n<strong>Code sample:</strong>\n$sample";
 	}
 
-	static public function report($message)
+	/**
+	 * Reports the alert to the admin of the website.
+	 *
+	 * The method sends an email to the admin of the website defined whose email address is defined
+	 * in the debug config using the "report_address" key.
+	 *
+	 * @param string $message
+	 */
+	public static function report($message)
 	{
 		$config = self::get_config();
-		$reportAddress = $config['reportAddress'];
+		$report_address = $config['report_address'];
 
-		if (!$reportAddress)
+		if (!$report_address)
 		{
 			return;
 		}
 
-		#
-		# add location information
-		#
+		$more = "\n\n<strong>Request URI:</strong>\n\n" . escape($_SERVER['REQUEST_URI']);
 
-		$more = "\n\n<strong>Request URI:</strong>\n\n" . wd_entities($_SERVER['REQUEST_URI']);
-
-		if (isset($_SERVER['HTTP_REFERER']))
+		if (!empty($_SERVER['HTTP_REFERER']))
 		{
-			$more = "\n\n<strong>Referer:</strong>\n\n" . wd_entities($_SERVER['HTTP_REFERER']);
+			$more .= "\n\n<strong>Referer:</strong>\n\n" . escape($_SERVER['HTTP_REFERER']);
 		}
 
-		if (isset($_SERVER['HTTP_USER_AGENT']))
+		if (!empty($_SERVER['HTTP_USER_AGENT']))
 		{
-			$more = "\n\n<strong>User Agent:</strong>\n\n" . wd_entities($_SERVER['HTTP_USER_AGENT']);
+			$more .= "\n\n<strong>User Agent:</strong>\n\n" . escape($_SERVER['HTTP_USER_AGENT']);
 		}
 
-		$message = str_replace('</pre>', $more . '</pre>', $message);
+		$more .= "\n\n<strong>Remote address:</strong>\n\n" . escape($_SERVER['REMOTE_ADDR']);
+
+		$message = str_replace('</pre>', '', $message);
+		$message = trim($message) . $more . '</pre>';
 
 		#
 		# during the same session, same messages are only reported once
@@ -408,7 +427,7 @@ EOT;
 		$parts = array
 		(
 			'From' => 'wddebug@' . $host,
-			'Content-Type' => 'text/html; charset=' . WDCORE_CHARSET
+			'Content-Type' => 'text/html; charset=' . ICanBoogie\CHARSET
 		);
 
 		$headers = '';
@@ -418,12 +437,12 @@ EOT;
 			$headers .= $key .= ': ' . $value . "\r\n";
 		}
 
-		mail($reportAddress, __CLASS__ . ': Report from ' . $host, $message, $headers);
+		mail($report_address, __CLASS__ . ': Report from ' . $host, $message, $headers);
 	}
 
-	static $logs = array();
+	public static $logs = array();
 
-	static function log($type, $message, array $params=array(), $message_id=null)
+	public static function log($type, $message, array $params=array(), $message_id=null)
 	{
 		if (empty(self::$logs[$type]))
 		{
@@ -493,14 +512,23 @@ EOT;
 		return $rc;
 	}
 
-	private function strip_root($str)
+	/**
+	 * Removes the DOCUMENT_ROOT part from the provided path.
+	 *
+	 * @param string $path
+	 *
+	 * @return string
+	 */
+	private static function strip_root($path)
 	{
-		if (strpos($str, DOCUMENT_ROOT) === 0)
+		$root = rtrim(DOCUMENT_ROOT, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+		if (strpos($path, $root) === 0)
 		{
-			return substr($str, strlen(DOCUMENT_ROOT) - 1);
+			return substr($path, strlen($root) - 1);
 		}
 
-		return $str;
+		return $path;
 	}
 }
 
