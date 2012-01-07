@@ -498,6 +498,46 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 	}
 
 	/**
+	 * Orders the module ids provided according to module inheritence and weight.
+	 *
+	 * @param array $ids The module ids to order.
+	 *
+	 * @return array
+	 */
+	public function order_ids(array $ids)
+	{
+		$ordered = array();
+		$descriptors = $this->descriptors;
+
+		$count_extends = function($super_id) use (&$count_extends, $descriptors)
+		{
+			$i = 0;
+
+			foreach ($descriptors as $id => $descriptor)
+			{
+				if (empty($descriptor[Module::T_EXTENDS]) || $descriptor[Module::T_EXTENDS] !== $super_id)
+				{
+					continue;
+				}
+
+				$i += 1 + $count_extends($id);
+			}
+
+			return $i;
+		};
+
+		foreach ($ids as $id)
+		{
+			$descriptor = $descriptors[$id];
+			$ordered[$id] = -$count_extends($id) + (isset($descriptor[Module::T_WEIGHT]) ? $descriptor[Module::T_WEIGHT] : 0);
+		}
+
+		\ICanBoogie\stable_sort($ordered);
+
+		return array_keys($ordered);
+	}
+
+	/**
 	 * Run the modules having a non null T_STARTUP value.
 	 *
 	 * The modules to run are sorted using the value of the T_STARTUP tag.

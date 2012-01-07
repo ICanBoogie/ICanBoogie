@@ -30,6 +30,7 @@ class Module extends Object
 	const T_PATH = 'path';
 	const T_STARTUP = 'startup';
 	const T_TITLE = 'title';
+	const T_WEIGHT = 'weight';
 
 	/*
 	 * PERMISSIONS:
