@@ -11,21 +11,20 @@
 
 namespace ICanBoogie;
 
-if (!defined('ICanBoogie\DOCUMENT_ROOT'))
-{
-	/**
-	 * @var string Document root of the application.
-	 */
-	define('ICanBoogie\DOCUMENT_ROOT', rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
-}
+/**
+ * @var string Version string of the ICanBoogie framework.
+ */
+define('ICanBoogie\VERSION', '0.13.0-dev (2012-07-01)');
 
-if (!defined('ICanBoogie\ROOT'))
-{
-	/**
-	 * @var string The ROOT directory of the ICanBoogie framework.
-	 */
-	define('ICanBoogie\ROOT', rtrim(__DIR__, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
-}
+/**
+ * @var string Document root of the application.
+ */
+defined('ICanBoogie\DOCUMENT_ROOT') or define('ICanBoogie\DOCUMENT_ROOT', rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
+
+/**
+ * @var string The ROOT directory of the ICanBoogie framework.
+ */
+defined('ICanBoogie\ROOT') or define('ICanBoogie\ROOT', rtrim(__DIR__, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
 
 /**
  * @var string Path to the ICanBoogie's assets directory.
@@ -38,9 +37,9 @@ define('ICanBoogie\ASSETS', ROOT . 'assets' . DIRECTORY_SEPARATOR);
 define('ICanBoogie\CACHE_ACTIVERECORDS', false);
 
 /**
- * @var string Version string of the ICanBoogie framework.
+ * @var string The charset used by the application. Defaults to "utf-8".
  */
-define('ICanBoogie\VERSION', '0.12.0-dev (2011-11-01)');
+defined('ICanBoogie\CHARSET') or define('ICanBoogie\CHARSET', 'utf-8');
 
 require_once ROOT . 'lib/helpers.php';
 require_once ROOT . 'lib/toolkit/helpers.php';
@@ -57,52 +56,4 @@ else
 	require_once ROOT . 'lib/core/object.php';
 	require_once ROOT . 'lib/core/accessor/configs.php';
 	require_once ROOT . 'lib/core/core.php';
-}
-
-/* TODO-20110716: THE FOLLOWING FUNCTIONS SHOULD BE MOVED TO OTHER PLACES */
-
-/**
- * Normalize a string to be suitable as a namespace part.
- *
- * @param string $part The string to normalize.
- *
- * @return string Normalized string.
- */
-function normalize_namespace_part($part)
-{
-	return preg_replace_callback
-	(
-		'/[-\s_\.]\D/', function ($match)
-		{
-			$rc = ucfirst($match[0]{1});
-
-			if ($match[0]{0} == '.')
-			{
-				$rc = '\\' . $rc;
-			}
-
-			return $rc;
-		},
-
-		' ' . $part
-	);
-}
-
-// https://github.com/rails/rails/blob/master/activesupport/lib/active_support/inflector/inflections.rb
-// http://api.rubyonrails.org/classes/ActiveSupport/Inflector.html#method-i-singularize
-
-function singularize($string)
-{
-	static $rules = array
-	(
-		'/ies$/' => 'y',
-		'/s$/' => ''
-	);
-
-	return preg_replace(array_keys($rules), $rules, $string);
-}
-
-function format($str, $args=array())
-{
-	return I18n\Translator::format($str, $args);
 }

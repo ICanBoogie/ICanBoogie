@@ -363,9 +363,9 @@ class Object
 		{
 			throw new Exception\PropertyNotFound
 			(
-				\ICanBoogie\format
+				format
 				(
-					'Unknow or unaccessible property %property for object of class %class (available properties: :list).', array
+					'Unknown or unaccessible property %property for object of class %class (available properties: !list).', array
 					(
 						'property' => $property,
 						'class' => get_class($this),
