@@ -17,7 +17,77 @@ class I18n
 {
 	public static $load_paths = array();
 
-	public static $native;
+	/**
+	 * The currently used language.
+	 *
+	 * @var string
+	 */
+	private static $language = 'en';
+
+	/**
+	 * Changes the current language.
+	 *
+	 * @param string $id
+	 */
+	public static function set_language($id)
+	{
+		self::$language = $id;
+	}
+
+	/**
+	 * Returns the current locale ID.
+	 *
+	 * @return string
+	 */
+	public static function get_language()
+	{
+		return self::$language;
+	}
+
+	/**
+	 * The current Locale object.
+	 *
+	 * @var Locale
+	 */
+	private static $locale;
+
+	/**
+	 * Returns the current Locale object.
+	 *
+	 * @return Locale
+	 */
+	public static function get_locale()
+	{
+		if (!self::$locale)
+		{
+			self::$locale = Locale::get(self::$language);
+		}
+
+		return self::$locale;
+	}
+
+	private static $translators=array();
+
+	/**
+	 * Translates a string to the current language or a given language.
+	 *
+	 * @param string $str The native string to translate.
+	 * @param array $args Arguments used to format the translated string.
+	 * @param array $options Options for the translation.
+	 *
+	 * @return string The translated string.
+	 */
+	public static function translate($str, array $args=array(), array $options=array())
+	{
+		$id = empty($options['language']) ? self::$language : $options['language'];
+
+		if (empty(self::$translators[$id]))
+		{
+			self::$translators[$id] = Locale::get($id)->translator;
+		}
+
+		return self::$translators[$id]->__invoke($str, $args, $options);
+	}
 
 	private static $scope;
 	private static $scope_chain = array();

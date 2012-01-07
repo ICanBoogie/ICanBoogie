@@ -11,8 +11,6 @@
 
 namespace ICanBoogie;
 
-use ICanBoogie\I18n\Locale;
-
 /**
  * @property \ICanBoogie\Accessor\Configs $configs Configurations accessor.
  * @property \ICanBoogie\Accessor\Connections $connections Database connections accessor.
@@ -253,64 +251,37 @@ class Core extends Object
 	}
 
 	/**
-	 * @var string Code of the locale language.
-	 */
-	private $_language;
-
-	/**
 	 * Sets the locale language to use by the framework.
 	 *
 	 * @param string $id
-	 * @throws Exception if the language identifier is empty.
 	 */
 	protected function __volatile_set_language($id)
 	{
-		if (!$id)
-		{
-			throw new Exception('The language identifier is empty.');
-		}
-
-		if ($this->_language == $id)
-		{
-			return;
-		}
+		I18n::set_language($id);
 
 		$this->_locale = null;
-		$this->_language = $id;
 	}
 
 	/**
-	 * Returns the locale language code.
+	 * Returns the locale language.
 	 *
 	 * @param string $id
 	 */
 	protected function __volatile_get_language()
 	{
-		return $this->_language ? $this->_language : 'en';
+		return I18n::get_language();
 	}
-
-	/**
-	 * @var WdLocale locale object for the current locale.
-	 */
-	private $_locale;
 
 	/**
 	 * Returns the locale object used by the framework.
 	 *
 	 * The locale object is reseted when the {@link language} property is set.
 	 *
-	 * @return WdLocale
+	 * @return Locale
 	 */
 	protected function __volatile_get_locale()
 	{
-		if ($this->_locale)
-		{
-			return $this->_locale;
-		}
-
-		$this->_locale = $locale = Locale::get($this->language);
-
-		return $locale;
+		return I18n::get_locale();
 	}
 
 	/**
