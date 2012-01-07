@@ -154,16 +154,16 @@ function wd_date_period($date)
 	$date_days = strtotime(date('Y-m-d', $date_secs)) / (60 * 60 * 24);
 
 	$diff = round($date_days - $today_days);
-	$language = $core->language;
+	$locale_id = I18n::get_language();
 
-	if (empty($relative[$language]))
+	if (empty($relative[$locale_id]))
 	{
-		$relative[$language] = $core->locale->conventions['dates']['fields']['day']['relative'];
+		$relative[$locale_id] = I18n::get_locale()->conventions['dates']['fields']['day']['relative'];
 	}
 
-	if (isset($relative[$language][$diff]))
+	if (isset($relative[$locale_id][$diff]))
 	{
-		return $relative[$language][$diff];
+		return $relative[$locale_id][$diff];
 	}
 	else if ($diff > -6)
 	{
