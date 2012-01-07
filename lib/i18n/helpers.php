@@ -1,20 +1,11 @@
 <?php
 
+use ICanBoogie\I18n;
 use ICanBoogie\I18n\Locale;
 
 function t($str, array $args=array(), array $options=array())
 {
-	global $core;
-	static $translators=array();
-
-	$id = isset($options['language']) ? $options['language'] : $core->language;
-
-	if (empty($translators[$id]))
-	{
-		$translators[$id] = Locale::get($id)->translator;
-	}
-
-	return $translators[$id]->__invoke($str, $args, $options);
+	return I18n::translate($str, $args, $options);
 }
 
 function wd_format_size($size)
