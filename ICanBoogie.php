@@ -32,7 +32,6 @@ if (!defined('ICanBoogie\ROOT'))
  */
 define('ICanBoogie\ASSETS', ROOT . 'assets' . DIRECTORY_SEPARATOR);
 
-
 /**
  * @var bool If true, an APC cache is used to store and retrieve active records.
  */
@@ -43,9 +42,7 @@ define('ICanBoogie\CACHE_ACTIVERECORDS', false);
  */
 define('ICanBoogie\VERSION', '0.12.0-dev (2011-11-01)');
 
-/*
- * bootstrap
- */
+require_once ROOT . 'lib/helpers.php';
 require_once ROOT . 'lib/toolkit/helpers.php';
 require_once ROOT . 'lib/i18n/helpers.php';
 
@@ -60,7 +57,6 @@ else
 	require_once ROOT . 'lib/core/object.php';
 	require_once ROOT . 'lib/core/accessor/configs.php';
 	require_once ROOT . 'lib/core/core.php';
-	require_once ROOT . 'lib/i18n/translator.php'; // TODO-20110716: this is required because of the `format` function used by Debug. We should externalize the function as an helper.
 }
 
 /* TODO-20110716: THE FOLLOWING FUNCTIONS SHOULD BE MOVED TO OTHER PLACES */

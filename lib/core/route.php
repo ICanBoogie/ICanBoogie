@@ -150,14 +150,17 @@ class Route
 
 		if (empty($route['pattern']))
 		{
-			throw new \LogicException(t
+			throw new \LogicException
 			(
-				"Route %id has no pattern. !route", array
+				format
 				(
-					'%id' => $id,
-					'!route' => $route
+					"Route %id has no pattern. !route", array
+					(
+						'id' => $id,
+						'route' => $route
+					)
 				)
-			));
+			);
 		}
 
 		self::$routes[$id] = $route + array
