@@ -100,6 +100,7 @@ class Route
 				{
 					$id = "$module_id:admin/" . substr($id, 1);
 				}
+				/*
 				else if (empty($route['pattern']))
 				{
 					throw new \LogicException(t
@@ -112,6 +113,7 @@ class Route
 						)
 					));
 				}
+				*/
 				else if ($id{0} === ':' && $module_id)
 				{
 					$id = $module_id . $id;

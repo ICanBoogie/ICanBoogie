@@ -207,7 +207,6 @@ function wd_array_by_columns(array $array, $columns, $pad=false)
  * @param $key
  * @param $after
  */
-
 function wd_array_insert($array, $relative, $value, $key=null, $after=false)
 {
 	$keys = array_keys($array);
@@ -230,41 +229,4 @@ function wd_array_insert($array, $relative, $value, $key=null, $after=false)
 	}
 
 	return array_merge($array, $spliced);
-}
-
-function wd_stable_sort(&$array, $picker=null)
-{
-	static $dec, $undec;
-
-	if (!$dec)
-	{
-		$dec = function(&$v, $k)
-		{
-			$v = array($v, $k, $v);
-		};
-
-		$undec = function(&$v, $k)
-		{
-			$v = $v[2];
-		};
-	}
-
-	if ($picker)
-	{
-		array_walk
-		(
-			$array, function(&$v, $k) use ($picker)
-			{
-				$v = array($picker($v), $k, $v);
-			}
-		);
-	}
-	else
-	{
-		array_walk($array, $dec);
-	}
-
-	asort($array);
-
-	array_walk($array, $undec);
 }

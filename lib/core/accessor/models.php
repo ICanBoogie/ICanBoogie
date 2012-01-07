@@ -21,12 +21,12 @@ use ICanBoogie\Module;
 class Models implements \ArrayAccess
 {
 	/**
-	 * @var ModulesAccessor The modules accessor.
+	 * @var Modules The modules accessor.
 	 */
 	protected $modules;
 
 	/**
-	 * @var array Loaded models.
+	 * @var array[string]\ICanBoogie\ActiveRecord\Model Loaded models.
 	 */
 	protected $models = array();
 
@@ -35,7 +35,7 @@ class Models implements \ArrayAccess
 	 *
 	 * @param Accessor\Modules $modules
 	 */
-	public function __construct(Accessor\Modules $modules)
+	public function __construct(Modules $modules)
 	{
 		$this->modules = $modules;
 	}
@@ -70,7 +70,7 @@ class Models implements \ArrayAccess
 	 */
 	public function offsetSet($offset, $value)
 	{
-		throw new Exception('Offsets are not settable');
+		throw new Exception\PropertyNotWritable(array($property, $this));
 	}
 
 	/**
@@ -82,7 +82,7 @@ class Models implements \ArrayAccess
 	 */
 	public function offsetUnset($offset)
 	{
-		throw new Exception('Offsets are not unsettable');
+		throw new \Exception('Offsets are not unsettable');
 	}
 
 	/**
@@ -94,7 +94,7 @@ class Models implements \ArrayAccess
 	 *
 	 * @see ArrayAccess::offsetGet()
 	 *
-	 * @return WdModel The model for the specified offset.
+	 * @return ICanBoogie\ActiveRecord\Model The model for the specified offset.
 	 */
 	public function offsetGet($offset)
 	{

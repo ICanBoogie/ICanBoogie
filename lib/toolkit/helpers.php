@@ -9,21 +9,9 @@
  * file that was distributed with this source code.
  */
 
-defined('WDCORE_CHARSET') or define('WDCORE_CHARSET', 'utf-8');
-
 if (function_exists('mb_internal_encoding'))
 {
-	mb_internal_encoding(WDCORE_CHARSET);
-}
-
-function wd_entities($str, $charset=WDCORE_CHARSET)
-{
-	return htmlspecialchars($str, ENT_COMPAT, $charset);
-}
-
-function wd_entities_all($str, $charset=WDCORE_CHARSET)
-{
-	return htmlentities($str, ENT_COMPAT, $charset);
+	mb_internal_encoding(ICanBoogie\CHARSET);
 }
 
 function wd_create_cloud($tags, $callback)
@@ -48,7 +36,7 @@ function wd_create_cloud($tags, $callback)
 	return $rc;
 }
 
-function wd_remove_accents($str, $charset=WDCORE_CHARSET)
+function wd_remove_accents($str, $charset=ICanBoogie\CHARSET)
 {
 	$str = htmlentities($str, ENT_NOQUOTES, $charset);
 
@@ -69,7 +57,7 @@ function wd_unaccent_compare_ci($a, $b)
     return strcmp(strtolower(wd_remove_accents($a)), strtolower(wd_remove_accents($b)));
 }
 
-function wd_normalize($str, $separator='-', $charset=WDCORE_CHARSET)
+function wd_normalize($str, $separator='-', $charset=ICanBoogie\CHARSET)
 {
 	$str = str_replace('\'', '', $str);
 	$str = wd_remove_accents($str, $charset);
@@ -302,24 +290,6 @@ function wd_spamScore($body, $url, $author, $words=array(), $starters=array())
 	#
 	# Body used in previous comment
 	#
-}
-
-function wd_dump($value)
-{
-	if (function_exists('xdebug_var_dump'))
-	{
-		ob_start();
-
-		xdebug_var_dump($value);
-
-		$value = ob_get_clean();
-	}
-	else
-	{
-		$value = '<pre>' . wd_entities(print_r($value, true)) . '</pre>';
-	}
-
-	return $value;
 }
 
 function wd_array_merge_recursive(array $array1, array $array2=array())

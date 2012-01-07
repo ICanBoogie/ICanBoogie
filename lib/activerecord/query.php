@@ -100,12 +100,17 @@ class Query extends Object implements \IteratorAggregate
 		return parent::__call($method, $arguments);
 	}
 
+	/**
+	 * Converts the query into a string.
+	 *
+	 * @return string
+	 */
 	public function __toString()
 	{
-		$rc = 'SELECT ' . ($this->select ? $this->select : '*') . ' FROM {self_and_related}' . $this->build();
-		$rc = $this->model->resolve_statement($rc);
-
-		return $rc;
+		return $this->model->resolve_statement
+		(
+			'SELECT ' . ($this->select ? $this->select : '*') . ' FROM {self_and_related}' . $this->build()
+		);
 	}
 
 	/**

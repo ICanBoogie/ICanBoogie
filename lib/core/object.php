@@ -128,32 +128,14 @@ class Object
 
 			foreach ($fragment['objects.methods'] as $method => $definition)
 			{
-				if (strpos($method, '::'))
+				if (strpos($method, '::') === false)
 				{
-					list($class, $method) = explode('::', $method);
-
-					$methods[$class][$method] = is_string($definition) ? $definition : $definition[0];
+					throw new \LogicException(format('Invalid method name %method, must be <code>class_name::method_name</code>', array('method' => $method)));
 				}
 
-				/*
-				 * COMPAT-20110616
-				 *
-				 * Method are now defined as '<class>::<method>'. The 'instanceof' is no longer used.
-				 *
-				 */
+				list($class, $method) = explode('::', $method);
 
-				else
-				{
-					if (empty($definition['instanceof']))
-					{
-						throw new Exception('Missing <em>instanceof</em> in config (%root): !definition.', array('!definition' => $definition, '%root' => $root));
-					}
-
-					foreach ((array) $definition['instanceof'] as $class)
-					{
-						$methods[$class][$method] = $definition[0];
-					}
-				}
+				$methods[$class][$method] = is_string($definition) ? $definition : $definition[0];
 			}
 		}
 
@@ -381,6 +363,11 @@ class Object
 	protected function __defer_get($property, &$success)
 	{
 		global $core;
+
+		if (empty($core))
+		{
+			return;
+		}
 
 		$event = Event::fire('property', array('property' => $property), $this);
 

@@ -15,6 +15,11 @@ use ICanBoogie\I18n\Locale;
 
 class I18n
 {
+	/**
+	 * Paths were messages catalogs can be found.
+	 *
+	 * @var array
+	 */
 	public static $load_paths = array();
 
 	/**
