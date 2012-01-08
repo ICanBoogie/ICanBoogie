@@ -56,6 +56,11 @@ class Vars implements \ArrayAccess
 	{
 		$filename = $this->resolve_filename($name);
 
+		if (!file_exists($filename))
+		{
+			return;
+		}
+
 		unlink($filename);
 	}
 
