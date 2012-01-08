@@ -220,7 +220,8 @@ function format($str, array $args=array())
 		{
 			$value = '<em>null</em>';
 		}
-		else if (is_string($key))
+
+		if (is_string($key))
 		{
 			switch ($key{0})
 			{
@@ -232,10 +233,10 @@ function format($str, array $args=array())
 				{
 					$escaped_value = escape($value);
 
-					$holders["!$key"] = $escaped_value;
-					$holders["%$key"] = '<q>' . $escaped_value . '</q>';
+					$holders['!' . $key] = $escaped_value;
+					$holders['%' . $key] = '<q>' . $escaped_value . '</q>';
 
-					$key = ":$key";
+					$key = ':' . $key;
 				}
 			}
 		}
