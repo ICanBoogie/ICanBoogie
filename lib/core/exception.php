@@ -310,6 +310,108 @@ class PropertyNotWritable extends Property
 	}
 }
 
+/**
+ * Thrown when an offset is not readable.
+ *
+ * For example, this could be triggered when a value of a readonly ArrayAcces object is read.
+ */
+class OffsetNotReadable extends Property
+{
+	public function __construct($message='', $code=0, $previous=null)
+	{
+		if (is_array($message))
+		{
+			list($offset, $container) = $message + array(1 => null);
+
+			if (is_object($container))
+			{
+				$message = \ICanBoogie\format
+				(
+					'The offset %offset for object of class %class is not readable.', array
+					(
+						'offset' => $offset,
+						'class' => get_class($container)
+					)
+				);
+			}
+			else if (is_array($container))
+			{
+				$message = \ICanBoogie\format
+				(
+					'The offset %offset is not readable for the array: !array', array
+					(
+						'offset' => $offset,
+						'array' => $container
+					)
+				);
+			}
+			else
+			{
+				$message = \ICanBoogie\format
+				(
+					'The offset %offset is not readable.', array
+					(
+						'offset' => $offset
+					)
+				);
+			}
+		}
+
+		parent::__construct($message, $code, $previous);
+	}
+}
+
+/**
+ * Thrown when an offset is not writable.
+ *
+ * For example, this could be triggered when a value of a readonly ArrayAcces object is set.
+ */
+class OffsetNotWritable extends Property
+{
+	public function __construct($message='', $code=0, $previous=null)
+	{
+		if (is_array($message))
+		{
+			list($offset, $container) = $message + array(1 => null);
+
+			if (is_object($container))
+			{
+				$message = \ICanBoogie\format
+				(
+					'The offset %offset for object of class %class is not writable.', array
+					(
+						'offset' => $offset,
+						'class' => get_class($container)
+					)
+				);
+			}
+			else if (is_array($container))
+			{
+				$message = \ICanBoogie\format
+				(
+					'The offset %offset is not writable for the array: !array', array
+					(
+						'offset' => $offset,
+						'array' => $container
+					)
+				);
+			}
+			else
+			{
+				$message = \ICanBoogie\format
+				(
+					'The offset %offset is not writable.', array
+					(
+						'offset' => $offset
+					)
+				);
+			}
+		}
+
+		parent::__construct($message, $code, $previous);
+	}
+}
+
 class HTTP extends \ICanBoogie\Exception
 {
 	public function __toString()
