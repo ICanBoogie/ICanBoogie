@@ -599,6 +599,7 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 	public function order_ids(array $ids, array $descriptors=null)
 	{
 		$ordered = array();
+		$extends_weight = array();
 
 		if ($descriptors === null)
 		{
@@ -622,10 +623,31 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 			return $i;
 		};
 
+		$count_required = function($required_id) use (&$descriptors, &$extends_weight)
+		{
+			$i = 0;
+
+			foreach ($descriptors as $id => $descriptor)
+			{
+				if (empty($descriptor[Module::T_REQUIRES][$required_id]))
+				{
+					continue;
+				}
+
+				$i += 1 + $extends_weight[$id];
+			}
+
+			return $i;
+		};
+
 		foreach ($ids as $id)
 		{
-			$descriptor = $descriptors[$id];
-			$ordered[$id] = -$count_extends($id) + $descriptor[Module::T_WEIGHT];
+			$extends_weight[$id] = $count_extends($id);
+		}
+
+		foreach ($ids as $id)
+		{
+ 			$ordered[$id] = -$extends_weight[$id] -$count_required($id) + $descriptors[$id][Module::T_WEIGHT];
 		}
 
 		ICanBoogie\stable_sort($ordered);
