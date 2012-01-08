@@ -426,7 +426,7 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 					Module::T_CATEGORY => null,
 					Module::T_CLASS => 'ICanBoogie\Module\\' . $normalized_namespace_part,
 					Module::T_DESCRIPTION => null,
-// 					Module::T_DISABLED => empty($descriptor[Module::T_REQUIRED]), FIXME-20120108: not correclty handled
+					Module::T_DISABLED => empty($descriptor[Module::T_REQUIRED]),
 					Module::T_EXTENDS => null,
 					Module::T_ID => $id,
 					Module::T_MODELS => array(),
@@ -442,6 +442,33 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 				$descriptors[$id] = $descriptor;
 			}
 		}
+
+		#
+		# Compute inheritance.
+		#
+
+		$find_parents = function($id, &$parents=array()) use (&$find_parents, &$descriptors)
+		{
+			$parent = $descriptors[$id][ICanBoogie\Module::T_EXTENDS];
+
+			if ($parent)
+			{
+				$parents[] = $parent;
+
+				$find_parents($parent, $parents);
+			}
+
+			return $parents;
+		};
+
+		foreach ($descriptors as $id => &$descriptor)
+		{
+			$descriptor['__parents'] = $find_parents($id);
+		}
+
+		#
+		# Orders descriptors according to their weight.
+		#
 
 		$ordered_ids = $this->order_ids(array_keys($descriptors), $descriptors);
 		$descriptors = array_merge(array_combine($ordered_ids, $ordered_ids), $descriptors);
