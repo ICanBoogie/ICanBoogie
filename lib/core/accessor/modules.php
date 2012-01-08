@@ -240,23 +240,117 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 	/**
 	 * Construct the index for the modules.
 	 *
+	 * The index contains the following values:
+	 *
+	 * - (array) descriptors: The descriptors of the modules, ordered by weight.
+	 * - (array) catalogs: Absolute paths to locale catalog directories.
+	 * - (array) configs: Absolute paths to config directories.
+	 * - (array) autoload: An array of _key/value_ pairs where _key_ is the name of a class and
+	 * _value_ the absolute path to the file where it is defined.
+	 * - (array) classes aliases: An array of _key/value_ pairs where _key_ is the alias of a class
+	 * and _value_ if the real class.
+	 * - (array) config constructors: An array of _key/value_ pairs where _key_ if the name of a
+	 * config and _value_ is its constructor definition.
+	 *
 	 * @return array
 	 */
 	public function index_construct()
 	{
+		$descriptors = $this->index_descriptors($this->paths);
+
 		$index = array
 		(
-			'descriptors' => array(),
+			'descriptors' => $descriptors,
 			'catalogs' => array(),
 			'configs' => array(),
-
 			'autoload' => array(),
 			'classes aliases' => array(),
 			'config constructors' => array()
 		);
 
-		foreach ($this->paths as $root)
+		foreach ($descriptors as $id => $descriptor)
 		{
+			$read = $this->index_module($descriptor);
+
+			if ($read['autoload'])
+			{
+				$index['autoload'] = $read['autoload'] + $index['autoload'];
+			}
+
+			$path = $descriptor[Module::T_PATH];
+
+			if (is_dir($path . '/locale'))
+			{
+				$index['catalogs'][] = $path;
+			}
+
+			if (is_dir($path . '/config'))
+			{
+				$index['configs'][] = $path;
+
+				$core_config_path = $path . '/config/core.php';
+
+				if (is_file($core_config_path))
+				{
+					$core_config = wd_isolated_require($core_config_path, array('path' => $path));
+
+					if (isset($core_config['autoload']))
+					{
+						$index['autoload'] += $core_config['autoload'];
+					}
+
+					if (isset($core_config['classes aliases']))
+					{
+						$index['classes aliases'] += $core_config['classes aliases'];
+					}
+
+					if (isset($core_config['config constructors']))
+					{
+						$index['config constructors'] += $core_config['config constructors'];
+					}
+				}
+			}
+		}
+
+		return $index;
+	}
+
+	/**
+	 * Indexes descriptors.
+	 *
+	 * The descriptors are extended with the following default values:
+	 *
+	 * - (string) category: null.
+	 * - (string) class: ICanBoogie\Modules\<normalized_module_part>
+	 * - (string) description: null.
+	 * - (bool) disabled: false if required, true otherwise.
+	 * - (string) extends: null.
+	 * - (string) id: The module's identifier.
+	 * - (array) models: Empty array.
+	 * - (string) path: The absolute path to the module directory.
+	 * - (string) permission: null.
+	 * - (array) permissions: Empty array.
+	 * - (bool) startup: false.
+	 * - (bool) required: false.
+	 * - (array) requires: Empty array.
+	 * - (string) weight: 0.
+	 *
+	 * The descriptors are ordered according to their inheritence and weight.
+	 *
+	 * @param array $paths
+	 *
+	 * @throws Exception when a directory fails to open.
+	 *
+	 * @return array[string]array
+	 */
+	protected function index_descriptors(array $paths)
+	{
+		$descriptors = array();
+
+		foreach ($paths as $root)
+		{
+			$root = rtrim($root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
 			try
 			{
 				$dir = new \DirectoryIterator($root);
@@ -267,7 +361,7 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 				(
 					'Unable to open directory %root', array
 					(
-						'%root' => $root
+						'root' => $root
 					)
 				);
 			}
@@ -279,56 +373,80 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 					continue;
 				}
 
-				$module_id = $file->getFilename();
+				$id = $file->getFilename();
+				$path = $root . $id . DIRECTORY_SEPARATOR;
+				$descriptor_path = $path . 'descriptor.php';
+				$descriptor = require $descriptor_path;
 
-				$module_path = $root . DIRECTORY_SEPARATOR . $module_id;
-				$read = $this->index_module($module_id, $module_path . DIRECTORY_SEPARATOR);
-
-				if ($read)
+				if (!is_array($descriptor))
 				{
-					$index['descriptors'][$module_id] = $read['descriptor'];
-
-					if (is_dir($module_path . '/locale'))
-					{
-						$index['catalogs'][] = $module_path;
-					}
-
-					if (is_dir($module_path . '/config'))
-					{
-						$index['configs'][] = $module_path;
-
-						$core_config_path = $module_path . '/config/core.php';
-
-						if (is_file($core_config_path))
-						{
-							$core_config = wd_isolated_require($core_config_path, array('path' => $module_path . '/', 'root' => $module_path . '/'));
-
-							if (isset($core_config['autoload']))
-							{
-								$index['autoload'] += $core_config['autoload'];
-							}
-
-							if (isset($core_config['classes aliases']))
-							{
-								$index['classes aliases'] += $core_config['classes aliases'];
-							}
-
-							if (isset($core_config['config constructors']))
-							{
-								$index['config constructors'] += $core_config['config constructors'];
-							}
-						}
-					}
-
-					if ($read['autoload'])
-					{
-						$index['autoload'] = $read['autoload'] + $index['autoload'];
-					}
+					throw new Exception
+					(
+						'%var should be an array: %type given instead in %path', array
+						(
+							'var' => 'descriptor',
+							'type' => gettype($descriptor),
+							'path' => wd_strip_root($descriptor_path)
+						)
+					);
 				}
+
+				if (empty($descriptor[Module::T_TITLE]))
+				{
+					throw new Exception
+					(
+						'The %name value of the %id module descriptor is empty in %path.', array
+						(
+							'name' => Module::T_TITLE,
+							'id' => $id,
+							'path' => $descriptor_path
+						)
+					);
+				}
+
+				/*TODO-20120108: activate version checking
+				if (empty($descriptor[Module::T_VERSION]))
+				{
+					throw new Exception
+					(
+						'The %name value of the %id module descriptor is empty in %path.', array
+						(
+							'name' => Module::T_VERSION,
+							'id' => $id,
+							'path' => $descriptor_path
+						)
+					);
+				}
+				*/
+
+				$normalized_namespace_part = ICanBoogie\normalize_namespace_part($id);
+
+				$descriptor += array
+				(
+					Module::T_CATEGORY => null,
+					Module::T_CLASS => 'ICanBoogie\Module\\' . $normalized_namespace_part,
+					Module::T_DESCRIPTION => null,
+// 					Module::T_DISABLED => empty($descriptor[Module::T_REQUIRED]), FIXME-20120108: not correclty handled
+					Module::T_EXTENDS => null,
+					Module::T_ID => $id,
+					Module::T_MODELS => array(),
+					Module::T_PATH => $path,
+					Module::T_PERMISSION => null,
+					Module::T_PERMISSIONS => array(),
+					Module::T_STARTUP => false,
+					Module::T_REQUIRED => false,
+					Module::T_REQUIRES => array(),
+					Module::T_WEIGHT => 0
+				);
+
+				$descriptors[$id] = $descriptor;
 			}
 		}
 
-		return $index;
+		$ordered_ids = $this->order_ids(array_keys($descriptors), $descriptors);
+		$descriptors = array_merge(array_combine($ordered_ids, $ordered_ids), $descriptors);
+
+		return $descriptors;
 	}
 
 	/**
@@ -347,43 +465,17 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 	 * Autoload references are also created for each model and their activerecord depending on
 	 * the T_MODELS tag and the exsitance of the corresponding files.
 	 *
-	 * @param string $id The module's identifier
-	 * @param string $path The module's directory
+	 * @param array $descriptor Descriptor of the module to index.
 	 *
 	 * @return array
 	 */
-	protected function index_module($id, $path)
+	protected function index_module(array $descriptor)
 	{
-		$descriptor_path = $path . 'descriptor.php';
-		$descriptor = require $descriptor_path;
-
-		if (!is_array($descriptor))
-		{
-			throw new Exception
-			(
-				'%var should be an array: %type given instead in %path', array
-				(
-					'%var' => 'descriptor',
-					'%type' => gettype($descriptor),
-					'%path' => wd_strip_root($descriptor_path)
-				)
-			);
-		}
-
-		$flat_id = strtr($id, '.', '_');
-		$normalized_namespace_part = ICanBoogie\normalize_namespace_part($id);
-
-		$descriptor = array
-		(
-			Module::T_PATH => $path,
-			Module::T_ID => $id,
-
-			'class' => 'ICanBoogie\Module\\' .$normalized_namespace_part
-		)
-
-		+ $descriptor;
+		$id = $descriptor[Module::T_ID];
+		$path = $descriptor[Module::T_PATH];
 
 		$autoload = array();
+		$normalized_namespace_part = ICanBoogie\normalize_namespace_part($id);
 
 		if (file_exists($path . 'module.php'))
 		{
@@ -411,8 +503,9 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 			}
 		}
 
-		if (isset($descriptor[Module::T_MODELS]))
+		if (!empty($descriptor[Module::T_MODELS]))
 		{
+			$flat_id = strtr($id, '.', '_');
 			$model_base = 'ICanBoogie\ActiveRecord\Model\\'  . $normalized_namespace_part;
 
 			foreach ($descriptor[Module::T_MODELS] as $model_id => $dummy)
@@ -437,7 +530,6 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 
 		return array
 		(
-			'descriptor' => $descriptor,
 			'autoload' => $autoload
 		);
 	}
@@ -504,18 +596,22 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 	 *
 	 * @return array
 	 */
-	public function order_ids(array $ids)
+	public function order_ids(array $ids, array $descriptors=null)
 	{
 		$ordered = array();
-		$descriptors = $this->descriptors;
 
-		$count_extends = function($super_id) use (&$count_extends, $descriptors)
+		if ($descriptors === null)
+		{
+			$descriptors = $this->descriptors;
+		}
+
+		$count_extends = function($super_id) use (&$count_extends, &$descriptors)
 		{
 			$i = 0;
 
 			foreach ($descriptors as $id => $descriptor)
 			{
-				if (empty($descriptor[Module::T_EXTENDS]) || $descriptor[Module::T_EXTENDS] !== $super_id)
+				if ($descriptor[Module::T_EXTENDS] !== $super_id)
 				{
 					continue;
 				}
@@ -529,40 +625,30 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 		foreach ($ids as $id)
 		{
 			$descriptor = $descriptors[$id];
-			$ordered[$id] = -$count_extends($id) + (isset($descriptor[Module::T_WEIGHT]) ? $descriptor[Module::T_WEIGHT] : 0);
+			$ordered[$id] = -$count_extends($id) + $descriptor[Module::T_WEIGHT];
 		}
 
-		\ICanBoogie\stable_sort($ordered);
+		ICanBoogie\stable_sort($ordered);
 
 		return array_keys($ordered);
 	}
 
 	/**
-	 * Run the modules having a non null T_STARTUP value.
-	 *
-	 * The modules to run are sorted using the value of the T_STARTUP tag.
-	 *
-	 * The T_STARTUP tag defines the priority of the module in the run sequence.
-	 * The higher the value, the earlier the module is ran.
+	 * Runs the modules having a truthy T_STARTUP value.
 	 */
 	public function run()
 	{
-		$list = array();
-
 		foreach ($this->descriptors as $id => $descriptor)
 		{
-			if (!isset($descriptor[Module::T_STARTUP]) || !isset($this[$id]))
+			if (!$descriptor[Module::T_STARTUP] || !isset($this[$id]))
 			{
 				continue;
 			}
 
-			$list[$id] = $descriptor[Module::T_STARTUP];
-		}
+			#
+			# loading the module is enough to run it.
+			#
 
-		arsort($list);
-
-		foreach ($list as $id => $priority)
-		{
 			$this[$id];
 		}
 	}
