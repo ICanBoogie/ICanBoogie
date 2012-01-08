@@ -95,24 +95,15 @@ class Module extends Object
 
 	protected $id;
 	protected $path;
-	protected $tags;
+	protected $tags; // FIXME-20120108: we should use 'descriptor' instead
+	public $descriptor;
 
-	public function __construct($tags)
+	public function __construct(array $descriptor)
 	{
-		if (empty($tags[self::T_ID]))
-		{
-			throw new Exception
-			(
-				'The %tag tag is required', array
-				(
-					'%tag' => 'T_ID'
-				)
-			);
-		}
-
-		$this->tags = $tags;
-		$this->id = $tags[self::T_ID];
-		$this->path = $tags[self::T_PATH];
+		$this->descriptor = $descriptor;
+		$this->tags = &$this->descriptor;
+		$this->id = $descriptor[self::T_ID];
+		$this->path = $descriptor[self::T_PATH];
 	}
 
 	public function __toString()
@@ -155,6 +146,25 @@ class Module extends Object
 		$default = isset($this->tags[self::T_TITLE]) ? $this->tags[self::T_TITLE] : 'Undefined';
 
 		return t($this->flat_id, array(), array('scope' => array('module', 'title'), 'default' => $default));
+	}
+
+	/**
+	 * Returns the parent module.
+	 *
+	 * @return Module|null
+	 */
+	protected function __get_parent()
+	{
+		global $core;
+
+		$extends = $this->descriptor[self::T_EXTENDS];
+
+		if (!$extends)
+		{
+			return;
+		}
+
+		return $core->modules[$extends];
 	}
 
 	/**
