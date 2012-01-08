@@ -117,6 +117,8 @@ class Event
 			));
 		}
 
+		self::$skipable = array();
+
 		if (strpos($pattern, '::'))
 		{
 			list($class, $pattern) = explode('::', $pattern);
@@ -194,6 +196,8 @@ class Event
 		return $class_listeners;
 	}
 
+	private static $skipable = array();
+
 	/**
 	 * Fires an event
 	 *
@@ -213,7 +217,14 @@ class Event
 
 		if ($sender)
 		{
-			$listeners = self::get_class_listeners(get_class($sender));
+			$class = get_class($sender);
+
+			if (isset(self::$skipable[$class . '::' . $type]))
+			{
+				return;
+			}
+
+			$listeners = self::get_class_listeners($class);
 
 			foreach ($listeners as $pattern => $callbacks)
 			{
@@ -243,12 +254,22 @@ class Event
 				}
 			}
 
+			if (!$event)
+			{
+				self::$skipable[$class . '::' . $type] = true;
+			}
+
 			return $event;
 		}
 
 		#
 		# by types
 		#
+
+		if (isset(self::$skipable[$type]))
+		{
+			return;
+		}
 
 		$listeners = self::get_listeners();
 		$patterns = $listeners['__by_type'];
@@ -279,6 +300,11 @@ class Event
 					return $event;
 				}
 			}
+		}
+
+		if (!$event)
+		{
+			self::$skipable[$type] = true;
 		}
 
 		return $event;
