@@ -19,17 +19,20 @@ use ICanBoogie\ActiveRecord\Model;
 class Module extends Object
 {
 	const T_CATEGORY = 'category';
+	const T_CLASS = 'class';
 	const T_DESCRIPTION = 'description';
 	const T_DISABLED = 'disabled';
 	const T_EXTENDS = 'extends';
 	const T_ID = 'id';
 	const T_REQUIRED = 'required';
+	const T_REQUIRES = 'requires';
 	const T_MODELS = 'models';
+	const T_PATH = 'path';
 	const T_PERMISSION = 'permission';
 	const T_PERMISSIONS = 'permissions';
-	const T_PATH = 'path';
 	const T_STARTUP = 'startup';
 	const T_TITLE = 'title';
+	const T_VERSION = 'version';
 	const T_WEIGHT = 'weight';
 
 	/*
