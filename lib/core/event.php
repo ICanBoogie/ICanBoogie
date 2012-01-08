@@ -15,7 +15,7 @@ class Event
 {
 	const DELIMITER = '~';
 
-	private static function translate_regex($pattern)
+	public static function translate_regex($pattern)
 	{
 		if (strpos($pattern, '*') !== false || strpos($pattern, '?') !== false)
 		{
@@ -27,94 +27,109 @@ class Event
 
 	protected static $listeners = array();
 
-	protected static function listeners()
+	/**
+	 * Returns listeners.
+	 *
+	 * When the function is called for the first time, listeners are built from the 'hooks' config
+	 * buy filtering definitions under 'events'.
+	 *
+	 * @return array[string]array
+	 */
+	protected static function get_listeners()
 	{
 		global $core;
 
 		if (empty(self::$listeners))
 		{
-			self::$listeners = $core->configs->synthesize('events', array(__CLASS__, 'listeners_construct'), 'hooks');
+			self::$listeners = $core->configs->synthesize
+			(
+				'events', function($fragments)
+				{
+					global $core;
+
+					$listeners = array();
+
+					foreach ($fragments as $path => $fragment)
+					{
+						if (empty($fragment['events']))
+						{
+							continue;
+						}
+
+						foreach ($fragment['events'] as $pattern => $callback)
+						{
+							if (!is_string($callback))
+							{
+								throw new \InvalidArgumentException(format
+								(
+									'Event callback must be a string, %type given: :callback in %path', array
+									(
+										'type' => gettype($callback),
+										'callback' => $callback,
+										'path' => $path . 'config/hooks.php'
+									)
+								));
+							}
+
+							if (strpos($pattern, '::'))
+							{
+								list($class, $pattern) = explode('::', $pattern);
+
+								$listeners['__by_class'][$class][$pattern][] = $callback;
+							}
+							else
+							{
+								$listeners['__by_type'][Event::translate_regex($pattern)][] = $callback;
+							}
+						}
+					}
+
+					return $listeners;
+				},
+
+				'hooks'
+			);
 		}
 
 		return self::$listeners;
 	}
 
-	public static function listeners_construct($fragments)
+	/**
+	 * Adds event callback.
+	 *
+	 * @param string $pattern
+	 * @param callable $callback
+	 *
+	 * @throws \InvalidArgumentException when $callback is not a callable.
+	 */
+	public static function add($pattern, $callback)
 	{
-		global $core;
-
-		$listeners = array();
-
-		foreach ($fragments as $path => $fragment)
+		if (!is_callable($callback))
 		{
-			if (empty($fragment['events']))
-			{
-				continue;
-			}
-
-			foreach ($fragment['events'] as $pattern => $definition)
-			{
-				if (!is_array($definition))
-				{
-					$definition = array($definition);
-				}
-
-				$definition += array('weight' => 0);
-
-				if (strpos($pattern, '::'))
-				{
-					list($class, $pattern) = explode('::', $pattern);
-
-					$listeners['__by_class'][$class][self::translate_regex($pattern)][] = $definition;
-
-					continue;
-				}
-
-				$listeners['__by_type'][self::translate_regex($pattern)][] = $definition;
-			}
+			throw new \InvalidArgumentException(format
+			(
+				'Event callback must be a callable, %type given: :callback in %path', array
+				(
+					'type' => gettype($callback),
+					'callback' => $callback,
+					'path' => $path . 'config/hooks.php'
+				)
+			));
 		}
-
-		$picker = function($a) { return $a['weight']; };
-		$walker = function(&$v, $k) use ($picker)
-		{
-			\WdArray::stable_sort($v, $picker);
-		};
-
-		if (isset($listeners['__by_type']))
-		{
-			array_walk($listeners['__by_type'], $walker);
-		}
-
-		if (isset($listeners['__by_class']))
-		{
-			array_walk($listeners['__by_class'], function(&$v, $k) use ($walker) { array_walk($v, $walker); });
-		}
-
-		return $listeners;
-	}
-
-	public static function add($pattern, $definition)
-	{
-		if (!is_array($definition))
-		{
-			$definition = array($definition);
-		}
-
-		$definition += array('weight' => 0);
 
 		if (strpos($pattern, '::'))
 		{
 			list($class, $pattern) = explode('::', $pattern);
 
-			self::$listeners['__by_class'][$class][self::translate_regex($pattern)][] = $definition;
-
-			return;
+			self::$listeners['__by_class'][$class][$pattern][] = $callback;
 		}
-
-		self::$listeners['__by_type'][self::translate_regex($pattern)][] = $definition;
+		else
+		{
+			self::$listeners['__by_type'][self::translate_regex($pattern)][] = $callback;
+		}
 	}
 
-	public static function remove($event, $callback)
+	public static function remove($event, $callback) // FIXME-20120801: I don't think this is working
 	{
 		if (empty(self::$listeners[$event]))
 		{
@@ -134,8 +149,15 @@ class Event
 		}
 	}
 
-	static private $listeners_by_class=array();
+	static private $listeners_by_class = array();
 
+	/**
+	 * Returns the callbacks associated with a class.
+	 *
+	 * @param string $class
+	 *
+	 * @return array[string]string
+	 */
 	static private function get_class_listeners($class)
 	{
 		if (isset(self::$listeners_by_class[$class]))
@@ -143,7 +165,7 @@ class Event
 			return $listeners_by_class[$class];
 		}
 
-		$listeners = self::listeners();
+		$listeners = self::get_listeners();
 
 		if (empty($listeners['__by_class']))
 		{
@@ -172,6 +194,19 @@ class Event
 		return $class_listeners;
 	}
 
+	/**
+	 * Fires an event
+	 *
+	 * If $sender is provided the callbacks are narrowed to classes events and $sender is available
+	 * as a third parameter.
+	 *
+	 * @param string $type Event type.
+	 * @param array $params Parameters of the event, they are copied as reference into the Event
+	 * object.
+	 * @param object|null $sender The object sending the event.
+	 *
+	 * @return Event|null The event that was created or null if the fire triggered nothing.
+	 */
 	public static function fire($type, array $params=array(), $sender=null)
 	{
 		$event = null;
@@ -182,7 +217,7 @@ class Event
 
 			foreach ($listeners as $pattern => $callbacks)
 			{
-				if (!($pattern{0} == self::DELIMITER ? preg_match($pattern, $type) : $pattern == $type))
+				if ($type != $pattern)
 				{
 					continue;
 				}
@@ -199,7 +234,7 @@ class Event
 
 				foreach ($callbacks as $callback)
 				{
-					call_user_func($callback[0], $event, $sender);
+					call_user_func($callback, $event, $sender);
 
 					if ($event->_stop)
 					{
@@ -211,12 +246,14 @@ class Event
 			return $event;
 		}
 
+		#
+		# by types
+		#
 
+		$listeners = self::get_listeners();
+		$patterns = $listeners['__by_type'];
 
-		$listeners = self::listeners();
-		$listeners = $listeners['__by_type'];
-
-		foreach ($listeners as $pattern => $definitions)
+		foreach ($patterns as $pattern => $callbacks)
 		{
 			if (!($pattern{0} == self::DELIMITER ? preg_match($pattern, $type) : $pattern == $type))
 			{
@@ -233,63 +270,8 @@ class Event
 				$event = new Event($params);
 			}
 
-			foreach ($definitions as $definition)
+			foreach ($callbacks as $callback)
 			{
-				list($callback) = $definition;
-
-				if (isset($params['target']) && isset($definition['instanceof']))
-				{
-					$target = $params['target'];
-					$instanceof = $definition['instanceof'];
-					$is_instance_of = false;
-
-					if (is_array($instanceof))
-					{
-						foreach ($instanceof as $name)
-						{
-							if (!$target instanceof $name)
-							{
-								continue;
-							}
-
-							$is_instance_of = true;
-
-							break;
-						}
-					}
-					else
-					{
-						$is_instance_of = $target instanceof $instanceof;
-					}
-
-					if (!$is_instance_of)
-					{
-						continue;
-					}
-				}
-
-				#
-				# autoload modules if the callback is prefixed by 'm:'
-				#
-
-				if (is_array($callback) && is_string($callback[0]) && $callback[0]{1} == ':' && $callback[0]{0} == 'm')
-				{
-					global $core;
-
-					$module_id = substr($callback[0], 2);
-
-					if (!isset($core->modules[$module_id]))
-					{
-						#
-						# If the module is unavailable, we silently continue
-						#
-
-						continue;
-					}
-
-					$callback[0] = $core->modules[$module_id];
-				}
-
 				call_user_func($callback, $event);
 
 				if ($event->_stop)
@@ -300,6 +282,25 @@ class Event
 		}
 
 		return $event;
+	}
+
+	/**
+	 * Wraps a callback between a '<type>:before' and '<type>' event.
+	 *
+	 * @param callable $callback
+	 * @param string $type Even type.
+	 * @param array $params Even parameters.
+	 * @param object|null $sender The sender of the event.
+	 *
+	 * @return mixed The result of the callback.
+	 */
+	public static function wrap($callback, $type, array $params=array(), $sender=null)
+	{
+		self::fire($type . ':before', $params, $sender);
+		$rc = $callback($params, $sender);
+		self::fire($type, $params, $sender);
+
+		return $rc;
 	}
 
 	protected function __construct(array $params=array())
