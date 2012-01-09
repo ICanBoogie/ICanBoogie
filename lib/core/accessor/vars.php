@@ -11,11 +11,21 @@
 
 namespace ICanBoogie\Accessor;
 
+use ICanBoogie\Exception;
+
 /**
  * Accessor for the variables stored as files in the "/repository/var" directory.
  */
 class Vars implements \ArrayAccess
 {
+	const MAGIC = "VAR\0SLZ\0";
+	const MAGIC_LENGTH = 8;
+
+	/**
+	 * Absolute path to the vars directory.
+	 *
+	 * @var string
+	 */
 	protected $path;
 
 	/**
@@ -47,14 +57,19 @@ class Vars implements \ArrayAccess
 	 */
 	public function offsetExists($name)
 	{
-		$filename = $this->resolve_filename($name);
+		$filename = $this->path . $name;
 
 		return file_exists($filename);
 	}
 
+	/**
+	 * Deletes a var.
+	 *
+	 * @see ArrayAccess::offsetUnset()
+	 */
 	public function offsetUnset($name)
 	{
-		$filename = $this->resolve_filename($name);
+		$filename = $this->path . $name;
 
 		if (!file_exists($filename))
 		{
@@ -64,18 +79,22 @@ class Vars implements \ArrayAccess
 		unlink($filename);
 	}
 
+	/**
+	 * Returns the value of the var using the {@link retrieve()} method.
+	 *
+	 * @see ArrayAccess::offsetGet()
+	 */
 	public function offsetGet($name)
 	{
 		return $this->retrieve($name);
 	}
 
-	private function resolve_filename($name)
-	{
-		return $this->path . $name;
-	}
-
 	/**
 	 * Cache a variable in the repository.
+	 *
+	 * If the value is an array or a string it is serialized and prepended with a magic
+	 * indentifier. This magic identifier is used to recognized previously serialized values when
+	 * they are read back.
 	 *
 	 * @param string $key The key used to identify the value. Keys are unique, so storing a second
 	 * value with the same key will overwrite the previous value.
@@ -86,7 +105,8 @@ class Vars implements \ArrayAccess
 	 */
 	public function store($key, $value, $ttl=0)
 	{
-		$ttl_mark = $this->resolve_filename($key . '.ttl');
+		$filename = $this->path . $key;
+		$ttl_mark = $filename . '.ttl';
 
 		if ($ttl)
 		{
@@ -99,7 +119,6 @@ class Vars implements \ArrayAccess
 			unlink($ttl_mark);
 		}
 
-		$filename = $this->resolve_filename($key);
 		$dir = dirname($filename);
 
 		if (!file_exists($dir))
@@ -107,25 +126,78 @@ class Vars implements \ArrayAccess
 			mkdir($dir, 0755, true);
 		}
 
-		file_put_contents($filename, $value);
+		$tmp_filename = 'var-' . uniqid(mt_rand(), true);
+
+		#
+		# If the value is an array or a string it is serialized and prepended with a magic
+		# identifier.
+		#
+
+		if (is_array($value) || is_object($value))
+		{
+			$value = self::MAGIC . serialize($value);
+		}
+
+		#
+		# We lock the file create/update, but we write the data in a temporary file, which is then
+		# renamed once the data is written.
+		#
+
+		$fh = fopen($filename, 'a+');
+
+		if (!$fh)
+		{
+			throw new Exception('Unable to open %filename', array('filename' => $filename));
+		}
+
+		if (flock($fh, LOCK_EX))
+		{
+			file_put_contents($tmp_filename, $value);
+
+			if (!unlink($filename))
+			{
+				throw new Exception('Unable to unlink %filename', array('filename' => $filename));
+			}
+
+			rename($tmp_filename, $filename);
+
+			flock($fh, LOCK_UN);
+		}
+		else
+		{
+			throw new WdException('Unable to get to exclusive lock on %filename', array('filename' => $filename));
+		}
+
+		fclose($fh);
 	}
 
+	/**
+	 * Returns the value of variable.
+	 *
+	 * If the value is marked with the magic identifier it is unserialized.
+	 *
+	 * @param string $name
+	 * @param mixed $default The value returned if the variable does not exists. Defaults to null.
+	 *
+	 * @return mixed
+	 */
 	public function retrieve($name, $default=null)
 	{
-		$ttl_mark = $this->resolve_filename($name . '.ttl');
+		$filename = $this->path . $name;
+		$ttl_mark = $filename . '.ttl';
 
-		if (file_exists($ttl_mark) && fileatime($ttl_mark) < time())
+		if (file_exists($ttl_mark) && fileatime($ttl_mark) < time() || !file_exists($filename))
 		{
 			return $default;
 		}
 
-		$filename = $this->resolve_filename($name);
+		$value = file_get_contents($filename);
 
-		if (!file_exists($filename))
+		if (substr($value, 0, self::MAGIC_LENGTH) == self::MAGIC)
 		{
-			return $default;
+			$value = unserialize(substr($value, self::MAGIC_LENGTH));
 		}
 
-		return file_get_contents($filename);
+		return $value;
 	}
 }
