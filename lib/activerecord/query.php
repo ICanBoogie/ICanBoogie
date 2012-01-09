@@ -92,7 +92,7 @@ class Query extends Object implements \IteratorAggregate
 
 		if (in_array($method, $scopes))
 		{
-			array_unshift($this, $arguments, $var);
+			array_unshift($arguments, $this);
 
 			return $this->model->scope($method, $arguments);
 		}
