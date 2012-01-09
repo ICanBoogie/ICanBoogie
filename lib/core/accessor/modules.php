@@ -50,7 +50,7 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 	 * @var string Path to the cache repository, relative to the ICanBoogie\DOCUMENT_ROOT
 	 * path.
 	 */
-	protected $cache_repository;
+	protected $vars;
 
 	/**
 	 * @var array Loaded modules.
@@ -64,10 +64,10 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 	 * @param bool $use_cache Should we use a cache for the module index ?
 	 * @param string $cache_repository The path to the cache repository.
 	 */
-	public function __construct($paths, $use_cache=false, $cache_repository='/repository/cache/core')
+	public function __construct($paths, $use_cache=false, Vars $vars)
 	{
 		$this->use_cache = $use_cache;
-		$this->cache_repository = $cache_repository;
+		$this->vars = $vars;
 		$this->paths = $paths;
 	}
 
@@ -215,17 +215,16 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 	{
 		if ($this->use_cache)
 		{
-			$cache = new FileCache
-			(
-				array
-				(
-					FileCache::T_REPOSITORY => $this->cache_repository,
-					FileCache::T_SERIALIZE => true,
-					FileCache::T_COMPRESS => true
-				)
-			);
+			$key = 'modules-' . md5(implode($this->paths));
 
-			$index = $cache->load('modules_' . md5(implode($this->paths)), array($this, 'index_construct'));
+			$index = $this->vars[$key];
+
+			if (!$index)
+			{
+				$index = $this->index_construct();
+
+				$this->vars[$key] = $index;
+			}
 		}
 		else
 		{
@@ -449,7 +448,7 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 
 		$find_parents = function($id, &$parents=array()) use (&$find_parents, &$descriptors)
 		{
-			$parent = $descriptors[$id][ICanBoogie\Module::T_EXTENDS];
+			$parent = $descriptors[$id][Module::T_EXTENDS];
 
 			if ($parent)
 			{
