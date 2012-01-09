@@ -44,7 +44,7 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function offsetSet($offset, $value)
 	{
-		throw new Exception('Offsets are not settable');
+		throw new Exception\OffsetNotWritable(array($offset, $this));
 	}
 
 	/**
@@ -54,7 +54,7 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function offsetUnset($offset)
 	{
-		throw new Exception('Offsets are not unsettable');
+		throw new Exception\OffsetNotWritable(array($offset, $this));
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 
 		if (empty($this->connections[$id]))
 		{
-			throw new Exception('The connection %id is not defined.', array('%id' => $id));
+			throw new \InvalidArgumentException(\ICanBoogie\format('The connection %id is not defined.', array('id' => $id)));
 		}
 
 		#

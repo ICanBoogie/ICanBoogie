@@ -82,7 +82,7 @@ class Models implements \ArrayAccess
 	 */
 	public function offsetUnset($offset)
 	{
-		throw new \Exception('Offsets are not unsettable');
+		throw new Exception\PropertyNotWritable(array($property, $this));
 	}
 
 	/**
