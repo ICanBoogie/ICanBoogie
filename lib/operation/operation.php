@@ -340,11 +340,10 @@ abstract class Operation extends Object
 	private static function resolve_operation_class($name, $target)
 	{
 		$module = $target;
-		$normalized_name = normalize_namespace_part($name);
 
 		while ($module)
 		{
-			$class = 'ICanBoogie\Operation\\' . normalize_namespace_part($module->id) . '\\' . $normalized_name;
+			$class = self::format_class_name($module->descriptor[Module::T_NAMESPACE], $name);
 
 			if (class_exists($class, true))
 			{
@@ -353,6 +352,20 @@ abstract class Operation extends Object
 
 			$module = $module->parent;
 		}
+
+	}
+
+	/**
+	 * Formats the specified namespace and operation name into an operation class.
+	 *
+	 * @param string $namespace
+	 * @param string $operation_name
+	 *
+	 * @return string
+	 */
+	public static function format_class_name($namespace, $operation_name)
+	{
+		return $namespace . '\\' . ucfirst(wd_camelize(strtr($operation_name, '_', '-'))) . 'Operation';
 	}
 
 	public $key;

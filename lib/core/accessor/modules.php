@@ -14,8 +14,8 @@ namespace ICanBoogie\Accessor;
 use ICanBoogie;
 use ICanBoogie\ActiveRecord;
 use ICanBoogie\Exception;
-use ICanBoogie\FileCache;
 use ICanBoogie\Module;
+use ICanBoogie\Operation;
 
 /**
  * Accessor class for the modules of the framework.
@@ -500,9 +500,9 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 	{
 		$id = $descriptor[Module::T_ID];
 		$path = $descriptor[Module::T_PATH];
+		$namespace = $descriptor[Module::T_NAMESPACE];
 
 		$autoload = array();
-		$normalized_namespace_part = ICanBoogie\normalize_namespace_part($id);
 
 		if (file_exists($path . 'module.php'))
 		{
@@ -511,7 +511,7 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 
 		if (file_exists($path . 'hooks.php'))
 		{
-			$autoload[$descriptor[Module::T_NAMESPACE] . '\Hooks'] = $path . 'hooks.php';
+			$autoload[$namespace . '\Hooks'] = $path . 'hooks.php';
 		}
 
 		$operations_dir = $path . 'operations' . DIRECTORY_SEPARATOR;
@@ -524,15 +524,16 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 			foreach ($filter as $file)
 			{
 				$base = $file->getBasename('.php');
-				$name = 'ICanBoogie\Operation\\' . $normalized_namespace_part . '\\' . ICanBoogie\normalize_namespace_part($base);
+				$operation_class_name = Operation::format_class_name($namespace, $base);
 
-				$autoload[$name] = $operations_dir . $file;
+				$autoload[$operation_class_name] = $operations_dir . $file;
 			}
 		}
 
 		if (!empty($descriptor[Module::T_MODELS]))
 		{
 			$flat_id = strtr($id, '.', '_');
+			$normalized_namespace_part = ICanBoogie\normalize_namespace_part($id);
 			$model_base = 'ICanBoogie\ActiveRecord\Model\\'  . $normalized_namespace_part;
 
 			foreach ($descriptor[Module::T_MODELS] as $model_id => $dummy)
