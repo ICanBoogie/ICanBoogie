@@ -14,8 +14,6 @@ namespace ICanBoogie;
 /**
  * Session.
  *
- * @author Olivier Laviale <olivier.laviale@gmail.com>
- *
  * @property string $remote_ip The remote IP of the request that created the session.
  * @property string $remote_agent_hash The remote user agent hash of the request that created the
  * session.

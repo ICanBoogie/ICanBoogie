@@ -29,7 +29,7 @@ class Models implements \ArrayAccess
 	/**
 	 * Constructor.
 	 *
-	 * @param Accessor\Modules $modules
+	 * @param Modules $modules A modules accessor.
 	 */
 	public function __construct(Modules $modules)
 	{
@@ -37,17 +37,18 @@ class Models implements \ArrayAccess
 	}
 
 	/**
-	 * Checks if a models exists by first checking if the module it belongs to is enabled and that
-	 * the module actually defines the model.
+	 * Checks if a model exists by first checking if the module it belongs to is enabled and that
+	 * it actually defines the model.
 	 *
 	 * @see ArrayAccess::offsetExists()
+	 *
 	 * @return true if the model exists and is accessible, false otherwise.
 	 */
 	public function offsetExists($offset)
 	{
 		list($module_id, $model_id) = explode('/', $offset) + array(1 => 'primary');
 
-		if (empty($this->modules[$module_id]))
+		if (!isset($this->modules[$module_id]))
 		{
 			return false;
 		}
@@ -58,11 +59,9 @@ class Models implements \ArrayAccess
 	}
 
 	/**
-	 * The method is not implemented.
-	 *
 	 * @see ArrayAccess::offsetSet()
 	 *
-	 * @throws Exception if an offset is set.
+	 * @throws Exception\PropertyNotWritable when an offset is set.
 	 */
 	public function offsetSet($offset, $value)
 	{
@@ -70,11 +69,9 @@ class Models implements \ArrayAccess
 	}
 
 	/**
-	 * The method is not implemented.
-	 *
 	 * @see ArrayAccess::offsetUnset()
 	 *
-	 * @throws Exception if an offset is unset.
+	 * @throws Exception\PropertyNotWritable when an offset is unset.
 	 */
 	public function offsetUnset($offset)
 	{
@@ -85,8 +82,8 @@ class Models implements \ArrayAccess
 	 * Gets the specified model of the specified module.
 	 *
 	 * The pattern used to request a model is "<module_id>[/<model_id>]" where "<module_id>" is
-	 * the identifier for the module and "<model_id>" is the identifier of the module's model. The
-	 * _model_ part is optionnal, if it's not defined it defaults to "primary".
+	 * the identifier of the module and "<model_id>" is the identifier of the module's model. The
+	 * _model_id_ part is optionnal and defaults to "primary".
 	 *
 	 * @see ArrayAccess::offsetGet()
 	 *

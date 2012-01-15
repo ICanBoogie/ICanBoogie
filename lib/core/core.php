@@ -12,13 +12,13 @@
 namespace ICanBoogie;
 
 /**
- * @property \ICanBoogie\Accessor\Configs $configs Configurations accessor.
- * @property \ICanBoogie\Accessor\Connections $connections Database connections accessor.
- * @property \ICanBoogie\Accessor\Models $models Models accessor.
- * @property \ICanBoogie\Accessor\Modules $modules Modules accessor.
- * @property \ICanBoogie\Accessor\Vars $vars Persistant variables accessor.
+ * @property \ICanBoogie\Configs $configs Configurations accessor.
+ * @property \ICanBoogie\Connections $connections Database connections accessor.
+ * @property \ICanBoogie\Models $models Models accessor.
+ * @property \ICanBoogie\Modules $modules Modules accessor.
+ * @property \ICanBoogie\Vars $vars Persistant variables accessor.
  * @property \ICanBoogie\Database $db The primary database connection.
- * @property \ICanBoogie\Session $session User's session. Injected by the \ICanBoogie\Session class.
+ * @property \ICanBoogie\Session $session User's session.
  * @property string $language Locale language.
  * @property string|int $timezeone Date and time timezone.
  * @property \ICanBoogie\I18n\Locale $locale Locale object matching the locale language.
@@ -59,7 +59,7 @@ class Core extends Object
 	 */
 	public static function exception_handler(\Exception $exception)
 	{
-		exit($exception);
+		exit(Debug::format_alert($exception));
 	}
 
 	protected static $autoload = array();
@@ -93,11 +93,6 @@ class Core extends Object
 	 */
 	private static function autoload_handler($name)
 	{
-		if ($name == 'parent')
-		{
-			return false;
-		}
-
 		$list = self::$autoload;
 
 		if (isset($list[$name]))
@@ -174,7 +169,7 @@ class Core extends Object
 	/**
 	 * Returns modules accessor.
 	 *
-	 * @return ModulesAccessor The modules accessor.
+	 * @return Modules The modules accessor.
 	 */
 	protected function __get_modules()
 	{
@@ -186,7 +181,7 @@ class Core extends Object
 	/**
 	 * Returns models accessor.
 	 *
-	 * @return Accessor\Models The models accessor.
+	 * @return Models The models accessor.
 	 */
 	protected function __get_models()
 	{
@@ -196,7 +191,7 @@ class Core extends Object
 	/**
 	 * Returns the non-volatile variables accessor.
 	 *
-	 * @return VarsAccessor The non-volatie variables accessor.
+	 * @return Vars The non-volatie variables accessor.
 	 */
 	protected function __get_vars()
 	{
@@ -206,7 +201,7 @@ class Core extends Object
 	/**
 	 * Returns the connections accessor.
 	 *
-	 * @return ConnectionsAccessor
+	 * @return Connections
 	 */
 	protected function __get_connections()
 	{
@@ -234,7 +229,7 @@ class Core extends Object
 	}
 
 	/**
-	 * Returns the code configuration.
+	 * Returns the _core_ configuration.
 	 *
 	 * @return array
 	 */
@@ -258,8 +253,6 @@ class Core extends Object
 	protected function __volatile_set_language($id)
 	{
 		I18n::set_language($id);
-
-		$this->_locale = null;
 	}
 
 	/**
@@ -270,6 +263,14 @@ class Core extends Object
 	protected function __volatile_get_language()
 	{
 		return I18n::get_language();
+	}
+
+	/**
+	 * @throws Exception\PropertyNotWritable when the `locale` property is set.
+	 */
+	protected function __volatile_set_locale()
+	{
+		throw new Exception\PropertyNotWritable(array('locale', $this));
 	}
 
 	/**
@@ -324,6 +325,8 @@ class Core extends Object
 	 *
 	 * The session is initialized when the session object is created.
 	 *
+	 * Once the session is created the `start` event is fired with the session as sender.
+	 *
 	 * @return Session.
 	 */
 	protected function __get_session()
@@ -332,13 +335,6 @@ class Core extends Object
 
 		unset($options['id']);
 		$session_name = $options['name'];
-
-		if (isset($_POST[$session_name]))
-		{
-			// FIXME-20110716: support for Flash file upload, we should remove it as fast as possible
-
-			$options['id'] = $_POST[$session_name];
-		}
 
 		$session = new Session($options);
 
@@ -359,17 +355,13 @@ class Core extends Object
 
 		$this->modules->autorun = true;
 
-//		wd_log_time('run modules start');
 		$this->run_modules();
-//		wd_log_time('run modules finish');
 
 		$this->request = HTTP\Request::from_globals();
 
 		$this->run_context();
 
-// 		wd_log_time('run request start');
 		$this->run_request($this->request);
-// 		wd_log_time('run request finish');
 
 		if ($this->config['cache bootstrap'])
 		{

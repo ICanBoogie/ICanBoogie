@@ -200,7 +200,14 @@ class Response extends \ICanBoogie\Object
 	{
 		if ($body !== null && !is_string($body) && !is_numeric($body) && !is_callable(array($body, '__toString')) && !is_callable($body))
 		{
-			throw new \UnexpectedValueException('The Response body must be a string, an object implementing the __toString() method or be callable, <q>' . gettype($body) . '</q> given.');
+			throw new \UnexpectedValueException(\ICanBoogie\format
+			(
+				'The Response body must be a string, an object implementing the __toString() method or be callable, %type given. !value', array
+				(
+					'type' => gettype($body),
+					'value' => $body
+				)
+			));
 		}
 
 		$this->body = $body;

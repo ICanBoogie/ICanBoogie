@@ -140,52 +140,6 @@ class Debug
 		exit($message);
 	}
 
-	/*
-	static public function trigger($message, array $args=array())
-	{
-		$stack = debug_backtrace();
-		$caller = array_shift($stack);
-
-		#
-		# we skip user_func calls, and get to the real call
-		#
-
-		while (empty($caller['file']))
-		{
-			$caller = array_shift($stack);
-		}
-
-		#
-		# prolog
-		#
-
-		$message = I18n\Translator::format($message, $args);
-
-		$file = $caller['file'];
-		$line = $caller['line'];
-		$stack = self::format_trace($stack);
-
-		$rc = <<<EOT
-<pre class="alert-message debug">
-<strong>Backtrace with the following message:</strong>
-
-$message
-
-in <em>$file</em> at line <em>$line</em>$stack
-</pre>
-EOT;
-
-		self::report($rc);
-
-		$config = self::get_config();
-
-		if ($config['verbose'])
-		{
-			echo '<br /> ' . $rc;
-		}
-	}
-	*/
-
 	const MAX_STRING_LEN = 16;
 
 	private static $error_names = array
@@ -255,7 +209,7 @@ EOT;
 		$file = self::strip_root($file);
 
 		return <<<EOT
-<pre class="alert-message $class">
+<pre class="alert-message block-message error $class">
 <strong>$type with the following message:</strong>
 
 $message

@@ -11,8 +11,6 @@
 
 namespace ICanBoogie\I18n;
 
-use ICanBoogie\Operation\Users\IsInique;
-
 use ICanBoogie\FileCache;
 use ICanBoogie\I18n;
 use ICanBoogie\I18n\Translator;

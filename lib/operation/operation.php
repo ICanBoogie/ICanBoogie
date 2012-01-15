@@ -24,12 +24,6 @@ abstract class Operation extends Object
 	const RESTFUL_BASE = '/api/';
 	const RESTFUL_BASE_LENGHT = 5;
 
-	protected static $formats = array
-	(
-		'json' => array('application/json', 'format_json'),
-		'xml' => array('application/xml', 'format_xml')
-	);
-
 	/**
 	 * Creates an Operation instance from a request.
 	 *
@@ -96,7 +90,25 @@ abstract class Operation extends Object
 	 */
 	public static function from_request(HTTP\Request $request)
 	{
+		global $core;
+
 		$path = Route::decontextualize($request->path);
+		$extension = $request->extension;
+
+		if ($extension == 'json')
+		{
+			$path = substr($path, 0, -5);
+			$request->headers['Accept'] = 'application/json';
+			$request->is_xhr = true; // FIXME-20110925: that's not very nice
+		}
+		else if ($extension == 'xml')
+		{
+			$path = substr($path, 0, -4);
+			$request->headers['Accept'] = 'application/xml';
+			$request->is_xhr = true; // FIXME-20110925: that's not very nice
+		}
+
+		$path = rtrim($path, '/');
 
 		if (substr($path, 0, self::RESTFUL_BASE_LENGHT) == self::RESTFUL_BASE)
 		{
@@ -116,10 +128,15 @@ abstract class Operation extends Object
 
 			if (!$matches)
 			{
-				throw new Exception('Unknown operation %operation.', array('%operation' => $uri), 404);
+				throw new Exception('Unknown operation %operation.', array('operation' => $path), 404);
 			}
 
 			list(, $module_id, , $operation_key, $operation_name) = $matches;
+
+			if (empty($core->modules->descriptors[$module_id]))
+			{
+				throw new Exception('Unknown operation %operation.', array('operation' => $path), 404);
+			}
 
 			$request[self::KEY] = $operation_key;
 
@@ -153,81 +170,64 @@ abstract class Operation extends Object
 	{
 		global $core;
 
-		foreach (self::$formats as $extension => $format)
+		$found = Route::find($path, $request->method, 'api');
+
+		if (!$found)
 		{
-			$extension = '.' . $extension;
-			$extension_length = strlen($extension);
-
-			if (substr($path, -$extension_length) == $extension)
-			{
-				$request->headers['Accept'] = $format[0];
-
-				$path = substr($path, 0, -$extension_length);
-
-				break;
-			}
+			return;
 		}
 
-		$path = rtrim($path, '/');
-		$routes = $core->configs->synthesize('api', array(__CLASS__, 'api_constructor'), 'routes');
+		list($route, $match, $pattern) = $found;
 
-		foreach ($routes as $pattern => $route)
+		#
+		# We found a matching route. The arguments captured from the route are merged with
+		# the request parameters. The route must define either a class for the operation
+		# instance (defined using the `class` key) or a callback to create that instance
+		# (defined using the `callback` key).
+		#
+
+		if (is_array($match))
 		{
-			$match = Route::match($path, $pattern);
-
-			if (!$match)
-			{
-				continue;
-			}
-
-			#
-			# We found a matching route. The arguments captured from the route are merged with
-			# the request parameters. The route must define either a class for the operation
-			# instance (defined using the `class` key) or a callback to create that instance
-			# (defined using the `callback` key).
-			#
-
-			if (is_array($match))
-			{
-				$request->params = $match + $request->params;
-			}
-
-			if (isset($route['callback']) && isset($route['class']))
-			{
-				throw new Exception('Ambiguous definition for operation route, both callback and class are defined.');
-			}
-			else if (isset($route['callback']))
-			{
-				$operation = call_user_func($route['callback'], $request);
-
-				if (!($operation instanceof Operation))
-				{
-					throw new Exception('The operation route callback %callback failed to produce an operation object.', array('%callback' => implode('::', $route['callback'])));
-				}
-			}
-			else if (isset($route['class']))
-			{
-				$class = $route['class'];
-
-				if (!class_exists($class, true))
-				{
-					throw new Exception('Unable to create operation instance, the %class class is not defined.', array('%class' => $class));
-				}
-
-				$operation = new $class($route);
-			}
-			else
-			{
-				throw new Exception('The operation route must either define a class or a callback.');
-			}
-
-			/*
-			$operation->terminus = true;
-			$operation->method = 'GET';
-			*/
-
-			return $operation;
+			$request->params = $match + $request->params;
 		}
+
+		if (isset($route['callback']) && isset($route['class']))
+		{
+			throw new \LogicException('Ambiguous definition for operation route, both callback and class are defined:' . wd_dump($route));
+		}
+		else if (isset($route['callback']))
+		{
+			$operation = call_user_func($route['callback'], $request);
+
+			if (!($operation instanceof Operation))
+			{
+				throw new Exception
+				(
+					'The callback for the route %route failed to produce an operation object, %rc returned.', array
+					(
+						'route' => $path,
+						'rc' => $operation
+					)
+				);
+			}
+		}
+		else if (isset($route['class']))
+		{
+			$class = $route['class'];
+
+			if (!class_exists($class, true))
+			{
+				throw new Exception('Unable to create operation instance, the %class class is not defined.', array('class' => $class));
+			}
+
+			$operation = new $class($route);
+		}
+		else
+		{
+			throw new Exception('The operation route must either define a class or a callback.');
+		}
+
+		return $operation;
 	}
 
 	protected static function from_module_request(HTTP\Request $request, $module_id, $operation_name, $operation_key)
@@ -502,6 +502,11 @@ abstract class Operation extends Object
 	 * The property is set by the constructor.
 	 */
 	protected $module;
+
+	protected function __volatile_get_module()
+	{
+		return $this->module;
+	}
 
 	/**
 	 * Constructor.

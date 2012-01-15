@@ -77,51 +77,11 @@ class Exception extends \Exception
 			header('HTTP/1.0 ' . $this->code . ' ' . $this->title);
 		}
 
-		#
-		#
-		#
+		$message = Debug::format_alert($this);
 
-		$file = $this->getFile();
-		$line = $this->getLine();
+		Debug::report($message);
 
-		$lines = array();
-
-		$lines[] = '<strong>' . $this->title . ', with the following message:</strong><br />';
-		$lines[] = $this->getMessage();
-
-		Debug::lineNumber($file, $line, $lines);
-		Debug::format_trace($this->getTrace(), $lines);
-
-		#
-		# if WDEXCEPTION_WITH_LOG is set to true, we join the messages from the log
-		# to the trace
-		#
-
-		if (WDEXCEPTION_WITH_LOG)
-		{
-			$log = array_merge(Debug::fetch_messages('debug'), Debug::fetch_messages('error'), Debug::fetch_messages('done'));
-
-			if ($log)
-			{
-				$lines[] = '<br /><strong>Log:</strong><br />';
-
-				foreach ($log as $message)
-				{
-					$lines[] = $message . '<br />';
-				}
-			}
-		}
-
-		#
-		# now we join all of these lines, report the message and return it
-		# so it can be displayed by the exception handler
-		#
-
-		$rc = '<code class="exception">' . implode('<br />' . PHP_EOL, $lines) . '</code>';
-
-		Debug::report($rc);
-
-		return $rc;
+		return $message;
 	}
 
 	public function getHTTPCode()

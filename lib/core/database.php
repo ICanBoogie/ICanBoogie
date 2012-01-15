@@ -62,6 +62,11 @@ class Database extends \PDO
 	 */
 	public $queries_count = 0;
 
+	/**
+	 * The number of micro seconds spent per request.
+	 *
+	 * @var array[]array
+	 */
 	public $profiling = array();
 
 	/**
@@ -134,12 +139,11 @@ class Database extends \PDO
 	 * Overrides the method to resolve the statement before it is prepared, then set its fetch
 	 * mode and connection.
 	 *
-	 * @return WdDatabaseStatement The prepared statement.
+	 * @return DatabaseStatement The prepared statement.
 	 *
 	 * @see PDO::prepare()
 	 * @see Database::resolve_statement()
 	 */
-
 	public function prepare($statement, $options=array())
 	{
 		$statement = $this->resolve_statement($statement);
@@ -680,6 +684,7 @@ class Database extends \PDO
 	 * Checks if a specified table exists in the database.
 	 *
 	 * @param string $unprefixed_name The unprefixed name of the table.
+	 *
 	 * @return bool true if the table exists, false otherwise.
 	 */
 	public function table_exists($unprefixed_name)
@@ -704,7 +709,6 @@ class Database extends \PDO
 
 	/**
 	 * Optimizes the tables of the database.
-	 *
 	 */
 	public function optimize()
 	{
@@ -722,11 +726,43 @@ class Database extends \PDO
 }
 
 /**
- * Class for WdDatabase statements.
- *
+ * A database statement.
  */
 class DatabaseStatement extends \PDOStatement
 {
+	/**
+	 * The database connection that created this statement.
+	 *
+	 * @var Database
+	 */
+	public $connection;
+
+	/**
+	 * Alias of {@link execute()}.
+	 */
+	public function __invoke(array $args=array())
+	{
+		return $this->execute($args);
+	}
+
+	/**
+	 * Dispatch magic properties `all` and `one`.
+	 *
+	 * @param unknown_type $property
+	 *
+	 * @throws Exception\PropertyNotFound
+	 */
+	public function __get($property)
+	{
+		switch ($property)
+		{
+			case 'all': return $this->fetchAll();
+			case 'one': return $this->fetchAndClose();
+		}
+
+		throw new Exception\PropertyNotFound(array($property, $this));
+	}
+
 	/**
 	 * Executes the statement and increments the connection queries count.
 	 *
@@ -746,9 +782,7 @@ class DatabaseStatement extends \PDOStatement
 
 		try
 		{
-			$finish = microtime(true);
-
-			$this->connection->profiling[] = array($finish - $start, $this->queryString);
+			$this->connection->profiling[] = array(microtime(true) - $start, $this->queryString);
 
 			return parent::execute($args);
 		}
@@ -836,26 +870,11 @@ class DatabaseStatement extends \PDOStatement
 		return $rc;
 	}
 
-	public function __get($property)
-	{
-		switch ($property)
-		{
-			case 'all': return $this->fetchAll();
-			case 'one': return $this->fetchAndClose();
-		}
-
-		throw new Exception('Undefined property: ' . get_class($this) . '::$' . $property);
-	}
-
+	/**
+	 * Alias for {@link \PDOStatement::fetchAll()}
+	 */
 	public function all($fetch_style=null, $column_index=null, array $ctor_args=null)
 	{
-		$args = func_get_args();
-
-		return call_user_func_array(array($this, 'fetchAll'), $args);
-	}
-
-	public function __invoke(array $args=array())
-	{
-		return $this->execute($args);
+		return call_user_func_array(array($this, 'fetchAll'), func_get_args());
 	}
 }

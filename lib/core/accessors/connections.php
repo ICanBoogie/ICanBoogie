@@ -19,6 +19,11 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 	private $connections;
 	private $established = array();
 
+	/**
+	 * Constructor.
+	 *
+	 * @param array $connections Connections definitions usually comming from the _core_ config.
+	 */
 	public function __construct(array $connections)
 	{
 		$this->connections = $connections;
@@ -37,7 +42,7 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * @see ArrayAccess::offsetSet()
 	 *
-	 * @throws Exception if an offset is set.
+	 * @throws Exception\OffsetNotWritable when an offset is set.
 	 */
 	public function offsetSet($offset, $value)
 	{
@@ -47,7 +52,7 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * @see ArrayAccess::offsetUnset()
 	 *
-	 * @throws Exception if an offset is unset.
+	 * @throws Exception\OffsetNotWritable when an offset is unset.
 	 */
 	public function offsetUnset($offset)
 	{
@@ -76,7 +81,7 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 
 		if (empty($this->connections[$id]))
 		{
-			throw new \InvalidArgumentException(format('The connection %id is not defined.', array('id' => $id)));
+			throw new Exception\OffsetNotReadable(format('The connection %id is not defined.', array('id' => $id)));
 		}
 
 		#
@@ -112,6 +117,8 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * Iterate through established conections.
+	 *
 	 * @see IteratorAggregate::getIterator()
 	 *
 	 * @return Traversable

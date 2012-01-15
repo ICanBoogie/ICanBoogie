@@ -31,7 +31,7 @@ class Object
 	 *
 	 * @return Object The new instance.
 	 */
-	public static function from(array $properties=array(), array $construct_args=array(), $class_name=null)
+	public static function from($properties=array(), array $construct_args=array(), $class_name=null)
 	{
 		if (!$class_name)
 		{
@@ -126,16 +126,16 @@ class Object
 				continue;
 			}
 
-			foreach ($fragment['objects.methods'] as $method => $definition)
+			foreach ($fragment['objects.methods'] as $method => $callback)
 			{
 				if (strpos($method, '::') === false)
 				{
-					throw new \LogicException(format('Invalid method name %method, must be <code>class_name::method_name</code>', array('method' => $method)));
+					throw new \InvalidArgumentException(format('Invalid method name %method, must be <code>class_name::method_name</code>', array('method' => $method)));
 				}
 
 				list($class, $method) = explode('::', $method);
 
-				$methods[$class][$method] = is_string($definition) ? $definition : $definition[0];
+				$methods[$class][$method] = $callback;
 			}
 		}
 
@@ -146,14 +146,25 @@ class Object
 	 * Adds a method to a class.
 	 *
 	 * @param string $method The name of the method.
-	 * @param array $definition Definition of the method:
-	 *
-	 * 0 => callback - The callback for the method.
-	 * 'instanceof' => string|array The instance or instances to which the method is added.
+	 * @param array $callback Callback function.
 	 */
-	static public function add_method($method, array $definition)
+	public static function add_method($method, $callback)
 	{
-		self::add_methods(array($method => $definition));
+		global $core;
+
+		if (self::$methods === null && isset($core))
+		{
+			self::$methods = $core->configs['methods'];
+		}
+
+		if (strpos($method, '::') === false)
+		{
+			throw new \InvalidArgumentException(format('Invalid method name %method, must be <code>class_name::method_name</code>', array('method' => $method)));
+		}
+
+		list($class, $method) = explode('::', $method);
+
+		self::$class_methods[$class][$method] = $callback;
 	}
 
 	/**
@@ -161,30 +172,11 @@ class Object
 	 *
 	 * @param array $definitions
 	 */
-	static public function add_methods(array $definitions)
+	public static function add_methods(array $methods)
 	{
-		global $core;
-
-		if (self::$methods === null)
+		foreach ($methods as $method => $callback)
 		{
-			self::$methods = $core->configs['methods'];
-		}
-
-		self::$class_methods = null;
-
-		foreach ($definitions as $method => $definition)
-		{
-			{
-				if (empty($definition['instanceof']))
-				{
-					throw new Exception('Missing <em>instanceof</em> in definition: !definition.', array('!definition' => $definition));
-				}
-
-				foreach ((array) $definition['instanceof'] as $class)
-				{
-					self::$methods[$class][$method] = $definition[0];
-				}
-			}
+			static::add_method($method, $callback);
 		}
 	}
 
@@ -235,6 +227,7 @@ class Object
 	 *
 	 * @param string $method
 	 * @param array $arguments
+	 *
 	 * @return mixed The result of the callback.
 	 */
 	public function __call($method, $arguments)
@@ -429,11 +422,21 @@ class Object
 		}
 		*/
 
-		$properties = get_object_vars($this);
+		#
+		# Because property_exists() check class properties, it return true even when the property
+		# has been unset, thus we need to check if the property still exists using
+		# get_object_vars(). We use them both because property_exists() doesn't cost much and will
+		# sometimes suffice.
+		#
 
-		if (array_key_exists($property, $properties))
+		if (property_exists($this, $property))
 		{
-			throw new Exception\PropertyNotWritable(array($property, $this));
+			$properties = get_object_vars($this);
+
+			if (array_key_exists($property, $properties))
+			{
+				throw new Exception\PropertyNotWritable(array($property, $this));
+			}
 		}
 
 		$this->$property = $value;
@@ -446,6 +449,7 @@ class Object
 	 * the property.
 	 *
 	 * @param string $property The property to check.
+	 *
 	 * @return bool true if the object has the property, false otherwise.
 	 */
 	public function has_property($property)
@@ -499,6 +503,7 @@ class Object
 	 * Checks whether this object supports the specified method.
 	 *
 	 * @param string $method Name of the method.
+	 *
 	 * @return bool true if the object supports the method, false otherwise.
 	 */
 	public function has_method($method)
@@ -509,10 +514,9 @@ class Object
 	/**
 	 * Returns the callback for a given unimplemented method.
 	 *
-	 * Callbacks defined as 'm:<module_id>' are supported and resolved when the method is called.
-	 *
 	 * @param $method
-	 * @return mixed Callback for the given unimplemented method.
+	 *
+	 * @return mixed Callback for the given unimplemented method, or null if none is defined.
 	 */
 	protected static function find_method_callback($method)
 	{
