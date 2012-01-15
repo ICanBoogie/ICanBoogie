@@ -12,11 +12,8 @@ return array
 (
 	'autoload' => array
 	(
-		'ICanBoogie\Accessor\Configs' => $core . 'accessor/configs.php',
-		'ICanBoogie\Accessor\Connections' => $core . 'accessor/connections.php',
-		'ICanBoogie\Accessor\Models' => $core . 'accessor/models.php',
-		'ICanBoogie\Accessor\Modules' => $core . 'accessor/modules.php',
-		'ICanBoogie\Accessor\Vars' => $core . 'accessor/vars.php',
+		'ICanBoogie\Configs' => $core . 'accessor/configs.php',
+		'ICanBoogie\Connections' => $core . 'accessors/connections.php',
 		'ICanBoogie\Core' => $core . 'core.php',
 		'ICanBoogie\Database' => $core . 'database.php',
 		'ICanBoogie\DatabaseTable' => $core . 'databasetable.php',
@@ -24,10 +21,13 @@ return array
 		'ICanBoogie\Event' => $core . 'event.php',
 		'ICanBoogie\Exception' => $core . 'exception.php',
 		'ICanBoogie\Exception\HTTP' => $core . 'exception.php',
+		'ICanBoogie\Models' => $core . 'accessors/models.php',
 		'ICanBoogie\Module' => $core . 'module.php',
+		'ICanBoogie\Modules' => $core . 'accessors/modules.php',
 		'ICanBoogie\Object' => $core . 'object.php',
 		'ICanBoogie\Route' => $core . 'route.php',
 		'ICanBoogie\Session' => $core . 'session.php',
+		'ICanBoogie\Vars' => $core . 'accessors/vars.php',
 
 		'ICanBoogie\ActiveRecord' => $ar . 'activerecord.php',
 		'ICanBoogie\ActiveRecord\Model' => $ar . '/model.php',

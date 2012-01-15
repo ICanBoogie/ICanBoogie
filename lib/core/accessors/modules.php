@@ -1,22 +1,17 @@
 <?php
 
 /*
-* This file is part of the ICanBoogie package.
-*
-* (c) Olivier Laviale <olivier.laviale@gmail.com>
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ * This file is part of the ICanBoogie package.
+ *
+ * (c) Olivier Laviale <olivier.laviale@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-namespace ICanBoogie\Accessor;
+namespace ICanBoogie;
 
-use ICanBoogie;
-use ICanBoogie\ActiveRecord;
 use ICanBoogie\ActiveRecord\Model;
-use ICanBoogie\Exception;
-use ICanBoogie\Module;
-use ICanBoogie\Operation;
 
 /**
  * Accessor class for the modules of the framework.
@@ -25,7 +20,7 @@ use ICanBoogie\Operation;
  * @property-read array $enabled_modules_descriptors The descriptors of the enabled modules.
  * @property-read array $index Index for the modules.
  */
-class Modules extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggregate
+class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 {
 	/**
 	 * @var boolean If true loaded module are run when loaded for the first time.
@@ -315,7 +310,7 @@ class Modules extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 	 * The descriptors are extended with the following default values:
 	 *
 	 * - (string) category: null.
-	 * - (string) class: ICanBoogie\Modules\<normalized_module_part>
+	 * - (string) class: Modules\<normalized_module_part>
 	 * - (string) description: null.
 	 * - (bool) disabled: false if required, true otherwise.
 	 * - (string) extends: null.
@@ -413,7 +408,7 @@ class Modules extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
 				}
 				*/
 
-				$namespace = isset($descriptor[Module::T_NAMESPACE]) ? $descriptor[Module::T_NAMESPACE] : 'ICanBoogie\Modules\\' . ICanBoogie\normalize_namespace_part($id);
+				$namespace = isset($descriptor[Module::T_NAMESPACE]) ? $descriptor[Module::T_NAMESPACE] : 'ICanBoogie\Modules\\' . normalize_namespace_part($id);
 
 				$descriptor += array
 				(
@@ -697,7 +692,7 @@ class Modules extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggre
  			$ordered[$id] = -$extends_weight[$id] -$count_required($id) + $descriptors[$id][Module::T_WEIGHT];
 		}
 
-		ICanBoogie\stable_sort($ordered);
+		stable_sort($ordered);
 
 		return array_keys($ordered);
 	}

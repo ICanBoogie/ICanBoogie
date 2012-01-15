@@ -9,12 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Accessor;
-
-use ICanBoogie;
-use ICanBoogie\Exception;
-use ICanBoogie\FileCache;
-use ICanBoogie\Module;
+namespace ICanBoogie;
 
 /**
  * This class provides an accessor to synthesized lowlevel configurations.
@@ -35,7 +30,7 @@ class Configs implements \ArrayAccess
 
 	protected $core;
 
-	public function __construct(ICanBoogie\Core $core)
+	public function __construct(Core $core)
 	{
 		$this->core = $core;
 	}
@@ -95,7 +90,7 @@ class Configs implements \ArrayAccess
 			{
 				if (!file_exists($path))
 				{
-					trigger_error(ICanBoogie\format('Config path %path does not exists', array('path' => $path)));
+					trigger_error(format('Config path %path does not exists', array('path' => $path)));
 				}
 			}
 

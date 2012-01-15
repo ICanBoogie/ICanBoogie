@@ -92,19 +92,6 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 	}
 
 	/**
-	 * Formats a SQL table name given the module id and the model id.
-	 *
-	 * @param string $module_id
-	 * @param string $model_id
-	 *
-	 * @return string
-	 */
-	public static function format_name($module_id, $model_id='primary')
-	{
-		return strtr($module_id, '.', '_') . ($model_id == 'primary' ? '' : '__' . $model_id);
-	}
-
-	/**
 	 * @var string Name of the class to use to created activerecord instances.
 	 */
 	public $ar_class;

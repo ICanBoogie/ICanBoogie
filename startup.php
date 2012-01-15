@@ -14,7 +14,7 @@ namespace ICanBoogie;
 /**
  * @var string Version string of the ICanBoogie framework.
  */
-define('ICanBoogie\VERSION', '0.13.0-dev (2012-07-01)');
+define('ICanBoogie\VERSION', '0.13.0-dev (2012-01-15)');
 
 /**
  * @var string Document root of the application.
@@ -54,6 +54,6 @@ else
 	require_once ROOT . 'lib/core/debug.php';
 	require_once ROOT . 'lib/core/exception.php';
 	require_once ROOT . 'lib/core/object.php';
-	require_once ROOT . 'lib/core/accessor/configs.php';
+	require_once ROOT . 'lib/core/accessors/configs.php';
 	require_once ROOT . 'lib/core/core.php';
 }

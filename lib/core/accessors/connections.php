@@ -9,10 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Accessor;
-
-use ICanBoogie\Database;
-use ICanBoogie\Exception;
+namespace ICanBoogie;
 
 /**
  * Connections accessor.
@@ -79,7 +76,7 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 
 		if (empty($this->connections[$id]))
 		{
-			throw new \InvalidArgumentException(\ICanBoogie\format('The connection %id is not defined.', array('id' => $id)));
+			throw new \InvalidArgumentException(format('The connection %id is not defined.', array('id' => $id)));
 		}
 
 		#

@@ -9,11 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Accessor;
-
-use ICanBoogie\Accessor;
-use ICanBoogie\Exception;
-use ICanBoogie\Module;
+namespace ICanBoogie;
 
 /**
  * Accessor for the modules' models.
@@ -26,7 +22,7 @@ class Models implements \ArrayAccess
 	protected $modules;
 
 	/**
-	 * @var array[string]\ICanBoogie\ActiveRecord\Model Loaded models.
+	 * @var array[string]ActiveRecord\Model Loaded models.
 	 */
 	protected $models = array();
 
@@ -94,7 +90,7 @@ class Models implements \ArrayAccess
 	 *
 	 * @see ArrayAccess::offsetGet()
 	 *
-	 * @return ICanBoogie\ActiveRecord\Model The model for the specified offset.
+	 * @return ActiveRecord\Model The model for the specified offset.
 	 */
 	public function offsetGet($offset)
 	{

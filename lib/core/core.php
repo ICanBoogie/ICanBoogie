@@ -106,7 +106,7 @@ class Core extends Object
 
 			if (method_exists($name, '__static_construct'))
 			{
-				call_user_func(array($name, '__static_construct'));
+				call_user_func($name . '::__static_construct');
 			}
 
 			return true;
@@ -180,7 +180,7 @@ class Core extends Object
 	{
 		$config = $this->config;
 
-		return new Accessor\Modules($config['modules'], $config['cache modules'], $this->vars);
+		return new Modules($config['modules'], $config['cache modules'], $this->vars);
 	}
 
 	/**
@@ -190,7 +190,7 @@ class Core extends Object
 	 */
 	protected function __get_models()
 	{
-		return new Accessor\Models($this->modules);
+		return new Models($this->modules);
 	}
 
 	/**
@@ -200,7 +200,7 @@ class Core extends Object
 	 */
 	protected function __get_vars()
 	{
-		return new Accessor\Vars(DOCUMENT_ROOT . ltrim($this->config['repository.vars'], DIRECTORY_SEPARATOR));
+		return new Vars(DOCUMENT_ROOT . ltrim($this->config['repository.vars'], DIRECTORY_SEPARATOR));
 	}
 
 	/**
@@ -210,7 +210,7 @@ class Core extends Object
 	 */
 	protected function __get_connections()
 	{
-		return new Accessor\Connections($this->config['connections']);
+		return new Connections($this->config['connections']);
 	}
 
 	/**
@@ -230,7 +230,7 @@ class Core extends Object
 	 */
 	protected function __get_configs()
 	{
-		return new Accessor\Configs($this);
+		return new Configs($this);
 	}
 
 	/**
