@@ -27,6 +27,7 @@ class Module extends Object
 	const T_REQUIRED = 'required';
 	const T_REQUIRES = 'requires';
 	const T_MODELS = 'models';
+	const T_NAMESPACE = 'namespace';
 	const T_PATH = 'path';
 	const T_PERMISSION = 'permission';
 	const T_PERMISSIONS = 'permissions';

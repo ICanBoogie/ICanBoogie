@@ -418,17 +418,18 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 				}
 				*/
 
-				$normalized_namespace_part = ICanBoogie\normalize_namespace_part($id);
+				$namespace = isset($descriptor[Module::T_NAMESPACE]) ? $descriptor[Module::T_NAMESPACE] : 'ICanBoogie\Modules\\' . ICanBoogie\normalize_namespace_part($id);
 
 				$descriptor += array
 				(
 					Module::T_CATEGORY => null,
-					Module::T_CLASS => 'ICanBoogie\Module\\' . $normalized_namespace_part,
+					Module::T_CLASS => $namespace . '\Module',
 					Module::T_DESCRIPTION => null,
 					Module::T_DISABLED => empty($descriptor[Module::T_REQUIRED]),
 					Module::T_EXTENDS => null,
 					Module::T_ID => $id,
 					Module::T_MODELS => array(),
+					Module::T_NAMESPACE => $namespace,
 					Module::T_PATH => $path,
 					Module::T_PERMISSION => null,
 					Module::T_PERMISSIONS => array(),
@@ -485,8 +486,8 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 	 * Autoload references are generated depending on the files available and the module's
 	 * descriptor:
 	 *
-	 * If a 'hooks.php' file exists, the "ICanBoogie\Hooks\<normalized_module_id>" reference is
-	 * added to the autoload array.
+	 * If a 'hooks.php' file exists, the "<module_namespace>\Hooks" reference is added to the
+	 * autoload array.
 	 *
 	 * Autoload references are also created for each model and their activerecord depending on
 	 * the T_MODELS tag and the exsitance of the corresponding files.
@@ -505,12 +506,12 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 
 		if (file_exists($path . 'module.php'))
 		{
-			$autoload['ICanBoogie\Module\\' . $normalized_namespace_part] = $path . 'module.php';
+			$autoload[$descriptor[Module::T_CLASS]] = $path . 'module.php';
 		}
 
 		if (file_exists($path . 'hooks.php'))
 		{
-			$autoload['ICanBoogie\Hooks\\' . $normalized_namespace_part] = $path . 'hooks.php';
+			$autoload[$descriptor[Module::T_NAMESPACE] . '\Hooks'] = $path . 'hooks.php';
 		}
 
 		$operations_dir = $path . 'operations' . DIRECTORY_SEPARATOR;
