@@ -13,9 +13,10 @@ namespace ICanBoogie\Accessor;
 
 use ICanBoogie;
 use ICanBoogie\ActiveRecord;
+use ICanBoogie\ActiveRecord\Model;
 use ICanBoogie\Exception;
-use ICanBoogie\FileCache;
 use ICanBoogie\Module;
+use ICanBoogie\Operation;
 
 /**
  * Accessor class for the modules of the framework.
@@ -24,7 +25,7 @@ use ICanBoogie\Module;
  * @property-read array $enabled_modules_descriptors The descriptors of the enabled modules.
  * @property-read array $index Index for the modules.
  */
-class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggregate
+class Modules extends \ICanBoogie\Object implements \ArrayAccess, \IteratorAggregate
 {
 	/**
 	 * @var boolean If true loaded module are run when loaded for the first time.
@@ -47,8 +48,7 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 	protected $use_cache = false;
 
 	/**
-	 * @var string Path to the cache repository, relative to the ICanBoogie\DOCUMENT_ROOT
-	 * path.
+	 * @var Vars Used to cache for indexes.
 	 */
 	protected $vars;
 
@@ -64,7 +64,7 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 	 * @param bool $use_cache Should we use a cache for the module index ?
 	 * @param string $cache_repository The path to the cache repository.
 	 */
-	public function __construct($paths, $use_cache=false, Vars $vars)
+	public function __construct($paths, $use_cache, Vars $vars)
 	{
 		$this->use_cache = $use_cache;
 		$this->vars = $vars;
@@ -175,14 +175,14 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 			throw new Exception('The module %id is disabled.', array('%id' => $id), 404);
 		}
 
-		$class = $descriptor['class'];
+		$class = $descriptor[Module::T_CLASS];
 
 		if (!class_exists($class, true))
 		{
 			throw new Exception('Missing class %class to instanciate module %id.', array('%class' => $class, '%id' => $id));
 		}
 
-		$this->modules[$id] = $module = new $class($descriptors[$id]);
+		$this->modules[$id] = $module = new $class($descriptor);
 
 		if ($this->autorun)
 		{
@@ -253,7 +253,7 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 	 *
 	 * @return array
 	 */
-	public function index_construct()
+	protected function index_construct()
 	{
 		$descriptors = $this->index_descriptors($this->paths);
 
@@ -269,12 +269,7 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 
 		foreach ($descriptors as $id => $descriptor)
 		{
-			$read = $this->index_module($descriptor);
-
-			if ($read['autoload'])
-			{
-				$index['autoload'] = $read['autoload'] + $index['autoload'];
-			}
+			$index['autoload'] = $descriptor['__autoload'] + $index['autoload'];
 
 			$path = $descriptor[Module::T_PATH];
 
@@ -418,24 +413,27 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 				}
 				*/
 
-				$normalized_namespace_part = ICanBoogie\normalize_namespace_part($id);
+				$namespace = isset($descriptor[Module::T_NAMESPACE]) ? $descriptor[Module::T_NAMESPACE] : 'ICanBoogie\Modules\\' . ICanBoogie\normalize_namespace_part($id);
 
 				$descriptor += array
 				(
 					Module::T_CATEGORY => null,
-					Module::T_CLASS => 'ICanBoogie\Module\\' . $normalized_namespace_part,
+					Module::T_CLASS => $namespace . '\Module',
 					Module::T_DESCRIPTION => null,
 					Module::T_DISABLED => empty($descriptor[Module::T_REQUIRED]),
 					Module::T_EXTENDS => null,
 					Module::T_ID => $id,
 					Module::T_MODELS => array(),
+					Module::T_NAMESPACE => $namespace,
 					Module::T_PATH => $path,
 					Module::T_PERMISSION => null,
 					Module::T_PERMISSIONS => array(),
 					Module::T_STARTUP => false,
 					Module::T_REQUIRED => false,
 					Module::T_REQUIRES => array(),
-					Module::T_WEIGHT => 0
+					Module::T_WEIGHT => 0,
+
+					'__autoload' => array()
 				);
 
 				$descriptors[$id] = $descriptor;
@@ -472,45 +470,59 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 		$ordered_ids = $this->order_ids(array_keys($descriptors), $descriptors);
 		$descriptors = array_merge(array_combine($ordered_ids, $ordered_ids), $descriptors);
 
+		foreach ($descriptors as $id => &$descriptor)
+		{
+			foreach ($descriptor[Module::T_MODELS] as $model_id => &$model_descriptor)
+			{
+				if ($model_descriptor == 'inherit')
+				{
+					$parent_descriptor = $descriptors[$descriptor[Module::T_EXTENDS]];
+					$model_descriptor = $parent_descriptor[Module::T_MODELS][$model_id];
+				}
+			}
+
+			$descriptor = $this->alter_descriptor($descriptor);
+		}
+
 		return $descriptors;
 	}
 
 	/**
-	 * Indexes a specified module by reading its descriptor and creating an array of autoload
-	 * references based on the available files.
+	 * Alters the module descriptor.
 	 *
-	 * The module's descriptor is altered by adding the module's path (T_PATH) and the module's
-	 * identifier (T_ID).
+	 * Creates an array of autoload references based on the available files:
 	 *
-	 * Autoload references are generated depending on the files available and the module's
-	 * descriptor:
+	 * - If a 'module.php' file exists, the "<module_namespace>\Module" reference is added to the
+	 * autoload array.
 	 *
-	 * If a 'hooks.php' file exists, the "ICanBoogie\Hooks\<normalized_module_id>" reference is
-	 * added to the autoload array.
+	 * - If a 'hooks.php' file exists, the "<module_namespace>\Hooks" reference is added to the
+	 * autoload array.
 	 *
-	 * Autoload references are also created for each model and their activerecord depending on
+	 * - Autoload references are also created for each model and their activerecord depending on
 	 * the T_MODELS tag and the exsitance of the corresponding files.
+	 *
+	 * Autoload references are added to the `__autoload` property.
 	 *
 	 * @param array $descriptor Descriptor of the module to index.
 	 *
-	 * @return array
+	 * @return array The altered descriptor.
 	 */
-	protected function index_module(array $descriptor)
+	protected function alter_descriptor(array $descriptor)
 	{
 		$id = $descriptor[Module::T_ID];
 		$path = $descriptor[Module::T_PATH];
+		$namespace = $descriptor[Module::T_NAMESPACE];
 
 		$autoload = array();
-		$normalized_namespace_part = ICanBoogie\normalize_namespace_part($id);
 
 		if (file_exists($path . 'module.php'))
 		{
-			$autoload['ICanBoogie\Module\\' . $normalized_namespace_part] = $path . 'module.php';
+			$autoload[$descriptor[Module::T_CLASS]] = $path . 'module.php';
 		}
 
 		if (file_exists($path . 'hooks.php'))
 		{
-			$autoload['ICanBoogie\Hooks\\' . $normalized_namespace_part] = $path . 'hooks.php';
+			$autoload[$namespace . '\Hooks'] = $path . 'hooks.php';
 		}
 
 		$operations_dir = $path . 'operations' . DIRECTORY_SEPARATOR;
@@ -523,41 +535,50 @@ class Modules extends ICanBoogie\Object implements \ArrayAccess, \IteratorAggreg
 			foreach ($filter as $file)
 			{
 				$base = $file->getBasename('.php');
-				$name = 'ICanBoogie\Operation\\' . $normalized_namespace_part . '\\' . ICanBoogie\normalize_namespace_part($base);
+				$operation_class_name = Operation::format_class_name($namespace, $base);
 
-				$autoload[$name] = $operations_dir . $file;
+				$autoload[$operation_class_name] = $operations_dir . $file;
 			}
 		}
 
-		if (!empty($descriptor[Module::T_MODELS]))
+		foreach ($descriptor[Module::T_MODELS] as $model_id => &$definition)
 		{
-			$flat_id = strtr($id, '.', '_');
-			$model_base = 'ICanBoogie\ActiveRecord\Model\\'  . $normalized_namespace_part;
-
-			foreach ($descriptor[Module::T_MODELS] as $model_id => $dummy)
+			if (!is_array($definition))
 			{
-				$class_base = $flat_id . ($model_id == 'primary' ? '' : '_' . $model_id);
-				$file_base = $path . $model_id;
+				throw new Exception('Model definition is not an array, given: %value.', array('value' => $definition));
+			}
 
-				if (file_exists($file_base . '.model.php'))
+			$file_base = $path . $model_id;
+
+// 			if (empty($definition[Model::T_CLASS]))
+			{
+				$try = $file_base . '.model.php';
+
+				if (file_exists($try))
 				{
-					$autoload[$model_base . ($model_id == 'primary' ? '' : '\\' . ICanBoogie\normalize_namespace_part($model_id))] = $file_base . '.model.php';
+					$class = Model::resolve_class_name($namespace, $model_id);
+					$autoload[$class] = $try;
+					$definition[Model::T_CLASS] = $class;
+					$definition[Model::T_NAME] = Model::format_name($id, $model_id);
 				}
+			}
 
-				$file = $file_base . '.ar.php';
+// 			if (empty($definition[Model::T_ACTIVERECORD_CLASS]))
+			{
+				$try = $file_base . '.ar.php';
 
-				if (file_exists($file))
+				if (file_exists($try))
 				{
 					$class = ActiveRecord::resolve_class_name($id, $model_id);
-					$autoload[$class] = $file;
+					$autoload[$class] = $try;
+					$definition[Model::T_ACTIVERECORD_CLASS] = $class;
 				}
 			}
 		}
 
-		return array
-		(
-			'autoload' => $autoload
-		);
+		$descriptor['__autoload'] = $autoload + $descriptor['__autoload'];
+
+		return $descriptor;
 	}
 
 	/**

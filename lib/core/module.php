@@ -27,6 +27,7 @@ class Module extends Object
 	const T_REQUIRED = 'required';
 	const T_REQUIRES = 'requires';
 	const T_MODELS = 'models';
+	const T_NAMESPACE = 'namespace';
 	const T_PATH = 'path';
 	const T_PERMISSION = 'permission';
 	const T_PERMISSIONS = 'permissions';
@@ -403,7 +404,7 @@ class Module extends Object
 
 		$tags += array
 		(
-			Model::T_CLASS => $has_model_class ? Model::resolve_class_name($this->id, $which) : null,
+			Model::T_CLASS => $has_model_class ? Model::resolve_class_name($this->descriptor[self::T_NAMESPACE], $which) : null,
 			Model::T_ACTIVERECORD_CLASS => $has_ar_class ? ActiveRecord::resolve_class_name($this->id, $which) : null,
 			Model::T_NAME => $table_name,
 			Model::T_CONNECTION => 'primary'

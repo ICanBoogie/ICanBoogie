@@ -337,30 +337,35 @@ abstract class Operation extends Object
 	 *
 	 * @return string|null The resolve class name, or null if none was found.
 	 */
-	static private function resolve_operation_class($name, $target)
+	private static function resolve_operation_class($name, $target)
 	{
-		static $prefix = 'ICanBoogie\Module\\';
+		$module = $target;
 
-		$class = get_class($target);
-		$prefix_len = strlen($prefix);
-		$normalized_name = normalize_namespace_part($name);
-
-		while ($class)
+		while ($module)
 		{
-			if (strpos($class, $prefix) === false)
+			$class = self::format_class_name($module->descriptor[Module::T_NAMESPACE], $name);
+
+			if (class_exists($class, true))
 			{
-				break;
+				return $class;
 			}
 
-			$try = 'ICanBoogie\Operation\\' . substr($class, $prefix_len) . '\\' . $normalized_name;
-
-			if (class_exists($try, true))
-			{
-				return $try;
-			}
-
-			$class = get_parent_class($class);
+			$module = $module->parent;
 		}
+
+	}
+
+	/**
+	 * Formats the specified namespace and operation name into an operation class.
+	 *
+	 * @param string $namespace
+	 * @param string $operation_name
+	 *
+	 * @return string
+	 */
+	public static function format_class_name($namespace, $operation_name)
+	{
+		return $namespace . '\\' . ucfirst(wd_camelize(strtr($operation_name, '_', '-'))) . 'Operation';
 	}
 
 	public $key;

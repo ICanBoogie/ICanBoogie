@@ -68,22 +68,27 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 	/**
 	 * Resolves the name of a model giving its module id and model id.
 	 *
-	 * @param string $module_id The id of the module defining the model. This can either be the
-	 * module if or the module flat id.
+	 * @param string $namespace Namespace of the module defining the model.
 	 * @param string $model_id The model id.
 	 *
 	 * @return string The resolved class name.
 	 */
-	public static function resolve_class_name($module_id, $model_id='primary')
+	public static function resolve_class_name($namespace, $model_id='primary')
 	{
-		$class = __CLASS__ . '\\' . ICanBoogie\normalize_namespace_part($module_id);
+		return $namespace . '\\' . ($model_id == 'primary' ? '' : ICanBoogie\normalize_namespace_part($model_id)) . 'Model';
+	}
 
-		if ($model_id != 'primary')
-		{
-			$class .= ICanBoogie\normalize_namespace_part($model_id);
-		}
-
-		return $class;
+	/**
+	 * Formats a SQL table name given the module id and the model id.
+	 *
+	 * @param string $module_id
+	 * @param string $model_id
+	 *
+	 * @return string
+	 */
+	public static function format_name($module_id, $model_id='primary')
+	{
+		return strtr($module_id, '.', '_') . ($model_id == 'primary' ? '' : '__' . $model_id);
 	}
 
 	/**
