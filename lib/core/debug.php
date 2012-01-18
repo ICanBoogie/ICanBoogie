@@ -194,7 +194,7 @@ class Debug
 			$trace = $alert->getTrace();
 		}
 
-		$message = strip_tags($message, '<em><q><strong>');
+		$message = strip_tags($message, '<a><em><q><strong>');
 
 		if ($trace)
 		{
