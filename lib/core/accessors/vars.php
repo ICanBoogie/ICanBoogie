@@ -136,37 +136,48 @@ class Vars implements \ArrayAccess
 			$value = self::MAGIC . serialize($value);
 		}
 
-		#
-		# We lock the file create/update, but we write the data in a temporary file, which is then
-		# renamed once the data is written.
-		#
-
-		$fh = fopen($filename, 'a+');
-
-		if (!$fh)
+		if ($value === true)
 		{
-			throw new Exception('Unable to open %filename', array('filename' => $filename));
+			touch($filename);
 		}
-
-		if (flock($fh, LOCK_EX))
+		else if ($value === false || $value === null)
 		{
-			file_put_contents($tmp_filename, $value);
-
-			if (!unlink($filename))
-			{
-				throw new Exception('Unable to unlink %filename', array('filename' => $filename));
-			}
-
-			rename($tmp_filename, $filename);
-
-			flock($fh, LOCK_UN);
+			$this->offsetUnset($key);
 		}
 		else
 		{
-			throw new WdException('Unable to get to exclusive lock on %filename', array('filename' => $filename));
-		}
+			#
+			# We lock the file create/update, but we write the data in a temporary file, which is then
+			# renamed once the data is written.
+			#
 
-		fclose($fh);
+			$fh = fopen($filename, 'a+');
+
+			if (!$fh)
+			{
+				throw new Exception('Unable to open %filename', array('filename' => $filename));
+			}
+
+			if (flock($fh, LOCK_EX))
+			{
+				file_put_contents($tmp_filename, $value);
+
+				if (!unlink($filename))
+				{
+					throw new Exception('Unable to unlink %filename', array('filename' => $filename));
+				}
+
+				rename($tmp_filename, $filename);
+
+				flock($fh, LOCK_UN);
+			}
+			else
+			{
+				throw new WdException('Unable to get to exclusive lock on %filename', array('filename' => $filename));
+			}
+
+			fclose($fh);
+		}
 	}
 
 	/**
