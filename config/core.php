@@ -92,7 +92,6 @@ return array
 	'repository.temp' => '/repository/tmp',
 	'repository.cache' => '/repository/cache',
 	'repository.files' => '/repository/files',
-	'repository.vars' => DIRECTORY_SEPARATOR . 'repository' . DIRECTORY_SEPARATOR . 'lib',
 
 	'session' => array
 	(

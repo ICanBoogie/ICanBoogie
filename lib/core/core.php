@@ -195,7 +195,7 @@ class Core extends Object
 	 */
 	protected function __get_vars()
 	{
-		return new Vars(DOCUMENT_ROOT . ltrim($this->config['repository.vars'], DIRECTORY_SEPARATOR));
+		return new Vars(REPOSITORY . 'vars' . DIRECTORY_SEPARATOR);
 	}
 
 	/**
