@@ -17,14 +17,9 @@ namespace ICanBoogie;
 define('ICanBoogie\VERSION', '0.13.0-dev (2012-01-15)');
 
 /**
- * @var string Document root of the application.
- */
-defined('ICanBoogie\DOCUMENT_ROOT') or define('ICanBoogie\DOCUMENT_ROOT', rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
-
-/**
  * @var string The ROOT directory of the ICanBoogie framework.
  */
-defined('ICanBoogie\ROOT') or define('ICanBoogie\ROOT', rtrim(__DIR__, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
+define('ICanBoogie\ROOT', rtrim(__DIR__, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
 
 /**
  * @var string Path to the ICanBoogie's assets directory.
@@ -32,9 +27,21 @@ defined('ICanBoogie\ROOT') or define('ICanBoogie\ROOT', rtrim(__DIR__, DIRECTORY
 define('ICanBoogie\ASSETS', ROOT . 'assets' . DIRECTORY_SEPARATOR);
 
 /**
- * @var bool If true, an APC cache is used to store and retrieve active records.
+ * @var string Document root of the application.
  */
-define('ICanBoogie\CACHE_ACTIVERECORDS', false);
+defined('ICanBoogie\DOCUMENT_ROOT') or define('ICanBoogie\DOCUMENT_ROOT', rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
+
+/**
+ * @var string Repository root. The repository is the directory where all files are stored. It's
+ * the only directory that should be writable.
+ */
+
+defined('ICanBoogie\REPOSITORY') or define('ICanBoogie\REPOSITORY', DOCUMENT_ROOT . 'repository' . DIRECTORY_SEPARATOR);
+
+/**
+ * @var bool If true, APC is used to store and retrieve active records.
+ */
+defined('ICanBoogie\CACHE_ACTIVERECORDS') or define('ICanBoogie\CACHE_ACTIVERECORDS', false);
 
 /**
  * @var string The charset used by the application. Defaults to "utf-8".
