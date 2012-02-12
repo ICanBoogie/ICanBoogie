@@ -646,6 +646,18 @@ abstract class Operation extends Object
 		$response->rc = $rc;
 
 		#
+		# errors
+		#
+
+		if (count($response->errors))
+		{
+			foreach ($response->errors as $error_message)
+			{
+				wd_log_error($error_message);
+			}
+		}
+
+		#
 		# If the operation succeed (its result is not null), the 'operation.<name>' event is fired.
 		# Listeners might use the event for further processing. For example, a _comment_ module
 		# might delete the comments related to an _article_ module from which an article was
