@@ -65,7 +65,7 @@ class Exception extends \Exception
 		# the error message is localized and formated
 		#
 
-		$message = t($message, $params);
+		$message = \ICanBoogie\format($message, $params);
 
 		parent::__construct($message, $code, $previous);
 	}
