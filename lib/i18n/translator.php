@@ -241,6 +241,13 @@ class Translator extends Object implements \ArrayAccess
 
 			if (!empty($options['default']))
 			{
+				$default = $options['default'];
+
+				if ($default instanceof \Closure)
+				{
+					return $default($native);
+				}
+
 				$native = $options['default'];
 				unset($options['default']);
 
