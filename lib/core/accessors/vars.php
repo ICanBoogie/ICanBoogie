@@ -209,4 +209,82 @@ class Vars implements \ArrayAccess
 
 		return $value;
 	}
+
+	/**
+	 * Returns a file iterator for variables matching a regex.
+	 *
+	 * @param string $regex
+	 *
+	 * @return \ICanBoogie\VarsIterator
+	 */
+	public function matching($regex)
+	{
+		$dir = new \DirectoryIterator($this->path);
+		$filter = new \RegexIterator($dir, $regex);
+
+		return new VarsIterator($filter);
+	}
+}
+
+/**
+ * Iterates through variables.
+ *
+ * The iterator is usually created using the Vars::matching() method.
+ *
+ * The iterator can also be used to delete matching variables.
+ */
+class VarsIterator implements \Iterator
+{
+	protected $iterator;
+
+	public function __construct(\Iterator $iterator)
+	{
+		$this->iterator = $iterator;
+	}
+
+	/**
+	 * Returns the current file.
+	 *
+	 * @return \DirectoryIterator
+	 */
+	public function current()
+	{
+		return $this->iterator->current();
+	}
+
+	public function next()
+	{
+		$this->iterator->next();
+	}
+
+	/**
+	 * Returns the filename of the variable, which is the same as its key.
+	 *
+	 * @return string
+	 */
+	public function key()
+	{
+		return $this->iterator->current()->getFilename();
+	}
+
+	public function valid()
+	{
+		return $this->iterator->valid();
+	}
+
+	public function rewind()
+	{
+		$this->iterator->rewind();
+	}
+
+	/**
+	 * Deletes the variables found by the iterator.
+	 */
+	public function delete()
+	{
+		foreach ($this->iterator as $file)
+		{
+ 			unlink($file->getPathname());
+		}
+	}
 }
