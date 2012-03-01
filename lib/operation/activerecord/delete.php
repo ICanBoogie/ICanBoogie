@@ -11,6 +11,7 @@
 
 namespace ICanBoogie\Operation\ActiveRecord;
 
+use ICanBoogie\Exception;
 use ICanBoogie\Module;
 use ICanBoogie\Operation;
 
@@ -52,9 +53,7 @@ class Delete extends Operation
 
 		if (!$this->module->model->delete($key))
 		{
-			$this->response->errors[] = t('Unable to delete the record %key from %module.', array('%key' => $key, '%module' => (string) $this->module));
-
-			return;
+			throw new Exception('Unable to delete the record %key from %module.', array('%key' => $key, '%module' => (string) $this->module));
 		}
 
 		if ($this->request['#location'])
