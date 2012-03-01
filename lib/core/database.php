@@ -127,7 +127,7 @@ class Database extends \PDO
 		parent::__construct($dsn, $username, $password, $options);
 
 		$this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION);
-		$this->setAttribute(self::ATTR_STATEMENT_CLASS, array('ICanBoogie\DatabaseStatement'));
+		$this->setAttribute(self::ATTR_STATEMENT_CLASS, array('ICanBoogie\Database\Statement'));
 
 		if ($driver_name == 'oci')
 		{
@@ -725,10 +725,12 @@ class Database extends \PDO
 	}
 }
 
+namespace ICanBoogie\Database;
+
 /**
  * A database statement.
  */
-class DatabaseStatement extends \PDOStatement
+class Statement extends \PDOStatement
 {
 	/**
 	 * The database connection that created this statement.
@@ -760,7 +762,7 @@ class DatabaseStatement extends \PDOStatement
 			case 'one': return $this->fetchAndClose();
 		}
 
-		throw new Exception\PropertyNotFound(array($property, $this));
+		throw new \ICanBoogie\Exception\PropertyNotFound(array($property, $this));
 	}
 
 	/**
@@ -790,7 +792,7 @@ class DatabaseStatement extends \PDOStatement
 		{
 			$er = array_pad($this->errorInfo(), 3, '');
 
-			throw new Exception
+			throw new ExecutionException
 			(
 				'SQL error: \1(\2) <code>\3</code> &mdash; <code>%query</code>\5', array
 				(
@@ -877,4 +879,20 @@ class DatabaseStatement extends \PDOStatement
 	{
 		return call_user_func_array(array($this, 'fetchAll'), func_get_args());
 	}
+}
+
+/**
+ * Exception thrown when a connection to a database could not be established.
+ */
+class ConnectionException extends \RuntimeException
+{
+
+}
+
+/**
+ * Exception thrown when an statement execution failed because of an error.
+ */
+class ExecutionException extends \RuntimeException
+{
+
 }

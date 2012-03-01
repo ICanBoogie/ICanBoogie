@@ -110,7 +110,7 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 		}
 		catch (\PDOException $e)
 		{
-			throw new Exception($e->getMessage());
+			throw new \ICanBoogie\Database\ConnectionException("Unable to establish database connection. The following message was returned: " . $e->getMessage(), 500, $e);
 		}
 
 		return $connection;
