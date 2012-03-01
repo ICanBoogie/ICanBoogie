@@ -400,12 +400,12 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		}
 	}
 
-	protected function __get_uri()
+	protected function __volatile_get_uri()
 	{
 		return $this->env['REQUEST_URI'];
 	}
 
-	protected function __set_uri($uri)
+	protected function __volatile_set_uri($uri)
 	{
 		unset($this->path);
 		unset($this->query_string);
@@ -431,7 +431,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return mixed
 	 */
-	protected function __get_extension()
+	protected function __volatile_get_extension()
 	{
 		return pathinfo($this->path, PATHINFO_EXTENSION);
 	}
