@@ -26,6 +26,13 @@ namespace ICanBoogie;
  */
 class Core extends Object
 {
+	/**
+	 * Request object associated with the current HTTP request.
+	 *
+	 * @var \ICanBoogie\HTTP\Request
+	 */
+	public $request;
+
 	static private $instance;
 
 	/**
