@@ -465,7 +465,7 @@ abstract class Operation extends Object
 	{
 		$form = null;
 
-		Event::fire('get_form', array('rc' => &$form, 'request' => $this->request), $this);
+		new \ICanBoogie\Operation\GetFormEvent($this, array('rc' => &$form, 'request' => $this->request));
 
 		return $form;
 	}
@@ -630,15 +630,15 @@ abstract class Operation extends Object
 
 		if (!$this->control($this->controls))
 		{
-			Event::fire('failure', array('type' => 'control', 'request' => $request), $this);
+			new \ICanBoogie\Operation\FailureEvent($this, array('type' => 'control', 'request' => $request));
 		}
-		else if (!$this->validate($response->errors))
+		else if (!$this->validate($response->errors) || count($response->errors))
 		{
-			Event::fire('failure', array('type' => 'validation', 'request' => $request), $this);
+			new \ICanBoogie\Operation\FailureEvent($this, array('type' => 'validation', 'request' => $request));
 		}
 		else
 		{
-			Event::fire('process:before', array('request' => $request), $this);
+			new \ICanBoogie\Operation\BeforeProcessEvent($this, array('request' => $request));
 
 			$rc = $this->process();
 		}
@@ -649,7 +649,7 @@ abstract class Operation extends Object
 		# errors
 		#
 
-		if (count($response->errors))
+		if (count($response->errors) && !$request->is_xhr)
 		{
 			foreach ($response->errors as $error_message)
 			{
@@ -673,7 +673,7 @@ abstract class Operation extends Object
 		}
 		else
 		{
-			Event::fire('process', array('rc' => &$response->rc, 'response' => $response, 'request' => $request), $this);
+			new \ICanBoogie\Operation\ProcessEvent($this, array('rc' => &$response->rc, 'response' => $response, 'request' => $request));
 		}
 
 		if (--self::$nesting || $this->origin == self::ORIGIN_INTERNAL)
@@ -968,4 +968,138 @@ abstract class Operation extends Object
 	 * @return mixed Depends on the implementation.
 	 */
 	abstract protected function process();
+}
+
+/*
+ * Operation events
+ */
+
+namespace ICanBoogie\Operation;
+
+/**
+ * Event class for the `ICanBoogie\Operation::failure` event.
+ */
+class FailureEvent extends \ICanBoogie\Event
+{
+	/**
+	 * Type of failure, either `control` or `validation`.
+	 *
+	 * @var string
+	 */
+	public $type;
+
+	/**
+	 * The request that triggered the operation.
+	 *
+	 * @var HTTP\Request
+	 */
+	public $request;
+
+	/**
+	 * The event is constructed with the type `failure`.
+	 *
+	 * @param \ICanBoogie\Operation $target
+	 * @param array $properties
+	 * @param string $type Defaults to `failure`.
+	 */
+	public function __construct(\ICanBoogie\Operation $target, array $properties, $type='failure')
+	{
+		parent::__construct($target, $properties, $type);
+	}
+}
+
+/**
+ * Event class for the `ICanBoogie\Operation::process:before` event.
+ */
+class BeforeProcessEvent extends \ICanBoogie\Event
+{
+	/**
+	 * The request that triggered the operation.
+	 *
+	 * @var HTTP\Request
+	 */
+	public $request;
+
+	/**
+	 * The event is constructed with the type `process:before`.
+	 *
+	 * @param \ICanBoogie\Operation $target
+	 * @param array $properties
+	 * @param string $type Defaults to `process:before`.
+	 */
+	public function __construct(\ICanBoogie\Operation $target, array $properties, $type='process:before')
+	{
+		parent::__construct($target, $properties, $type);
+	}
+}
+
+/**
+ * Event class for the `ICanBoogie\Operation::process` event.
+ */
+class ProcessEvent extends \ICanBoogie\Event
+{
+	/**
+	 * Reference to the response result property.
+	 *
+	 * @var mixed
+	 */
+	public $rc;
+
+	/**
+	 * The response object of the operation.
+	 *
+	 * @var HTTP\Response
+	 */
+	public $response;
+
+	/**
+	 * The request that triggered the operation.
+	 *
+	 * @var HTTP\Request
+	 */
+	public $request;
+
+	/**
+	 * The event is constructed with the type `process`.
+	 *
+	 * @param \ICanBoogie\Operation $target
+	 * @param array $properties
+	 * @param string $type Defaults to `process`.
+	 */
+	public function __construct(\ICanBoogie\Operation $target, array $properties, $type='process')
+	{
+		parent::__construct($target, $properties, $type);
+	}
+}
+
+/**
+ * Event class for the `ICanBoogie\Operation::get_form` event.
+ */
+class GetFormEvent extends \ICanBoogie\Event
+{
+	/**
+	 * Reference to the result variable.
+	 *
+	 * @var mixed
+	 */
+	public $rc;
+
+	/**
+	 * The request that triggered the operation.
+	 *
+	 * @var HTTP\Request
+	 */
+	public $request;
+
+	/**
+	 * The event is constructed with the type `get_form`.
+	 *
+	 * @param \ICanBoogie\Operation $target
+	 * @param array $properties
+	 * @param string $type Defaults to `get_form`.
+	 */
+	public function __construct(\ICanBoogie\Operation $target, array $properties, $type='get_form')
+	{
+		parent::__construct($target, $properties, $type);
+	}
 }

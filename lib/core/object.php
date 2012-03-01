@@ -11,6 +11,23 @@
 
 namespace ICanBoogie;
 
+/**
+ * The `Object` class provides advanced getters and setters features.
+ *
+ * It also provides a method to create instances in the same fashion PDO creates instances with
+ * the `FETCH_CLASS` mode, that is the properties of the instance are set *before* its constructor
+ * is invoked.
+ *
+ * Event: property
+ * ---------------
+ *
+ * The `ICanBoogie\Object::property` event is fired when no getter was found in a class to obtain
+ * the value of a property.
+ *
+ * Hooks can be attached to that event to provide the value of the property. Should they be able
+ * to provide the value, they must create the `value` property within the event object. Thus, even
+ * `null` is considered a valid result.
+ */
 class Object
 {
 	/**
@@ -31,7 +48,7 @@ class Object
 	 *
 	 * @return Object The new instance.
 	 */
-	public static function from($properties=array(), array $construct_args=array(), $class_name=null)
+	public static function from($properties=null, array $construct_args=array(), $class_name=null)
 	{
 		if (!$class_name)
 		{
@@ -130,7 +147,14 @@ class Object
 			{
 				if (strpos($method, '::') === false)
 				{
-					throw new \InvalidArgumentException(format('Invalid method name %method, must be <code>class_name::method_name</code>', array('method' => $method)));
+					throw new \InvalidArgumentException(format
+					(
+						'Invalid method name %method, must be <code>class_name::method_name</code> in %root', array
+						(
+							'method' => $method,
+							'root' => $root . 'config/hooks.php'
+						)
+					));
 				}
 
 				list($class, $method) = explode('::', $method);
@@ -362,14 +386,14 @@ class Object
 			return;
 		}
 
-		$event = Event::fire('property', array('property' => $property), $this);
+		$event = new \ICanBoogie\Object\PropertyEvent($this, array('property' => $property));
 
 		#
 		# The operation is considered a success if the `value` property exists in the event
 		# object. Thus, even a `null` value is considered a success.
 		#
 
-		if (!$event || !property_exists($event, 'value'))
+		if (!property_exists($event, 'value'))
 		{
 			return;
 		}
@@ -530,5 +554,31 @@ class Object
 		}
 
 		return $methods[$method];
+	}
+}
+
+namespace ICanBoogie\Object;
+
+/**
+ * Event class for the `ICanBoogie\Object::property` event.
+ */
+class PropertyEvent extends \ICanBoogie\Event
+{
+	/**
+	 * Name of the property to retrieve.
+	 *
+	 * @var string
+	 */
+	public $property;
+
+	/**
+	 * The event is created with the type `property`.
+	 *
+	 * @param Object $target
+	 * @param array $properties
+	 */
+	public function __construct(\ICanBoogie\Object $target, array $properties, $type='property')
+	{
+		parent::__construct($target, $properties, $type);
 	}
 }
