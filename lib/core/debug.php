@@ -209,7 +209,7 @@ class Debug
 		$file = self::strip_root($file);
 
 		return <<<EOT
-<pre class="alert-message block-message error $class">
+<pre class="alert alert-error $class">
 <strong>$type with the following message:</strong>
 
 $message
