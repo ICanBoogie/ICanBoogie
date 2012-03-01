@@ -435,11 +435,15 @@ class Query extends Object implements \IteratorAggregate
 	 *
 	 * @param mixed $mode
 	 *
+	 * @return \ICanBoogie\ActiveRecord\Query
+	 *
 	 * @see http://www.php.net/manual/en/pdostatement.setfetchmode.php
 	 */
 	public function mode($mode)
 	{
 		$this->mode = func_get_args();
+
+		return $this;
 	}
 
 	/**
