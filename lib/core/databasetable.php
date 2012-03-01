@@ -327,7 +327,7 @@ class DatabaseTable extends Object
 			$table = $table->parent;
 		}
 
-		$schema = call_user_func_array('wd_array_merge_recursive', $schemas);
+		$schema = call_user_func_array('\ICanBoogie\array_merge_recursive', $schemas);
 
 		$this->connection->parse_schema($schema);
 

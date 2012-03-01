@@ -243,7 +243,7 @@ class Configs implements \ArrayAccess
 		}
 		else if ($constructor == 'recursive merge')
 		{
-			$rc = call_user_func_array('wd_array_merge_recursive', $fragments);
+			$rc = call_user_func_array('\ICanBoogie\array_merge_recursive', $fragments);
 		}
 		else
 		{

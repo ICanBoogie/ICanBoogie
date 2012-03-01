@@ -158,38 +158,3 @@ function wd_array_by_columns(array $array, $columns, $pad=false)
 	return $finish;
 }
 */
-
-/**
- * Inserts a value in a array before, or after, at given key.
- *
- * Numeric keys are not preserved.
- *
- * @param $array
- * @param $relative
- * @param $value
- * @param $key
- * @param $after
- */
-function wd_array_insert($array, $relative, $value, $key=null, $after=false)
-{
-	$keys = array_keys($array);
-	$pos = array_search($relative, $keys, true);
-
-	if ($after)
-	{
-		$pos++;
-	}
-
-	$spliced = array_splice($array, $pos);
-
-	if ($key !== null)
-	{
-		$array = array_merge($array, array($key => $value));
-	}
-	else
-	{
-		array_unshift($spliced, $value);
-	}
-
-	return array_merge($array, $spliced);
-}

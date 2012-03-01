@@ -126,7 +126,7 @@ class Core extends Object
 	 */
 	protected function __construct(array $options=array())
 	{
-		$options = wd_array_merge_recursive
+		$options = \ICanBoogie\array_merge_recursive
 		(
 			array
 			(
@@ -155,7 +155,7 @@ class Core extends Object
 
 		$this->configs->add($options['paths']['config']);
 
-		$config = wd_array_merge_recursive($options, $this->config);
+		$config = \ICanBoogie\array_merge_recursive($options, $this->config);
 
 		I18n::$load_paths = array_merge(I18n::$load_paths, $config['paths']['locale']);
 

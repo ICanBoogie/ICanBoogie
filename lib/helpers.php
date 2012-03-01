@@ -152,6 +152,88 @@ function stable_sort(&$array, $picker=null)
 }
 
 /**
+ * Inserts a value in a array before, or after, at given key.
+ *
+ * Numeric keys are not preserved.
+ *
+ * @param $array
+ * @param $relative
+ * @param $value
+ * @param $key
+ * @param $after
+ */
+function array_insert($array, $relative, $value, $key=null, $after=false)
+{
+	$keys = array_keys($array);
+	$pos = array_search($relative, $keys, true);
+
+	if ($after)
+	{
+		$pos++;
+	}
+
+	$spliced = array_splice($array, $pos);
+
+	if ($key !== null)
+	{
+		$array = array_merge($array, array($key => $value));
+	}
+	else
+	{
+		array_unshift($spliced, $value);
+	}
+
+	return array_merge($array, $spliced);
+}
+
+/**
+ * Merge arrays recursively with a different algorithm than PHP.
+ *
+ * @param array $array1
+ * @param array $array2 ...
+ *
+ * @return array
+ */
+function array_merge_recursive(array $array1, array $array2=array())
+{
+	$arrays = func_get_args();
+
+	$merge = array_shift($arrays);
+
+	foreach ($arrays as $array)
+	{
+		foreach ($array as $key => $val)
+		{
+			#
+			# if the value is an array and the key already exists
+			# we have to make a recursion
+			#
+
+			if (is_array($val) && array_key_exists($key, $merge))
+			{
+				$val = array_merge_recursive((array) $merge[$key], $val);
+			}
+
+			#
+			# if the key is numeric, the value is pushed. Otherwise, it replaces
+			# the value of the _merge_ array.
+			#
+
+			if (is_numeric($key))
+			{
+				$merge[] = $val;
+			}
+			else
+			{
+				$merge[$key] = $val;
+			}
+		}
+	}
+
+	return $merge;
+}
+
+/**
  * Returns information about a variable.
  *
  * The function uses xdebug_var_dump() if [Xdebug](http://xdebug.org/) is installed, otherwise it

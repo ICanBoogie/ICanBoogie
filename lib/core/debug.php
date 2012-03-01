@@ -21,7 +21,7 @@ class Debug
 
 	static public function synthesize_config(array $fragments)
 	{
-		$config = call_user_func_array('wd_array_merge_recursive', $fragments);
+		$config = call_user_func_array('\ICanBoogie\array_merge_recursive', $fragments);
 		$config = array_merge($config, $config['modes'][$config['mode']]);
 
 		return $config;
