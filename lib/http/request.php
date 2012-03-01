@@ -170,11 +170,25 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		return new \ArrayIterator($this->params);
 	}
 
+	/**
+	 * Returns the sciprt name.
+	 *
+	 * The setter is volatile, the value is returned from the ENV key `SCIPT_NAME`.
+	 *
+	 * @return string
+	 */
 	protected function __volatile_get_script_name()
 	{
 		return $this->env['SCRIPT_NAME'];
 	}
 
+	/**
+	 * Sets the script name.
+	 *
+	 * The setter is volatile, the value is set to the ENV key `SCRIPT_NAME`.
+	 *
+	 * @param string $value
+	 */
 	protected function __volatile_set_script_name($value)
 	{
 		$this->env['SCRIPT_NAME'] = $value;
@@ -228,48 +242,88 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		return isset($this->env['HTTP_USER_AGENT']) ? $this->env['HTTP_USER_AGENT'] : null;
 	}
 
+	/**
+	 * Checks if the request method is DELETE.
+	 *
+	 * @return boolean
+	 */
 	protected function __get_is_delete()
 	{
 		return $this->method == 'delete';
 	}
 
+	/**
+	 * Checks if the request method is GET.
+	 *
+	 * @return boolean
+	 */
 	protected function __get_is_get()
 	{
 		return $this->method == 'get';
 	}
 
+	/**
+	 * Checks if the request method is HEAD.
+	 *
+	 * @return boolean
+	 */
 	protected function __get_is_head()
 	{
 		return $this->method == 'head';
 	}
 
+	/**
+	 * Checks if the request method is OPTIONS.
+	 *
+	 * @return boolean
+	 */
 	protected function __get_is_options()
 	{
 		return $this->method == 'options';
 	}
 
+	/**
+	 * Checks if the request method is PATCH.
+	 *
+	 * @return boolean
+	 */
 	protected function __get_is_patch()
 	{
 		return $this->method == 'patch';
 	}
 
+	/**
+	 * Checks if the request method is POST.
+	 *
+	 * @return boolean
+	 */
 	protected function __get_is_post()
 	{
 		return $this->method == 'post';
 	}
 
+	/**
+	 * Checks if the request method is PUT.
+	 *
+	 * @return boolean
+	 */
 	protected function __get_is_put()
 	{
 		return $this->method == 'put';
 	}
 
+	/**
+	 * Checks if the request method is TRACE.
+	 *
+	 * @return boolean
+	 */
 	protected function __get_is_trace()
 	{
 		return $this->method == 'trace';
 	}
 
 	/**
-	 * Returns true if the request is a XMLHTTPRequest.
+	 * Checks if the request is a XMLHTTPRequest.
 	 *
 	 * @return boolean
 	 */
@@ -279,26 +333,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @see http://en.wikipedia.org/wiki/X-Forwarded-For
-	 *
-	 * @return string
-	 */
-	protected function __get_ip()
-	{
-		if (isset($this->env['HTTP_X_FORWARDED_FOR']))
-		{
-			$addr = $this->end['HTTP_X_FORWARDED_FOR'];
-
-			list($addr) = explode(',', $addr);
-
-			return $addr;
-		}
-
-		return isset($this->env['REMOTE_ADDR']) ? $this->env['REMOTE_ADDR'] : '::1';
-	}
-
-	/**
-	 * Returns true if the request came from localhost, 127.0.0.1.
+	 * Checks if the request is local.
 	 *
 	 * @return boolean
 	 */
@@ -324,6 +359,25 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		}
 
 		return false;
+	}
+
+	/**
+	 * @see http://en.wikipedia.org/wiki/X-Forwarded-For
+	 *
+	 * @return string
+	 */
+	protected function __get_ip()
+	{
+		if (isset($this->env['HTTP_X_FORWARDED_FOR']))
+		{
+			$addr = $this->end['HTTP_X_FORWARDED_FOR'];
+
+			list($addr) = explode(',', $addr);
+
+			return $addr;
+		}
+
+		return isset($this->env['REMOTE_ADDR']) ? $this->env['REMOTE_ADDR'] : '::1';
 	}
 
 	protected function __get_authorization()
@@ -372,6 +426,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		return $path;
 	}
 
+	/**
+	 * Returns the extension of the path info.
+	 *
+	 * @return mixed
+	 */
 	protected function __get_extension()
 	{
 		return pathinfo($this->path, PATHINFO_EXTENSION);
