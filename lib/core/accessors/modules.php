@@ -262,6 +262,13 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 			'config constructors' => array()
 		);
 
+		$isolated_require = function ($__file__, $__exposed__)
+		{
+			extract($__exposed__);
+
+			return require $__file__;
+		};
+
 		foreach ($descriptors as $id => $descriptor)
 		{
 			$index['autoload'] = $descriptor['__autoload'] + $index['autoload'];
@@ -281,7 +288,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 
 				if (is_file($core_config_path))
 				{
-					$core_config = wd_isolated_require($core_config_path, array('path' => $path));
+					$core_config = $isolated_require($core_config_path, array('path' => $path));
 
 					if (isset($core_config['autoload']))
 					{

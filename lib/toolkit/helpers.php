@@ -387,13 +387,6 @@ function wd_strip_root($str)
 	return substr($str, strlen($_SERVER['DOCUMENT_ROOT']));
 }
 
-function wd_isolated_require($__file__, $__exposed__)
-{
-	extract($__exposed__);
-
-	return require $__file__;
-}
-
 use ICanBoogie\Debug;
 
 function wd_log($str, array $params=array(), $message_id=null, $type='debug')
