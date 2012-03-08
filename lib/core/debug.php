@@ -17,7 +17,13 @@ use ICanBoogie\I18n\Translator;
 
 class Debug
 {
+	const MODE_DEV = 'dev';
+	const MODE_TEST = 'test';
+	const MODE_PRODUCTION = 'production';
+
 	const MAX_MESSAGES = 100;
+
+	public static $mode = 'dev';
 
 	static public function synthesize_config(array $fragments)
 	{
@@ -39,6 +45,7 @@ class Debug
 		}
 
 		self::$config = (isset($core) ? $core->configs['debug'] : require ROOT . 'config/debug.php');
+		self::$mode = self::$config['mode'];
 
 		return self::$config;
 	}
