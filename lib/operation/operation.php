@@ -92,7 +92,7 @@ abstract class Operation extends Object
 	{
 		global $core;
 
-		$path = Route::decontextualize($request->path);
+		$path = Route::decontextualize($request->pathinfo);
 		$extension = $request->extension;
 
 		if ($extension == 'json')

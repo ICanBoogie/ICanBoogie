@@ -36,15 +36,38 @@ use ICanBoogie\Operation;
  */
 class Request extends Object implements \ArrayAccess, \IteratorAggregate
 {
-	static protected $methods = array('delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'trace');
+	/*
+	 * HTTP methods as defined by the {@link http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html Hypertext Transfert protocol 1.1}.
+	 */
+	const METHOD_OPTIONS = 'OPTIONS';
+	const METHOD_GET = 'GET';
+	const METHOD_HEAD = 'HEAD';
+	const METHOD_POST = 'POST';
+	const METHOD_PUT = 'PUT';
+	const METHOD_PATCH = 'PATCH';
+	const METHOD_DELETE = 'DELETE';
+	const METHOD_TRACE = 'TRACE';
+	const METHOD_CONNECT = 'CONNECT';
+
+	static protected $methods = array
+	(
+		self::METHOD_DELETE,
+		self::METHOD_GET,
+		self::METHOD_HEAD,
+		self::METHOD_OPTIONS,
+		self::METHOD_POST,
+		self::METHOD_PUT,
+		self::METHOD_PATCH,
+		self::METHOD_TRACE
+	);
 
 	protected $env;
 
-	public $path_parameters=array();
-	public $query_parameters=array();
-	public $request_parameters=array();
+	public $pathinfo_parameters = array();
+	public $query_parameters = array();
+	public $request_parameters = array();
 	public $params;
-	public $cookies=array();
+	public $cookies = array();
 
 	public static function from_globals(array $properties=array())
 	{
@@ -71,7 +94,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 
 		if ($this->params === null)
 		{
-			$this->params = $this->path_parameters + $this->request_parameters + $this->query_parameters;
+			$this->params = $this->pathinfo_parameters + $this->request_parameters + $this->query_parameters;
 		}
 	}
 
@@ -104,15 +127,17 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * Example:
 	 *
-	 * Request::from(array('path' => '/api/core/aloha'))->get();
+	 * Request::from(array('pathinfo' => '/api/core/aloha'))->get();
 	 *
 	 * @see ICanBoogie.Object::__call()
 	 */
 	public function __call($method, $arguments)
 	{
-		if (in_array($method, self::$methods))
+		$http_method = strtoupper($method);
+
+		if (in_array($http_method, self::$methods))
 		{
-			array_unshift($arguments, $method);
+			array_unshift($arguments, $http_method);
 
 			return call_user_func_array(array($this, '__invoke'), $arguments);
 		}
@@ -207,12 +232,10 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	{
 		$method = $this->env['REQUEST_METHOD'];
 
-		if ($method == 'POST' && !empty($this->request_parameters['_method']))
+		if ($method == self::METHOD_POST && !empty($this->request_parameters['_method']))
 		{
-			$method = $this->request_parameters['_method'];
+			$method = strtoupper($this->request_parameters['_method']);
 		}
-
-		$method = strtolower($method);
 
 		if (!in_array($method, self::$methods))
 		{
@@ -259,7 +282,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function __get_is_get()
 	{
-		return $this->method == 'get';
+		return $this->method == self::METHOD_GET;
 	}
 
 	/**
@@ -269,7 +292,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function __get_is_head()
 	{
-		return $this->method == 'head';
+		return $this->method == self::METHOD_HEAD;
 	}
 
 	/**
@@ -279,7 +302,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function __get_is_options()
 	{
-		return $this->method == 'options';
+		return $this->method == self::METHOD_OPTIONS;
 	}
 
 	/**
@@ -289,7 +312,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function __get_is_patch()
 	{
-		return $this->method == 'patch';
+		return $this->method == self::METHOD_PATCH;
 	}
 
 	/**
@@ -299,7 +322,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function __get_is_post()
 	{
-		return $this->method == 'post';
+		return $this->method == self::METHOD_POST;
 	}
 
 	/**
@@ -309,7 +332,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function __get_is_put()
 	{
-		return $this->method == 'put';
+		return $this->method == self::METHOD_PUT;
 	}
 
 	/**
@@ -319,7 +342,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function __get_is_trace()
 	{
-		return $this->method == 'trace';
+		return $this->method == self::METHOD_TRACE;
 	}
 
 	/**
@@ -407,13 +430,13 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 
 	protected function __volatile_set_uri($uri)
 	{
-		unset($this->path);
+		unset($this->pathinfo);
 		unset($this->query_string);
 
 		$this->env['REQUEST_URI'] = $uri;
 	}
 
-	protected function __get_path()
+	protected function __get_pathinfo()
 	{
 		$path = $this->env['REQUEST_URI'];
 		$qs = $this->query_string;
@@ -433,12 +456,12 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function __volatile_get_extension()
 	{
-		return pathinfo($this->path, PATHINFO_EXTENSION);
+		return pathinfo($this->pathinfo, PATHINFO_EXTENSION);
 	}
 
 	protected function __get_params()
 	{
-		return $this->path_parameters + $this->request_parameters + $this->query_parameters;
+		return $this->pathinfo_parameters + $this->request_parameters + $this->query_parameters;
 	}
 
 	protected function __get_headers()
