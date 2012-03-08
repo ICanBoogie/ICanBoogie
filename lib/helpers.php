@@ -233,6 +233,34 @@ function array_merge_recursive(array $array1, array $array2=array())
 	return $merge;
 }
 
+function exact_array_merge_recursive(array $array1, array $array2=array())
+{
+	$arrays = func_get_args();
+
+	$merge = array_shift($arrays);
+
+	foreach ($arrays as $array)
+	{
+		foreach ($array as $key => $val)
+		{
+			#
+			# if the value is an array and the key already exists
+			# we have to make a recursion
+			#
+
+			if (is_array($val) && array_key_exists($key, $merge))
+			{
+				$val = exact_array_merge_recursive((array) $merge[$key], $val);
+			}
+
+			$merge[$key] = $val;
+		}
+	}
+
+	return $merge;
+}
+
+
 /**
  * Returns information about a variable.
  *
@@ -334,4 +362,9 @@ function format($str, array $args=array())
 	}
 
 	return strtr($str, $holders);
+}
+
+function log_info($message, array $params=array(), $message_id=null)
+{
+	Debug::log('info', $message, $params, $message_id);
 }
