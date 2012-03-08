@@ -396,7 +396,7 @@ function wd_log($str, array $params=array(), $message_id=null, $type='debug')
 
 function wd_log_done($str, array $params=array(), $message_id=null)
 {
-	Debug::log('done', $str, $params, $message_id);
+	Debug::log('success', $str, $params, $message_id);
 }
 
 function wd_log_error($str, array $params=array(), $message_id=null)
