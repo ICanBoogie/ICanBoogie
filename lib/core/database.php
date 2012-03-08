@@ -792,13 +792,13 @@ class Statement extends \PDOStatement
 		{
 			$er = array_pad($this->errorInfo(), 3, '');
 
-			throw new ExecutionException
+			throw new ExecutionException(\ICanBoogie\format
 			(
 				'SQL error: \1(\2) <code>\3</code> &mdash; <code>%query</code>\5', array
 				(
 					$er[0], $er[1], $er[2], '%query' => $this->queryString, $args
 				)
-			);
+			));
 		}
 	}
 
