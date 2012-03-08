@@ -628,19 +628,32 @@ abstract class Operation extends Object
 		$rc = null;
 		$response = $this->response;
 
-		if (!$this->control($this->controls))
+		try
 		{
-			new \ICanBoogie\Operation\FailureEvent($this, array('type' => 'control', 'request' => $request));
-		}
-		else if (!$this->validate($response->errors) || count($response->errors))
-		{
-			new \ICanBoogie\Operation\FailureEvent($this, array('type' => 'validation', 'request' => $request));
-		}
-		else
-		{
-			new \ICanBoogie\Operation\BeforeProcessEvent($this, array('request' => $request));
+			if (!$this->control($this->controls))
+			{
+				new \ICanBoogie\Operation\FailureEvent($this, array('type' => 'control', 'request' => $request));
+			}
+			else if (!$this->validate($response->errors) || count($response->errors))
+			{
+				new \ICanBoogie\Operation\FailureEvent($this, array('type' => 'validation', 'request' => $request));
+			}
+			else
+			{
+				new \ICanBoogie\Operation\BeforeProcessEvent($this, array('request' => $request));
 
-			$rc = $this->process();
+				$rc = $this->process();
+			}
+		}
+		catch (Operation\ExpiredFormException $e)
+		{
+			wd_log_error($e->getMessage());
+
+			return;
+		}
+		catch (\Exception $e)
+		{
+			throw $e;
 		}
 
 		$response->rc = $rc;
@@ -1101,5 +1114,18 @@ class GetFormEvent extends \ICanBoogie\Event
 	public function __construct(\ICanBoogie\Operation $target, array $properties, $type='get_form')
 	{
 		parent::__construct($target, $properties, $type);
+	}
+}
+
+/**
+ * Exception thrown when the form associated with an operation has expired.
+ *
+ * The exception is considered recoverable, if the request is not XHR.
+ */
+class ExpiredFormException extends \Exception
+{
+	public function __construct($message="The form associated with the request has expired.", $code=500, $previous=null)
+	{
+		parent::__construct($message, $code, $previous);
 	}
 }

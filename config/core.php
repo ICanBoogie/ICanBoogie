@@ -64,6 +64,7 @@ return array
 		'ICanBoogie\Operation\FailureEvent' => $operation . 'operation.php',
 		'ICanBoogie\Operation\GetFormEvent' => $operation . 'operation.php',
 		'ICanBoogie\Operation\ProcessEvent' => $operation . 'operation.php',
+		'ICanBoogie\Operation\ExpiredFormException' => $operation . 'operation.php',
 		'ICanBoogie\Operation\ActiveRecord\Delete' => $operation . 'activerecord/delete.php',
 		'ICanBoogie\Operation\ActiveRecord\Save' => $operation . 'activerecord/save.php',
 		'ICanBoogie\Operation\Core\Aloha' => $operation . 'core/aloha.php',
