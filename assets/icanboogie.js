@@ -7,22 +7,145 @@
  * file that was distributed with this source code.
  */
 
-(function() {
+var ICanBoogie = {
 
-	var api_base = $(document.html).get('data-api-base');
+	XHR: {
+
+		NOTICE_DELAY: 200,
+
+		showNotice: function()
+		{
+			window.fireEvent('icanboogie.xhr.shownotice', arguments)
+		},
+
+		hideNotice: function()
+		{
+			window.fireEvent('icanboogie.xhr.hidenotice', arguments)
+		}
+	}
+}
+
+/**
+ * The Request.fireEvent() method is patched in order to display a notice when a XHR is taking too
+ * long to complete.
+ *
+ * Usually the user only has to listen to the `icanboogie.xhr.shownotice` and
+ * `icanboogie.xhr.hidenotice` to know when to show/hide a notice.
+ *
+ * XHR can be nested. The `icanboogie.xhr.hidenotice` is fire only when all the requests have
+ * completed (or aborted). A new `icanboogie.xhr.shownotice` event can be fired only after a
+ * `icanboogie.xhr.hidenotice` was fired.
+ *
+ * Event: icanboogie.xhr.request
+ * -----------------------------
+ *
+ * The `icanboogie.xhr.request` event is fired when a XHR is issued.
+ *
+ * Event: icanboogie.xhr.complete
+ * ------------------------------
+ *
+ * The `icanboogie.xhr.complete` event is fired when a XHR completed, successfully or not.
+ *
+ * Event: icanboogie.xhr.cancel
+ * ----------------------------
+ *
+ * The `icanboogie.xhr.cancel` event is fired when a XHR was canceled.
+ *
+ * Event: icanboogie.xhr.shownotice
+ * --------------------------------
+ *
+ * The `icanboogie.xhr.shownotice` event is fired when a notice should be displayed to inform the
+ * user that a request is taking some time to perform.
+ *
+ * The event is only fired after some time, so that it can be canceled on a response/abort. This
+ * delay is defined by the property `ICanBoogie.XHR.NOTICE_DELAY`.
+ *
+ * Event: icanboogie.xhr.hidenotice
+ * --------------------------------
+ *
+ * The `icanboogie.xhr.hidenotice` event is fired when the notice should be hidden.
+ */
+!function() {
+
+	var nativeFireEvent = Request.prototype.fireEvent
+	, nesting = 0
+	, timeout = null
+
+	function showNoticeInterface()
+	{
+		timeout = null
+
+		ICanBoogie.XHR.showNotice.apply(null, arguments)
+	}
+
+	Request.prototype.fireEvent = function(type) {
+
+		if (type == 'request' || type == 'complete' || type == 'cancel')
+		{
+			var eventArguments = Array.clone(arguments)
+
+			eventArguments.shift()
+			eventArguments.unshift(this)
+
+			window.fireEvent('icanboogie.xhr.' + type, eventArguments)
+		}
+
+		return nativeFireEvent.apply(this, arguments)
+	}
+
+	window.addEvent('icanboogie.xhr.request', function() {
+
+		if (++nesting != 1) return
+
+		timeout = showNoticeInterface.delay(ICanBoogie.XHR.NOTICE_DELAY, null, arguments)
+	})
+
+	window.addEvent('icanboogie.xhr.cancel', function() {
+
+		if (--nesting != 0) return
+
+		if (timeout)
+		{
+			clearTimeout(timeout)
+
+			timeout = null
+		}
+	})
+
+	window.addEvent('icanboogie.xhr.complete', function() {
+
+		if (--nesting != 0) return
+
+		if (timeout)
+		{
+			clearTimeout(timeout)
+
+			timeout = null
+
+			return
+		}
+
+		ICanBoogie.XHR.hideNotice.apply(null, arguments)
+	})
+
+} ()
+
+!function() {
+
+	var api_base = $(document.html).get('data-api-base')
 
 	if (!api_base)
 	{
-		api_base = '';
+		api_base = ''
 	}
 
-	api_base += '/api/';
+	api_base += '/api/'
 
 	/**
 	 * Extends Request.JSON adding specific support to the ICanBoogie API.
 	 */
-	Request.API = new Class
-	({
+	Request.API = new Class({
+
 		Extends: Request.JSON,
 
 		options:
@@ -34,55 +157,59 @@
 		{
 			if (options.url.match(/^\/api\//))
 			{
-				options.url = options.url.substring(5);
+				options.url = options.url.substring(5)
 			}
 
-			options.url = api_base + options.url;
+			options.url = api_base + options.url
 
-			this.parent(options);
+			this.parent(options)
 		},
 
 		onFailure: function()
 		{
-			var response = JSON.decode(this.xhr.responseText);
+			var response = JSON.decode(this.xhr.responseText)
 
-			this.fireEvent('complete').fireEvent('failure', [this.xhr, response]);
+			this.fireEvent('complete').fireEvent('failure', [this.xhr, response])
 		}
-	});
+	})
 
-	Request.API.encode = function(url, args)
-	{
+	Request.API.encode = function(url, args) {
+
 		if (url.match(/^\/api\//))
 		{
-			url = url.substring(5);
+			url = url.substring(5)
 		}
 
-		return url = api_base + url;
-	};
+		return api_base + url
+	}
 
-	Element.Properties.dataset = {
+} ()
 
-		get: function() {
+Element.Properties.dataset = {
 
-			var dataset = {};
-			var attributes = this.attributes;
+	get: function() {
 
-			for (var i = 0, y = attributes.length ; i < y ; i++)
+		var dataset = {}
+		, attributes = this.attributes
+		, i
+		, y
+		, attr
+		, name
+
+		for (i = 0, y = attributes.length ; i < y ; i++)
+		{
+			attr = attributes[i];
+
+			if (!attr.name.match(/^data-/))
 			{
-				var attr = attributes[i];
-
-				if (!attr.name.match(/^data-/))
-				{
-					continue;
-				}
-
-				var name = attr.name.substring(5).camelCase();
-
-				dataset[name] = attr.value;
+				continue;
 			}
 
-			return dataset;
-		}
-	};
+			name = attr.name.substring(5).camelCase()
 
-}) ();
+			dataset[name] = attr.value
+		}
+
+		return dataset
+	}
+}
