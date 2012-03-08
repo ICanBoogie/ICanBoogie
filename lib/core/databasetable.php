@@ -248,7 +248,7 @@ class DatabaseTable extends Object
 				$primary = $table->primary;
 
 				$join .= empty($implement['loose']) ? 'INNER' : 'LEFT';
-				$join .= " JOIN `$name` as i$i USING(`$primary`) ";
+				$join .= " JOIN `$name` as {$table->alias} USING(`$primary`) ";
 
 				$i++;
 			}
