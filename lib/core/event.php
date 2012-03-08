@@ -74,6 +74,11 @@ class Events implements \IteratorAggregate, \ArrayAccess
 							));
 						}
 
+						#
+						# because modules are ordered by weight (most important are first), we can
+						# push callbacks instead of unshifting them.
+						#
+
 						if (strpos($type, '::'))
 						{
 							list($class, $type) = explode('::', $type);
@@ -144,14 +149,14 @@ class Events implements \IteratorAggregate, \ArrayAccess
 	}
 
 	/**
-	 * Adds a hook to an event type.
+	 * Attaches a hook to an event type.
 	 *
 	 * @param string $pattern
 	 * @param callable $callback
 	 *
 	 * @throws \InvalidArgumentException when $callback is not a callable.
 	 */
-	public static function add($type, $callback)
+	public static function attach($type, $callback)
 	{
 		if (!is_callable($callback))
 		{
@@ -168,29 +173,56 @@ class Events implements \IteratorAggregate, \ArrayAccess
 
 		$events = static::get();
 		$events->skipable = array();
+		$ns = '::';
 
 		if (strpos($type, '::'))
 		{
-			list($class, $type) = explode('::', $type);
+			list($ns, $type) = explode('::', $type);
 
-			$events->events[$class][$type][] = $callback;
 			$events->events_by_class = array();
 		}
-		else
+
+		if (!isset($events->events[$ns][$type]))
 		{
-			$events->events['::'][$type][] = $callback;
+			$events->events[$ns][$type] = array();
 		}
+
+		array_unshift($events->events[$ns][$type], $callback);
 	}
 
 	/**
-	 * Removes a hook from an event type.
+	 * Detaches a hook from an event type.
 	 *
 	 * @param string $type
 	 * @param callable $callback
 	 */
-	public static function remove($type, $callback)
+	public static function detach($type, $callback)
 	{
-		// TODO
+		$ns = '::';
+
+		if (strpos($type, '::'))
+		{
+			list($ns, $type) = explode('::', $type);
+		}
+
+		$events = static::get();
+
+		if (isset($events->events[$ns][$type]))
+		{
+			foreach ($events->events[$ns][$type] as $key => $c)
+			{
+				if ($c != $callback)
+				{
+					continue;
+				}
+
+				unset($events->events[$ns][$type][$key]);
+
+				return;
+			}
+		}
+
+		throw new Exception('Unknown event callback: \1', array($callback));
 	}
 
 	/**
@@ -230,6 +262,10 @@ class Events implements \IteratorAggregate, \ArrayAccess
 
 /**
  * An event.
+ *
+ * @property-read $stopped bool `true` is the event propagation was stopped, `false` otherwise.
+ * @property-read $used int The number of callbacks called during the propagation of the event.
+ * @property-read $target mixed The target of the event.
  */
 class Event
 {
@@ -275,7 +311,7 @@ class Event
 	 *
 	 * @return Event|null The event that was created or null if the fire triggered nothing.
 	 */
-	protected function __construct($target, array $properties, $type)
+	protected function __construct($target, $type, array $properties)
 	{
 		$events = Events::get();
 
@@ -325,6 +361,14 @@ class Event
 						throw new Exception\PropertyNotWritable(format('%property is a reserved property.', array('property' => $property)));
 					}
 
+					#
+					# we need to set the property to null before we set its value by reference
+					# otherwise if the property doesn't exists the magic method __get() is invoked
+					# and will in turn throw an exception because we try to get the value of a
+					# property that does not exists.
+					#
+
+					$this->$property = null;
 					$this->$property = &$value;
 				}
 
@@ -351,6 +395,25 @@ class Event
 		}
 	}
 
+	public function __get($property)
+	{
+		switch ($property)
+		{
+			case 'stopped': return $this->stopped;
+			case 'used': return $this->used;
+			case 'target': return $this->target;
+		}
+
+		$properties = get_object_vars($this);
+
+		if (array_key_exists($property, $properties))
+		{
+			throw new Exception\PropertyNotReadable(array($property, $this));
+		}
+
+		throw new Exception\PropertyNotFound(array($property, $this));
+	}
+
 	/**
 	 * Stops the callbacks chain.
 	 *
@@ -375,7 +438,7 @@ class Event
 	 */
 	public static function fire($type, array $properties, $target=null)
 	{
-		$event = new self($target, $properties, $type);
+		$event = new self($target, $type, $properties);
 
 		return $event;
 	}

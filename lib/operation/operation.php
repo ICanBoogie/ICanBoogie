@@ -1015,9 +1015,9 @@ class FailureEvent extends \ICanBoogie\Event
 	 * @param array $properties
 	 * @param string $type Defaults to `failure`.
 	 */
-	public function __construct(\ICanBoogie\Operation $target, array $properties, $type='failure')
+	public function __construct(\ICanBoogie\Operation $target, array $properties)
 	{
-		parent::__construct($target, $properties, $type);
+		parent::__construct($target, 'failure', $properties);
 	}
 }
 
@@ -1040,9 +1040,9 @@ class BeforeProcessEvent extends \ICanBoogie\Event
 	 * @param array $properties
 	 * @param string $type Defaults to `process:before`.
 	 */
-	public function __construct(\ICanBoogie\Operation $target, array $properties, $type='process:before')
+	public function __construct(\ICanBoogie\Operation $target, array $properties)
 	{
-		parent::__construct($target, $properties, $type);
+		parent::__construct($target, 'process:before', $properties);
 	}
 }
 
@@ -1079,9 +1079,9 @@ class ProcessEvent extends \ICanBoogie\Event
 	 * @param array $properties
 	 * @param string $type Defaults to `process`.
 	 */
-	public function __construct(\ICanBoogie\Operation $target, array $properties, $type='process')
+	public function __construct(\ICanBoogie\Operation $target, array $properties)
 	{
-		parent::__construct($target, $properties, $type);
+		parent::__construct($target, 'process', $properties);
 	}
 }
 
@@ -1111,9 +1111,9 @@ class GetFormEvent extends \ICanBoogie\Event
 	 * @param array $properties
 	 * @param string $type Defaults to `get_form`.
 	 */
-	public function __construct(\ICanBoogie\Operation $target, array $properties, $type='get_form')
+	public function __construct(\ICanBoogie\Operation $target, array $properties)
 	{
-		parent::__construct($target, $properties, $type);
+		parent::__construct($target, 'get_form', $properties);
 	}
 }
 

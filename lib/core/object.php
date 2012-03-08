@@ -577,8 +577,8 @@ class PropertyEvent extends \ICanBoogie\Event
 	 * @param Object $target
 	 * @param array $properties
 	 */
-	public function __construct(\ICanBoogie\Object $target, array $properties, $type='property')
+	public function __construct(\ICanBoogie\Object $target, array $properties)
 	{
-		parent::__construct($target, $properties, $type);
+		parent::__construct($target, 'property', $properties);
 	}
 }
