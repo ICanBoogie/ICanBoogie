@@ -352,36 +352,6 @@ function wd_hyphenate($str)
 	return trim(preg_replace_callback('/[A-Z]/', $callback, $str), '-');
 }
 
-function wd_shorten($str, $length=32, $position=.75, &$shortened=null)
-{
-	$l = mb_strlen($str);
-
-	if ($l <= $length)
-	{
-		return $str;
-	}
-
-	$length--;
-	$position = (int) ($position * $length);
-
-	if ($position == 0)
-	{
-		$str = '…' . mb_substr($str, $l - $length);
-	}
-	else if ($position == $length)
-	{
-		$str = mb_substr($str, 0, $length) . '…';
-	}
-	else
-	{
-		$str = mb_substr($str, 0, $position) . '…' . mb_substr($str, $l - ($length - $position));
-	}
-
-	$shortened = true;
-
-	return $str;
-}
-
 function wd_strip_root($str)
 {
 	return substr($str, strlen($_SERVER['DOCUMENT_ROOT']));
