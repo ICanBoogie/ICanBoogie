@@ -427,39 +427,6 @@ class Core extends Object
 
 	}
 
-	// TODO-20120308: refactor this to use the Core\DispatchEvent event.
-	protected function run_request(HTTP\Request $request)
-	{
-		$response = $request();
-
-		if ($response)
-		{
-			$response();
-		}
-	}
-
-	/**
-	 * Dispatches the request to the appropriate handlers.
-	 *
-	 * The `ICanBoogie::run` event of class {@link \ICanBoogie\Core\RunEvent} is fired for hooks
-	 * to alter a {@link HTTP\Response}. After the event was fired the {@link HTTP\Response} is
-	 * invoked.
-	 */
-	public function dispatch()
-	{
-// 		session_cache_limiter(false);
-
-		$this->run_request($this->request);
-
-		$response = new HTTP\Response();
-
-		new Core\DispatchEvent($this, array('request' => $this->request, 'response' => $response));
-
-		$response();
-
-		throw new Exception('Invoking the response should have ended the script');
-	}
-
 	/**
 	 * Joins all declared classes also defined in the autoload index into a single file.
 	 */
@@ -513,37 +480,3 @@ class Core extends Object
  * Possessions cannot kiss you good night.
  * Possessions will never hold you tight.
  */
-
-namespace ICanBoogie\Core;
-
-/**
- * Event class for the `ICanBoogie::dispatch` event.
- */
-
-class DispatchEvent extends \ICanBoogie\Event
-{
-	/**
-	 * The HTTP request.
-	 *
-	 * @var \ICanBoogie\HTTP\Request
-	 */
-	public $request;
-
-	/**
-	 * The HTTP response.
-	 *
-	 * @var \ICanBoogie\HTTP\Response
-	 */
-	public $response;
-
-	/**
-	 * The event is constructed with the type `dispatch`.
-	 *
-	 * @param \ICanBoogie\Core $target
-	 * @param array $properties
-	 */
-	public function __construct(\ICanBoogie\Core $target, array $properties)
-	{
-		parent::__construct($target, 'dispatch', $properties);
-	}
-}

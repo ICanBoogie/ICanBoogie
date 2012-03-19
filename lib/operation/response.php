@@ -31,7 +31,7 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 
 			if ($success === null)
 			{
-				$success = \ICanBoogie\Debug::fetch_messages('done');
+				$success = \ICanBoogie\Debug::fetch_messages('success');
 
 				if ($success)
 				{

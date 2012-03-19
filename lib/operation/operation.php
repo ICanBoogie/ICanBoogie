@@ -92,7 +92,7 @@ abstract class Operation extends Object
 	{
 		global $core;
 
-		$path = Route::decontextualize($request->pathinfo);
+		$path = Route::decontextualize($request->path_info);
 		$extension = $request->extension;
 
 		if ($extension == 'json')
@@ -640,9 +640,12 @@ abstract class Operation extends Object
 			}
 			else
 			{
-				new \ICanBoogie\Operation\BeforeProcessEvent($this, array('request' => $request));
+				new \ICanBoogie\Operation\BeforeProcessEvent($this, array('request' => $request, 'response' => $response));
 
-				$rc = $this->process();
+				if (!count($response->errors))
+				{
+					$rc = $this->process();
+				}
 			}
 		}
 		catch (Operation\ExpiredFormException $e)
@@ -1004,7 +1007,7 @@ class FailureEvent extends \ICanBoogie\Event
 	/**
 	 * The request that triggered the operation.
 	 *
-	 * @var HTTP\Request
+	 * @var ICanBoogie\HTTP\Request
 	 */
 	public $request;
 
@@ -1029,9 +1032,16 @@ class BeforeProcessEvent extends \ICanBoogie\Event
 	/**
 	 * The request that triggered the operation.
 	 *
-	 * @var HTTP\Request
+	 * @var ICanBoogie\HTTP\Request
 	 */
 	public $request;
+
+	/**
+	 * The response of the operation.
+	 *
+	 * @var ICanBoogie\HTTP\Response
+	 */
+	public $response;
 
 	/**
 	 * The event is constructed with the type `process:before`.
@@ -1061,14 +1071,14 @@ class ProcessEvent extends \ICanBoogie\Event
 	/**
 	 * The response object of the operation.
 	 *
-	 * @var HTTP\Response
+	 * @var ICanBoogie\HTTP\Response
 	 */
 	public $response;
 
 	/**
 	 * The request that triggered the operation.
 	 *
-	 * @var HTTP\Request
+	 * @var ICanBoogie\HTTP\Request
 	 */
 	public $request;
 
@@ -1100,7 +1110,7 @@ class GetFormEvent extends \ICanBoogie\Event
 	/**
 	 * The request that triggered the operation.
 	 *
-	 * @var HTTP\Request
+	 * @var ICanBoogie\HTTP\Request
 	 */
 	public $request;
 

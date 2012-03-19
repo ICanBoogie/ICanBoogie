@@ -11,6 +11,8 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\Exception;
+
 /**
  * @property string $body {@link __volatile_set_body()} {@link __volatile_get_body()}
  * @property integer $date {@link __volatile_set_date()} {@link __volatile_get_date()}
@@ -32,21 +34,17 @@ namespace ICanBoogie\HTTP;
  */
 class Response extends \ICanBoogie\Object
 {
-	protected $body;
-	protected $status;
-	public $status_message;
-	protected $content_type;
-
 	/**
-	 * @var string Response charset
+	 * Response headers.
+	 *
+	 * @var Headers
 	 */
-	public $charset;
 	public $headers;
 
 	/**
      * @var string The HTTP protocol version (1.0 or 1.1), defaults to '1.0'
      */
-	public $version='1.0';
+	public $version = '1.0';
 
 	static public $status_messages = array
 	(
@@ -95,20 +93,58 @@ class Response extends \ICanBoogie\Object
 
 	public function __construct($status=200, array $headers=array(), $body=null)
 	{
-		$this->__volatile_set_status($status);
-
 		$this->headers = new Headers($headers);
 
+		if (!$this->headers['Date'])
+		{
+			$this->date = 'now';
+		}
+
+		$this->__volatile_set_status($status);
 		$this->__volatile_set_body($body);
 	}
 
+	/**
+	 * The headers are cloned when the response is cloned.
+	 */
+	public function __clone()
+	{
+		$this->headers = clone $this->headers;
+	}
+
+	/**
+	 * Issues the HTTP response.
+	 *
+	 * Headers are modified according tp the {@link version}, {@link status} and
+	 * {@link status_message} properties. Additionnal headers can be provided by the framework or
+	 * the user.
+	 *
+	 * The usual behaviour of the response is to echo its body then terminate the script. But if
+	 * its body is `null` the following happens :
+	 *
+	 * - If the {@link location} property is defined the script is terminated.
+	 *
+	 * - If the {@link is_ok} property is falsy **the method returns**.
+	 *
+	 * Note: If the body is a `callable`, the provided callable must echo the reponse body.
+	 */
 	public function __invoke()
 	{
-		header("HTTP/{$this->version} {$this->status} {$this->status_message}");
-
-		foreach ($this->headers as $identifier => $value)
+		if (headers_sent($headers_sent_file, $headers_sent_line))
 		{
-			header("$identifier: $value");
+			trigger_error(\ICanBoogie\format
+			(
+				"Cannot modify header information because headers were already sent. Output started at !at.", array('at' => $headers_sent_file . ':' . $headers_sent_line)
+			));
+		}
+		else
+		{
+			header("HTTP/{$this->version} {$this->status} {$this->status_message}");
+
+			foreach ($this->headers as $identifier => $value)
+			{
+				header("$identifier: $value");
+			}
 		}
 
 		$body = $this->body;
@@ -136,6 +172,14 @@ class Response extends \ICanBoogie\Object
 
 		exit;
 	}
+
+	/**
+	 * Status of the HTTP response.
+	 *
+	 * @var int
+	 */
+	private $status;
+	public $status_message;
 
 	/**
      * Sets response status code and optionnaly status message.
@@ -183,6 +227,15 @@ class Response extends \ICanBoogie\Object
 	{
 		return $this->status;
 	}
+
+	/**
+	 * The response body.
+	 *
+	 * @var mixed
+	 *
+	 * @see __volatile_set_body(), __volatile_get_body()
+	 */
+	private $body;
 
 	/**
 	 * Sets the response body.
@@ -239,9 +292,7 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * Sets the response location.
-	 *
-	 * This method is a setter for the 'Location' header.
+	 * Sets the `Location` header.
 	 *
 	 * @param string $url
 	 */
@@ -250,15 +301,34 @@ class Response extends \ICanBoogie\Object
 		$this->headers['Location'] = $url;
 	}
 
+	/**
+	 * Returns the `Location` header.
+	 *
+	 * @return string
+	 */
 	protected function __volatile_get_location()
 	{
 		return $this->headers['Location'];
 	}
 
+	/**
+	 * Content charset.
+	 *
+	 * @var string
+	 */
+	public $charset;
+
+	/**
+	 * Sets the `Content-Type` header.
+	 *
+	 * The value provided is altered if the {@link charset} property is defined. If the property
+	 * is empty but the content type is "text/plain" or "text/html" then the charset default to
+	 * "utf-8".
+	 *
+	 * @param string $content_type
+	 */
 	protected function __volatile_set_content_type($content_type)
 	{
-		$this->content_type = $content_type;
-
 		$charset = $this->charset;
 
 		if (!$charset && in_array($content_type, array('text/plain', 'text/html')))
@@ -266,7 +336,7 @@ class Response extends \ICanBoogie\Object
 			$charset = 'utf-8';
 		}
 
-		if ($content_type && $charset)
+		if ($charset)
 		{
 			$content_type .= '; charset=' . $charset;
 		}
@@ -274,6 +344,9 @@ class Response extends \ICanBoogie\Object
 		$this->headers['Content-Type'] = $content_type;
 	}
 
+	/**
+	 * Returns the `Content-Type` header.
+	 */
 	protected function __volatile_get_content_type()
 	{
 		return $this->headers['Content-Type'];
@@ -306,6 +379,11 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function __volatile_set_date($time)
 	{
+		if ($time == 'now')
+		{
+			$time = new \DateTime(null, new \DateTimeZone('UTC'));
+		}
+
 		$this->headers['Date'] = $time;
 	}
 
@@ -377,6 +455,11 @@ class Response extends \ICanBoogie\Object
 		return $this->status >= 100 && $this->status < 600;
 	}
 
+	protected function __volatile_set_is_valid()
+	{
+		throw new Exception\PropertyNotWritable(array('is_valid', $this));
+	}
+
 	/**
 	 * Checks if the response is informational.
 	 *
@@ -391,6 +474,11 @@ class Response extends \ICanBoogie\Object
 		return $this->status >= 100 && $this->status < 200;
 	}
 
+	protected function __volatile_set_is_informational()
+	{
+		throw new Exception\PropertyNotWritable(array('is_informational', $this));
+	}
+
 	/**
 	 * Checks if the response is successful.
 	 *
@@ -403,6 +491,11 @@ class Response extends \ICanBoogie\Object
 	protected function __volatile_get_is_successful()
 	{
 		return $this->status >= 200 && $this->status < 300;
+	}
+
+	protected function __volatile_set_is_successful()
+	{
+		throw new Exception\PropertyNotWritable(array('is_successful', $this));
 	}
 
 	/**
@@ -420,6 +513,11 @@ class Response extends \ICanBoogie\Object
 		return $this->status >= 300 && $this->status < 400;
 	}
 
+	protected function __volatile_set_is_redirection()
+	{
+		throw new Exception\PropertyNotWritable(array('is_redirection', $this));
+	}
+
 	/**
 	 * Checks if the response is a client error.
 	 *
@@ -433,6 +531,11 @@ class Response extends \ICanBoogie\Object
 	protected function __volatile_get_is_client_error()
 	{
 		return $this->status >= 400 && $this->status < 500;
+	}
+
+	protected function __volatile_set_is_client_error()
+	{
+		throw new Exception\PropertyNotWritable(array('is_client_error', $this));
 	}
 
 	/**
@@ -450,6 +553,11 @@ class Response extends \ICanBoogie\Object
 		return $this->status >= 500 && $this->status < 600;
 	}
 
+	protected function __volatile_set_is_server_error()
+	{
+		throw new Exception\PropertyNotWritable(array('is_server_error', $this));
+	}
+
 	/**
 	 * Checks if the response is ok.
 	 *
@@ -462,6 +570,11 @@ class Response extends \ICanBoogie\Object
 	protected function __volatile_get_is_ok()
 	{
 		return $this->status == 200;
+	}
+
+	protected function __volatile_set_is_ok()
+	{
+		throw new Exception\PropertyNotWritable(array('is_ok', $this));
 	}
 
 	/**
@@ -478,6 +591,11 @@ class Response extends \ICanBoogie\Object
 		return $this->status == 403;
 	}
 
+	protected function __volatile_set_is_forbidden()
+	{
+		throw new Exception\PropertyNotWritable(array('is_forbidden', $this));
+	}
+
 	/**
 	 * Checks if the response is not found.
 	 *
@@ -492,6 +610,11 @@ class Response extends \ICanBoogie\Object
 		return $this->status == 404;
 	}
 
+	protected function __volatile_set_is_not_found()
+	{
+		throw new Exception\PropertyNotWritable(array('is_not_found', $this));
+	}
+
 	/**
 	 * Checks if the response is empty.
 	 *
@@ -504,5 +627,80 @@ class Response extends \ICanBoogie\Object
 	protected function __volatile_get_is_empty()
 	{
 		return in_array($this->status, array(201, 204, 304));
+	}
+
+	protected function __volatile_set_is_empty()
+	{
+		throw new Exception\PropertyNotWritable(array('is_empty', $this));
+	}
+
+	/*
+	 * CACHE
+	 *
+	 * http://tools.ietf.org/html/rfc2616#section-14.9
+	 */
+
+	/**
+	 * Marks the response as either public (true) or private (false).
+	 *
+	 * @var boolean
+	 */
+	private $cache_control = array
+	(
+		'public' => true,
+		'no-cache' => false,
+		'no-store' => false,
+		'no-transform' => false,
+		'must-revalidate' => false,
+		'proxy-revalidate' => false,
+		'max-age' => 600
+	);
+
+	/**
+	 * @return boolean
+	 */
+	protected function __volatile_get_private()
+	{
+		return !$this->public;
+	}
+
+	/**
+	 * @param boolean $value
+	 */
+	protected function __volatile_set_private($value)
+	{
+		$this->public = !$value;
+	}
+
+	/**
+	 * Checks if the response is fresh.
+	 *
+	 *
+	 *
+	 * @return boolean
+	 */
+    protected function __volatile_get_is_fresh()
+    {
+        return $this->ttl > 0;
+    }
+
+    protected function __volatile_set_is_fresh()
+	{
+		throw new Exception\PropertyNotWritable(array('is_fresh', $this));
+	}
+
+	protected function __volatile_get_is_cacheable()
+	{
+		if (!in_array($this->status, array(200, 203, 300, 301, 302, 404, 410)))
+		{
+			return false;
+		}
+
+		if ($this->headers->has_cache_control_directive['no-store'] || $this->headers->has_cache_control_directive['private'])
+		{
+			return false;
+		}
+
+		return $this->is_validateable() || $this->is_fresh();
 	}
 }
