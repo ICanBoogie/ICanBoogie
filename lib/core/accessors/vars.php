@@ -11,12 +11,25 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\Exception;
+
 /**
  * Accessor for the variables stored as files in the "/repository/var" directory.
  */
-class Vars implements \ArrayAccess
+class Vars implements \ArrayAccess, \IteratorAggregate
 {
+	/**
+	 * Magic pattern used to recognized automatically serialized values.
+	 *
+	 * @var string
+	 */
 	const MAGIC = "VAR\0SLZ\0";
+
+	/**
+	 * Length of the magic pattern {@link MAGIC}.
+	 *
+	 * @var int
+	 */
 	const MAGIC_LENGTH = 8;
 
 	/**
@@ -55,9 +68,9 @@ class Vars implements \ArrayAccess
 	 */
 	public function offsetExists($name)
 	{
-		$filename = $this->path . $name;
+		$pathname = $this->path . $name;
 
-		return file_exists($filename);
+		return file_exists($pathname);
 	}
 
 	/**
@@ -67,14 +80,14 @@ class Vars implements \ArrayAccess
 	 */
 	public function offsetUnset($name)
 	{
-		$filename = $this->path . $name;
+		$pathname = $this->path . $name;
 
-		if (!file_exists($filename))
+		if (!file_exists($pathname))
 		{
 			return;
 		}
 
-		unlink($filename);
+		unlink($pathname);
 	}
 
 	/**
@@ -103,8 +116,8 @@ class Vars implements \ArrayAccess
 	 */
 	public function store($key, $value, $ttl=0)
 	{
-		$filename = $this->path . $key;
-		$ttl_mark = $filename . '.ttl';
+		$pathname = $this->path . $key;
+		$ttl_mark = $pathname . '.ttl';
 
 		if ($ttl)
 		{
@@ -117,14 +130,14 @@ class Vars implements \ArrayAccess
 			unlink($ttl_mark);
 		}
 
-		$dir = dirname($filename);
+		$dir = dirname($pathname);
 
 		if (!file_exists($dir))
 		{
 			mkdir($dir, 0755, true);
 		}
 
-		$tmp_filename = 'var-' . uniqid(mt_rand(), true);
+		$tmp_pathname = 'var-' . uniqid(mt_rand(), true);
 
 		#
 		# If the value is an array or a string it is serialized and prepended with a magic
@@ -138,7 +151,7 @@ class Vars implements \ArrayAccess
 
 		if ($value === true)
 		{
-			touch($filename);
+			touch($pathname);
 		}
 		else if ($value === false || $value === null)
 		{
@@ -151,29 +164,29 @@ class Vars implements \ArrayAccess
 			# renamed once the data is written.
 			#
 
-			$fh = fopen($filename, 'a+');
+			$fh = fopen($pathname, 'a+');
 
 			if (!$fh)
 			{
-				throw new Exception('Unable to open %filename', array('filename' => $filename));
+				throw new Exception('Unable to open %pathname', array('pathname' => $pathname));
 			}
 
 			if (flock($fh, LOCK_EX))
 			{
-				file_put_contents($tmp_filename, $value);
+				file_put_contents($tmp_pathname, $value);
 
-				if (!unlink($filename))
+				if (!unlink($pathname))
 				{
-					throw new Exception('Unable to unlink %filename', array('filename' => $filename));
+					throw new Exception('Unable to unlink %pathname', array('pathname' => $pathname));
 				}
 
-				rename($tmp_filename, $filename);
+				rename($tmp_pathname, $pathname);
 
 				flock($fh, LOCK_UN);
 			}
 			else
 			{
-				throw new WdException('Unable to get to exclusive lock on %filename', array('filename' => $filename));
+				throw new Exception('Unable to get to exclusive lock on %pathname', array('pathname' => $pathname));
 			}
 
 			fclose($fh);
@@ -192,15 +205,15 @@ class Vars implements \ArrayAccess
 	 */
 	public function retrieve($name, $default=null)
 	{
-		$filename = $this->path . $name;
-		$ttl_mark = $filename . '.ttl';
+		$pathname = $this->path . $name;
+		$ttl_mark = $pathname . '.ttl';
 
-		if (file_exists($ttl_mark) && fileatime($ttl_mark) < time() || !file_exists($filename))
+		if (file_exists($ttl_mark) && fileatime($ttl_mark) < time() || !file_exists($pathname))
 		{
 			return $default;
 		}
 
-		$value = file_get_contents($filename);
+		$value = file_get_contents($pathname);
 
 		if (substr($value, 0, self::MAGIC_LENGTH) == self::MAGIC)
 		{
@@ -208,6 +221,20 @@ class Vars implements \ArrayAccess
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Returns a directory iterator for the variables.
+	 *
+	 * @return VarsIterator
+	 *
+	 * @see IteratorAggregate::getIterator()
+	 */
+	public function getIterator()
+	{
+		$iterator = new \DirectoryIterator($this->path);
+
+		return new VarsIterator($iterator);
 	}
 
 	/**
@@ -235,6 +262,11 @@ class Vars implements \ArrayAccess
  */
 class VarsIterator implements \Iterator
 {
+	/**
+	 * Iterator.
+	 *
+	 * @var \Iterator
+	 */
 	protected $iterator;
 
 	public function __construct(\Iterator $iterator)
@@ -243,13 +275,24 @@ class VarsIterator implements \Iterator
 	}
 
 	/**
-	 * Returns the current file.
+	 * Returns the directory iterator.
+	 *
+	 * Dot files are skipped.
 	 *
 	 * @return \DirectoryIterator
 	 */
 	public function current()
 	{
-		return $this->iterator->current();
+		$file = $this->iterator->current();
+
+		if ($file->isDot())
+		{
+			$this->iterator->next();
+
+			$file = $this->current();
+		}
+
+		return $file;
 	}
 
 	public function next()
@@ -258,7 +301,7 @@ class VarsIterator implements \Iterator
 	}
 
 	/**
-	 * Returns the filename of the variable, which is the same as its key.
+	 * Returns the pathname of the variable, which is the same as its key.
 	 *
 	 * @return string
 	 */
