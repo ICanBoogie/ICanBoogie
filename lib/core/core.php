@@ -26,13 +26,6 @@ namespace ICanBoogie;
  */
 class Core extends Object
 {
-	/**
-	 * Request object associated with the current HTTP request.
-	 *
-	 * @var \ICanBoogie\HTTP\Request
-	 */
-	public $request;
-
 	static private $instance;
 
 	/**
@@ -133,6 +126,8 @@ class Core extends Object
 	 */
 	protected function __construct(array $options=array())
 	{
+		unset($this->request);
+
 		$options = \ICanBoogie\array_merge_recursive
 		(
 			array
@@ -253,6 +248,23 @@ class Core extends Object
 	}
 
 	/**
+	 * The initial Request object.
+	 *
+	 * @var HTTP\Request
+	 */
+	public $request;
+
+	/**
+	 * Returns the initial Request object.
+	 *
+	 * @return HTTP\Request
+	 */
+	protected function __get_request()
+	{
+		return HTTP\Request::from_globals();
+	}
+
+	/**
 	 * Sets the locale language to use by the framework.
 	 *
 	 * @param string $id
@@ -363,8 +375,6 @@ class Core extends Object
 		$this->modules->autorun = true;
 
 		$this->run_modules();
-
-		$this->request = HTTP\Request::from_globals();
 
 		$this->run_context();
 
