@@ -62,13 +62,30 @@ defined('ICanBoogie\CACHE_ACTIVERECORDS') or define('ICanBoogie\CACHE_ACTIVERECO
  */
 defined('ICanBoogie\CHARSET') or define('ICanBoogie\CHARSET', 'utf-8');
 
+/**
+ * Enables bootstrap caching.
+ *
+ * @var bool
+ */
+defined('ICanBoogie\CACHE_BOOTSTRAP') or define('ICanBoogie\CACHE_BOOTSTRAP', false);
+
+/**
+ * Bootstrap cache pathname.
+ *
+ * @var string
+ */
+defined('ICanBoogie\BOOTSTRAP_CACHE_PATHNAME') or define('ICanBoogie\BOOTSTRAP_CACHE_PATHNAME', REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'icanboogie_bootstrap');
+
+/*
+ * bootstrap
+ */
 require_once ROOT . 'lib/helpers.php';
 require_once ROOT . 'lib/toolkit/helpers.php';
 require_once ROOT . 'lib/i18n/helpers.php';
 
-if (file_exists(DOCUMENT_ROOT . 'repository/cache/icanboogie_bootstrap'))
+if (CACHE_BOOTSTRAP && file_exists(BOOTSTRAP_CACHE_PATHNAME))
 {
-	require_once DOCUMENT_ROOT . 'repository/cache/icanboogie_bootstrap';
+	require_once BOOTSTRAP_CACHE_PATHNAME;
 }
 else
 {

@@ -372,17 +372,18 @@ class Core extends Object
 	 */
 	public function run()
 	{
+		Debug::get_config(); // configure debug :(
+
 		self::$is_running = true;
 
 		$this->modules->autorun = true;
 
 		$this->run_modules();
-
 		$this->run_context();
 
-		if ($this->config['cache bootstrap'])
+		if (CACHE_BOOTSTRAP)
 		{
-			$this->compact_classes();
+			$this->cache_bootstrap();
 		}
 	}
 
@@ -432,42 +433,67 @@ class Core extends Object
 	/**
 	 * Joins all declared classes also defined in the autoload index into a single file.
 	 */
-	protected function compact_classes()
+	protected function cache_bootstrap()
 	{
-		$path = DOCUMENT_ROOT . 'repository/cache/icanboogie_bootstrap';
+		$pathname = BOOTSTRAP_CACHE_PATHNAME;
 
-		if (file_exists($path))
+		if (file_exists($pathname))
 		{
 			return;
 		}
 
+		$strip_comments = function($source)
+		{
+			if (!function_exists('token_get_all'))
+			{
+				return $source;
+			}
+
+			$output = '';
+
+			foreach (token_get_all($source) as $token)
+			{
+				if (is_string($token))
+				{
+					$output .= $token;
+				}
+				else if ($token[0] == T_COMMENT || $token[0] == T_DOC_COMMENT)
+				{
+					$output .= '';
+				}
+				else
+				{
+					$output .= $token[1];
+				}
+			}
+
+			return $output;
+		};
+
 		$classes = get_declared_classes();
 		$autoload = self::$autoload;
-
 		$order = array_intersect_key(array_flip($classes), $autoload);
-
 		$included = array();
-		$out = fopen($path, 'w');
+		$out = fopen($pathname, 'w');
 
 		fwrite($out, '<?php' . PHP_EOL . PHP_EOL);
 
 		foreach ($order as $class => $weight)
 		{
-			$path = $autoload[$class];
+			$pathname = $autoload[$class];
 
-			if (isset($included[$path]))
+			if (isset($included[$pathname]))
 			{
 				continue;
 			}
 
-			$included[$path] = true;
+			$included[$pathname] = true;
 
-			$in = file_get_contents($path);
-
+			$in = file_get_contents($pathname);
+			$in = $strip_comments($in);
 			$in = preg_replace('#^\<\?php\s+#', '', $in);
-			$in = preg_replace('#^\/\*.+\*\/\s+#Us', '', $in);
 			$in = trim($in);
-			$in = "// original location: $path\n\n" . $in . PHP_EOL . PHP_EOL;
+			$in = "// original location: $pathname\n\n" . $in . PHP_EOL . PHP_EOL;
 
 			fwrite($out, $in, strlen($in));
 		}
