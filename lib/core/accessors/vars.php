@@ -11,8 +11,6 @@
 
 namespace ICanBoogie;
 
-use ICanBoogie\Exception;
-
 /**
  * Accessor for the variables stored as files in the "/repository/var" directory.
  */

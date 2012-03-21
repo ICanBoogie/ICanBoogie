@@ -36,31 +36,20 @@ function wd_create_cloud($tags, $callback)
 	return $rc;
 }
 
-function wd_remove_accents($str, $charset=ICanBoogie\CHARSET)
-{
-	$str = htmlentities($str, ENT_NOQUOTES, $charset);
-
-	$str = preg_replace('#&([A-za-z])(?:acute|cedil|circ|grave|orn|ring|slash|th|tilde|uml);#', '\1', $str);
-	$str = preg_replace('#&([A-za-z]{2})(?:lig);#', '\1', $str); // pour les ligatures e.g. '&oelig;'
-	$str = preg_replace('#&[^;]+;#', '', $str); // supprime les autres caractères
-
-    return $str;
-}
-
 function wd_unaccent_compare($a, $b)
 {
-    return strcmp(wd_remove_accents($a), wd_remove_accents($b));
+    return strcmp(\ICanBoogie\remove_accents($a), \ICanBoogie\remove_accents($b));
 }
 
 function wd_unaccent_compare_ci($a, $b)
 {
-    return strcmp(strtolower(wd_remove_accents($a)), strtolower(wd_remove_accents($b)));
+    return strcmp(strtolower(\ICanBoogie\remove_accents($a)), strtolower(\ICanBoogie\remove_accents($b)));
 }
 
 function wd_normalize($str, $separator='-', $charset=ICanBoogie\CHARSET)
 {
 	$str = str_replace('\'', '', $str);
-	$str = wd_remove_accents($str, $charset);
+	$str = \ICanBoogie\remove_accents($str, $charset);
 	$str = strtolower($str);
 	$str = preg_replace('#[^a-z0-9]+#', $separator, $str);
 	$str = trim($str, $separator);

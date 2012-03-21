@@ -109,7 +109,7 @@ class DatabaseTable extends Object
 				case self::T_ALIAS: $this->alias = $value; break;
 				case self::T_CONNECTION: $this->connection = $value; break;
 				case self::T_IMPLEMENTS: $this->implements = $value; break;
-				case self::T_NAME: $this->name_unprefixed = $value;	break;
+				case self::T_NAME: $this->name_unprefixed = $value; break;
 				case self::T_SCHEMA: $this->schema = $value; break;
 				case self::T_EXTENDS: $this->parent = $value; break;
 			}
@@ -202,7 +202,7 @@ class DatabaseTable extends Object
 		# resolve inheritence and create a lovely _inner join_ string
 		#
 
-		$join = " `{$this->alias}` ";
+		$join = '';
 
 		$parent = $this->parent;
 
@@ -214,6 +214,8 @@ class DatabaseTable extends Object
 		}
 
 		$this->update_join = $join;
+
+		$join = " `{$this->alias}` $join";
 
 		#
 		# resolve implements
@@ -454,8 +456,6 @@ class DatabaseTable extends Object
 		{
 			$parent_id = $this->parent->save_callback($values, $id, $options);
 
-			//wd_log('parent: \1, id: \2', $this->parent->name, $parent_id);
-
 			if (!$parent_id)
 			{
 				throw new Exception('Parent save failed: \1 returning \2', array((string) $this->parent->name, $parent_id));
@@ -463,10 +463,6 @@ class DatabaseTable extends Object
 		}
 
 		$driver_name = $this->connection->driver_name;
-
-		//wd_log('<h3>\1 (id: \3::\2)</h3>', $this->name, $id, $parent_id);
-
-		//echo t('here in \1, parent: \2<br />', array($this->name, $this->parent ? $this->parent->name : 'NONE'));
 
 		list($filtered, $holders) = $this->filter_values($values);
 

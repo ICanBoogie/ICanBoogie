@@ -17,12 +17,16 @@ namespace ICanBoogie;
 class Models implements \ArrayAccess
 {
 	/**
-	 * @var Modules The modules accessor.
+	 * The modules accessor.
+	 *
+	 * @var Modules
 	 */
 	protected $modules;
 
 	/**
-	 * @var array[string]ActiveRecord\Model Loaded models.
+	 * Loaded models.
+	 *
+	 * @var array[string]ActiveRecord\Model
 	 */
 	protected $models = array();
 
@@ -42,7 +46,7 @@ class Models implements \ArrayAccess
 	 *
 	 * @see ArrayAccess::offsetExists()
 	 *
-	 * @return true if the model exists and is accessible, false otherwise.
+	 * @return `true` if the model exists and is accessible, `false` otherwise.
 	 */
 	public function offsetExists($offset)
 	{

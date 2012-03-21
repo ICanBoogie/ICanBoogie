@@ -100,6 +100,25 @@ function shorten($str, $length=32, $position=.75, &$shortened=null)
 }
 
 /**
+ * Removes the accents of a string.
+ *
+ * @param string $str
+ * @param string $charset Defaults to {@link ICanBoogie\CHARSET}.
+ *
+ * @return string
+ */
+function remove_accents($str, $charset=CHARSET)
+{
+	$str = htmlentities($str, ENT_NOQUOTES, $charset);
+
+	$str = preg_replace('#&([A-za-z])(?:acute|cedil|circ|grave|orn|ring|slash|th|tilde|uml);#', '\1', $str);
+	$str = preg_replace('#&([A-za-z]{2})(?:lig);#', '\1', $str); // pour les ligatures e.g. '&oelig;'
+	$str = preg_replace('#&[^;]+;#', '', $str); // supprime les autres caractères
+
+    return $str;
+}
+
+/**
  * Normalize a string to be suitable as a namespace part.
  *
  * @param string $part The string to normalize.

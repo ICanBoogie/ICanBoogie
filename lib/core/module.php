@@ -14,26 +14,155 @@ namespace ICanBoogie;
 use ICanBoogie\ActiveRecord\Model;
 
 /**
+ * A module of the framework.
+ *
  * @property Model $model The primary model of the module.
  */
 class Module extends Object
 {
+	/**
+	 * Defines the category for the module.
+	 *
+	 * When modules are listed they are usually grouped by category. The category is also often
+	 * used to create the main navigation menu of the admin interface.
+	 *
+	 * @var string
+	 */
 	const T_CATEGORY = 'category';
+
+	/**
+	 * Defines the PHP class of the module.
+	 *
+	 * If the class is not defined it is resolved during indexing using the {@link T_NAMESPACE}
+	 * tag and the following pattern : `<namespace>\Module`.
+	 *
+	 * The category of the module is translated within the `module_category` scope.
+	 *
+	 * @var string
+	 */
 	const T_CLASS = 'class';
+
+	/**
+	 * Defines a short description of what the module do.
+	 *
+	 * @var string
+	 */
 	const T_DESCRIPTION = 'description';
+
+	/**
+	 * Defines the state of the module.
+	 *
+	 * @var bool
+	 */
 	const T_DISABLED = 'disabled';
+
+	/**
+	 * Defines the module that the module extends.
+	 *
+	 * @var string|\ICanBoogie\Module
+	 */
 	const T_EXTENDS = 'extends';
+
+	/**
+	 * Defines the identifier of the module.
+	 *
+	 * If the identifier is not defined the name of the module directory is used instead.
+	 *
+	 * @var string
+	 */
 	const T_ID = 'id';
+
+	/**
+	 * Defines the state of the module.
+	 *
+	 * Required modules are always enabled.
+	 *
+	 * @var bool
+	 */
 	const T_REQUIRED = 'required';
+
+	/**
+	 * Defines the modules that the module requires.
+	 *
+	 * The required modules are defined using an array where each key/value pair is the identifier
+	 * of the module and the minimum version required.
+	 *
+	 * @var array[string]string
+	 */
 	const T_REQUIRES = 'requires';
+
+	/**
+	 * Defines the models of the module.
+	 *
+	 * @var array[string]array|string
+	 */
 	const T_MODELS = 'models';
+
+	/**
+	 * Defines the namespace of the module.
+	 *
+	 * If the namespace of the module is not defined it is resolved using the {@link T_ID} tag
+	 * normalized using the {@link normalize_namespace_part()} function and the following
+	 * pattern : `ICanBoogie\Modules\<normalized_id>`.
+	 *
+	 * @var string
+	 */
 	const T_NAMESPACE = 'namespace';
+
+	/**
+	 * Path to the module's directory.
+	 *
+	 * This tag is resolved when the module is indexed.
+	 *
+	 * @var string
+	 */
 	const T_PATH = 'path';
+
+	/**
+	 * General permission of the module.
+	 *
+	 * @var string|int
+	 */
 	const T_PERMISSION = 'permission';
+
+	/**
+	 * Defines the permissions added by the module.
+	 *
+	 * @var array[]string
+	 */
 	const T_PERMISSIONS = 'permissions';
+
+	/**
+	 * Defines whether the module should be run when the framework is run.
+	 *
+	 * @var bool
+	 */
 	const T_STARTUP = 'startup';
+
+	/**
+	 * Defines the title of the module.
+	 *
+	 * The title of the module is translated within the `module_title` scope.
+	 *
+	 * @var string
+	 */
 	const T_TITLE = 'title';
+
+	/**
+	 * Defines the version (and revision) of the module.
+	 *
+	 * @var string
+	 */
 	const T_VERSION = 'version';
+
+	/**
+	 * Defines the weight of the module.
+	 *
+	 * The weight of the module is resolved during modules indexing according to the
+	 * {@link T_EXTENDS} and {@link T_REQUIRES} tags.
+	 *
+	 * @var int
+	 */
 	const T_WEIGHT = 'weight';
 
 	/*
@@ -59,7 +188,18 @@ class Module extends Object
 	const PERMISSION_MANAGE = 4;
 	const PERMISSION_ADMINISTER = 5;
 
+	/**
+	 * Defines the name of the operation used to save the records of the module.
+	 *
+	 * @var string
+	 */
 	const OPERATION_SAVE = 'save';
+
+	/**
+	 * Defines the name of the operation used to delete the records of the module.
+	 *
+	 * @var string
+	 */
 	const OPERATION_DELETE = 'delete';
 
 	static public function is_extending($module_id, $extending_id)
@@ -82,27 +222,49 @@ class Module extends Object
 	}
 
 	/**
-	 * Resolves the name of a model giving its module id and model id.
+	 * Unique identifier of the module.
 	 *
-	 * @param string $module_id The id of the module defining the model. This can either be the
-	 * module if or the module flat id.
+	 * This property is usually defined by the {@link T_ID} tag.
 	 *
-	 * @return string The resolved class name.
+	 * @var string
 	 */
-	public static function resolve_class_name($module_id)
+	protected $id;
+
+	/**
+	 * Returns the module identifier.
+	 *
+	 * @return string
+	 */
+	protected function __volatile_get_id()
 	{
-		return __CLASS__ . '\\' . normalize_namespace_part($module_id);
+		return $this->id;
 	}
 
-	protected $id;
 	protected $path;
-	protected $tags; // FIXME-20120108: we should use 'descriptor' instead
-	public $descriptor;
+
+	/**
+	 * Module's descriptor.
+	 *
+	 * @var array[string]mixed
+	 */
+	protected $descriptor;
+
+	/**
+	 * Returns the module's descriptor.
+	 *
+	 * This is the getter for the {@link $descriptor} property, making the protected property
+	 * readable while out of scope.
+	 *
+	 * @return array[string]mixed
+	 */
+	protected function __volatile_get_descriptor()
+	{
+		return $this->descriptor;
+	}
 
 	public function __construct(array $descriptor)
 	{
 		$this->descriptor = $descriptor;
-		$this->tags = &$this->descriptor;
 		$this->id = $descriptor[self::T_ID];
 		$this->path = $descriptor[self::T_PATH];
 	}
@@ -112,15 +274,19 @@ class Module extends Object
 		return $this->id;
 	}
 
-	protected function __volatile_get_id()
+	protected function __volatile_get_tags()
 	{
-		return $this->id;
+		trigger_error("The <q>tags</q> property is deprecated");
+
+		return $this->descriptor;
 	}
 
 	/**
-	 * Getter for the $flat_id magic property.
+	 * Returns the _flat_ version of the module's identifier.
 	 *
-	 * @return string The _flat_ version of the module id.
+	 * This method is the getter for the {@link $flat_id} magic property.
+	 *
+	 * @return string
 	 */
 	protected function __get_flat_id()
 	{
@@ -128,9 +294,11 @@ class Module extends Object
 	}
 
 	/**
-	 * Getter for the $model magic property.
+	 * Returns the primary model of the module.
 	 *
-	 * @return Model The _primary_ model for the module.
+	 * This is the getter for the {@link $model} magic property.
+	 *
+	 * @return ActiveRecord\Model
 	 */
 	protected function __get_model()
 	{
@@ -144,9 +312,9 @@ class Module extends Object
 	 */
 	protected function __get_title()
 	{
-		$default = isset($this->tags[self::T_TITLE]) ? $this->tags[self::T_TITLE] : 'Undefined';
+		$default = isset($this->descriptor[self::T_TITLE]) ? $this->descriptor[self::T_TITLE] : 'Undefined';
 
-		return t($this->flat_id, array(), array('scope' => array('module', 'title'), 'default' => $default));
+		return t($this->flat_id, array(), array('scope' => 'module_title', 'default' => $default));
 	}
 
 	/**
@@ -171,21 +339,21 @@ class Module extends Object
 	/**
 	 * Checks if the module is installed.
 	 *
-	 * @param Errors $errors An object use to collect errors.
+	 * @param Errors $errors The object used to collect errors.
 	 *
-	 * @return mixed TRUE if the module is installed, FALSE if the module
+	 * @return mixed `true` if the module is installed, FALSE if the module
 	 * (or parts of) is not installed, NULL if the module has no installation.
 	 */
 	public function is_installed(Errors $errors)
 	{
-		if (empty($this->tags[self::T_MODELS]))
+		if (empty($this->descriptor[self::T_MODELS]))
 		{
 			return null;
 		}
 
 		$rc = true;
 
-		foreach ($this->tags[self::T_MODELS] as $name => $tags)
+		foreach ($this->descriptor[self::T_MODELS] as $name => $tags)
 		{
 			if (!$this->model($name)->is_installed())
 			{
@@ -209,14 +377,14 @@ class Module extends Object
 	 */
 	public function install(Errors $errors)
 	{
-		if (empty($this->tags[self::T_MODELS]))
+		if (empty($this->descriptor[self::T_MODELS]))
 		{
 			return null;
 		}
 
 		$rc = true;
 
-		foreach ($this->tags[self::T_MODELS] as $name => $tags)
+		foreach ($this->descriptor[self::T_MODELS] as $name => $tags)
 		{
 			$model = $this->model($name);
 
@@ -246,14 +414,14 @@ class Module extends Object
 	 */
 	public function uninstall()
 	{
-		if (empty($this->tags[self::T_MODELS]))
+		if (empty($this->descriptor[self::T_MODELS]))
 		{
 			return;
 		}
 
 		$rc = true;
 
-		foreach ($this->tags[self::T_MODELS] as $name => $tags)
+		foreach ($this->descriptor[self::T_MODELS] as $name => $tags)
 		{
 			$model = $this->model($name);
 
@@ -271,13 +439,22 @@ class Module extends Object
 		return $rc;
 	}
 
+	/**
+	 * Run the module.
+	 *
+	 * This method is invoked when the module is loaded for the first time.
+	 *
+	 * @return boolean
+	 */
 	public function run()
 	{
 		return true;
 	}
 
 	/**
-	 * @var array Used to cache loaded models.
+	 * Cache for loaded models.
+	 *
+	 * @var array[string]ActiveRecord\Model
 	 */
 	protected $models = array();
 
@@ -286,7 +463,8 @@ class Module extends Object
 	 *
 	 * If the model has not been created yet, it is created on the fly.
 	 *
-	 * @param $which
+	 * @param $which The identifier of the model to get.
+	 *
 	 * @return Model The requested model.
 	 */
 	public function model($which='primary')
@@ -295,7 +473,7 @@ class Module extends Object
 
 		if (empty($this->models[$which]))
 		{
-			if (empty($this->tags[self::T_MODELS][$which]))
+			if (empty($this->descriptor[self::T_MODELS][$which]))
 			{
 				throw new Exception
 				(
@@ -318,7 +496,7 @@ class Module extends Object
 				$callback = 'resolve_model_tags';
 			}
 
-			$tags = $this->$callback($this->tags[self::T_MODELS][$which], $which);
+			$tags = $this->$callback($this->descriptor[self::T_MODELS][$which], $which);
 
 			#
 			# COMPAT WITH 'inherit'

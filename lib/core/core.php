@@ -12,6 +12,8 @@
 namespace ICanBoogie;
 
 /**
+ * Core of the framework.
+ *
  * @property \ICanBoogie\Configs $configs Configurations accessor.
  * @property \ICanBoogie\Connections $connections Database connections accessor.
  * @property \ICanBoogie\Models $models Models accessor.

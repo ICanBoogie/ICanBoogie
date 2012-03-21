@@ -16,6 +16,8 @@ use ICanBoogie\Object;
 use ICanBoogie\Operation;
 
 /**
+ * An HTTP request.
+ *
  * @property-read boolean $authorization
  * @property-read int $content_length
  * @property-read string $ip
@@ -184,7 +186,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 
 			# FIXME-20120313: maybe we shouldn't dispatch the event if the path_info is '/api/'
 
-			if (!$response)
+			if (!$response && (strpos($this->path_info, '/api/') !== 0))
 			{
 				$response = new Response();
 
@@ -441,7 +443,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-    protected function __get_is_local()
+	protected function __get_is_local()
 	{
 		static $patterns = array('::1', '/^127\.0\.0\.\d{1,3}$/', '/^0:0:0:0:0:0:0:1(%.*)?$/');
 
@@ -480,7 +482,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	{
 		if (isset($this->env['HTTP_X_FORWARDED_FOR']))
 		{
-			$addr = $this->end['HTTP_X_FORWARDED_FOR'];
+			$addr = $this->env['HTTP_X_FORWARDED_FOR'];
 
 			list($addr) = explode(',', $addr);
 

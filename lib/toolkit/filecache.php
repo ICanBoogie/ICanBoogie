@@ -50,7 +50,12 @@ class FileCache
 			$this->$tag = $value;
 		}
 
-		$this->root = realpath($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . $this->repository);
+		if (strpos($this->repository, DOCUMENT_ROOT) === 0)
+		{
+			$this->repository = substr($this->repository, strlen(DOCUMENT_ROOT) - 1);
+		}
+
+		$this->root = realpath(\ICanBoogie\DOCUMENT_ROOT . $this->repository);
 	}
 
 	/**

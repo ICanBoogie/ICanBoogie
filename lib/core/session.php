@@ -166,7 +166,7 @@ class Session
 
 	public function __isset($property)
 	{
-		return array_key_exists($property, $_SESSION);
+		return isset($_SESSION, $property);
 	}
 
 	public function __unset($property)

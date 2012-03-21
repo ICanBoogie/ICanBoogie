@@ -16,7 +16,18 @@ namespace ICanBoogie;
  */
 class Connections implements \ArrayAccess, \IteratorAggregate
 {
+	/**
+	 * Connections definitions.
+	 *
+	 * @var array[string]array
+	 */
 	private $connections;
+
+	/**
+	 * Established connections.
+	 *
+	 * @var array[string]Database
+	 */
 	private $established = array();
 
 	/**
@@ -110,7 +121,7 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 		}
 		catch (\PDOException $e)
 		{
-			throw new \ICanBoogie\Database\ConnectionException("Unable to establish database connection. The following message was returned: " . $e->getMessage(), 500, $e);
+			throw new Database\ConnectionException("Unable to establish database connection. The following message was returned: " . $e->getMessage(), 500, $e);
 		}
 
 		return $connection;
@@ -121,7 +132,7 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @see IteratorAggregate::getIterator()
 	 *
-	 * @return Traversable
+	 * @return \ArrayIterator
 	 */
 	public function getIterator()
 	{

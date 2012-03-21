@@ -12,39 +12,53 @@
 namespace ICanBoogie;
 
 /**
- * @var string Version string of the ICanBoogie framework.
+ * Version string of the ICanBoogie framework.
+ *
+ * @var string
  */
-define('ICanBoogie\VERSION', '0.13.0-dev (2012-01-15)');
+define('ICanBoogie\VERSION', '0.14.0-dev (2012-03-20)');
 
 /**
- * @var string The ROOT directory of the ICanBoogie framework.
+ * The ROOT directory of the ICanBoogie framework.
+ *
+ * @var string
  */
-define('ICanBoogie\ROOT', rtrim(__DIR__, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
+defined('ICanBoogie\ROOT') or define('ICanBoogie\ROOT', rtrim(__DIR__, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
 
 /**
- * @var string Path to the ICanBoogie's assets directory.
+ * Path to the ICanBoogie's assets directory.
+ *
+ * @var string
  */
 define('ICanBoogie\ASSETS', ROOT . 'assets' . DIRECTORY_SEPARATOR);
 
 /**
- * @var string Document root of the application.
+ * Document root of the application.
+ *
+ * @var string
  */
 defined('ICanBoogie\DOCUMENT_ROOT') or define('ICanBoogie\DOCUMENT_ROOT', rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
 
 /**
- * @var string Repository root. The repository is the directory where all files are stored. It's
- * the only directory that should be writable.
+ * Repository root. The repository is the directory where all files are stored. It's the only
+ * directory that should be writable.
+ *
+ * @var string
  */
 
 defined('ICanBoogie\REPOSITORY') or define('ICanBoogie\REPOSITORY', DOCUMENT_ROOT . 'repository' . DIRECTORY_SEPARATOR);
 
 /**
- * @var bool If true, APC is used to store and retrieve active records.
+ * If true, APC is used to store and retrieve active records.
+ *
+ * @var bool
  */
 defined('ICanBoogie\CACHE_ACTIVERECORDS') or define('ICanBoogie\CACHE_ACTIVERECORDS', false);
 
 /**
- * @var string The charset used by the application. Defaults to "utf-8".
+ * The charset used by the application. Defaults to "utf-8".
+ *
+ * @var string
  */
 defined('ICanBoogie\CHARSET') or define('ICanBoogie\CHARSET', 'utf-8');
 

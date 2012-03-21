@@ -16,7 +16,70 @@ namespace ICanBoogie\HTTP;
  */
 class Headers implements \ArrayAccess, \IteratorAggregate
 {
-	protected $headers=array();
+	/**
+	 * Headers array.
+	 *
+	 * @var array[string]mixed
+	 */
+	protected $headers = array();
+
+	/**
+	 * If the `REQUEST_URI` key is found in the headers they are considered comming from the
+	 * superglobal $_SERVER array in which case the headers are filtered to only keep keys starting
+	 * with the "HTTP_" prefix, and the keys are normalized e.g. "HTTP_CONTENT_TYPE" is
+	 * converted to "Content-Type".
+	 *
+	 * @param array $headers The initial headers.
+	 */
+	public function __construct(array $headers=array())
+	{
+		if (isset($headers['REQUEST_URI']))
+		{
+			foreach ($headers as $key => $value)
+			{
+				if (strpos($key, 'HTTP_') !== 0)
+				{
+					continue;
+				}
+
+				$key = strtr(substr($key, 5), '_', '-');
+				$key = mb_convert_case($key, MB_CASE_TITLE);
+				$this[$key] = $value;
+			}
+		}
+		else
+		{
+			foreach ($headers as $key => $value)
+			{
+				$this[$key] = $value;
+			}
+		}
+	}
+
+	/**
+	 * Returns the headers as a string.
+	 *
+	 * @return string
+	 */
+	public function __toString()
+	{
+		$headers = $this->headers;
+
+		if (!$headers)
+		{
+			return '';
+		}
+
+		$rc = '';
+		ksort($headers);
+
+		foreach ($headers as $name => $value)
+		{
+			$rc .= "$name: $value\r\n";
+		}
+
+		return $rc;
+	}
 
 	/**
 	 * Checks if a header exists.
@@ -66,7 +129,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	{
 		if ($value === null)
 		{
-			$this->offsetUnset($offset);
+			unset($this[$offset]);
 
 			return;
 		}
@@ -138,66 +201,6 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Constructor.
-	 *
-	 * @param array $headers The initial headers.
-	 *
-	 * If the `REQUEST_URI` key is found in the headers they are considered comming from the
-	 * superglobal $_SERVER array in which case the headers are filtered to only keep keys starting
-	 * with the "HTTP_" prefix, and the keys are normalized e.g. "HTTP_CONTENT_TYPE" will be
-	 * converted to "Content-Type".
-	 */
-	public function __construct(array $headers=array())
-	{
-		if (isset($headers['REQUEST_URI']))
-		{
-			foreach ($headers as $key => $value)
-			{
-				if (strpos($key, 'HTTP_') !== 0)
-				{
-					continue;
-				}
-
-				$key = strtr(substr($key, 5), '_', '-');
-				$key = mb_convert_case($key, MB_CASE_TITLE);
-				$this[$key] = $value;
-			}
-		}
-		else
-		{
-			foreach ($headers as $key => $value)
-			{
-				$this[$key] = $value;
-			}
-		}
-	}
-
-	/**
-	 * Returns the headers as a string.
-	 *
-	 * @return string
-	 */
-	public function __toString()
-	{
-		$headers = $this->headers;
-
-		if (!$headers)
-		{
-			return '';
-		}
-
-		$rc = '';
-		ksort($headers);
-
-		foreach ($headers as $name => $value)
-		{
-			$rc .= "$name: $value\r\n";
-		}
-
-		return $rc;
-	}
-
-	/**
 	 * Formats a datetime into a date string suitable for the `Date`, `Last-Modified` or
 	 * `Expires` headers.
 	 *
@@ -207,7 +210,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return string
 	 */
-	private static function format_time($datetime)
+	public static function format_time($datetime)
 	{
 		if (!($datetime instanceof \DateTime))
 		{
@@ -230,11 +233,11 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @see http://greenbytes.de/tech/tc2231/
 	 */
-	private static function format_parm($parm, $value)
+	public static function format_parm($parm, $value)
 	{
 		if (mb_detect_encoding($value, 'ASCII, UTF-8', true) === 'UTF-8')
 		{
-			return $parm . '="' . wd_remove_accents($value) . '"' . "; $parm*=UTF-8''" . str_replace('+', '%20', urlencode($value));
+			return $parm . '="' . \ICanBoogie\remove_accents($value) . '"' . "; $parm*=UTF-8''" . rawurlencode($value);
 		}
 
 		return $parm . '="' . $value . '"';

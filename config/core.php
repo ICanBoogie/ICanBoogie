@@ -12,7 +12,7 @@ return array
 (
 	'autoload' => array
 	(
-		'ICanBoogie\Configs' => $core . 'accessor/configs.php',
+		'ICanBoogie\Configs' => $core . 'accessors/configs.php',
 		'ICanBoogie\Connections' => $core . 'accessors/connections.php',
 		'ICanBoogie\Core' => $core . 'core.php',
 		'ICanBoogie\Database' => $core . 'database.php',
