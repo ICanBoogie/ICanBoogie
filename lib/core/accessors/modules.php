@@ -543,6 +543,22 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 			}
 		}
 
+		$operations_dir = $path . 'lib' . DIRECTORY_SEPARATOR . 'operations' . DIRECTORY_SEPARATOR;
+
+		if (is_dir($operations_dir))
+		{
+			$dir = new \DirectoryIterator($operations_dir);
+			$filter = new \RegexIterator($dir, '#\.php$#');
+
+			foreach ($filter as $file)
+			{
+				$base = $file->getBasename('.php');
+				$operation_class_name = Operation::format_class_name($namespace, $base);
+
+				$autoload[$operation_class_name] = $operations_dir . $file;
+			}
+		}
+
 		foreach ($descriptor[Module::T_MODELS] as $model_id => &$definition)
 		{
 			if (!is_array($definition))
