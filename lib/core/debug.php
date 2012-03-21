@@ -24,6 +24,7 @@ class Debug
 	const MAX_MESSAGES = 100;
 
 	public static $mode = 'dev';
+	public static $report_address;
 
 	static public function synthesize_config(array $fragments)
 	{
@@ -44,10 +45,11 @@ class Debug
 			return self::$config;
 		}
 
-		self::$config = (isset($core) ? $core->configs['debug'] : require ROOT . 'config/debug.php');
-		self::$mode = self::$config['mode'];
+		$config = (isset($core) ? $core->configs['debug'] : require ROOT . 'config/debug.php');
+		self::$mode = $config['mode'];
+		self::$report_address = $config['report_address'];
 
-		return self::$config;
+		return self::$config = $config;
 	}
 
 	/**
@@ -83,6 +85,8 @@ class Debug
 		{
 			self::$logs = array_merge($session->wddebug['messages'], self::$logs);
 		}
+
+		$session->wddebug['messages'] = array();
 	}
 
 	/*
@@ -235,7 +239,7 @@ EOT;
 	 */
 	public static function format_trace(array $trace)
 	{
-		$root = str_replace('\\', '/', realpath('.'));
+		$root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
 		$count = count($trace);
 		$count_max = strlen((string) $count);
 
@@ -382,12 +386,12 @@ EOT;
 		#
 		#
 
-		$host = $_SERVER['HTTP_HOST'];
+		$host = $_SERVER['SERVER_NAME'];
 		$host = str_replace('www.', '', $host);
 
 		$parts = array
 		(
-			'From' => 'wddebug@' . $host,
+			'From' => 'icanboogie@' . $host,
 			'Content-Type' => 'text/html; charset=' . ICanBoogie\CHARSET
 		);
 
