@@ -1,2 +1,2 @@
 phar:
-	@php -d phar.readonly=0 phar.make.php;
+	@php -d phar.readonly=0 ./build/phar.php;
