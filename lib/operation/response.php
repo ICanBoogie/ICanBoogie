@@ -115,7 +115,7 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 			}
 			else if ($this->content_type == 'application/xml')
 			{
-				$body = wd_array_to_xml($body_data, 'response');
+				$body = array_to_xml($body_data, 'response');
 			}
 
 			$this->__volatile_set_content_length(strlen($body));
@@ -202,4 +202,77 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 	{
 		return new Errors();
 	}
+}
+
+function array_to_xml($array, $parent='root', $encoding='utf-8', $nest=1)
+{
+	$rc = '';
+
+	if ($nest == 1)
+	{
+		#
+		# first level, time to write the XML header and open the root markup
+		#
+
+		$rc .= '<?xml version="1.0" encoding="' . $encoding . '"?>' . PHP_EOL;
+		$rc .= '<' . $parent . '>' . PHP_EOL;
+	}
+
+	$tab = str_repeat("\t", $nest);
+
+	if (substr($parent, -3, 3) == 'ies')
+	{
+		$collection = substr($parent, 0, -3) . 'y';
+	}
+	else if (substr($parent, -2, 2) == 'es')
+	{
+		$collection = substr($parent, 0, -2);
+	}
+	else if (substr($parent, -1, 1) == 's')
+	{
+		$collection = substr($parent, 0, -1);
+	}
+	else
+	{
+		$collection = 'entry';
+	}
+
+	foreach ($array as $key => $value)
+	{
+		if (is_numeric($key))
+		{
+			$key = $collection;
+		}
+
+		if (is_array($value) || is_object($value))
+		{
+			$rc .= $tab . '<' . $key . '>' . PHP_EOL;
+			$rc .= wd_array_to_xml((array) $value, $key, $encoding, $nest + 1);
+			$rc .= $tab . '</' . $key . '>' . PHP_EOL;
+
+			continue;
+		}
+
+		#
+		# if we find special chars, we put the value into a CDATA section
+		#
+
+		if (strpos($value, '<') !== false || strpos($value, '>') !== false || strpos($value, '&') !== false)
+		{
+			$value = '<![CDATA[' . $value . ']]>';
+		}
+
+		$rc .= $tab . '<' . $key . '>' . $value . '</' . $key . '>' . PHP_EOL;
+	}
+
+	if ($nest == 1)
+	{
+		#
+		# first level, time to close the root markup
+		#
+
+		$rc .= '</' . $parent . '>';
+	}
+
+	return $rc;
 }

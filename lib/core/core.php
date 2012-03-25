@@ -152,7 +152,23 @@ class Core extends Object
 
 		if (get_magic_quotes_gpc())
 		{
-			wd_kill_magic_quotes();
+			$kill_magic_quotes = function()
+			{
+				$strip_slashes_recursive = function ($value) use(&$strip_slashes_recursive)
+				{
+					return is_array($value) ? array_map($strip_slashes_recursive, $value) : stripslashes($value);
+				};
+
+				if (get_magic_quotes_gpc())
+				{
+					$_GET = array_map($strip_slashes_recursive, $_GET);
+					$_POST = array_map($strip_slashes_recursive, $_POST);
+					$_COOKIE = array_map($strip_slashes_recursive, $_COOKIE);
+					$_REQUEST = array_map($strip_slashes_recursive, $_REQUEST);
+				}
+			};
+
+			$kill_magic_quotes();
 		}
 
 		# the order is important, there's magic involved.

@@ -382,7 +382,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 						(
 							'var' => 'descriptor',
 							'type' => gettype($descriptor),
-							'path' => wd_strip_root($descriptor_path)
+							'path' => strip_root($descriptor_path)
 						)
 					);
 				}

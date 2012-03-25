@@ -146,8 +146,6 @@ class DatabaseTable extends Object
 				$alias = substr($alias, 0, -1);
 			}
 
-//			wd_log('alias: \1 => \2', array($this->name_unprefixed, $alias));
-
 			$this->alias = $alias;
 		}
 
@@ -228,8 +226,6 @@ class DatabaseTable extends Object
 				throw new Exception('Expecting an array for T_IMPLEMENTS, given: \1', array($this->implements));
 			}
 
-//			wd_log('implements: \1', $this->implements);
-
 			$i = 1;
 
 			foreach ($this->implements as $implement)
@@ -255,8 +251,6 @@ class DatabaseTable extends Object
 				$i++;
 			}
 		}
-
-//		wd_log('join query for %name: <code>:join</code>', array('%name' => $this->name, ':join' => $join));
 
 		$this->select_join = $join;
 	}
@@ -411,8 +405,6 @@ class DatabaseTable extends Object
 		{
 			if (!array_key_exists($identifier, $fields))
 			{
-				//wd_log('unknown identifier: \1 for \2', $identifier, $this->name);
-
 				continue;
 			}
 
@@ -448,8 +440,6 @@ class DatabaseTable extends Object
 			throw new Exception('Missing fields in schema');
 		}
 
-		//wd_log('\1 save_callback: \2', $this->name, $values);
-
 		$parent_id = 0;
 
 		if ($this->parent)
@@ -466,8 +456,6 @@ class DatabaseTable extends Object
 
 		list($filtered, $holders) = $this->filter_values($values);
 
-		//wd_log('we: \3, parent_id: \1, holders: \2', $parent_id, $holders, $this->name);
-
 		// FIXME: ALL THIS NEED REWRITE !
 
 		if ($holders)
@@ -481,8 +469,6 @@ class DatabaseTable extends Object
 				$statement = 'UPDATE {self} SET ' . implode(', ', $holders) . ' WHERE `{primary}` = ?';
 
 				$statement = $this->prepare($statement);
-
-			//wd_log('statement: \1', $statement);
 
 				$rc = $statement->execute($filtered);
 			}
@@ -498,16 +484,12 @@ class DatabaseTable extends Object
 
 					$statement = 'INSERT INTO {self} SET ' . implode(', ', $holders);
 
-					//wd_log('statement: \1', array($statement));
-
 					$statement = $this->prepare($statement);
 
 					$rc = $statement->execute($filtered);
 				}
 				else if ($driver_name == 'sqlite')
 				{
-					//wd_log('filtered: \1, holders: \2, values: \3, options: \4', array($filtered, $holders, $values, $options));
-
 					$rc = $this->insert($values, $options);
 				}
 			}
@@ -528,16 +510,12 @@ class DatabaseTable extends Object
 
 			$statement = $this->prepare($statement);
 
-			//wd_log('statement: \1', $statement);
-
 			$rc = $statement->execute($filtered);
 		}
 		else
 		{
 			$rc = true;
 		}
-
-		//wd_log('<h3>result: <pre>\1</pre>\2', $filtered, $rc);
 
 		if ($parent_id)
 		{
@@ -626,8 +604,6 @@ class DatabaseTable extends Object
 
 			$query = 'INSERT' . ($on_duplicate ? ' OR REPLACE' : '') . ' INTO `{self}` (' . implode(', ', $identifiers) . ') VALUES (' . implode(', ', $holders) . ')';
 		}
-
-		//wd_log('<h3>insert</h3><pre>\3</pre>\2\1', $values, $holders, $query);
 
 		return $this->execute($query, $values);
 	}

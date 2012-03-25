@@ -392,7 +392,7 @@ class Database extends \PDO
 				{
 					if (isset($schema['indexes'][$index]) && in_array($identifier, $schema['indexes'][$index]))
 					{
-						//wd_log('<em>\1</em> is already defined in index <em>\2</em>', $identifier, $index);
+						# $identifier is already defined in $index
 					}
 					else
 					{
@@ -633,8 +633,6 @@ class Database extends \PDO
 			}
 		}
 
-//		wd_log('<h3>parts</h3>\1', $parts);
-
 		$table_name = $this->prefix . $unprefixed_name;
 		$statement = 'CREATE TABLE `' . $table_name . '` (' . implode(', ', $parts) . ')';
 
@@ -642,8 +640,6 @@ class Database extends \PDO
 		{
 			$statement .= ' CHARACTER SET ' . $this->charset . ' COLLATE ' . $this->collate;
 		}
-
-		//wd_log('driver: \3, statement: <code>\1</code> indexes: \2', array($statement, $schema['indexes'], $this->driver_name));
 
 		$rc = ($this->exec($statement) !== false);
 
@@ -670,8 +666,6 @@ class Database extends \PDO
 				}
 
 				$statement .= ' (' . implode(',', $identifiers) . ')';
-
-				//wd_log('indexes: \1 \2 == \3', array($key, $identifiers, $statement));
 
 				$this->exec($statement);
 			}

@@ -133,7 +133,7 @@ class Mailer
 
 		if (0)
 		{
-			wd_log
+			log
 			(
 				'<pre>mail("!to", "!subject", "!message", "!header")</pre>', array
 				(

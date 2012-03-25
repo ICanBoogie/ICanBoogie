@@ -365,7 +365,7 @@ abstract class Operation extends Object
 	 */
 	public static function format_class_name($namespace, $operation_name)
 	{
-		return $namespace . '\\' . ucfirst(wd_camelize(strtr($operation_name, '_', '-'))) . 'Operation';
+		return $namespace . '\\' . ucfirst(camelize(strtr($operation_name, '_', '-'))) . 'Operation';
 	}
 
 	public $key;
@@ -650,7 +650,7 @@ abstract class Operation extends Object
 		}
 		catch (Operation\ExpiredFormException $e)
 		{
-			wd_log_error($e->getMessage());
+			\ICanBoogie\log_error($e->getMessage());
 
 			return;
 		}
@@ -669,7 +669,7 @@ abstract class Operation extends Object
 		{
 			foreach ($response->errors as $error_message)
 			{
-				wd_log_error($error_message);
+				\ICanBoogie\log_error($error_message);
 			}
 		}
 
@@ -875,7 +875,7 @@ abstract class Operation extends Object
 
 		if ($controls[self::CONTROL_FORM] && !$this->control_form())
 		{
-			wd_log('Control %control failed for operation %operation.', array('%control' => 'form', '%operation' => get_class($this)));
+			log('Control %control failed for operation %operation.', array('%control' => 'form', '%operation' => get_class($this)));
 
 			return false;
 		}

@@ -16,7 +16,7 @@ namespace ICanBoogie;
  *
  * @var string
  */
-define('ICanBoogie\VERSION', '0.14.0-dev (2012-03-20)');
+define('ICanBoogie\VERSION', '0.15.0-dev (2012-03-25)');
 
 /**
  * The ROOT directory of the ICanBoogie framework.
@@ -62,6 +62,11 @@ defined('ICanBoogie\CACHE_ACTIVERECORDS') or define('ICanBoogie\CACHE_ACTIVERECO
  */
 defined('ICanBoogie\CHARSET') or define('ICanBoogie\CHARSET', 'utf-8');
 
+if (function_exists('mb_internal_encoding'))
+{
+	mb_internal_encoding(CHARSET);
+}
+
 /**
  * Enables bootstrap caching.
  *
@@ -88,7 +93,6 @@ if (empty($_SERVER['REQUEST_TIME_FLOAT']))
  * bootstrap
  */
 require_once ROOT . 'lib/helpers.php';
-require_once ROOT . 'lib/toolkit/helpers.php';
 require_once ROOT . 'lib/i18n/helpers.php';
 
 if (CACHE_BOOTSTRAP && file_exists(BOOTSTRAP_CACHE_PATHNAME))

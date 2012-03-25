@@ -119,6 +119,197 @@ function remove_accents($str, $charset=CHARSET)
 }
 
 /**
+ * Binary-safe case-sensitive accents-insensitive string comparison.
+ *
+ * Accents are removed using the {@link remove_accents()} function.
+ *
+ * @param string $a
+ * @param string $b
+ *
+ * @return bool
+ */
+function unaccent_compare($a, $b)
+{
+    return strcmp(remove_accents($a), remove_accents($b));
+}
+
+/**
+ * Binary-safe case-insensitive accents-insensitive string comparison.
+ *
+ * Accents are removed using the {@link remove_accents()} function.
+ *
+ * @param string $a
+ * @param string $b
+ *
+ * @return bool
+ */
+function unaccent_compare_ci($a, $b)
+{
+    return strcasecmp(remove_accents($a), remove_accents($b));
+}
+
+/**
+ * Normalizes a string.
+ *
+ * Accents are removed, the string is downcased and characters that don't match [a-z0-9] are
+ * replaced by the separator character.
+ *
+ * @param string $str The string to normalize.
+ * @param string $separator The separator characters replaces characters the don't match [a-z0-9].
+ * @param string $charset The charset of the string to normalize.
+ *
+ * @return string
+ */
+function normalize($str, $separator='-', $charset=CHARSET)
+{
+	$str = str_replace('\'', '', $str);
+	$str = remove_accents($str, $charset);
+	$str = strtolower($str);
+	$str = preg_replace('#[^a-z0-9]+#', $separator, $str);
+	$str = trim($str, $separator);
+
+	return $str;
+}
+
+/**
+ * Converts a string separated by a specified separator into a camelCase equivalent.
+ *
+ * For instance, "foo-bar" would be converted to "fooBar".
+ *
+ * @param string $str
+ * @param string $separator Defaults to "-".
+ *
+ * @return string
+ */
+function camelize($str, $separator='-')
+{
+	static $callback;
+
+	if (!$callback)
+	{
+		$callback = function($match)
+		{
+			return mb_strtoupper(mb_substr($match[0], 1));
+		};
+	}
+
+	return preg_replace_callback('/' . preg_quote($separator) . '\D/', $callback, $str);
+}
+
+/**
+ * Converts a camelcased string to a hyphenated string.
+ *
+ * @param string $str
+ *
+ * @return string
+ */
+function hyphenate($str)
+{
+	static $callback;
+
+	if (!$callback)
+	{
+		$callback = function($match)
+		{
+			return "-" . mb_strtolower(mb_substr($match[0], 0, 1));
+		};
+	}
+
+	return trim(preg_replace_callback('/[A-Z]/', $callback, $str), '-');
+}
+
+/**
+ * Creates an excerpt of an HTML string.
+ *
+ * Only to following tags are preserved : A, P, CODE, DEL, EM, INS, STRONG.
+ *
+ * @param string $str
+ * @param int $limit The maximum number of words.
+ *
+ * @return string
+ */
+function excerpt($str, $limit=55)
+{
+	static $allowed_tags = array
+	(
+		'a', 'p', 'code', 'del', 'em', 'ins', 'strong'
+	);
+
+	$str = strip_tags((string) $str, '<' . implode('><', $allowed_tags) . '>');
+
+	$parts = preg_split('#<([^\s>]+)([^>]*)>#m', $str, 0, PREG_SPLIT_DELIM_CAPTURE);
+
+	# i+0: text
+	# i+1: markup ('/' prefix for closing markups)
+	# i+2: markup attributes
+
+	$rc = '';
+	$opened = array();
+
+	foreach ($parts as $i => $part)
+	{
+		if ($i % 3 == 0)
+		{
+			$words = preg_split('#(\s+)#', $part, 0, PREG_SPLIT_DELIM_CAPTURE);
+
+			foreach ($words as $w => $word)
+			{
+				if ($w % 2 == 0)
+				{
+					if (!$word) // TODO-20100908: strip punctuation
+					{
+						continue;
+					}
+
+					$rc .= $word;
+
+					if (!--$limit)
+					{
+						break;
+					}
+				}
+				else
+				{
+					$rc .= $word;
+				}
+			}
+
+			if (!$limit)
+			{
+				break;
+			}
+		}
+		else if ($i % 3 == 1)
+		{
+			if ($part[0] == '/')
+			{
+				$rc .= '<' . $part . '>';
+
+				array_shift($opened);
+			}
+			else
+			{
+				array_unshift($opened, $part);
+
+				$rc .= '<' . $part . $parts[$i + 1] . '>';
+			}
+		}
+	}
+
+	if (!$limit)
+	{
+		$rc .= ' <span class="excerpt-warp">[…]</span>';
+	}
+
+	if ($opened)
+	{
+		$rc .= '</' . implode('></', $opened) . '>';
+	}
+
+	return $rc;
+}
+
+/**
  * Normalize a string to be suitable as a namespace part.
  *
  * @param string $part The string to normalize.
@@ -243,6 +434,61 @@ function array_insert($array, $relative, $value, $key=null, $after=false)
 	}
 
 	return array_merge($array, $spliced);
+}
+
+/**
+ * Flattens an array.
+ *
+ * @param array $array
+ * @param string|array $separator
+ * @param int $depth
+ *
+ * @return array
+ */
+function array_flatten($array, $separator='.', $depth=0)
+{
+	$rc = array();
+
+	if (is_array($separator))
+	{
+		foreach ($array as $key => $value)
+		{
+			if (!is_array($value))
+			{
+				$rc[$key . ($depth ? $separator[1] : '')] = $value;
+
+				continue;
+			}
+
+			$values = array_flatten($value, $separator, $depth + 1);
+
+			foreach ($values as $vkey => $value)
+			{
+				$rc[$key . ($depth ? $separator[1] : '') . $separator[0] . $vkey] = $value;
+			}
+		}
+	}
+	else
+	{
+		foreach ($array as $key => $value)
+		{
+			if (!is_array($value))
+			{
+				$rc[$key] = $value;
+
+				continue;
+			}
+
+			$values = array_flatten($value, $separator, $depth + 1);
+
+			foreach ($values as $vkey => $value)
+			{
+				$rc[$key . $separator . $vkey] = $value;
+			}
+		}
+	}
+
+	return $rc;
 }
 
 /**
@@ -423,7 +669,94 @@ function format($str, array $args=array())
 	return strtr($str, $holders);
 }
 
+/**
+ * Removes the `DOCUMENT_ROOT` from the provided path.
+ *
+ * @param string $pathname
+ *
+ * @return string
+ */
+function strip_root($pathname)
+{
+	return substr($pathname, strlen($_SERVER['DOCUMENT_ROOT']));
+}
+
+/**
+ * Logs a message.
+ *
+ * @param string $message Message pattern.
+ * @param array $params The parameters used to format the message.
+ * @param string $message_id Message identifier.
+ * @param string $type Message type, one of "success", "error", "info" and "debug". Defaults to
+ * "debug".
+ */
+function log($message, array $params=array(), $message_id=null, $type='debug')
+{
+	Debug::log($type, $message, $params, $message_id);
+}
+
+/**
+ * Logs a success message.
+ *
+ * @param string $message Message pattern.
+ * @param array $params The parameters used to format the message.
+ * @param string $message_id Message identifier.
+ */
+function log_success($message, array $params=array(), $message_id=null)
+{
+	Debug::log('success', $message, $params, $message_id);
+}
+
+/**
+ * Logs an error message.
+ *
+ * @param string $message Message pattern.
+ * @param array $params The parameters used to format the message.
+ * @param string $message_id Message identifier.
+ */
+function log_error($message, array $params=array(), $message_id=null)
+{
+	Debug::log('error', $message, $params, $message_id);
+}
+
+/**
+ * Logs an info message.
+ *
+ * @param string $message Message pattern.
+ * @param array $params The parameters used to format the message.
+ * @param string $message_id Message identifier.
+ */
 function log_info($message, array $params=array(), $message_id=null)
 {
 	Debug::log('info', $message, $params, $message_id);
+}
+
+/**
+ * Logs a debug message associated with a timing information.
+ *
+ * @param string $message Message pattern.
+ * @param array $params The parameters used to format the message.
+ */
+function log_time($message, array $params=array())
+{
+	static $last;
+
+	$now = microtime(true);
+
+	$add = '<var>[';
+
+	$add .= '∑' . number_format($now - $_SERVER['REQUEST_TIME_FLOAT'], 3, '\'', '') . '"';
+
+	if ($last)
+	{
+		$add .= ', +' . number_format($now - $last, 3, '\'', '') . '"';
+	}
+
+	$add .= ']</var>';
+
+	$last = $now;
+
+	$message = $add . ' ' . $message;
+
+	log($message, $params);
 }

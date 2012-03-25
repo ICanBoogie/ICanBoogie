@@ -139,8 +139,6 @@ class FileCache
 	{
 		if (WDCACHE_USE_APC)
 		{
-//			wd_log('retrieve %file from APC', array('%file' => $this->root . '/' . $key));
-
 			$contents = apc_fetch($this->root . '/' . $key, $success);
 
 			if (!$success)
@@ -215,8 +213,6 @@ class FileCache
 	{
 		if (WDCACHE_USE_APC)
 		{
-//			wd_log('save %file to APC', array('%file' => $this->root . '/' . $file));
-
 			return apc_store($this->root . '/' . $file, $contents);
 		}
 
@@ -280,8 +276,6 @@ class FileCache
 	{
 		if (WDCACHE_USE_APC)
 		{
-//			wd_log('delete %file from APC', array('%file' => $this->root . '/' . $file));
-
 			return apc_delete($this->root . '/' . $file);
 		}
 

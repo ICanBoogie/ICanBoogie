@@ -1,14 +1,20 @@
 <?php
 
-use ICanBoogie\I18n;
-use ICanBoogie\I18n\Locale;
+namespace ICanBoogie\I18n;
 
 function t($str, array $args=array(), array $options=array())
 {
-	return I18n::translate($str, $args, $options);
+	return \ICanBoogie\I18n::translate($str, $args, $options);
 }
 
-function wd_format_size($size)
+/**
+ * Formats a size in "b", "Kb", "Mb", "Gb" or "Tb".
+ *
+ * @param int $size
+ *
+ * @return string
+ */
+function format_size($size)
 {
 	if ($size < 1024)
 	{
@@ -24,37 +30,36 @@ function wd_format_size($size)
 		$str = ":size\xC2\xA0Mb";
 		$size = $size / (1024 * 1024);
 	}
-	else
+	else if ($size < 1024 * 1024 * 1024 * 1024)
 	{
 		$str = ":size\xC2\xA0Gb";
 		$size = $size / (1024 * 1024 * 1024);
+	}
+	else
+	{
+		$str = ":size\xC2\xA0Tb";
+		$size = $size / (1024 * 1024 * 1024 * 1024);
 	}
 
 	return t($str, array(':size' => round($size)));
 }
 
-function wd_format_number($number)
+function format_number($number)
 {
-	global $core;
-
-	$decimal_point = $core->locale->conventions['numbers']['symbols']['decimal'];
+	$decimal_point = \ICanBoogie\I18n::get_locale()->conventions['numbers']['symbols']['decimal'];
 	$thousands_sep = ' ';
 
 	return number_format($number, ($number - floor($number) < .009) ? 0 : 2, $decimal_point, $thousands_sep);
 }
 
-function wd_format_currency($value, $currency)
+function format_currency($value, $currency)
 {
-	global $core;
-
-	return $core->locale->number_formatter->format_currency($value, $currency);
+	return \ICanBoogie\I18n::get_locale()->number_formatter->format_currency($value, $currency);
 }
 
-function wd_format_date($time, $pattern='default')
+function format_date($time, $pattern='default')
 {
-	global $core;
-
-	$locale = $core->locale;
+	$locale = \ICanBoogie\I18n::get_locale();
 
 	if ($pattern == 'default')
 	{
@@ -69,16 +74,14 @@ function wd_format_date($time, $pattern='default')
 	return $locale->date_formatter->format($time, $pattern);
 }
 
-function wd_format_datetime($time, $date_pattern='default', $time_pattern='default')
+function format_datetime($time, $date_pattern='default', $time_pattern='default')
 {
-	global $core;
-
 	if (is_string($time))
 	{
 		$time = strtotime($time);
 	}
 
-	$locale = $core->locale;
+	$locale = \ICanBoogie\I18n::get_locale();
 
 	if (isset($locale->conventions['dates']['dateTimeFormats']['availableFormats'][$date_pattern]))
 	{
@@ -89,55 +92,8 @@ function wd_format_datetime($time, $date_pattern='default', $time_pattern='defau
 	return $locale->date_formatter->format_datetime($timestamp, $date_pattern, $time_pattern);
 }
 
-function wd_array_flatten($array, $separator='.', $depth=0)
+function date_period($date)
 {
-	$rc = array();
-
-	if (is_array($separator))
-	{
-		foreach ($array as $key => $value)
-		{
-			if (!is_array($value))
-			{
-				$rc[$key . ($depth ? $separator[1] : '')] = $value;
-
-				continue;
-			}
-
-			$values = wd_array_flatten($value, $separator, $depth + 1);
-
-			foreach ($values as $vkey => $value)
-			{
-				$rc[$key . ($depth ? $separator[1] : '') . $separator[0] . $vkey] = $value;
-			}
-		}
-	}
-	else
-	{
-		foreach ($array as $key => $value)
-		{
-			if (!is_array($value))
-			{
-				$rc[$key] = $value;
-
-				continue;
-			}
-
-			$values = wd_array_flatten($value, $separator, $depth + 1);
-
-			foreach ($values as $vkey => $value)
-			{
-				$rc[$key . $separator . $vkey] = $value;
-			}
-		}
-	}
-
-	return $rc;
-}
-
-function wd_date_period($date)
-{
-	global $core;
 	static $relative;
 
 	if (is_numeric($date))
@@ -154,11 +110,11 @@ function wd_date_period($date)
 	$date_days = strtotime(date('Y-m-d', $date_secs)) / (60 * 60 * 24);
 
 	$diff = round($date_days - $today_days);
-	$locale_id = I18n::get_language();
+	$locale_id = \ICanBoogie\I18n::get_language();
 
 	if (empty($relative[$locale_id]))
 	{
-		$relative[$locale_id] = I18n::get_locale()->conventions['dates']['fields']['day']['relative'];
+		$relative[$locale_id] = \ICanBoogie\I18n::get_locale()->conventions['dates']['fields']['day']['relative'];
 	}
 
 	if (isset($relative[$locale_id][$diff]))
@@ -167,8 +123,8 @@ function wd_date_period($date)
 	}
 	else if ($diff > -6)
 	{
-		return ucfirst(wd_format_date($date_secs, 'EEEE'));
+		return ucfirst(format_date($date_secs, 'EEEE'));
 	}
 
-	return wd_format_date($date);
+	return format_date($date);
 }

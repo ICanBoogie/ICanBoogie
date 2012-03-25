@@ -214,7 +214,7 @@ class Configs implements \ArrayAccess
 				)
 			);
 
-			$rc = $cache->load('config_' . wd_normalize($name, '_'), array($this, 'synthesize_constructor'), $args);
+			$rc = $cache->load('config_' . normalize($name, '_'), array($this, 'synthesize_constructor'), $args);
 		}
 		else
 		{

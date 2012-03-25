@@ -26,7 +26,7 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 	{
 		if (is_string($tags))
 		{
-			wd_log('is_extending is not competent with string references: \1', array($tags));
+			\ICanBoogie\log('is_extending is not competent with string references: \1', array($tags));
 
 			return true;
 		}
@@ -35,8 +35,6 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 
 		if (empty($tags[self::T_EXTENDS]))
 		{
-			//wd_log('no extends in \1', array($model));
-
 			return false;
 		}
 
@@ -44,8 +42,6 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 
 		if ($extends == $instanceof)
 		{
-			//wd_log('found instance of with: \1', array($model));
-
 			return true;
 		}
 
@@ -53,14 +49,10 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 
 		if (empty($core->modules->descriptors[$extends][Module::T_MODELS]['primary']))
 		{
-			//wd_log('no primary for: \1', array($extends));
-
 			return false;
 		}
 
 		$tags = $core->modules->descriptors[$extends][Module::T_MODELS]['primary'];
-
-		//wd_log('try: \1', array($extends));
 
 		return self::is_extending($tags, $instanceof);
 	}
@@ -114,8 +106,6 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 		if (isset($tags[self::T_EXTENDS]) && empty($tags[self::T_SCHEMA]))
 		{
 			$extends = $tags[self::T_EXTENDS];
-
-//			wd_log('extending a model without schema: \1', array($extends));
 
 			$tags[self::T_NAME] = $extends->name_unprefixed;
 			$tags[self::T_SCHEMA] = $extends->schema;

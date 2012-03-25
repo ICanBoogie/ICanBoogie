@@ -515,8 +515,6 @@ class Module extends Object
 
 			$class = $tags[Model::T_CLASS];
 
-			//wd_log('create model \2 with tags: \1', array($tags, $this->id . '/' . $which));
-
 			$this->models[$which] = new $class($tags);
 		}
 

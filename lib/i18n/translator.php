@@ -74,7 +74,7 @@ class Translator extends Object implements \ArrayAccess
 				continue;
 			}
 
-			$messages += wd_array_flatten(require $filename);
+			$messages += \ICanBoogie\array_flatten(require $filename);
 		}
 
 		return $messages;

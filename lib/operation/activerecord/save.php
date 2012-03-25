@@ -155,7 +155,7 @@ class Save extends Operation
 
 		$this->response->location = $_SERVER['REQUEST_URI'];
 
-		wd_log_done($key ? 'The record %key in %module has been saved.' : 'A new record has been saved in %module.', $log_params, 'save');
+		\ICanBoogie\log_success($key ? 'The record %key in %module has been saved.' : 'A new record has been saved in %module.', $log_params, 'save');
 
 		return array('mode' => $key ? 'update' : 'new', 'key' => $record_key);
 	}

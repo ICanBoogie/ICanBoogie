@@ -27,7 +27,7 @@ class Hook
 				{
 					//DIRTY-20100621: COMPAT
 
-					wd_log('COMPAT: double array no longer needed: \1', array($hooks));
+					log('COMPAT: double array no longer needed: \1', array($hooks));
 
 					$hooks = array_shift($hooks);
 				}

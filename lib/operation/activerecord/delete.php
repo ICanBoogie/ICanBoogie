@@ -61,7 +61,7 @@ class Delete extends Operation
 			$this->response->location = $this->request['#location'];
 		}
 
-		wd_log_done('The record %key has been delete from %module.', array('%key' => $key, '%module' => $this->module->title), 'delete');
+		\ICanBoogie\log_success('The record %key has been delete from %module.', array('%key' => $key, '%module' => $this->module->title), 'delete');
 
 		return $key;
 	}
