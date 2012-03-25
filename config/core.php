@@ -31,6 +31,7 @@ return array
 		'ICanBoogie\Modules' => $core . 'accessors/modules.php',
 		'ICanBoogie\Object' => $core . 'object.php',
 		'ICanBoogie\Route' => $core . 'route.php',
+		'ICanBoogie\Routes' => $core . 'route.php',
 		'ICanBoogie\Session' => $core . 'session.php',
 		'ICanBoogie\Vars' => $core . 'accessors/vars.php',
 

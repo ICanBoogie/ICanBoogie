@@ -170,14 +170,12 @@ abstract class Operation extends Object
 	{
 		global $core;
 
-		$found = Route::find($path, $request->method, 'api');
+		$route = Routes::get()->find($path, $request->method, 'api');
 
-		if (!$found)
+		if (!$route)
 		{
 			return;
 		}
-
-		list($route, $match, $pattern) = $found;
 
 		#
 		# We found a matching route. The arguments captured from the route are merged with
@@ -186,18 +184,19 @@ abstract class Operation extends Object
 		# (defined using the `callback` key).
 		#
 
-		if (is_array($match))
+		if ($route->path_parameters)
 		{
-			$request->params = $match + $request->params;
+			$request->path_parameters = $route->path_parameters;
+			$request->params = $route->path_parameters + $request->params;
 		}
 
-		if (isset($route['callback']) && isset($route['class']))
+		if ($route->callback && $route->class)
 		{
-			throw new \LogicException('Ambiguous definition for operation route, both callback and class are defined:' . wd_dump($route));
+			throw new \LogicException('Ambiguous definition for operation route, both callback and class are defined:' . dump($route));
 		}
-		else if (isset($route['callback']))
+		else if ($route->callback)
 		{
-			$operation = call_user_func($route['callback'], $request);
+			$operation = call_user_func($route->callback, $request);
 
 			if (!($operation instanceof Operation))
 			{
@@ -211,9 +210,9 @@ abstract class Operation extends Object
 				);
 			}
 		}
-		else if (isset($route['class']))
+		else if ($route->class)
 		{
-			$class = $route['class'];
+			$class = $route->class;
 
 			if (!class_exists($class, true))
 			{

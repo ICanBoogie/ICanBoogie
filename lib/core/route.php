@@ -11,6 +11,222 @@
 
 namespace ICanBoogie;
 
+/**
+ * Routes collected from the "routes" config or added by the user.
+ */
+class Routes implements \IteratorAggregate, \ArrayAccess
+{
+	protected static $instance;
+
+	/**
+	 * Returns the singleton instance of the class.
+	 *
+	 * @return \ICanBoogie\Routes
+	 */
+	public static function get()
+	{
+		if (!self::$instance)
+		{
+			self::$instance = new static();
+		}
+
+		return self::$instance;
+	}
+
+	protected $routes;
+
+	/**
+	 * Collects routes definitions from the "routes" config.
+	 */
+	protected function __construct()
+	{
+		global $core;
+
+		$this->routes = $core->configs->synthesize
+		(
+			'routes', function($fragments)
+			{
+				global $core;
+
+				$paths = array();
+
+				foreach ($core->modules->descriptors as $module_id => $descriptor)
+				{
+					$paths[$descriptor[Module::T_PATH]] = $module_id;
+				}
+
+				$routes = array();
+
+				foreach ($fragments as $path => $fragment)
+				{
+					$module_id = isset($paths[$path]) ? $paths[$path] : null;
+
+					foreach ($fragment as $id => $route)
+					{
+						if ($id{0} === '!')
+						{
+							$id = "$module_id:admin/" . substr($id, 1);
+						}
+						else if ($id{0} === ':' && $module_id)
+						{
+							$id = $module_id . $id;
+						}
+
+						$routes[$id] = $route + array
+						(
+							'pattern' => null,
+							'via' => 'any',
+							'module' => $module_id
+						);
+					}
+				}
+
+				return $routes;
+			}
+		);
+	}
+
+	public function getIterator()
+	{
+		return new \ArrayIterator($this->routes);
+	}
+
+	public function offsetExists($offset)
+	{
+		return isset($this->routes[$offset]);
+	}
+
+	public function offsetGet($offset)
+	{
+		return $this->offsetExists($offset) ? $this->routes[$offset] : array();
+	}
+
+	/**
+	 * Adds or replaces a route.
+	 *
+	 * @param mixed $offset The identifier of the route.
+	 * @param array $route The route definition.
+	 *
+	 * @see ArrayAccess::offsetSet()
+	 */
+	public function offsetSet($offset, $route)
+	{
+		if (empty($route['pattern']))
+		{
+			throw new \LogicException(format
+			(
+				"Route %id has no pattern. !route", array
+				(
+					'id' => $id,
+					'route' => $route
+				)
+			));
+		}
+
+		$this->routes[$offset] = $route + array
+		(
+			'via' => 'any'
+		);
+	}
+
+	static public function add($id, $definition)
+	{
+		$routes = static::get();
+		$routes[$id] = $definition;
+	}
+
+	/**
+	 * Removes a route.
+	 *
+	 * @param string $offset The identifier of the route.
+	 *
+	 * @see ArrayAccess::offsetUnset()
+	 */
+	public function offsetUnset($offset)
+	{
+		unset($this->routes[$offset]);
+	}
+
+	/**
+	 * Search for a route matching the specified pathname and method.
+	 *
+	 * @param string $pathname
+	 * @param string $method One of HTTP\Request::METHOD_* methods or 'any'.
+	 * @param string $namespace Namespace restriction.
+	 *
+	 * @return Route
+	 */
+	public function find($uri, $method='any', $namespace=null)
+	{
+		if ($namespace)
+		{
+			$namespace = '/' . $namespace . '/';
+		}
+
+		$found = null;
+
+		foreach ($this->routes as $id => $route)
+		{
+			if ($id{0} === '!')
+			{
+				continue;
+			}
+
+			$pattern = $route['pattern'];
+
+			if ($namespace && strpos($pattern, $namespace) !== 0)
+			{
+				continue;
+			}
+
+			$match = Route::match($uri, $pattern);
+
+			if (!$match)
+			{
+				continue;
+			}
+
+			$route_method = $route['via'];
+
+			if (is_array($route_method))
+			{
+				if (in_array($method, $route_method))
+				{
+					$found = true;
+					break;
+				}
+			}
+			else
+			{
+				if ($route_method === 'any' || $route_method === $method)
+				{
+					$found = true;
+					break;
+				}
+			}
+		}
+
+		if (!$found)
+		{
+			return;
+		}
+
+		return Object::from
+		(
+			$route + array
+			(
+				'id' => $id,
+				'path_parameters' => is_array($match) ? $match : array()
+			),
+
+			array(), 'ICanBoogie\Route'
+		);
+	}
+}
+
+/**
+ * A route.
+ */
 class Route
 {
 	public static $contextualize_callback;
@@ -45,142 +261,6 @@ class Route
 	public static function decontextualize($str)
 	{
 		return self::$decontextualize_callback ? call_user_func(self::$decontextualize_callback, $str) : $str;
-	}
-
-	protected static $routes = array();
-
-	private static $constructed;
-
-	/**
-	 * Returns the routes defined using the configuration system or added using the add() method.
-	 *
-	 * @return array
-	 */
-	public static function routes()
-	{
-		global $core;
-
-		if (!self::$constructed)
-		{
-			self::$constructed = true;
-
-			self::$routes += $core->configs->synthesize('routes', array(__CLASS__, 'routes_constructor'));
-		}
-
-		return self::$routes;
-	}
-
-	/**
-	 * Indexes routes, filtering out the route definitions which don't start with '/'
-	 *
-	 * @param array $fragments Configiration fragments
-	 *
-	 * @return array
-	 */
-	public static function routes_constructor(array $fragments)
-	{
-		global $core;
-
-		$paths = array();
-
-		foreach ($core->modules->descriptors as $module_id => $descriptor)
-		{
-			$paths[$descriptor[Module::T_PATH]] = $module_id;
-		}
-
-		$routes = array();
-
-		foreach ($fragments as $path => $fragment)
-		{
-			$module_id = isset($paths[$path]) ? $paths[$path] : null;
-
-			foreach ($fragment as $id => $route)
-			{
-				if ($id{0} === '!')
-				{
-					$id = "$module_id:admin/" . substr($id, 1);
-				}
-				/*
-				else if (empty($route['pattern']))
-				{
-					throw new \LogicException(t
-					(
-						"Route %route_id has no pattern in %path. !route", array
-						(
-							'%route_id' => $id,
-							'%path' => $path,
-							'!route' => $route
-						)
-					));
-				}
-				*/
-				else if ($id{0} === ':' && $module_id)
-				{
-					$id = $module_id . $id;
-				}
-
-				$routes[$id] = $route + array
-				(
-					'pattern' => null,
-					'via' => 'any'
-				);
-			}
-		}
-
-		return $routes;
-	}
-
-	/**
-	 * Adds or replaces a route, or a set of routes,
-	 *
-	 * @param mixed $pattern The pattern for the route to add or replace, or an array of
-	 * pattern/route.
-	 * @param array $route The route definition for the pattern, or nothing if the pattern is
-	 * actually a set of routes.
-	 */
-	public static function add($id, array $route=array())
-	{
-		if (is_array($id))
-		{
-			foreach ($id as $i => $route)
-			{
-				static::add($i, $route);
-			}
-
-			return;
-		}
-
-		if (empty($route['pattern']))
-		{
-			throw new \LogicException
-			(
-				format
-				(
-					"Route %id has no pattern. !route", array
-					(
-						'id' => $id,
-						'route' => $route
-					)
-				)
-			);
-		}
-
-		self::$routes[$id] = $route + array
-		(
-			'via' => 'any'
-		);
-	}
-
-	/**
-	 * Removes a route from the routes using its pattern.
-	 *
-	 * @param string $pattern The pattern for the route to remove.
-	 */
-	public static function remove($pattern)
-	{
-		self::routes();
-
-		unset(self::$routes[$pattern]);
 	}
 
 	private static $parse_cache = array();
@@ -248,13 +328,13 @@ class Route
 		return self::$parse_cache[$pattern] = array($interleave, $params, $regex);
 	}
 
-	public static function match($uri, $pattern)
+	public static function match($pathname, $pattern)
 	{
 		$parsed = self::parse($pattern);
 
 		list(, $params, $regex) = $parsed;
 
-		$match = preg_match($regex, $uri, $values);
+		$match = preg_match($regex, $pathname, $values);
 
 		if (!$match)
 		{
@@ -270,56 +350,6 @@ class Route
 		return array_combine($params, $values);
 	}
 
-	public static function find($uri, $method='any', $namespace=null)
-	{
-		$routes = self::routes();
-		$namespace_length = 0;
-
-		if ($namespace)
-		{
-			$namespace = '/' . $namespace . '/';
-		}
-
-		foreach ($routes as $id => $route)
-		{
-			if ($id{0} === '!')
-			{
-				continue;
-			}
-
-			$pattern = $route['pattern'];
-
-			if ($namespace && strpos($pattern, $namespace) !== 0)
-			{
-				continue;
-			}
-
-			$match = self::match($uri, $pattern);
-
-			if (!$match)
-			{
-				continue;
-			}
-
-			$route_method = $route['via'];
-
-			if (is_array($route_method))
-			{
-				if (in_array($method, $route_method))
-				{
-					return array($route, $match, $pattern, $id);
-				}
-			}
-			else
-			{
-				if ($route_method === 'any' || $route_method === $method)
-				{
-					return array($route, $match, $pattern, $id);
-				}
-			}
-		}
-	}
-
 	/**
 	 * Returns a route formated using a pattern and values.
 	 *
@@ -330,17 +360,22 @@ class Route
 	 */
 	public static function format($pattern, $values=null)
 	{
-		if (is_array($values))
-		{
-			$values = (object) $values;
-		}
-
 		$url = '';
 		$parsed = self::parse($pattern);
 
-		foreach ($parsed[0] as $i => $value)
+		if (is_array($values))
 		{
-			$url .= ($i % 2) ? urlencode($values->$value[0]) : $value;
+			foreach ($parsed[0] as $i => $value)
+			{
+				$url .= ($i % 2) ? urlencode($values[$value[0]]) : $value;
+			}
+		}
+		else
+		{
+			foreach ($parsed[0] as $i => $value)
+			{
+				$url .= ($i % 2) ? urlencode($values->$value[0]) : $value;
+			}
 		}
 
 		return $url;
@@ -357,4 +392,55 @@ class Route
 	{
 		return (strpos($pattern, '<') !== false) || (strpos($pattern, ':') !== false);
 	}
+
+	/**
+	 * Identifier of the route.
+	 *
+	 * @var string
+	 */
+	public $id;
+
+	/**
+	 * Pattern of the route.
+	 *
+	 * @var string
+	 */
+	public $pattern;
+
+	/**
+	 * Redirect location.
+	 *
+	 * If the property is defined the route is consireder an alias.
+	 *
+	 * @var string
+	 */
+	public $location;
+
+	/**
+	 * Class of the controller.
+	 *
+	 * @var string
+	 */
+	public $class;
+
+	/**
+	 * Callback of the controller.
+	 *
+	 * @var callable
+	 */
+	public $callback;
+
+	/**
+	 * Request methods accepted by the route.
+	 *
+	 * @var string
+	 */
+	public $via;
+
+	/**
+	 * Parameters captured from the path_info using the route pattern.
+	 *
+	 * @var array
+	 */
+	public $path_parameters;
 }
