@@ -27,7 +27,7 @@ class Events implements \IteratorAggregate, \ArrayAccess
 	{
 		if (!self::$instance)
 		{
-			self::$instance = new self();
+			self::$instance = new static();
 		}
 
 		return self::$instance;
@@ -36,11 +36,9 @@ class Events implements \IteratorAggregate, \ArrayAccess
 	protected $events;
 
 	/**
-	 * Constructor.
+	 * Gathers events from the "hooks" config fragments under the `events` key.
 	 *
-	 * Events are gathered from the "hooks" config fragments under the `events` key.
-	 *
-	 * @throws \InvalidArgumentException
+	 * @throws \InvalidArgumentException when a callback is not properly defined.
 	 */
 	protected function __construct()
 	{
