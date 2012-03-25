@@ -1,23 +1,24 @@
 ICanBoogie
 ==========
 
-__ICanBoogie__ is a high-performance object-oriented framework for PHP 5.3 and above. It is written
+__ICanBoogie__ is a high-performance object-oriented framework for PHP 5.3.6+. It is written
 with speed, flexibility and lightness in mind. ICanBoogie doesn't try to be an all-in-one do-it-all
-solution, prefering to provided a tiny but strong set of classes and logics as a solid ground to
+solution, prefering to provided a small but strong set of classes and logics as a solid ground to
 build web applications.
 
 ICanBoogie offers the following features: ActiveRecords, Internationalization, Modules,
-a RESTful API, runtime Mixins, Autoload, Operations, Events, Hooks, Sessions, Routes, Caching,
-Image resizing...
+a RESTful API, Request/Dispatch/Response, runtime Mixins, Autoload, Operations, Events, Hooks,
+Sessions, Routes, Caching and more.
 
-Together with BrickRouge and Patron, ICanBoogie is the base framework for the Icybee CMS, you might
-want to check these projects too.
+Together with [Brickrouge](http://brickrouge.org) and Patron, ICanBoogie is one of the
+components that make the CMS [Icybee](http://icybee.org). You might want to check these
+projects too.
 
-ICanBoogie is a fork of the [WdCore](https://github.com/Weirdog/WdCore) framework made to take
+ICanBoogie is a fork of the [WdCore](https://github.com/olvlvl/WdCore) framework made to take
 advantage of the many features brought by PHP5.3.
 
 *Inspiration*: [MooTools](http://mootools.net/), [Ruby on Rails](http://rubyonrails.org),
-[Yii](http://www.yiiframework.com)
+[Yii](http://www.yiiframework.com) and of course [Bacara](http://www.youtube.com/watch?v=KGuFn0RPgaE) :)
 
 
 
@@ -26,18 +27,18 @@ Getting started
 
 ### Requirements
 
-The minimum requirement for the ICanBoogie framework is PHP5.3.3. ICanBoogie has been tested with
+The minimum requirement for the ICanBoogie framework is PHP5.3.6. ICanBoogie has been tested with
 Apache HTTP server on Linux, MacOS and Windows operating systems. The Apache server must support
 URL rewriting.
 
 
 ### Installation
 
-The ICanBoogie framework can be retrieved from the GitHub repository at the following URL:
+Clone ICanBoogie from its GitHub repository using the following command:
 
-	git@github.com:ICanBoogie/ICanBoogie.git
+	$ git clone git@github.com:ICanBoogie/ICanBoogie.git
 
-ICanBoogie doesn't need to be web-accessible, thus a single instance can be used power multiple
+ICanBoogie doesn't need to be web-accessible, thus a single instance can be used to power multiple
 projects.
 
 
@@ -71,14 +72,39 @@ lines:
 2. Then specify your config path while creating the _core_ object:
 
 	```php
-	$core = new ICanBoogie\Core
+	namespace ICanBoogie;
+
+	require_once 'ICanBoogie.phar';
+
+	$core = new Core
 	(
 		array
 		(
 			'paths' => array
 			(
-				'config' => array(ICanBoogie\DOCUMENT_ROOT . 'protected/all/')
+				'config' => array(DOCUMENT_ROOT . 'protected/all/'),
+				'locale' => array(DOCUMENT_ROOT . 'protected/all/')
 			)
 		)
 	);
+	```
+
+### Running
+
+Before we can process requests we need to run the framework. Running the framework indexes
+modules and select the context of the application.
+
+When the framework is running we can add additionnal routes or attach additionnal events,
+for they are usually defined in config fragements.
+
+Finally we can execute the HTTP request and return a response.
+
+	```php
+	$core->run();
+
+	# here we could add routes or attach events
+
+	$request = HTTP\Request::from_global($_SERVER);
+	$response = $request();
+	$response();
 	```
