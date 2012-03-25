@@ -28,7 +28,7 @@ class Ping extends Operation
 
 	protected function process()
 	{
-		global $core, $wddebug_time_reference;
+		global $core;
 
 		$this->response->content_type = 'text/plain';
 
@@ -41,7 +41,7 @@ class Ping extends Operation
 
 		if ($this->request['timer'] !== null)
 		{
-			$rc .= ', in ' . number_format(microtime(true) - $wddebug_time_reference, 3, '.', '') . ' secs.';
+			$rc .= ', in ' . number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3, '.', '') . ' secs.';
 		}
 
 		return $rc;

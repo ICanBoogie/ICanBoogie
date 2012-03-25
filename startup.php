@@ -77,6 +77,14 @@ defined('ICanBoogie\CACHE_BOOTSTRAP') or define('ICanBoogie\CACHE_BOOTSTRAP', fa
 defined('ICanBoogie\BOOTSTRAP_CACHE_PATHNAME') or define('ICanBoogie\BOOTSTRAP_CACHE_PATHNAME', REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'icanboogie_bootstrap');
 
 /*
+ * Define PHP5.4 `$_SERVER['REQUEST_TIME_FLOAT']` if empty.
+ */
+if (empty($_SERVER['REQUEST_TIME_FLOAT']))
+{
+	$_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
+}
+
+/*
  * bootstrap
  */
 require_once ROOT . 'lib/helpers.php';
