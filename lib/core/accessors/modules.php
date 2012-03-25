@@ -250,7 +250,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function index_construct()
 	{
-		$descriptors = $this->index_descriptors($this->paths);
+		$descriptors = $this->paths ? $this->index_descriptors($this->paths) : array();
 
 		$index = array
 		(
@@ -440,6 +440,11 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 
 				$descriptors[$id] = $descriptor;
 			}
+		}
+
+		if (!$descriptors)
+		{
+			return array();
 		}
 
 		#
