@@ -33,20 +33,11 @@ class Core extends Object
 	/**
 	 * Returns the unique instance of the core object.
 	 *
-	 * @param array $options
-	 *
 	 * @return Core The core object.
 	 */
-	public static function get_singleton(array $options=array())
+	public static function get()
 	{
-		if (self::$instance)
-		{
-			return self::$instance;
-		}
-
-		$class = get_called_class();
-
-		return self::$instance = new $class($options);
+		return self::$instance;
 	}
 
 	/**
@@ -126,9 +117,20 @@ class Core extends Object
 	 *
 	 * @param array $options Initial options to create the core object.
 	 */
-	protected function __construct(array $options=array())
+	public function __construct(array $options=array())
 	{
+		if (self::$instance)
+		{
+			throw new Exception('Only one instance of the Core object can be created');
+		}
+
+		self::$instance = $this;
+
+		# unset declared magic properties
+
 		unset($this->request);
+
+		#
 
 		$options = \ICanBoogie\array_merge_recursive
 		(

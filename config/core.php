@@ -38,8 +38,6 @@ return array
 		'ICanBoogie\ActiveRecord\Model' => $ar . '/model.php',
 		'ICanBoogie\ActiveRecord\Query' => $ar . '/query.php',
 
-		'WdArray' => $toolkit . 'array.php',
-
 		'ICanBoogie\HTTP\Headers' => $http . 'headers.php',
 		'ICanBoogie\HTTP\Request' => $http . 'request.php',
 		'ICanBoogie\HTTP\Response' => $http . 'response.php',
