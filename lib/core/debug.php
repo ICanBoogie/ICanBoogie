@@ -171,7 +171,13 @@ class Debug
 	{
 		if (!headers_sent())
 		{
-			header("HTTP/1.0 $exception->code " . strip_tags($exception->getMessage()));
+			$code = $exception->getCode();
+
+			$message = $exception->getMessage();
+			$message = strip_tags($message);
+			$message = str_replace(array("\r\n", "\n"), '', $message);
+
+			header("HTTP/1.0 $code $message");
 		}
 
 		$message = self::format_alert($exception);

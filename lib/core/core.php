@@ -52,7 +52,7 @@ class Core extends Object
 	 */
 	public static function exception_handler(\Exception $exception)
 	{
-		exit(Debug::format_alert($exception));
+		Debug::exception_handler($exception);
 	}
 
 	protected static $autoload = array();
