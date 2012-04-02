@@ -26,6 +26,20 @@ class Debug
 	public static $mode = 'dev';
 	public static $report_address;
 
+	/**
+	 * Last error.
+	 *
+	 * @var array[string]mixed
+	 */
+	public static $last_error;
+
+	/**
+	 * Last error message.
+	 *
+	 * @var string
+	 */
+	public static $last_error_message;
+
 	static public function synthesize_config(array $fragments)
 	{
 		$config = call_user_func_array('\ICanBoogie\array_merge_recursive', $fragments);
@@ -97,7 +111,20 @@ class Debug
 	**
 	*/
 
-	static public function error_handler($no, $str, $file, $line, $context)
+	/**
+	 * Handles errors.
+	 *
+	 * The {@link $last_error} and {@link $last_error_message} properties are updated.
+	 *
+	 * The alert is formated, reported and if the `verbose` option is true the alert is displayed.
+	 *
+	 * @param int $no The level of the error raised.
+	 * @param string $str The error message.
+	 * @param string $file The filename that the error was raised in.
+	 * @param int $line The line number the error was raised at.
+	 * @param array $context The active symbol table at the point the error occurred.
+	 */
+	public static function error_handler($no, $str, $file, $line, $context)
 	{
 		if (!headers_sent())
 		{
@@ -108,17 +135,20 @@ class Debug
 
 		array_shift($trace); // remove the trace of our function
 
-		$message = self::format_alert
+		$error = array
 		(
-			array
-			(
-				'type' => $no,
-				'message' => $str,
-				'file' => $file,
-				'line' => $line,
-				'trace' => $trace
-			)
+			'type' => $no,
+			'message' => $str,
+			'file' => $file,
+			'line' => $line,
+			'context' => $context,
+			'trace' => $trace
 		);
+
+		self::$last_error = $error;
+		self::$last_error_message = $str;
+
+		$message = self::format_alert($error);
 
 		self::report($message);
 
