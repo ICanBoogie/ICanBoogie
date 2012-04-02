@@ -210,8 +210,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	{
 		if ($this->use_cache)
 		{
-			$key = 'modules-' . md5(implode($this->paths));
-
+			$key = 'cached_modules_' . md5(implode('#', $this->paths));
 			$index = $this->vars[$key];
 
 			if (!$index)
@@ -743,5 +742,39 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 
 			$this[$id];
 		}
+	}
+
+	/**
+	 * Returns the usage of a module by other modules.
+	 *
+	 * @param string $module_id The identifier of the module.
+	 * @param bool $all The usage is only computed for enabled module, this parameter can be used
+	 * to compute the usage with disabled modules also.
+	 *
+	 * @return int
+	 */
+	public function usage($module_id, $all=false)
+	{
+		$n = 0;
+
+		foreach ($this->descriptors as $m_id => $descriptor)
+		{
+			if (!$all && !isset($this[$m_id]))
+			{
+				continue;
+			}
+
+			if ($descriptor[Module::T_EXTENDS] == $module_id)
+			{
+				$n++;
+			}
+
+			if (!empty($descriptor[Module::T_REQUIRES][$module_id]))
+			{
+				$n++;
+			}
+		}
+
+		return $n;
 	}
 }
