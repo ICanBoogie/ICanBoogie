@@ -166,7 +166,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 
 			if (!$fh)
 			{
-				throw new Exception('Unable to open %pathname', array('pathname' => $pathname));
+				throw new Exception('Unable to open %pathname: :message', array('pathname' => $pathname, 'message' => Debug::$last_error_message));
 			}
 
 			if (flock($fh, LOCK_EX))
@@ -175,7 +175,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 
 				if (!unlink($pathname))
 				{
-					throw new Exception('Unable to unlink %pathname', array('pathname' => $pathname));
+					throw new Exception('Unable to unlink %pathname: :message', array('pathname' => $pathname, 'message' => Debug::$last_error_message));
 				}
 
 				rename($tmp_pathname, $pathname);
@@ -184,7 +184,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 			}
 			else
 			{
-				throw new Exception('Unable to get to exclusive lock on %pathname', array('pathname' => $pathname));
+				throw new Exception('Unable to get to exclusive lock on %pathname: :message', array('pathname' => $pathname, 'message' => Debug::$last_error_message));
 			}
 
 			fclose($fh);
