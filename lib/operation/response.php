@@ -112,13 +112,19 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 			if ($this->content_type == 'application/json')
 			{
 				$body = json_encode($body_data);
+				$this->content_length = null;
 			}
 			else if ($this->content_type == 'application/xml')
 			{
 				$body = array_to_xml($body_data, 'response');
+				$this->content_length = null;
 			}
 
-			$this->__volatile_set_content_length(strlen($body));
+			if ($this->content_length === null)
+			{
+				$this->__volatile_set_content_length(strlen($body));
+			}
+
 			$this->body = $body;
 		}
 
@@ -127,7 +133,7 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 
 	/*
 	 * TODO-20110923: we used to return *all* the fields of the response, we can't do this anymore
-	 * because most of this stuf belongs the the response object. We need to a mean to add
+	 * because most of this stuf belongs to the response object. We need a mean to add
 	 * additionnal properties, and maybe we could use the response as an array for this purpose:
 	 *
 	 * Example:

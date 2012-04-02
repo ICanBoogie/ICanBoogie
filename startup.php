@@ -93,6 +93,7 @@ if (empty($_SERVER['REQUEST_TIME_FLOAT']))
  * bootstrap
  */
 require_once ROOT . 'lib/helpers.php';
+require_once ROOT . 'lib/http/helpers.php';
 require_once ROOT . 'lib/i18n/helpers.php';
 
 if (CACHE_BOOTSTRAP && file_exists(BOOTSTRAP_CACHE_PATHNAME))

@@ -92,7 +92,7 @@ abstract class Operation extends Object
 	{
 		global $core;
 
-		$path = Route::decontextualize($request->path_info);
+		$path = Route::decontextualize($request->path);
 		$extension = $request->extension;
 
 		if ($extension == 'json')
@@ -112,7 +112,7 @@ abstract class Operation extends Object
 
 		if (substr($path, 0, self::RESTFUL_BASE_LENGHT) == self::RESTFUL_BASE)
 		{
-			$operation = static::from_api_request($request, $path);
+			$operation = static::from_route($request, $path);
 
 			if ($operation)
 			{
@@ -140,7 +140,7 @@ abstract class Operation extends Object
 
 			$request[self::KEY] = $operation_key;
 
-			return static::from_module_request($request, $module_id, $operation_name, $operation_key);
+			return static::from_module_request($request, $module_id, $operation_name);
 		}
 
 		$module_id = $request[self::DESTINATION];
@@ -163,10 +163,10 @@ abstract class Operation extends Object
 		unset($request[self::DESTINATION]);
 		unset($request[self::NAME]);
 
-		return static::from_module_request($request, $module_id, $operation_name, $operation_key);
+		return static::from_module_request($request, $module_id, $operation_name);
 	}
 
-	protected static function from_api_request(HTTP\Request $request, $path)
+	protected static function from_route(HTTP\Request $request, $path)
 	{
 		global $core;
 
@@ -184,10 +184,10 @@ abstract class Operation extends Object
 		# (defined using the `callback` key).
 		#
 
-		if ($route->path_parameters)
+		if ($route->path_params)
 		{
-			$request->path_parameters = $route->path_parameters;
-			$request->params = $route->path_parameters + $request->params;
+			$request->path_params = $route->path_params;
+			$request->params = $route->path_params + $request->params;
 		}
 
 		if ($route->callback && $route->class)
@@ -229,7 +229,7 @@ abstract class Operation extends Object
 		return $operation;
 	}
 
-	protected static function from_module_request(HTTP\Request $request, $module_id, $operation_name, $operation_key)
+	protected static function from_module_request(HTTP\Request $request, $module_id, $operation_name)
 	{
 		global $core;
 
@@ -527,13 +527,6 @@ abstract class Operation extends Object
 	}
 
 	/**
-	 * @var int Count operations nesting.
-	 *
-	 * _Location_ and _terminus_ are disabled for sub operations.
-	 */
-	private static $nesting=0;
-
-	/**
 	 * Handles the operation and prints or returns its result.
 	 *
  	 * The {@link $record}, {@link $form} and {@link $properties} properties are unset in order
@@ -619,8 +612,6 @@ abstract class Operation extends Object
 	 */
 	public function __invoke(HTTP\Request $request)
 	{
-		self::$nesting++;
-
 		$this->request = $request;
 		$this->reset();
 
@@ -631,15 +622,15 @@ abstract class Operation extends Object
 		{
 			if (!$this->control($this->controls))
 			{
-				new \ICanBoogie\Operation\FailureEvent($this, array('type' => 'control', 'request' => $request));
+				new Operation\FailureEvent($this, array('type' => 'control', 'request' => $request));
 			}
 			else if (!$this->validate($response->errors) || count($response->errors))
 			{
-				new \ICanBoogie\Operation\FailureEvent($this, array('type' => 'validation', 'request' => $request));
+				new Operation\FailureEvent($this, array('type' => 'validation', 'request' => $request));
 			}
 			else
 			{
-				new \ICanBoogie\Operation\BeforeProcessEvent($this, array('request' => $request, 'response' => $response));
+				new Operation\BeforeProcessEvent($this, array('request' => $request, 'response' => $response));
 
 				if (!count($response->errors))
 				{
@@ -649,7 +640,7 @@ abstract class Operation extends Object
 		}
 		catch (Operation\ExpiredFormException $e)
 		{
-			\ICanBoogie\log_error($e->getMessage());
+			log_error($e->getMessage());
 
 			return;
 		}
@@ -668,7 +659,7 @@ abstract class Operation extends Object
 		{
 			foreach ($response->errors as $error_message)
 			{
-				\ICanBoogie\log_error($error_message);
+				log_error($error_message);
 			}
 		}
 
@@ -681,17 +672,14 @@ abstract class Operation extends Object
 
 		if ($rc === null)
 		{
-			if (self::$nesting == 1)
-			{
-				$response->status = array(400, 'Operation failed');
-			}
+			$response->status = array(400, 'Operation failed');
 		}
 		else
 		{
-			new \ICanBoogie\Operation\ProcessEvent($this, array('rc' => &$response->rc, 'response' => $response, 'request' => $request));
+			new Operation\ProcessEvent($this, array('rc' => &$response->rc, 'response' => $response, 'request' => $request));
 		}
 
-		if (--self::$nesting || $this->origin == self::ORIGIN_INTERNAL)
+		if ($this->origin == self::ORIGIN_INTERNAL)
 		{
 			return $response;
 		}
@@ -720,11 +708,14 @@ abstract class Operation extends Object
 		{
 			return;
 		}
+		/*
 		else
 		{
+			var_dump($response->rc); flush(); exit;
+
 			$response->body = $response->rc;
 		}
-
+		*/
 		return $response;
 	}
 
@@ -894,7 +885,7 @@ abstract class Operation extends Object
 
 		$request = $this->request;
 
-		return isset($request->request_parameters['_session_token']) && $request->request_parameters['_session_token'] == $core->session->token;
+		return isset($request->request_params['_session_token']) && $request->request_params['_session_token'] == $core->session->token;
 	}
 
 	/**

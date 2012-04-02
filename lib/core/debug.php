@@ -490,7 +490,7 @@ EOT;
 
 		foreach (self::$logs[$type] as $message)
 		{
-			$rc[] = t($message[0], $message[1]);
+			$rc[] = I18n\t($message[0], $message[1]);
 		}
 
 		return $rc;

@@ -39,6 +39,7 @@ return array
 		'ICanBoogie\ActiveRecord\Model' => $ar . '/model.php',
 		'ICanBoogie\ActiveRecord\Query' => $ar . '/query.php',
 
+		'ICanBoogie\HTTP\Dispatcher' => $http . 'dispatcher.php',
 		'ICanBoogie\HTTP\Headers' => $http . 'headers.php',
 		'ICanBoogie\HTTP\Request' => $http . 'request.php',
 		'ICanBoogie\HTTP\Response' => $http . 'response.php',

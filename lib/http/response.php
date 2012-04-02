@@ -14,6 +14,8 @@ namespace ICanBoogie\HTTP;
 use ICanBoogie\Exception;
 
 /**
+ * The response to a HTTP request.
+ *
  * @property string $body {@link __volatile_set_body()} {@link __volatile_get_body()}
  * @property integer $date {@link __volatile_set_date()} {@link __volatile_get_date()}
  * @property integer $expires {@link __volatile_set_expires()} {@link __volatile_get_expires()}
@@ -312,6 +314,13 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
+	 * Content type.
+	 *
+	 * @var string
+	 */
+	private $content_type;
+
+	/**
 	 * Content charset.
 	 *
 	 * @var string
@@ -329,6 +338,8 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function __volatile_set_content_type($content_type)
 	{
+		$this->content_type = $content_type;
+
 		$charset = $this->charset;
 
 		if (!$charset && in_array($content_type, array('text/plain', 'text/html')))
@@ -349,7 +360,14 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function __volatile_get_content_type()
 	{
-		return $this->headers['Content-Type'];
+		$content_type = $this->content_type;
+
+		if (!$content_type && isset($this->headers['Content-Type']))
+		{
+			trigger_error("Should extract content type of header"); // TODO-20120329
+		}
+
+		return $content_type;
 	}
 
 	/**

@@ -281,7 +281,7 @@ class Core extends Object
 	 */
 	protected function __get_request()
 	{
-		return HTTP\Request::from_globals();
+		return HTTP\Request::from($_SERVER);
 	}
 
 	/**

@@ -35,6 +35,9 @@ use ICanBoogie\Operation;
  * @property-read string $query_string
  * @property-read string $referer
  * @property-read string $user_agent
+ *
+ * @see http://en.wikipedia.org/wiki/Uniform_resource_locator
+ * @see http://en.wikipedia.org/wiki/URL_normalization
  */
 class Request extends Object implements \ArrayAccess, \IteratorAggregate
 {
@@ -70,12 +73,42 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	static protected $current_request;
 
+	/**
+	 * Request environment.
+	 *
+	 * @var arrays
+	 */
 	protected $env;
 
-	public $path_info_parameters = array();
-	public $query_parameters = array();
-	public $request_parameters = array();
+	/**
+	 * Parameters extracted from the request path.
+	 *
+	 * @var array
+	 */
+	public $path_params = array();
+
+	/**
+	 * Parameters defined by the query string.
+	 *
+	 * @var array
+	 */
+	public $query_params = array();
+
+	/**
+	 * Parameters defined by the request body.
+	 *
+	 * @var array
+	 */
+	public $request_params = array();
+
+	/**
+	 * Union of {@link $path_params}, {@link $request_params} and
+	 * {@link $query_params}.
+	 *
+	 * @var array
+	 */
 	public $params;
+
 	public $cookies = array();
 
 	/**
@@ -85,47 +118,71 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	public $previous;
 
-	public static function from_globals(array $properties=array())
-	{
-		return static::from
-		(
-			$properties + array
-			(
-				'cookies' => &$_COOKIE,
-				'path_info_parameters' => array(),
-				'query_parameters' => &$_GET,
-				'request_parameters' => &$_POST
-			),
+	/**
+	 * General purpose container.
+	 *
+	 * @var array
+	 */
+	public $context = array();
 
-			array($_SERVER)
-		);
+	/**
+	 * A request can be created from the `$_SERVER` super global array. In that case `$_SERVER` is
+	 * used as environment and the request is created with the following properties:
+	 *
+	 * - {@link $cookie}: a reference to the `$_COOKIE` super global array.
+	 * - {@link $path_params}: initialized to an empty array.
+	 * - {@link $query_params}: a reference to the `$_GET` super global array.
+	 * - {@link $request_params}: a reference to the `$_POST` super global array.
+	 *
+	 * @param array $properties
+	 * @param array $construct_args
+	 * @param string $class_name
+	 *
+	 * @return Request
+	 */
+	public static function from($properties=null, array $construct_args=array(), $class_name=null)
+	{
+		if (is_string($properties))
+		{
+			$properties = array
+			(
+				'path' => $properties
+			);
+		}
+		else if ($properties == $_SERVER)
+		{
+			return parent::from
+			(
+				array
+				(
+					'cookies' => &$_COOKIE,
+					'path_params' => array(),
+					'query_params' => &$_GET,
+					'request_params' => &$_POST
+				),
+
+				array($_SERVER)
+			);
+		}
+
+		return parent::from($properties, $construct_args, $class_name);
 	}
 
+	/**
+	 * @param array $env Environment of the request, usually the `$_SERVER` super global.
+	 */
 	protected function __construct(array $env=array())
 	{
 		$this->env = $env;
 
 		if ($this->params === null)
 		{
-			$this->params = $this->path_info_parameters + $this->request_parameters + $this->query_parameters;
+ 			$this->params = $this->path_params + $this->request_params + $this->query_params;
 		}
 	}
 
 	/**
 	 * Dispatch the request.
-	 *
-	 * The request is dispatched using the event system and the operation system. The goal is to
-	 * retrieve a {@link Response}:
-	 *
-	 * - The `ICanBoogie\HTTP\Request::dispatch:before` event of class
-	 * `ICanBoogie\HTTP\Request\BeforeDispatchEvent` class is fired with a reference to an
-	 * `null` response variable. Event hooks might use this event to provide the response.
-	 *
-	 * - If an operation is created from the request it is executed to obtain the response.
-	 *
-	 * - The `ICanBoogie\HTTP\Request::dispatch` event of class
-	 * `ICanBoogie\HTTP\Request\DispatchEvent` is fired with a {@link Response} object. Event hook
-	 * might alter the response object to provide their response.
 	 *
 	 * The {@link previous} property is used for request chaining. The {@link current_request}
 	 * class property is set to the current request.
@@ -133,14 +190,16 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 * @param string|null $method The request method. Use this parameter to override the request
 	 * method.
 	 * @param array|null $params The request parameters. Use this parameter to override the request
-	 * parameters. The {@link path_info_parameters}, {@link query_parameters} and
-	 * {@link request_parameters} are set to empty arrays. The provided parameters are set to the
+	 * parameters. The {@link path_params}, {@link query_params} and
+	 * {@link request_params} are set to empty arrays. The provided parameters are set to the
 	 * {@link params} property.
 	 *
 	 * @return Response The response to the request.
 	 */
 	public function __invoke($method=null, $params=null)
 	{
+		global $core;
+
 		if ($method !== null)
 		{
 			$this->method = $method;
@@ -148,9 +207,9 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 
 		if ($params !== null)
 		{
-			$this->path_info_parameters = array();
-			$this->query_parameters = array();
-			$this->request_parameters = array();
+			$this->path_params = array();
+			$this->query_params = array();
+			$this->request_params = array();
 			$this->params = $params;
 		}
 
@@ -158,40 +217,9 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 
 		self::$current_request = $this;
 
-		$response = null;
-
 		try
 		{
-			new Request\BeforeDispatchEvent($this, array('response' => &$response));
-
-			if (!$response)
-			{
-				$operation = \ICanBoogie\Operation::from_request($this);
-
-				if ($operation)
-				{
-					$response = $operation($this);
-
-					#
-					# If the response is an error and the request is not XHR we allow the
-					# dispatch to continue, one hook might display an error message.
-					#
-
-					if ($response && ($response->is_client_error || $response->is_server_error) && !$this->is_xhr)
-					{
-						$response = null;
-					}
-				}
-			}
-
-			# FIXME-20120313: maybe we shouldn't dispatch the event if the path_info is '/api/'
-
-			if (!$response && (strpos($this->path_info, '/api/') !== 0))
-			{
-				$response = new Response();
-
-				new Request\DispatchEvent($this, array('response' => &$response));
-			}
+			$response = dispatch($this);
 		}
 		catch (\Exception $e) { }
 
@@ -235,7 +263,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function offsetExists($param)
 	{
-		return isset($this->params[(string) $param]);
+		return isset($this->params[$param]);
 	}
 
 	/**
@@ -245,7 +273,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function offsetGet($param)
 	{
-		return isset($this->params[(string) $param]) ? $this->params[(string) $param] : null;
+		return isset($this->params[$param]) ? $this->params[$param] : null;
 	}
 
 	/**
@@ -255,7 +283,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function offsetSet($param, $value)
 	{
-		$this->params[(string) $param] = $value;
+		$this->params[$param] = $value;
 	}
 
 	/**
@@ -265,7 +293,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function offsetUnset($param)
 	{
-		unset($this->params[(string) $param]);
+		unset($this->params[$param]);
 	}
 
 	/**
@@ -315,9 +343,9 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	{
 		$method = $this->env['REQUEST_METHOD'];
 
-		if ($method == self::METHOD_POST && !empty($this->request_parameters['_method']))
+		if ($method == self::METHOD_POST && !empty($this->request_params['_method']))
 		{
-			$method = strtoupper($this->request_parameters['_method']);
+			$method = strtoupper($this->request_params['_method']);
 		}
 
 		if (!in_array($method, self::$methods))
@@ -519,18 +547,38 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 
 	protected function __volatile_set_uri($uri)
 	{
-		unset($this->path_info);
+		unset($this->path);
 		unset($this->query_string);
 
 		$this->env['REQUEST_URI'] = $uri;
 	}
 
 	/**
-	 * Returns the path info of the request, that is the `REQUEST_URI` without the query string.
+	 * Returns the port of the request.
+	 *
+	 * @return int
+	 */
+	protected function __volatile_get_port()
+	{
+		return $this->env['REQUEST_PORT'];
+	}
+
+	/**
+	 * Sets the port of the request.
+	 *
+	 * @param int $port
+	 */
+	protected function __volatile_set_port($port)
+	{
+		$this->env['REQUEST_PORT'] = $port;
+	}
+
+	/**
+	 * Returns the path of the request, that is the `REQUEST_URI` without the query string.
 	 *
 	 * @return string
 	 */
-	protected function __get_path_info()
+	protected function __get_path()
 	{
 		$path = $this->env['REQUEST_URI'];
 		$qs = $this->query_string;
@@ -550,18 +598,20 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function __volatile_get_extension()
 	{
-		return pathinfo($this->path_info, PATHINFO_EXTENSION);
+		return pathinfo($this->path, PATHINFO_EXTENSION);
 	}
 
 	/**
-	 * Returns the union of the {@link path_info_parameters}, {@link request_parameters} and
-	 * {@link query_parameters} properties.
+	 * Returns the union of the {@link path_params}, {@link request_params} and
+	 * {@link query_params} properties.
+	 *
+	 * This method is the getter of the {@link $params} magic property.
 	 *
 	 * @return array
 	 */
 	protected function __get_params()
 	{
-		return $this->path_info_parameters + $this->request_parameters + $this->query_parameters;
+		return $this->path_params + $this->request_params + $this->query_params;
 	}
 
 	/**
@@ -577,69 +627,5 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	protected function __get_files()
 	{
 		// TODO:2012-03-12 returns the files associated with the request
-	}
-}
-
-namespace ICanBoogie\HTTP\Request;
-
-/**
- * Event class for the `ICanBoogie\HTTP\Request::dispatch:before` event.
- */
-class BeforeDispatchEvent extends \ICanBoogie\Event
-{
-	/**
-	 * The HTTP request.
-	 *
-	 * @var \ICanBoogie\HTTP\Request
-	 */
-	public $request;
-
-	/**
-	 * The HTTP response.
-	 *
-	 * @var \ICanBoogie\HTTP\Response
-	 */
-	public $response;
-
-	/**
-	 * The event is constructed with the type `dispatch:before`.
-	 *
-	 * @param \ICanBoogie\HTTP\Request $target
-	 * @param array $properties
-	 */
-	public function __construct(\ICanBoogie\HTTP\Request $target, array $properties)
-	{
-		parent::__construct($target, 'dispatch:before', $properties);
-	}
-}
-
-/**
- * Event class for the `ICanBoogie\HTTP\Request::dispatch` event.
- */
-class DispatchEvent extends \ICanBoogie\Event
-{
-	/**
-	 * The HTTP request.
-	 *
-	 * @var \ICanBoogie\HTTP\Request
-	 */
-	public $request;
-
-	/**
-	 * The HTTP response.
-	 *
-	 * @var \ICanBoogie\HTTP\Response
-	 */
-	public $response;
-
-	/**
-	 * The event is constructed with the type `dispatch`.
-	 *
-	 * @param \ICanBoogie\HTTP\Request $target
-	 * @param array $properties
-	 */
-	public function __construct(\ICanBoogie\HTTP\Request $target, array $properties)
-	{
-		parent::__construct($target, 'dispatch', $properties);
 	}
 }

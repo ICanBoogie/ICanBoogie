@@ -211,15 +211,13 @@ class Routes implements \IteratorAggregate, \ArrayAccess
 			return;
 		}
 
-		return Object::from
+		return new Route
 		(
 			$route + array
 			(
 				'id' => $id,
-				'path_parameters' => is_array($match) ? $match : array()
-			),
-
-			array(), 'ICanBoogie\Route'
+				'path_params' => is_array($match) ? $match : array()
+			)
 		);
 	}
 }
@@ -438,9 +436,51 @@ class Route
 	public $via;
 
 	/**
-	 * Parameters captured from the path_info using the route pattern.
+	 * Parameters captured from the URL path using the route pattern.
 	 *
 	 * @var array
 	 */
-	public $path_parameters;
+	public $path_params;
+
+	public function __construct(array $properties)
+	{
+		foreach ($properties as $property => $value)
+		{
+			$this->$property = $value;
+		}
+	}
+
+	public function __invoke(HTTP\Request $request)
+	{
+		$response = new HTTP\Response;
+		$rc = null;
+
+		if ($this->callback)
+		{
+			$rc = call_user_func($this->callback, $request, $response, $this);
+		}
+		else if ($this->class)
+		{
+			$controller_class = $this->class;
+			$controller = new $controller_class($request, $this);
+
+			$rc = $controller($request, $response, $this);
+		}
+
+		if ($rc === null)
+		{
+			return;
+		}
+
+		if ($rc instanceof HTTP\Response)
+		{
+			$response = $rc;
+		}
+		else
+		{
+			$response->body = $rc;
+		}
+
+		return $response;
+	}
 }

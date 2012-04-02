@@ -209,6 +209,8 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 * string a DateTime object is created with its value.
 	 *
 	 * @return string
+	 *
+	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
 	 */
 	public static function format_time($datetime)
 	{
@@ -217,7 +219,9 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 			$datetime = new \DateTime(is_numeric($datetime) ? '@' . $datetime : $datetime);
 		}
 
-		return $datetime->format(\DateTime::RFC1123);
+		$datetime->setTimezone(new \DateTimeZone('UTC'));
+
+		return str_replace(' +0000', ' GMT', $datetime->format(\DateTime::RFC1123));
 	}
 
 	/**

@@ -1,0 +1,271 @@
+<?php
+
+/*
+ * This file is part of the ICanBoogie package.
+ *
+ * (c) Olivier Laviale <olivier.laviale@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace ICanBoogie\HTTP;
+
+use ICanBoogie\Routes;
+
+class Dispatcher
+{
+	protected $controllers = array
+	(
+		'operation' => array(__CLASS__, 'dispatch_operation'),
+		'route' => array(__CLASS__, 'dispatch_route')
+	);
+
+	public function __construct()
+	{
+		new Dispatcher\PopulateEvent($this, array('controllers' => &$this->controllers));
+	}
+
+	/**
+	 *
+	 * The request is dispatched using the event system and the operation system. The goal is to
+	 * retrieve a {@link Response}:
+	 *
+	 * - The `ICanBoogie\HTTP\Request::dispatch:before` event of class
+	 * `ICanBoogie\HTTP\Request\BeforeDispatchEvent` class is fired with a reference to an
+	 * `null` response variable. Event hooks might use this event to provide the response.
+	 *
+	 * - If an operation is created from the request it is executed to obtain the response.
+	 *
+	 * - The `ICanBoogie\HTTP\Request::dispatch` event of class
+	 * `ICanBoogie\HTTP\Request\DispatchEvent` is fired with a {@link Response} object. Event hook
+	 * might alter the response object to provide their response.
+	 *
+	 * @param Request $request
+	 * @throws Exception
+	 * @throws \ICanBoogie\Exception\HTTP
+	 *
+	 * @return Response
+	 */
+	public function __invoke(Request $request)
+	{
+		$response = null;
+
+		try
+		{
+			new Dispatcher\BeforeDispatchEvent($this, array('request' => $request, 'response' => &$response));
+
+			if (!$response)
+			{
+				foreach ($this->controllers as $handler)
+				{
+					$response = call_user_func($handler, $request);
+
+					if ($response) break;
+				}
+			}
+
+			new Dispatcher\DispatchEvent($this, array('request' => $request, 'response' => &$response));
+		}
+		catch (\Exception $e) { }
+
+		if (isset($e))
+		{
+			throw $e;
+		}
+
+		if (!$response)
+		{
+			throw new \ICanBoogie\Exception\HTTP('The requested URL was not found on this server.', array(), 404);
+		}
+
+		return $response;
+	}
+
+	public static function dispatch_operation(Request $request)
+	{
+		$operation = \ICanBoogie\Operation::from_request($request);
+
+		if (!$operation)
+		{
+			return;
+		}
+
+		$response = $operation($request);
+
+		#
+		# If the response is an error and the request is not XHR we allow the
+		# dispatch to continue, one hook might display an error message.
+		#
+
+		if ($response && ($response->is_client_error || $response->is_server_error) && !$request->is_xhr)
+		{
+			$response = null;
+		}
+
+		if (!$response && strpos($request->path, '/api/') === 0)
+		{
+			$response = new Response(404);
+		}
+
+		return $response;
+	}
+
+	public static function dispatch_route(Request $request)
+	{
+		$path = $request->path;
+		$path = preg_replace('/^\/index\.(html|php)/', '/', $path);
+
+		$route = \ICanBoogie\Routes::get()->find($path, $request->method);
+
+		if ($route)
+		{
+			$response = $route($request);
+		}
+		else
+		{
+			$response = null;
+		}
+
+		return $response;
+	}
+
+	public function get($path, $callback, array $options=array())
+	{
+		$this->route(Request::METHOD_GET, $path, $options, $callback);
+		$this->route(Request::METHOD_HEAD, $path, $options, $callback);
+	}
+
+	public function post($path, $callback, array $options=array())
+	{
+		$this->route(Request::METHOD_POST, $path, $options, $callback);
+	}
+
+	public function put($path, $callback, array $options=array())
+	{
+		$this->route(Request::METHOD_PUT, $path, $options, $callback);
+	}
+
+	public function delete($path, $callback, array $options=array())
+	{
+		$this->route(Request::METHOD_DELETE, $path, $options, $callback);
+	}
+
+	public function head($path, $callback, array $options=array())
+	{
+		$this->route(Request::METHOD_HEAD, $path, $options, $callback);
+	}
+
+	public function options($path, $callback, array $options=array())
+	{
+		$this->route(Request::METHOD_OPTIONS, $path, $options, $callback);
+	}
+
+	public function patch($path, $callback, array $options=array())
+	{
+		$this->route(Request::METHOD_PATCH, $path, $options, $callback);
+	}
+
+	protected function route($method, $path, $callback, array $options=array())
+	{
+		Routes::add
+		(
+			$path, array
+			(
+				'pattern' => $path,
+				'via' => $method,
+				'callback' => $callback
+			)
+
+			+ $options
+		);
+	}
+}
+
+namespace ICanBoogie\HTTP\Dispatcher;
+
+/**
+ * Event class for the `ICanBoogie\HTTP\Dispatcher::populate` event.
+ */
+class PopulateEvent extends \ICanBoogie\Event
+{
+	/**
+	 * Reference to the dispatcher callbacks.
+	 *
+	 * @var array[string]mixed
+	 */
+	public $controllers;
+
+	/**
+	 * The event is constructed with the type `populate`.
+	 *
+	 * @param \ICanBoogie\HTTP\Dispatcher $target
+	 * @param array $properties
+	 */
+	public function __construct(\ICanBoogie\HTTP\Dispatcher $target, array $properties)
+	{
+		parent::__construct($target, 'populate', $properties);
+	}
+}
+
+/**
+ * Event class for the `ICanBoogie\HTTP\Dispatcher::dispatch:before` event.
+ */
+class BeforeDispatchEvent extends \ICanBoogie\Event
+{
+	/**
+	 * The HTTP request.
+	 *
+	 * @var \ICanBoogie\HTTP\Request
+	 */
+	public $request;
+
+	/**
+	 * The HTTP response.
+	 *
+	 * @var \ICanBoogie\HTTP\Response
+	 */
+	public $response;
+
+	/**
+	 * The event is constructed with the type `dispatch:before`.
+	 *
+	 * @param \ICanBoogie\HTTP\Dispatcher $target
+	 * @param array $properties
+	 */
+	public function __construct(\ICanBoogie\HTTP\Dispatcher $target, array $properties)
+	{
+		parent::__construct($target, 'dispatch:before', $properties);
+	}
+}
+
+/**
+ * Event class for the `ICanBoogie\HTTP\Dispatcher::dispatch` event.
+ */
+class DispatchEvent extends \ICanBoogie\Event
+{
+	/**
+	 * The HTTP request.
+	 *
+	 * @var \ICanBoogie\HTTP\Request
+	 */
+	public $request;
+
+	/**
+	 * The HTTP response.
+	 *
+	 * @var \ICanBoogie\HTTP\Response
+	 */
+	public $response;
+
+	/**
+	 * The event is constructed with the type `dispatch`.
+	 *
+	 * @param \ICanBoogie\HTTP\Dispatcher $target
+	 * @param array $properties
+	 */
+	public function __construct(\ICanBoogie\HTTP\Dispatcher $target, array $properties)
+	{
+		parent::__construct($target, 'dispatch', $properties);
+	}
+}
