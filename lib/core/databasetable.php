@@ -330,6 +330,21 @@ class DatabaseTable extends Object
 		return $schema;
 	}
 
+	/**
+	 * Resolve statement placeholders.
+	 *
+	 * The following placeholder are replaced :
+	 *
+	 * - `{alias}`: The alias of the table.
+	 * - `{prefix}`: The prefix used for the tables of the connection.
+	 * - `{primary}`: The primary key of the table.
+	 * - `{self}`: The name of the table.
+	 * - `{self_and_related}`: The escaped name of the table and the SELECT and JOIN clauses.
+	 *
+	 * @param string $statement The statement to resolve.
+	 *
+	 * @return string
+	 */
 	public function resolve_statement($statement)
 	{
 		return strtr
@@ -340,7 +355,7 @@ class DatabaseTable extends Object
 				'{prefix}' => $this->connection->prefix,
 				'{primary}' => $this->primary,
 				'{self}' => $this->name,
-				'{self_and_related}' => $this->name . $this->select_join
+				'{self_and_related}' => "`$this->name` $this->select_join"
 			)
 		);
 	}
