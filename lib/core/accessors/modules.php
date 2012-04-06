@@ -432,6 +432,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 					Module::T_STARTUP => false,
 					Module::T_REQUIRED => false,
 					Module::T_REQUIRES => array(),
+					Module::T_VERSION => '0.0',
 					Module::T_WEIGHT => 0,
 
 					'__autoload' => array()
