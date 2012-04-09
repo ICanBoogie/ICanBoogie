@@ -82,9 +82,8 @@ var ICanBoogie = {
 
 		if (type == 'request' || type == 'complete' || type == 'cancel')
 		{
-			var eventArguments = Array.clone(arguments)
+			var eventArguments = Array.prototype.slice.call(arguments, 1)
 
-			eventArguments.shift()
 			eventArguments.unshift(this)
 
 			window.fireEvent('icanboogie.xhr.' + type, eventArguments)
@@ -167,7 +166,16 @@ var ICanBoogie = {
 
 		onFailure: function()
 		{
-			var response = JSON.decode(this.xhr.responseText)
+			var response = null
+
+			try
+			{
+				response = JSON.decode(this.xhr.responseText)
+			}
+			catch (e)
+			{
+				alert('An error occured: ' + this.xhr.statusText)
+			}
 
 			this.fireEvent('complete').fireEvent('failure', [this.xhr, response])
 		}
