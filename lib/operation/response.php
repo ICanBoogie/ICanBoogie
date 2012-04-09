@@ -120,7 +120,7 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 				$this->content_length = null;
 			}
 
-			if ($this->content_length === null)
+			if ($this->content_length === null && is_string($body))
 			{
 				$this->__volatile_set_content_length(strlen($body));
 			}
