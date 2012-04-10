@@ -45,6 +45,11 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	public function __construct($path)
 	{
 		$this->path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+		if (!is_writable($this->path))
+		{
+			throw new Exception('The path %path is not writtable.', array('path' => $this->path));
+		}
 	}
 
 	/**
@@ -132,10 +137,10 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 
 		if (!file_exists($dir))
 		{
-			mkdir($dir, 0755, true);
+			mkdir($dir, 0705, true);
 		}
 
-		$tmp_pathname = 'var-' . uniqid(mt_rand(), true);
+		$tmp_pathname = $dir . '/var-' . uniqid(mt_rand(), true);
 
 		#
 		# If the value is an array or a string it is serialized and prepended with a magic

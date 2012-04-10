@@ -42,7 +42,7 @@ class Debug
 
 	static public function synthesize_config(array $fragments)
 	{
-		$config = call_user_func_array('\ICanBoogie\array_merge_recursive', $fragments);
+		$config = call_user_func_array('ICanBoogie\array_merge_recursive', $fragments);
 		$config = array_merge($config, $config['modes'][$config['mode']]);
 
 		return $config;
@@ -58,6 +58,8 @@ class Debug
 		{
 			return self::$config;
 		}
+
+		self::$config = ROOT . 'config/debug.php'; // initial debug config
 
 		$config = (isset($core) ? $core->configs['debug'] : require ROOT . 'config/debug.php');
 		self::$mode = $config['mode'];
