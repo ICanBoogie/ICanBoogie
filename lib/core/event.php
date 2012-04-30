@@ -289,11 +289,18 @@ class Event
 	private $target;
 
 	/**
+	 * Chain of callbacks to execute once the event has been fired.
+	 *
+	 * @var array
+	 */
+	private $chain = array();
+
+	/**
 	 * The reserved properties that cannot be used to provide event properties.
 	 *
 	 * @var array[string]bool
 	 */
-	private static $reserved = array('stopped' => true, 'target' => true, 'used' => true);
+	private static $reserved = array('chain' => true, 'stopped' => true, 'target' => true, 'used' => true);
 
 	public static $profiling = array();
 
@@ -314,7 +321,7 @@ class Event
 		$events = Events::get();
 
 		#
-		# filters events events according to the target.
+		# filters events according to the target.
 		#
 
 		if ($target)
@@ -356,13 +363,16 @@ class Event
 				{
 					if (isset(self::$reserved[$property]))
 					{
-						throw new Exception\PropertyNotWritable(format('%property is a reserved property.', array('property' => $property)));
+						throw new Exception\PropertyNotWritable(format
+						(
+							'%property is a reserved property.', array('property' => $property)
+						));
 					}
 
 					#
 					# we need to set the property to null before we set its value by reference
-					# otherwise if the property doesn't exists the magic method __get() is invoked
-					# and will in turn throw an exception because we try to get the value of a
+					# otherwise if the property doesn't exists the magic method {@link __get()} is
+					# invoked and throws an exception because we try to get the value of a
 					# property that does not exists.
 					#
 
@@ -378,6 +388,16 @@ class Event
 				++$this->used;
 				self::$profiling[$skippable_type][] = $callback;
 
+				call_user_func($callback, $this, $target);
+
+				if ($this->stopped)
+				{
+					return;
+				}
+			}
+
+			foreach ($this->chain as $callback)
+			{
 				call_user_func($callback, $this, $target);
 
 				if ($this->stopped)
@@ -415,12 +435,28 @@ class Event
 	/**
 	 * Stops the callbacks chain.
 	 *
-	 * After the `stop()` method is called the callback chain is brokken and no other callback
+	 * After the `stop()` method is called the callback chain is broken and no other callback
 	 * is called.
 	 */
 	public function stop()
 	{
 		$this->stopped = true;
+	}
+
+	/**
+	 * Add a callback to the finish chain.
+	 *
+	 * The finish chain is executed once the event chain is done and wasn't stopped.
+	 *
+	 * @param callable $callback
+	 *
+	 * @return \ICanBoogie\Event
+	 */
+	public function chain($callback)
+	{
+		$this->chain[] = $callback;
+
+		return $this;
 	}
 
 	// COMPAT
