@@ -23,55 +23,58 @@ use ICanBoogie\ActiveRecord\Model;
 class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 {
 	/**
-	 * @var boolean If true loaded module are run when loaded for the first time.
+	 * If true loaded module are run when loaded for the first time.
+	 *
+	 * @var boolean
 	 */
 	public $autorun = false;
 
 	/**
-	 * @var array The descriptors for the modules.
+	 * The descriptors for the modules.
+	 *
+	 * @var array
 	 */
 	public $descriptors = array();
 
 	/**
-	 * @var array The paths where modules can be found.
+	 * The paths where modules can be found.
+	 *
+	 * @var array
 	 */
 	protected $paths = array();
 
 	/**
-	 * @var boolean If true a cache is used to handle the index.
+	 * A cache for the module indexes.
+	 *
+	 * @var Vars
 	 */
-	protected $use_cache = false;
+	protected $cache;
 
 	/**
-	 * @var Vars Used to cache for indexes.
+	 * Loaded modules.
+	 *
+	 * @var array
 	 */
-	protected $vars;
-
-	/**
-	 * @var array Loaded modules.
-	 */
-	private $modules = array();
+	protected $modules = array();
 
 	/**
 	 * The index for the available modules is created with the accessor object.
 	 *
 	 * @param array $paths The paths to look for modules.
-	 * @param bool $use_cache Should we use a cache for the module index ?
-	 * @param string $cache_repository The path to the cache repository.
+	 * @param Vars $cache The cache to use for the module indexes.
 	 */
-	public function __construct($paths, $use_cache, Vars $vars)
+	public function __construct($paths, Vars $cache=null)
 	{
-		$this->use_cache = $use_cache;
-		$this->vars = $vars;
 		$this->paths = $paths;
+		$this->cache = $cache;
 	}
 
 	/**
 	 * Used to enable or disable a module using the specified offset as the module's id.
 	 *
-	 * The module is enabled or disabled by modifying the value of the T_DISABLED key of the
-	 * module's descriptor. Set the offset to true to enable the module, set it to false to disable
-	 * it.
+	 * The module is enabled or disabled by modifying the value of the {@link Module::T_DISABLED}
+	 * key of the module's descriptor. Set the offset to true to enable the module, set it to
+	 * `false` to disable it.
 	 *
 	 * @see ArrayAccess::offsetSet()
 	 */
@@ -91,11 +94,11 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Checks the availability of a module.
 	 *
-	 * A module is considered available when its descriptor is defined, and the T_DISABLED tag of
-	 * its descriptor is empty.
+	 * A module is considered available when its descriptor is defined, and the
+	 * {@link Module::T_DISABLED} key of its descriptor is empty.
 	 *
-	 * Note: empty() will call {@link offsetGet()} to check if the value is not empty. So, unless
-	 * you want to use the module you check, better check using !isset(), otherwise the module
+	 * Note: `empty()` will call {@link offsetGet()} to check if the value is not empty. So, unless
+	 * you want to use the module you check, better check using `!isset()`, otherwise the module
 	 * you check is loaded too.
 	 *
 	 * @param string $id The module's id.
@@ -110,7 +113,10 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Disables a module by setting the T_DISABLED key of its descriptor to TRUE.
+	 * Disables a module by setting the {@link Module::T_DISABLED} key of its descriptor to `true`.
+	 *
+	 * The method also dismisses the {@link enabled_modules_descriptors} and
+	 * {@link disabled_modules_descriptors} properties.
 	 *
 	 * @see ArrayAccess::offsetUnset()
 	 */
@@ -130,8 +136,8 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Gets a module object.
 	 *
-	 * If the `autorun` property is TRUE, the `run()` method of the module is invoked upon its
-	 * first loading.
+	 * If the {@link autorun} property is `true`, the {@link Module::run()} method of the module
+	 * is invoked upon its first loading.
 	 *
 	 * @param string $id The id of the module to get.
 	 *
@@ -208,16 +214,16 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function __get_index()
 	{
-		if ($this->use_cache)
+		if ($this->cache)
 		{
 			$key = 'cached_modules_' . md5(implode('#', $this->paths));
-			$index = $this->vars[$key];
+			$index = $this->cache[$key];
 
 			if (!$index)
 			{
 				$index = $this->index_construct();
 
-				$this->vars[$key] = $index;
+				$this->cache[$key] = $index;
 			}
 		}
 		else
@@ -726,7 +732,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Runs the modules having a truthy T_STARTUP value.
+	 * Runs the modules having a truthy {@link Module::T_STARTUP} value.
 	 */
 	public function run()
 	{

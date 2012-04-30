@@ -193,7 +193,7 @@ class Core extends Object
 	{
 		$config = $this->config;
 
-		return new Modules($config['modules'], $config['cache modules'], $this->vars);
+		return new Modules($config['modules'], $config['cache modules'] ? $this->vars : null);
 	}
 
 	/**
