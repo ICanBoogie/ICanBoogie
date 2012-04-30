@@ -583,7 +583,8 @@ class Module extends Object
 			Model::T_CLASS => $has_model_class ? Model::resolve_class_name($this->descriptor[self::T_NAMESPACE], $which) : null,
 			Model::T_ACTIVERECORD_CLASS => $has_ar_class ? ActiveRecord::resolve_class_name($this->id, $which) : null,
 			Model::T_NAME => $table_name,
-			Model::T_CONNECTION => 'primary'
+			Model::T_CONNECTION => 'primary',
+			Model::T_ID => $which == 'primary' ? $this->id : $this->id . '/' . $which
 		);
 
 		#

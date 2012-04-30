@@ -54,7 +54,7 @@ class ActiveRecord extends Object
 		else
 		{
 			$this->_model = $model;
-			unset($this->_model_id);
+			$this->_model_id = $model->id;
 		}
 	}
 

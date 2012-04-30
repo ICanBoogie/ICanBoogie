@@ -21,72 +21,14 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 {
 	const T_CLASS = 'class';
 	const T_ACTIVERECORD_CLASS = 'activerecord-class';
-
-	static public function is_extending($tags, $instanceof)
-	{
-		if (is_string($tags))
-		{
-			\ICanBoogie\log('is_extending is not competent with string references: \1', array($tags));
-
-			return true;
-		}
-
-		// TODO-2010630: The method should handle submodels to, not just 'primary'
-
-		if (empty($tags[self::T_EXTENDS]))
-		{
-			return false;
-		}
-
-		$extends = $tags[self::T_EXTENDS];
-
-		if ($extends == $instanceof)
-		{
-			return true;
-		}
-
-		global $core;
-
-		if (empty($core->modules->descriptors[$extends][Module::T_MODELS]['primary']))
-		{
-			return false;
-		}
-
-		$tags = $core->modules->descriptors[$extends][Module::T_MODELS]['primary'];
-
-		return self::is_extending($tags, $instanceof);
-	}
-
-	/**
-	 * Resolves the name of a model giving its module id and model id.
-	 *
-	 * @param string $namespace Namespace of the module defining the model.
-	 * @param string $model_id The model id.
-	 *
-	 * @return string The resolved class name.
-	 */
-	public static function resolve_class_name($namespace, $model_id='primary')
-	{
-		return $namespace . '\\' . ($model_id == 'primary' ? '' : ICanBoogie\normalize_namespace_part($model_id)) . 'Model';
-	}
-
-	/**
-	 * Formats a SQL table name given the module id and the model id.
-	 *
-	 * @param string $module_id
-	 * @param string $model_id
-	 *
-	 * @return string
-	 */
-	public static function format_name($module_id, $model_id='primary')
-	{
-		return strtr($module_id, '.', '_') . ($model_id == 'primary' ? '' : '__' . $model_id);
-	}
+	const T_ID = 'id';
 
 	/**
 	 * @var string Name of the class to use to created activerecord instances.
 	 */
 	public $ar_class;
+
+	protected $attributes;
 
 	/**
 	 * Override the constructor to provide support for the T_ACTIVERECORD_CLASS tag and extended
@@ -132,6 +74,8 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 		{
 			$this->ar_class = $tags[self::T_ACTIVERECORD_CLASS];
 		}
+
+		$this->attributes = $tags;
 	}
 
 	/**
@@ -166,6 +110,16 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 		}
 
 		return parent::__get($property);
+	}
+
+	protected function __volatile_get_id()
+	{
+		return $this->attributes[self::T_ID];
+	}
+
+	protected function __volatile_set_id()
+	{
+		throw new Exception\PropertyNotWritable(array('id', $this));
 	}
 
 	/**
@@ -606,43 +560,104 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 	public function offsetSet($key, $properties)
 	{
 		throw new Exception('Offsets are not settable: %key !properties', array('%key' => $key, '!properties' => $properties));
-    }
+	}
 
-    /**
-     * Checks if the record identified by the given key exists.
-     *
-     * @see \ArrayAccess::offsetExists()
-     *
-     * @return bool true is the record exists, false otherwise.
-     */
-    public function offsetExists($key)
-    {
-        return $this->exists($key);
-    }
+	/**
+	 * Checks if the record identified by the given key exists.
+	 *
+	 * @see \ArrayAccess::offsetExists()
+	 *
+	 * @return bool true is the record exists, false otherwise.
+	 */
+	public function offsetExists($key)
+	{
+		return $this->exists($key);
+	}
 
-    /**
-     * Deletes the record specified by the given key.
-     *
-     * @see \ArrayAccess::offsetUnset()
-     * @see Model::delete();
-     */
-    public function offsetUnset($key)
-    {
-        $this->delete($key);
-    }
+	/**
+	 * Deletes the record specified by the given key.
+	 *
+	 * @see \ArrayAccess::offsetUnset()
+	 * @see Model::delete();
+	 */
+	public function offsetUnset($key)
+	{
+		$this->delete($key);
+	}
 
-    /**
-     * Returns the record corresponding to the given key.
-     *
-     * @see \ArrayAccess::offsetGet()
-     * @see Model::find();
-     *
-     * @return ActiveRecord
-     */
-    public function offsetGet($key)
-    {
-    	return $this->find($key);
-    }
+	/**
+	 * Returns the record corresponding to the given key.
+	 *
+	 * @see \ArrayAccess::offsetGet()
+	 * @see Model::find();
+	 *
+	 * @return ActiveRecord
+	 */
+	public function offsetGet($key)
+	{
+		return $this->find($key);
+	}
+
+	static public function is_extending($tags, $instanceof)
+	{
+		if (is_string($tags))
+		{
+			\ICanBoogie\log('is_extending is not competent with string references: \1', array($tags));
+
+			return true;
+		}
+
+		// TODO-2010630: The method should handle submodels to, not just 'primary'
+
+		if (empty($tags[self::T_EXTENDS]))
+		{
+			return false;
+		}
+
+		$extends = $tags[self::T_EXTENDS];
+
+		if ($extends == $instanceof)
+		{
+			return true;
+		}
+
+		global $core;
+
+		if (empty($core->modules->descriptors[$extends][Module::T_MODELS]['primary']))
+		{
+			return false;
+		}
+
+		$tags = $core->modules->descriptors[$extends][Module::T_MODELS]['primary'];
+
+		return self::is_extending($tags, $instanceof);
+	}
+
+	/**
+	 * Resolves the name of a model giving its module id and model id.
+	 *
+	 * @param string $namespace Namespace of the module defining the model.
+	 * @param string $model_id The model id.
+	 *
+	 * @return string The resolved class name.
+	 */
+	public static function resolve_class_name($namespace, $model_id='primary')
+	{
+		return $namespace . '\\' . ($model_id == 'primary' ? '' : ICanBoogie\normalize_namespace_part($model_id)) . 'Model';
+	}
+
+	/**
+	 * Formats a SQL table name given the module id and the model id.
+	 *
+	 * @param string $module_id
+	 * @param string $model_id
+	 *
+	 * @return string
+	 */
+	public static function format_name($module_id, $model_id='primary')
+	{
+		return strtr($module_id, '.', '_') . ($model_id == 'primary' ? '' : '__' . $model_id);
+	}
 }
 
 namespace ICanBoogie\Exception;
