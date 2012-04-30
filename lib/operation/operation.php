@@ -11,6 +11,8 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\HTTP\Request;
+
 use ICanBoogie\Exception;
 use ICanBoogie\HTTP;
 
@@ -655,7 +657,7 @@ abstract class Operation extends Object
 		# errors
 		#
 
-		if (count($response->errors) && !$request->is_xhr)
+		if (count($response->errors) && !$request->is_xhr && !isset($this->form))
 		{
 			foreach ($response->errors as $error_message)
 			{
@@ -816,6 +818,20 @@ abstract class Operation extends Object
 	{
 		$controls += $this->controls;
 
+		$method = $controls[self::CONTROL_METHOD];
+
+		if ($method && !$this->control_method($method))
+		{
+			throw new Exception\HTTP
+			(
+				"The %operation operation requires the %method method.", array
+				(
+					'operation' => get_class($this),
+					'method' => $method
+				)
+			);
+		}
+
 		if ($controls[self::CONTROL_SESSION_TOKEN] && !$this->control_session_token())
 		{
 			throw new Exception\HTTP("Session token doesn't match", array(), 401);
@@ -871,6 +887,20 @@ abstract class Operation extends Object
 		}
 
 		return true;
+	}
+
+	/**
+	 * Controls the request method.
+	 *
+	 * If the method is {@link Request::METHOD_ANY} it always matches.
+	 *
+	 * @param string $method
+	 *
+	 * @return boolean `true` if the method macthes, `false` otherwise.
+	 */
+	protected function control_method($method)
+	{
+		return ($method === Request::METHOD_ANY) ? true : $method === $this->request->method;
 	}
 
 	/**
