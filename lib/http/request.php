@@ -53,6 +53,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	const METHOD_DELETE = 'DELETE';
 	const METHOD_TRACE = 'TRACE';
 	const METHOD_CONNECT = 'CONNECT';
+	const METHOD_ANY = 'ANY';
 
 	static protected $methods = array
 	(
@@ -71,7 +72,17 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @var Request
 	 */
-	static protected $current_request;
+	protected static $current_request;
+
+	/**
+	 * Returns the current request being executed.
+	 *
+	 * @return Request
+	 */
+	public static function get_current_request()
+	{
+		return self::$current_request;
+	}
 
 	/**
 	 * Request environment.
@@ -121,9 +132,9 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * General purpose container.
 	 *
-	 * @var array
+	 * @var Request\Context
 	 */
-	public $context = array();
+	public $context;
 
 	/**
 	 * A request can be created from the `$_SERVER` super global array. In that case `$_SERVER` is
@@ -179,6 +190,8 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		{
  			$this->params = $this->path_params + $this->request_params + $this->query_params;
 		}
+
+		$this->context = new Request\Context;
 	}
 
 	/**
@@ -628,4 +641,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	{
 		// TODO:2012-03-12 returns the files associated with the request
 	}
+}
+
+namespace ICanBoogie\HTTP\Request;
+
+class Context extends \ICanBoogie\Object
+{
+
 }

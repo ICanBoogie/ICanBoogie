@@ -130,47 +130,52 @@ class Dispatcher
 		return $response;
 	}
 
+	public function any($path, $callback, array $options=array())
+	{
+		$this->route(Request::METHOD_ANY, $path, $callback, $options);
+	}
+
 	public function get($path, $callback, array $options=array())
 	{
-		$this->route(Request::METHOD_GET, $path, $options, $callback);
-		$this->route(Request::METHOD_HEAD, $path, $options, $callback);
+		$this->route(Request::METHOD_GET, $path, $callback, $options);
+		$this->route(Request::METHOD_HEAD, $path, $callback, $options);
 	}
 
 	public function post($path, $callback, array $options=array())
 	{
-		$this->route(Request::METHOD_POST, $path, $options, $callback);
+		$this->route(Request::METHOD_POST, $path, $callback, $options);
 	}
 
 	public function put($path, $callback, array $options=array())
 	{
-		$this->route(Request::METHOD_PUT, $path, $options, $callback);
+		$this->route(Request::METHOD_PUT, $path, $callback, $options);
 	}
 
 	public function delete($path, $callback, array $options=array())
 	{
-		$this->route(Request::METHOD_DELETE, $path, $options, $callback);
+		$this->route(Request::METHOD_DELETE, $path, $callback, $options);
 	}
 
 	public function head($path, $callback, array $options=array())
 	{
-		$this->route(Request::METHOD_HEAD, $path, $options, $callback);
+		$this->route(Request::METHOD_HEAD, $path, $callback, $options);
 	}
 
 	public function options($path, $callback, array $options=array())
 	{
-		$this->route(Request::METHOD_OPTIONS, $path, $options, $callback);
+		$this->route(Request::METHOD_OPTIONS, $path, $callback, $options);
 	}
 
 	public function patch($path, $callback, array $options=array())
 	{
-		$this->route(Request::METHOD_PATCH, $path, $options, $callback);
+		$this->route(Request::METHOD_PATCH, $path, $callback, $options);
 	}
 
 	protected function route($method, $path, $callback, array $options=array())
 	{
 		Routes::add
 		(
-			$path, array
+			$method . ' ' . $path, array
 			(
 				'pattern' => $path,
 				'via' => $method,

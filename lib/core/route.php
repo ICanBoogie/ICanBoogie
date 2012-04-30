@@ -11,6 +11,8 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\HTTP\Request;
+
 /**
  * Routes collected from the "routes" config or added by the user.
  */
@@ -156,7 +158,7 @@ class Routes implements \IteratorAggregate, \ArrayAccess
 	 *
 	 * @return Route
 	 */
-	public function find($uri, $method='any', $namespace=null)
+	public function find($uri, $method=Request::METHOD_ANY, $namespace=null)
 	{
 		if ($namespace)
 		{
@@ -198,7 +200,7 @@ class Routes implements \IteratorAggregate, \ArrayAccess
 			}
 			else
 			{
-				if ($route_method === 'any' || $route_method === $method)
+				if ($route_method === Request::METHOD_ANY || $route_method === $method)
 				{
 					$found = true;
 					break;

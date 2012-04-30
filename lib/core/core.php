@@ -126,10 +126,6 @@ class Core extends Object
 
 		self::$instance = $this;
 
-		# unset declared magic properties
-
-		unset($this->request);
-
 		#
 
 		$options = \ICanBoogie\array_merge_recursive
@@ -268,20 +264,38 @@ class Core extends Object
 	}
 
 	/**
-	 * The initial Request object.
+	 * Returns the dispatcher used to dispatch HTTP requests.
 	 *
-	 * @var HTTP\Request
+	 * @return HTTP\Dispatcher
 	 */
-	public $request;
+	protected function __volatile_get_dispatcher()
+	{
+		return HTTP\get_dispatcher();
+	}
 
 	/**
-	 * Returns the initial Request object.
+	 * Returns the initial request object.
 	 *
 	 * @return HTTP\Request
 	 */
-	protected function __get_request()
+	protected function __get_initial_request()
 	{
 		return HTTP\Request::from($_SERVER);
+	}
+
+	/**
+	 * Returns the current request.
+	 *
+	 * @return HTTP\Request
+	 */
+	protected function __volatile_get_request()
+	{
+		return HTTP\Request::get_current_request();
+	}
+
+	protected function __volatile_set_request()
+	{
+		throw new Exception\PropertyNotWritable(array('request', $this));
 	}
 
 	/**

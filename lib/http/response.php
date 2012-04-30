@@ -356,7 +356,12 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * Returns the `Content-Type` header.
+	 * Returns the content type of the response.
+	 *
+	 * The value is returned for the private {@link content_type} property. If the property is
+	 * empty and the `Content-Type`header is defined, the _type_ part of its value is returned.
+	 *
+	 * @return string
 	 */
 	protected function __volatile_get_content_type()
 	{
@@ -364,7 +369,7 @@ class Response extends \ICanBoogie\Object
 
 		if (!$content_type && isset($this->headers['Content-Type']))
 		{
-			trigger_error("Should extract content type of header"); // TODO-20120329
+			list($content_type) = explode(';', $this->headers['Content-Type']);
 		}
 
 		return $content_type;
