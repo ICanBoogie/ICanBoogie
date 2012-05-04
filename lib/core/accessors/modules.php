@@ -173,7 +173,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 
 		if (!empty($descriptor[Module::T_DISABLED]))
 		{
-			throw new Exception('The module %id is disabled.', array('%id' => $id), 404);
+			throw new Exception\DisabledModule('The module %id is disabled.', array('%id' => $id), 404);
 		}
 
 		$class = $descriptor[Module::T_CLASS];
@@ -784,4 +784,11 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 
 		return $n;
 	}
+}
+
+namespace ICanBoogie\Exception;
+
+class DisabledModule extends \ICanBoogie\Exception
+{
+
 }
