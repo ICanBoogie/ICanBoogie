@@ -80,7 +80,9 @@ class Image
 
 	public static function compute_final_size($w, $h, $method, $src)
 	{
-		if (in_array($method, array(self::RESIZE_FIT, self::RESIZE_FIT, self::RESIZE_FIXED_HEIGHT_CROPPED, self::RESIZE_FIXED_WIDTH_CROPPED)))
+		static $same = array(self::RESIZE_FIT, self::RESIZE_FILL, self::RESIZE_FIXED_HEIGHT_CROPPED, self::RESIZE_FIXED_WIDTH_CROPPED);
+
+		if (in_array($method, $same))
 		{
 			return array($w, $h);
 		}
@@ -96,8 +98,16 @@ class Image
 				break;
 			case self::RESIZE_FIXED_WIDTH:
 				break;
+
 			case self::RESIZE_SURFACE:
-				break;
+			{
+				$r = sqrt(($image_w * $image_h) / ($w * $h));
+
+				$final_w = round($image_w / $r);
+				$final_h = round($image_h / $r);
+			}
+			break;
+
 			case self::RESIZE_CONSTRAINED:
 			{
 				$image_r = $image_w / $image_h;
