@@ -77,7 +77,7 @@ class Routes implements \IteratorAggregate, \ArrayAccess
 						$routes[$id] = $route + array
 						(
 							'pattern' => null,
-							'via' => 'any',
+							'via' => Request::METHOD_ANY,
 							'module' => $module_id
 						);
 					}
@@ -127,7 +127,7 @@ class Routes implements \IteratorAggregate, \ArrayAccess
 
 		$this->routes[$offset] = $route + array
 		(
-			'via' => 'any'
+			'via' => Request::METHOD_ANY
 		);
 	}
 
@@ -153,7 +153,7 @@ class Routes implements \IteratorAggregate, \ArrayAccess
 	 * Search for a route matching the specified pathname and method.
 	 *
 	 * @param string $pathname
-	 * @param string $method One of HTTP\Request::METHOD_* methods or 'any'.
+	 * @param string $method One of HTTP\Request::METHOD_* methods.
 	 * @param string $namespace Namespace restriction.
 	 *
 	 * @return Route
