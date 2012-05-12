@@ -17,6 +17,7 @@ use ICanBoogie\Exception;
  * The response to a HTTP request.
  *
  * @property string $body {@link __volatile_set_body()} {@link __volatile_get_body()}
+ * @property string|array $content_type {@link __volatile_set_content_type()} {@link __volatile_get_content_type()}
  * @property integer $date {@link __volatile_set_date()} {@link __volatile_get_date()}
  * @property integer $expires {@link __volatile_set_expires()} {@link __volatile_get_expires()}
  * @property integer $status {@link __volatile_set_status()} {@link __volatile_get_status()}
@@ -48,7 +49,7 @@ class Response extends \ICanBoogie\Object
      */
 	public $version = '1.0';
 
-	static public $status_messages = array
+	public static $status_messages = array
 	(
         100 => 'Continue',
         101 => 'Switching Protocols',
