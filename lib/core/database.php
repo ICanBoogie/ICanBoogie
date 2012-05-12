@@ -778,7 +778,7 @@ class Statement extends \PDOStatement
 
 		try
 		{
-			$this->connection->profiling[] = array(microtime(true) - $start, $this->queryString);
+			$this->connection->profiling[] = array(microtime(true) - $start, $this->queryString . ' ' . json_encode($args));
 
 			return parent::execute($args);
 		}

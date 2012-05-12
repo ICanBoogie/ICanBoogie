@@ -11,10 +11,9 @@
 
 namespace ICanBoogie;
 
-use ICanBoogie\HTTP\Request;
-
 use ICanBoogie\Exception;
 use ICanBoogie\HTTP;
+use ICanBoogie\HTTP\Request;
 
 abstract class Operation extends Object
 {

@@ -34,7 +34,7 @@ class Translator extends Object implements \ArrayAccess
 			return self::$translators[$id];
 		}
 
-		self::$translators[$id] = $translator = new Translator($id);
+		self::$translators[$id] = $translator = new static($id);
 
 		return $translator;
 	}
@@ -137,7 +137,9 @@ class Translator extends Object implements \ArrayAccess
 	}
 
 	/**
-	 * @var string Locale id for this translator.
+	 * Locale id for this translator.
+	 *
+	 * @var string
 	 */
 	protected $id;
 

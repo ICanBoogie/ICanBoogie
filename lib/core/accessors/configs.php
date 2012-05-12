@@ -13,7 +13,6 @@ namespace ICanBoogie;
 
 /**
  * This class provides an accessor to synthesized lowlevel configurations.
- *
  */
 class Configs implements \ArrayAccess
 {
@@ -51,15 +50,9 @@ class Configs implements \ArrayAccess
 	}
 
 	/**
-	 * Gets a connection to the specified database.
-	 *
-	 * If the connection has not been established yet, it is created on the fly.
-	 *
-	 * Several connections may be defined.
+	 * Returns the specified synthesized configuration.
 	 *
 	 * @see ArrayAccess::offsetGet()
-	 * @param string $id The name of the connection to get.
-	 * @return WdDatabase
 	 */
 	public function offsetGet($id)
 	{
@@ -243,7 +236,7 @@ class Configs implements \ArrayAccess
 		}
 		else if ($constructor == 'recursive merge')
 		{
-			$rc = call_user_func_array('\ICanBoogie\array_merge_recursive', $fragments);
+			$rc = call_user_func_array('ICanBoogie\array_merge_recursive', $fragments);
 		}
 		else
 		{

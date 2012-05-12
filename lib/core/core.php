@@ -41,7 +41,9 @@ class Core extends Object
 	}
 
 	/**
-	 * @var boolean true if core is running, false otherwise.
+	 * Whether the core is running or not.
+	 *
+	 * @var boolean
 	 */
 	public static $is_running = false;
 
@@ -157,13 +159,10 @@ class Core extends Object
 					return is_array($value) ? array_map($strip_slashes_recursive, $value) : stripslashes($value);
 				};
 
-				if (get_magic_quotes_gpc())
-				{
-					$_GET = array_map($strip_slashes_recursive, $_GET);
-					$_POST = array_map($strip_slashes_recursive, $_POST);
-					$_COOKIE = array_map($strip_slashes_recursive, $_COOKIE);
-					$_REQUEST = array_map($strip_slashes_recursive, $_REQUEST);
-				}
+				$_GET = array_map($strip_slashes_recursive, $_GET);
+				$_POST = array_map($strip_slashes_recursive, $_POST);
+				$_COOKIE = array_map($strip_slashes_recursive, $_COOKIE);
+				$_REQUEST = array_map($strip_slashes_recursive, $_REQUEST);
 			};
 
 			$kill_magic_quotes();
@@ -173,7 +172,7 @@ class Core extends Object
 
 		$this->configs->add($options['paths']['config']);
 
-		$config = \ICanBoogie\array_merge_recursive($options, $this->config);
+		$config = array_merge_recursive($options, $this->config);
 
 		I18n::$load_paths = array_merge(I18n::$load_paths, $config['paths']['locale']);
 

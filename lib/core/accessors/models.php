@@ -12,7 +12,7 @@
 namespace ICanBoogie;
 
 /**
- * Accessor for the modules' models.
+ * Accessor for the modules models.
  */
 class Models implements \ArrayAccess
 {
@@ -85,9 +85,9 @@ class Models implements \ArrayAccess
 	/**
 	 * Gets the specified model of the specified module.
 	 *
-	 * The pattern used to request a model is "<module_id>[/<model_id>]" where "<module_id>" is
-	 * the identifier of the module and "<model_id>" is the identifier of the module's model. The
-	 * _model_id_ part is optionnal and defaults to "primary".
+	 * The pattern used to request a model is `<module_id>[/<model_id>]` where `<module_id>` is
+	 * the identifier of the module and `<model_id>` is the identifier of the module's model. The
+	 * `<model_id>` part is optionnal and defaults to `primary`.
 	 *
 	 * @see ArrayAccess::offsetGet()
 	 *

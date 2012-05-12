@@ -191,7 +191,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
  			$this->params = $this->path_params + $this->request_params + $this->query_params;
 		}
 
-		$this->context = new Request\Context;
+		$this->context = new Request\Context($this);
 	}
 
 	/**
@@ -645,7 +645,46 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 
 namespace ICanBoogie\HTTP\Request;
 
+/**
+ * The context of a request.
+ *
+ * This is a general purpose container used to store the objects and variables related to a
+ * request.
+ */
 class Context extends \ICanBoogie\Object
 {
+	/**
+	 * The request the context belongs to.
+	 *
+	 * The variable is declared as private but is actually readdable thanks to the
+	 * {@link __volatile_get_request} getter.
+	 *
+	 * @var \ICanBoogie\HTTP\Request
+	 */
+	private $request;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param \ICanBoogie\HTTP\Request $request The request the context belongs to.
+	 */
+	public function __construct(\ICanBoogie\HTTP\Request $request)
+	{
+		$this->request = $request;
+	}
+
+	protected function __volatile_set_request()
+	{
+		throw new \ICanBoogie\Exception\PropertyNotWritable(array('request', $this));
+	}
+
+	/**
+	 * Returns the {@link $request} property.
+	 *
+	 * @return \ICanBoogie\HTTP\Request
+	 */
+	protected function __volatile_get_request()
+	{
+		return $this->request;
+	}
 }

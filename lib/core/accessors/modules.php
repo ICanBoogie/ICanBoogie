@@ -358,13 +358,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 			}
 			catch (\Exception $e)
 			{
-				throw new Exception
-				(
-					'Unable to open directory %root', array
-					(
-						'root' => $root
-					)
-				);
+				throw new Exception('Unable to open directory %root', array('root' => $root));
 			}
 
 			foreach ($dir as $file)
@@ -512,7 +506,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 * autoload array.
 	 *
 	 * - Autoload references are also created for each model and their activerecord depending on
-	 * the T_MODELS tag and the exsitance of the corresponding files.
+	 * the {@link T_MODELS} tag and the exsitance of the corresponding files.
 	 *
 	 * Autoload references are added to the `__autoload` property.
 	 *
@@ -788,6 +782,9 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 
 namespace ICanBoogie\Exception;
 
+/**
+ * This exception is thrown when a disabed module is requested.
+ */
 class DisabledModule extends \ICanBoogie\Exception
 {
 
