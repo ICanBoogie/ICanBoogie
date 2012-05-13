@@ -65,11 +65,11 @@ class ActiveRecord extends Object
 	 */
 	public function __sleep()
 	{
-		$properties = get_object_vars($this);
+		$keys = parent::__sleep();
 
-		unset($properties['_model']);
+		unset($keys['_model']);
 
-		return array_keys($properties);
+		return $keys;
 	}
 
 	/**

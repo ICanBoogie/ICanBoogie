@@ -12,21 +12,69 @@
 namespace ICanBoogie;
 
 /**
- * The `Object` class provides advanced getters and setters features.
+ * Together with the {@link Prototype} class the {@link Object} class provides means to
+ * modify methods as well as define getters and setters for magic properties.
  *
- * It also provides a method to create instances in the same fashion PDO creates instances with
- * the `FETCH_CLASS` mode, that is the properties of the instance are set *before* its constructor
- * is invoked.
+ * The class also provides a method to create instances in the same fashion PDO creates instances
+ * with the `FETCH_CLASS` mode, that is the properties of the instance are set *before* its
+ * constructor is invoked.
+ *
+ * Getters and setters
+ * -------------------
+ *
+ * When an innaccessible property is read or written the class tries to find a method suitable
+ * to read or write the property. Theses methods are called getters and setters. They can be
+ * defined by the class or its prototype. For example the `connection` property could have the
+ * following getter and setter:
+ *
+ *     protected function __get_connection()
+ *     {
+ *         return new Connection($this->username, $this->password);
+ *     }
+ *
+ *     protected function __set_connection(Connection $connection)
+ *     {
+ *         return $connection;
+ *     }
+ *
+ * In this example the `connection` property is created after the `__get_connection()` is called,
+ * which is an ideal behaviour to lazyload resources.
+ *
+ * Another type of getter/setter is available that doesn't create the requested property. They are
+ * call _volatile_, because their result is not automatically stored in the corresponding property,
+ * this choice is up to the setter.
+ *
+ *     namespace ICanBoogie;
+ *
+ *     class Time extends Object
+ *     {
+ *         public $seconds;
+ *
+ *         protected function __volatile_get_minutes()
+ *         {
+ *             return $this->seconds / 60;
+ *         }
+ *
+ *         protected function __volatile_set_minutes($minutes)
+ *         {
+ *             $this->seconds = $minutes * 60;
+ *         }
+ *     }
+ *
+ * In this example the result of the `minutes` getter is simply returned and is not used to create
+ * the `minutes` property
  *
  * Event: property
  * ---------------
  *
- * The `ICanBoogie\Object::property` event is fired when no getter was found in a class to obtain
- * the value of a property.
+ * The `ICanBoogie\Object::property` event is fired when no getter was found in a class or
+ * prototype to obtain the value of a property.
  *
  * Hooks can be attached to that event to provide the value of the property. Should they be able
  * to provide the value, they must create the `value` property within the event object. Thus, even
  * `null` is considered a valid result.
+ *
+ * @property-read Prototype $prototype The prototype associated with the class.
  */
 class Object
 {
@@ -122,132 +170,23 @@ class Object
 		return $instance;
 	}
 
-	private static $methods;
-	private static $class_methods;
-
 	/**
-	 * Synthesizes the methods to inject in classes from the "hooks" config.
+	 * Removes the {@link prototype} key before serialization.
 	 *
-	 * @param array $fragments
-	 *
-	 * @throws Exception if a method definition doesn't have the 'instanceof' key defined.
+	 * @return array
 	 */
-	public static function synthesize_methods(array $fragments)
+	public function __sleep()
 	{
-		$methods = array();
+		$keys = array_keys(get_object_vars($this));
+		$keys = array_combine($keys, $keys);
 
-		foreach ($fragments as $root => $fragment)
-		{
-			if (empty($fragment['objects.methods']))
-			{
-				continue;
-			}
+		unset($keys['prototype']);
 
-			foreach ($fragment['objects.methods'] as $method => $callback)
-			{
-				if (strpos($method, '::') === false)
-				{
-					throw new \InvalidArgumentException(format
-					(
-						'Invalid method name %method, must be <code>class_name::method_name</code> in %root', array
-						(
-							'method' => $method,
-							'root' => $root . 'config/hooks.php'
-						)
-					));
-				}
-
-				list($class, $method) = explode('::', $method);
-
-				$methods[$class][$method] = $callback;
-			}
-		}
-
-		return $methods;
+		return $keys;
 	}
 
 	/**
-	 * Adds a method to a class.
-	 *
-	 * @param string $method The name of the method.
-	 * @param array $callback Callback function.
-	 */
-	public static function add_method($method, $callback)
-	{
-		global $core;
-
-		if (self::$methods === null && isset($core))
-		{
-			self::$methods = $core->configs['methods'];
-		}
-
-		if (strpos($method, '::') === false)
-		{
-			throw new \InvalidArgumentException(format('Invalid method name %method, must be <code>class_name::method_name</code>', array('method' => $method)));
-		}
-
-		list($class, $method) = explode('::', $method);
-
-		self::$class_methods[$class][$method] = $callback;
-	}
-
-	/**
-	 * Adds methods to classes.
-	 *
-	 * @param array $definitions
-	 */
-	public static function add_methods(array $methods)
-	{
-		foreach ($methods as $method => $callback)
-		{
-			static::add_method($method, $callback);
-		}
-	}
-
-	/**
-	 * Returns the callbacks associated with the class of the object.
-	 *
-	 * @return array The callbacks associated with the class of the object.
-	 */
-	protected static function find_external_methods()
-	{
-		global $core;
-
-		$class = get_called_class();
-
-		if (isset(self::$class_methods[$class]))
-		{
-			return self::$class_methods[$class];
-		}
-
-		if (self::$methods === null && isset($core))
-		{
-			self::$methods = $core->configs['methods'];
-		}
-
-		$methods = self::$methods;
-		$methods_by_class = array();
-
-		$classes = array($class => $class) + class_parents($class);
-
-		foreach ($classes as $c)
-		{
-			if (empty($methods[$c]))
-			{
-				continue;
-			}
-
-			$methods_by_class += $methods[$c];
-		}
-
-		self::$class_methods[$class] = $methods_by_class;
-
-		return $methods_by_class;
-	}
-
-	/**
-	 * Calls the method callback associated with the nonexistant method called or throws an
-	 * exception if none is defined.
+	 * Use the prototype to provide callbacks for inaccessible methods.
 	 *
 	 * @param string $method
 	 * @param array $arguments
@@ -256,87 +195,72 @@ class Object
 	 */
 	public function __call($method, $arguments)
 	{
-		$callback = static::find_method_callback($method);
-
-		if (!$callback)
-		{
-			throw new Exception
-			(
-				'Unknown method %method for object of class %class.', array
-				(
-					'%method' => $method,
-					'%class' => get_class($this)
-				)
-			);
-		}
-
 		array_unshift($arguments, $this);
 
-		return call_user_func_array($callback, $arguments);
+		return call_user_func_array($this->prototype[$method], $arguments);
 	}
 
 	/**
-	 * Returns the value of an innaccessible property.
+	 * Returns the value of an inaccessible property.
 	 *
 	 * Multiple callbacks are tried in order to retrieve the value of the property:
 	 *
-	 * 1. `__volatile_get_<property>`: Get and return the value of the property.The callback may
-	 * not be defined by the object's class, but one can extend the class using the mixin features
-	 * of the FObject class.
-	 * 2. `__get_<property>`: Get, set and return the value of the property. Because the property
-	 * is set, the callback is only called once. The callback may not be defined by the object's
-	 * class, but one can extend the class using the mixin features of the FObject class.
-	 * 3.Finaly, the `property` event is fired to try and retrieve the value of the
-	 * property.
+	 * 1. `__volatile_get_<property>`: Get and return the value of the property.
+	 * 2. `__get_<property>`: Get, set and return the value of the property. Because new properties
+	 * are created as public the callback is only called once which is ideal for lazyloading.
+	 * 3. The prototype is queried for callbacks for the `__volatile_get_<property>` and
+	 * `__get_<property>` methods.
+	 * 4.Finaly, the `ICanBoogie\Object::property` event is fired to try and retrieve the value of
+	 * the property.
 	 *
 	 * @param string $property
 	 *
 	 * @throws Exception\PropertyNotReadable when the property has a protected or private scope and
-	 * no suitable callback to retrieve its value.
+	 * no suitable callback could be found to retrieve its value.
 	 *
 	 * @throws Exception\PropertyNotFound when the property is undefined and there is no suitable
 	 * callback to retrieve its values.
 	 *
-	 * @return mixed The value of the innaccessible property. `null` is returned if the property
-	 * could not be retrieved, in which case an exception is raised.
+	 * @return mixed The value of the inaccessible property.
 	 */
 	public function __get($property)
 	{
-		$getter = '__volatile_get_' . $property;
+		$method = '__volatile_get_' . $property;
 
-		if (method_exists($this, $getter))
+		if (method_exists($this, $method))
 		{
-			return $this->$getter();
+			return $this->$method();
 		}
 
-		$getter = '__get_' . $property;
+		$method = '__get_' . $property;
 
-		if (method_exists($this, $getter))
+		if (method_exists($this, $method))
 		{
-			return $this->$property = $this->$getter();
-		}
-
-		#
-		# The object does not define any getter for the property, let's see if a getter is defined
-		# in the methods.
-		#
-
-		$getter = static::find_method_callback('__volatile_get_' . $property);
-
-		if ($getter)
-		{
-			return call_user_func($getter, $this, $property);
-		}
-
-		$getter = static::find_method_callback('__get_' . $property);
-
-		if ($getter)
-		{
-			return $this->$property = call_user_func($getter, $this, $property);
+			return $this->$property = $this->$method();
 		}
 
 		#
+		# we didn't find a suitable method in the class, maybe the prototype has one.
 		#
+
+		$prototype = $this->prototype;
+
+		$method = '__volatile_get_' . $property;
+
+		if (isset($prototype[$method]))
+		{
+			return call_user_func($prototype[$method], $this, $property);
+		}
+
+		$method  = '__get_' . $property;
+
+		if (isset($prototype[$method]))
+		{
+			return $this->$property = call_user_func($prototype[$method], $this, $property);
+		}
+
+		#
+		# we didn't find a suitable method in the prototype, our last chance is to fire an event.
 		#
 
 		$rc = $this->__defer_get($property, $success);
@@ -364,7 +288,7 @@ class Object
 			(
 				format
 				(
-					'Unknown or unaccessible property %property for object of class %class (available properties: !list).', array
+					'Unknown or inaccessible property %property for object of class %class (available properties: !list).', array
 					(
 						'property' => $property,
 						'class' => get_class($this),
@@ -386,7 +310,7 @@ class Object
 			return;
 		}
 
-		$event = new \ICanBoogie\Object\PropertyEvent($this, array('property' => $property));
+		$event = new Object\PropertyEvent($this, array('property' => $property));
 
 		#
 		# The operation is considered a success if the `value` property exists in the event
@@ -404,53 +328,48 @@ class Object
 	}
 
 	/**
+	 * Returns the prototype associated with the class.
+	 *
+	 * @return Prototype
+	 */
+	protected function __get_prototype()
+	{
+		return Prototype::get($this);
+	}
+
+	/**
 	 * Sets the value of inaccessible properties.
 	 *
 	 * If the `__volatile_set_<property>` or `__set_<property>` setter methods exists, they are
 	 * used to set the value to the property, otherwise the value is set _as is_.
 	 *
-	 * For performance reason, external setters are not used.
+	 * For performance reason the prototype is not used to provide callbacks but this may change
+	 * in the future.
 	 *
 	 * @param string $property
 	 * @param mixed $value
 	 */
 	public function __set($property, $value)
 	{
-		$setter = '__volatile_set_' . $property;
+		$method = '__volatile_set_' . $property;
 
-		if (method_exists($this, $setter))
+		if (method_exists($this, $method))
 		{
-			return $this->$setter($value);
+			return $this->$method($value);
 		}
 
-		$setter = '__set_' . $property;
+		$method = '__set_' . $property;
 
-		if (method_exists($this, $setter))
+		if (method_exists($this, $method))
 		{
-			return $this->$property = $this->$setter($value);
+			return $this->$property = $this->$method($value);
 		}
-
-		/*
-		$setter = static::find_method_callback('__volatile_set_' . $property);
-
-		if ($setter)
-		{
-			return call_user_func($setter, $this, $property, $value);
-		}
-
-		$setter = static::find_method_callback('__set_' . $property);
-
-		if ($setter)
-		{
-			return $this->$property = call_user_func($setter, $this, $property, $value);
-		}
-		*/
 
 		#
-		# Because property_exists() check class properties, it return true even when the property
+		# Because property_exists() checks class properties it returns true even when the property
 		# has been unset, thus we need to check if the property still exists using
 		# get_object_vars(). We use them both because property_exists() doesn't cost much and will
-		# sometimes suffice.
+		# sometime suffice.
 		#
 
 		if (property_exists($this, $property))
@@ -469,8 +388,8 @@ class Object
 	/**
 	 * Checks if the object has the specified property.
 	 *
-	 * Unlike the property_exists() function, this method uses all the getters available to find
-	 * the property.
+	 * The difference with the `property_exists()` function is that the method also checks for
+	 * getters defined by the class or the prototype.
 	 *
 	 * @param string $property The property to check.
 	 *
@@ -483,30 +402,7 @@ class Object
 			return true;
 		}
 
-		$getter = '__volatile_get_' . $property;
-
-		if (method_exists($this, $getter))
-		{
-			return true;
-		}
-
-		$getter = static::find_method_callback($getter);
-
-		if ($getter)
-		{
-			return true;
-		}
-
-		$getter = '__get_' . $property;
-
-		if (method_exists($this, $getter))
-		{
-			return true;
-		}
-
-		$getter = static::find_method_callback($getter);
-
-		if ($getter)
+		if ($this->has_method('__get_' . $property) || $this->has_method('__volatile_get_' . $property))
 		{
 			return true;
 		}
@@ -526,34 +422,15 @@ class Object
 	/**
 	 * Checks whether this object supports the specified method.
 	 *
+	 * The method checks for method defined by the class and the prototype.
+	 *
 	 * @param string $method Name of the method.
 	 *
-	 * @return bool true if the object supports the method, false otherwise.
+	 * @return bool
 	 */
 	public function has_method($method)
 	{
-		return method_exists($this, $method) || static::find_method_callback($method);
-	}
-
-	/**
-	 * Returns the callback for a given unimplemented method.
-	 *
-	 * @param $method
-	 *
-	 * @return mixed Callback for the given unimplemented method, or null if none is defined.
-	 */
-	protected static function find_method_callback($method)
-	{
-		global $core;
-
-		$methods = static::find_external_methods();
-
-		if (empty($methods[$method]))
-		{
-			return;
-		}
-
-		return $methods[$method];
+		return method_exists($this, $method) || isset($this->prototype[$method]);
 	}
 }
 
@@ -580,5 +457,303 @@ class PropertyEvent extends \ICanBoogie\Event
 	public function __construct(\ICanBoogie\Object $target, array $properties)
 	{
 		parent::__construct($target, 'property', $properties);
+	}
+}
+
+namespace ICanBoogie;
+
+/**
+ * Subclasses of the {@link Object} class are associated with a prototype, which can be used to
+ * add methods as well as getters and setters to classes.
+ *
+ * Methods can be defined using the "hooks" config and the "prototype" namespace:
+ *
+ * <?php
+ *
+ * return array
+ * (
+ *     'ICanBoogie\ActiveRecord\Page::my_additional_method' => 'MyHookClass::my_additional_method',
+ *     'ICanBoogie\ActiveRecord\Page::__get_my_property' => 'MyHookClass::get_my_property'
+ * );
+ */
+class Prototype implements \ArrayAccess, \IteratorAggregate
+{
+	/**
+	 * Class associated with the prototype.
+	 *
+	 * @var string
+	 */
+	protected $class;
+
+	/**
+	 * Parent prototype.
+	 *
+	 * @var Prototype
+	 */
+	protected $parent;
+
+	/**
+	 * Methods defined by the prototype.
+	 *
+	 * @var array[string]callable
+	 */
+	protected $methods = array();
+
+	/**
+	 * Methods defined by the prototypes chain.
+	 *
+	 * @var array[string]callable
+	 */
+	protected $consolided_methods;
+
+	/**
+	 * Prototypes built per class.
+	 *
+	 * @var array[string]Prototype
+	 */
+	protected static $prototypes = array();
+
+	/**
+	 * Pool of prototype methods per class.
+	 *
+	 * @var array[string]callable
+	 */
+	protected static $pool;
+
+	/**
+	 * Returns the prototype associated with the specified class or object.
+	 *
+	 * @param string|object $class
+	 *
+	 * @return Prototype
+	 */
+	public static function get($class)
+	{
+		if (is_object($class))
+		{
+			$class = get_class($class);
+		}
+
+		if (isset(self::$prototypes[$class]))
+		{
+			return self::$prototypes[$class];
+		}
+
+		self::$prototypes[$class] = $prototype = new static($class);
+
+		return $prototype;
+	}
+
+	/**
+	 * Creates a prototype for the specified class.
+	 *
+	 * @param string $class
+	 */
+	protected function __construct($class)
+	{
+		if (self::$pool === null)
+		{
+			self::$pool = static::synthesize_config();
+		}
+
+		$this->class = $class;
+
+		$parent = null;
+
+		if ($class != 'ICanBoogie\Object')
+		{
+			$parent_class = get_parent_class($class);
+			$this->parent = $parent = static::get($parent_class);
+		}
+
+		$pool = self::$pool;
+
+		if (isset($pool[$class]))
+		{
+			$this->methods = $pool[$class];
+		}
+	}
+
+	/**
+	 * Consolide the methods of the prototype.
+	 *
+	 * The method creates a single array from the prototype methods and those of its parents.
+	 *
+	 * @return array[string]callable
+	 */
+	protected function get_consolided_methods()
+	{
+		if ($this->consolided_methods !== null)
+		{
+			return $this->consolided_methods;
+		}
+
+		$methods = $this->methods;
+
+		if ($this->parent)
+		{
+			$methods += $this->parent->get_consolided_methods();
+		}
+
+		return $this->consolided_methods = $methods;
+	}
+
+	/**
+	 * Revokes the consolided methods of the prototype.
+	 *
+	 * The method must be invoked when prototype methods are modified.
+	 */
+	protected function revoke_consolided_methods()
+	{
+		$class = $this->class;
+
+		foreach (self::$prototypes as $prototype)
+		{
+			if (!is_subclass_of($prototype->class, $class))
+			{
+				continue;
+			}
+
+			$prototype->consolided_methods = null;
+		}
+	}
+
+	/**
+	 * Adds or replaces the specified method of the prototype.
+	 *
+	 * @param string $method The name of the method.
+	 *
+	 * @param callable $callback
+	 */
+	public function offsetSet($method, $callback)
+	{
+ 		self::$prototypes[$this->class]->methods[$method] = $callback;
+
+		$this->revoke_consolided_methods();
+	}
+
+	/**
+	 * Removed the specified method from the prototype.
+	 *
+	 * @param string $method The name of the method.
+	 */
+	public function offsetUnset($method)
+	{
+		unset(self::$prototypes[$this->class]->methods[$method]);
+
+		$this->revoke_consolided_methods();
+	}
+
+	/**
+	 * Checks if the prototype defines the specified method.
+	 *
+	 * @param string $method The name of the method.
+	 *
+	 * @return bool
+	 */
+	public function offsetExists($method)
+	{
+		$methods = $this->get_consolided_methods();
+
+		return isset($methods[$method]);
+	}
+
+	/**
+	 * Returns the callback associated with the specified method.
+	 *
+	 * @param string $method The name of the method.
+	 *
+	 * @throws Prototype\UnknownMethodException if the method is not defined.
+	 *
+	 * @return callable
+	 */
+	public function offsetGet($method)
+	{
+		$methods = $this->get_consolided_methods();
+
+		if (!isset($methods[$method]))
+		{
+			throw new Prototype\UnknownMethodException(array($method, $this->class));
+		}
+
+		return $methods[$method];
+	}
+
+	/**
+	 * Returns an iterator for the prototype methods.
+	 *
+	 * @see IteratorAggregate::getIterator()
+	 */
+	public function getIterator()
+	{
+		$methods = $this->get_consolided_methods();
+
+		return new \ArrayIterator($methods);
+	}
+
+	/**
+	 * Synthesizes the prototype methods from the "hooks" config.
+	 *
+	 * @throws \InvalidArgumentException if a method definition is missing the '::' separator.
+	 *
+	 * @return array[string]callable
+	 */
+	protected static function synthesize_config()
+	{
+		global $core;
+
+		return $core->configs->synthesize('prototypes', function(array $fragments)
+		{
+			$methods = array();
+
+			foreach ($fragments as $root => $fragment)
+			{
+				if (empty($fragment['prototypes']))
+				{
+					continue;
+				}
+
+				foreach ($fragment['prototypes'] as $method => $callback)
+				{
+					if (strpos($method, '::') === false)
+					{
+						throw new \InvalidArgumentException(format
+						(
+							'Invalid method name %method, must be <code>class_name::method_name</code> in %pathname', array
+							(
+								'method' => $method,
+								'pathname' => $root . 'config/hooks.php'
+							)
+						));
+					}
+
+					list($class, $method) = explode('::', $method);
+
+					$methods[$class][$method] = $callback;
+				}
+			}
+
+			return $methods;
+		},
+
+		'hooks');
+	}
+}
+
+namespace ICanBoogie\Prototype;
+
+/**
+ * This exception is thrown when one tries to access an undefined prototype method.
+ */
+class UnknownMethodException extends \Exception
+{
+	public function __construct($message, $code=500, $previous=null)
+	{
+		if (is_array($message))
+		{
+			$message = \ICanBoogie\format('Undefined method %method for the prototype of the class %class.', array('method' => $message[0], 'class' => $message[1]));
+		}
+
+		parent::__construct($message, $code, $previous);
 	}
 }
