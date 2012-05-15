@@ -16,12 +16,24 @@ namespace ICanBoogie;
  */
 class Events implements \IteratorAggregate, \ArrayAccess
 {
+	/**
+	 * Singleton instance of the class.
+	 *
+	 * @var Events
+	 */
 	protected static $instance;
+
+	/**
+	 * Callback to initialize events.
+	 *
+	 * @var callable
+	 */
+	public static $initializer;
 
 	/**
 	 * Returns the singleton instance of the class.
 	 *
-	 * @return \ICanBoogie\Events
+	 * @return Events
 	 */
 	public static function get()
 	{
@@ -33,80 +45,108 @@ class Events implements \IteratorAggregate, \ArrayAccess
 		return self::$instance;
 	}
 
-	protected $events;
+	/**
+	 * Synthesizes events config.
+	 *
+	 * Events are retrieved from the "hooks" config, under the "events" namespace.
+	 *
+	 * @param array $fragments
+	 * @throws \InvalidArgumentException when a callback is not properly defined.
+	 *
+	 * @return array[string]array
+	 */
+	public static function synthesize_config(array $fragments)
+	{
+		$events = array();
+
+		foreach ($fragments as $path => $fragment)
+		{
+			if (empty($fragment['events']))
+			{
+				continue;
+			}
+
+			foreach ($fragment['events'] as $type => $callback)
+			{
+				if (!is_string($callback))
+				{
+					throw new \InvalidArgumentException(format
+					(
+						'Event callback must be a string, %type given: :callback in %path', array
+						(
+							'type' => gettype($callback),
+							'callback' => $callback,
+							'path' => $path . 'config/hooks.php'
+						)
+					));
+				}
+
+				#
+				# because modules are ordered by weight (most important are first), we can
+				# push callbacks instead of unshifting them.
+				#
+
+				if (strpos($type, '::'))
+				{
+					list($class, $type) = explode('::', $type);
+
+					$events[$class][$type][] = $callback;
+				}
+				else
+				{
+					$events['::'][$type][] = $callback;
+				}
+			}
+		}
+
+		return $events;
+	}
 
 	/**
-	 * Gathers events from the "hooks" config fragments under the `events` key.
+	 * Event collection.
 	 *
-	 * @throws \InvalidArgumentException when a callback is not properly defined.
+	 * @var array[string]array
+	 */
+	protected $events = array();
+
+	/**
+	 * Calls the event initializer if it is defined.
+	 *
+	 * @see Events::$initializer
 	 */
 	protected function __construct()
 	{
-		global $core;
-
-		$this->events = $core->configs->synthesize
-		(
-			'events', function($fragments)
-			{
-				$events = array();
-
-				foreach ($fragments as $path => $fragment)
-				{
-					if (empty($fragment['events']))
-					{
-						continue;
-					}
-
-					foreach ($fragment['events'] as $type => $callback)
-					{
-						if (!is_string($callback))
-						{
-							throw new \InvalidArgumentException(format
-							(
-								'Event callback must be a string, %type given: :callback in %path', array
-								(
-									'type' => gettype($callback),
-									'callback' => $callback,
-									'path' => $path . 'config/hooks.php'
-								)
-							));
-						}
-
-						#
-						# because modules are ordered by weight (most important are first), we can
-						# push callbacks instead of unshifting them.
-						#
-
-						if (strpos($type, '::'))
-						{
-							list($class, $type) = explode('::', $type);
-
-							$events[$class][$type][] = $callback;
-						}
-						else
-						{
-							$events['::'][$type][] = $callback;
-						}
-					}
-				}
-
-				return $events;
-			},
-
-			'hooks'
-		);
+		if (self::$initializer)
+		{
+			$this->events = call_user_func(self::$initializer, $this);
+		}
 	}
 
+	/**
+	 * Returns an iterator for event callbacks.
+	 *
+	 * @see IteratorAggregate::getIterator()
+	 */
 	public function getIterator()
 	{
 		return new \ArrayIterator($this->events);
 	}
 
+	/**
+	 * Checks if a callback exists for a event.
+	 *
+	 * @see ArrayAccess::offsetExists()
+	 */
 	public function offsetExists($offset)
 	{
 		return isset($this->events[$offset]);
 	}
 
+	/**
+	 * Returns the callbacks for a event.
+	 *
+	 * @see ArrayAccess::offsetGet()
+	 */
 	public function offsetGet($offset)
 	{
 		return $this->offsetExists($offset) ? $this->events[$offset] : array();
@@ -122,10 +162,15 @@ class Events implements \IteratorAggregate, \ArrayAccess
 		throw new Exception\OffsetNotWritable(array($offset, $this));
 	}
 
+	/**
+	 * Lists of skippable event types.
+	 *
+	 * @var array[string]bool
+	 */
 	protected $skippable = array();
 
 	/**
-	 * Mark an event type as skippable.
+	 * Marks an event type as skippable.
 	 *
 	 * @param string $type
 	 */

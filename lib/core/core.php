@@ -130,7 +130,7 @@ class Core extends Object
 
 		#
 
-		$options = \ICanBoogie\array_merge_recursive
+		$options = array_merge_recursive
 		(
 			array
 			(
@@ -170,7 +170,8 @@ class Core extends Object
 
 		# the order is important, there's magic involved.
 
-		$this->configs->add($options['paths']['config']);
+		$configs = $this->configs;
+		$configs->add($options['paths']['config']);
 
 		$config = array_merge_recursive($options, $this->config);
 
@@ -178,9 +179,16 @@ class Core extends Object
 
 		if ($config['cache configs'])
 		{
-			$this->configs->cache_syntheses = true;
-			$this->configs->cache_repository = $config['repository.cache'] . '/core';
+			$configs->cache_syntheses = true;
+			$configs->cache_repository = $config['repository.cache'] . '/core';
 		}
+
+		# Initialize events with the "events" config.
+
+		Events::$initializer = function() use($configs)
+		{
+			return $configs['events'];
+		};
 	}
 
 	/**

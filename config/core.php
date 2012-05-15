@@ -85,7 +85,7 @@ return array
 	'config constructors' => array
 	(
 		'debug' => array('ICanBoogie\Debug::synthesize_config'),
-		'methods' => array('ICanBoogie\Object::synthesize_methods', 'hooks')
+		'events' => array('ICanBoogie\Events::synthesize_config', 'hooks')
 	),
 
 	'connections' => array
