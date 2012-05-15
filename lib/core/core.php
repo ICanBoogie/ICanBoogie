@@ -189,6 +189,13 @@ class Core extends Object
 		{
 			return $configs['events'];
 		};
+
+		# Initialize prototypes with the "prototypes" config.
+
+		Prototype::$initializer = function() use($configs)
+		{
+			return $configs['prototypes'];
+		};
 	}
 
 	/**

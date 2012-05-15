@@ -479,32 +479,11 @@ namespace ICanBoogie;
 class Prototype implements \ArrayAccess, \IteratorAggregate
 {
 	/**
-	 * Class associated with the prototype.
+	 * Callback to initialize prototypes.
 	 *
-	 * @var string
+	 * @var callable
 	 */
-	protected $class;
-
-	/**
-	 * Parent prototype.
-	 *
-	 * @var Prototype
-	 */
-	protected $parent;
-
-	/**
-	 * Methods defined by the prototype.
-	 *
-	 * @var array[string]callable
-	 */
-	protected $methods = array();
-
-	/**
-	 * Methods defined by the prototypes chain.
-	 *
-	 * @var array[string]callable
-	 */
-	protected $consolided_methods;
+	public static $initializer;
 
 	/**
 	 * Prototypes built per class.
@@ -545,6 +524,75 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * Synthesizes the prototype methods from the "hooks" config.
+	 *
+	 * @throws \InvalidArgumentException if a method definition is missing the '::' separator.
+	 *
+	 * @return array[string]callable
+	 */
+	public static function synthesize_config(array $fragments)
+	{
+		$methods = array();
+
+		foreach ($fragments as $root => $fragment)
+		{
+			if (empty($fragment['prototypes']))
+			{
+				continue;
+			}
+
+			foreach ($fragment['prototypes'] as $method => $callback)
+			{
+				if (strpos($method, '::') === false)
+				{
+					throw new \InvalidArgumentException(format
+					(
+						'Invalid method name %method, must be <code>class_name::method_name</code> in %pathname', array
+						(
+							'method' => $method,
+							'pathname' => $root . 'config/hooks.php'
+						)
+					));
+				}
+
+				list($class, $method) = explode('::', $method);
+
+				$methods[$class][$method] = $callback;
+			}
+		}
+
+		return $methods;
+	}
+
+	/**
+	 * Class associated with the prototype.
+	 *
+	 * @var string
+	 */
+	protected $class;
+
+	/**
+	 * Parent prototype.
+	 *
+	 * @var Prototype
+	 */
+	protected $parent;
+
+	/**
+	 * Methods defined by the prototype.
+	 *
+	 * @var array[string]callable
+	 */
+	protected $methods = array();
+
+	/**
+	 * Methods defined by the prototypes chain.
+	 *
+	 * @var array[string]callable
+	 */
+	protected $consolided_methods;
+
+	/**
 	 * Creates a prototype for the specified class.
 	 *
 	 * @param string $class
@@ -553,7 +601,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 	{
 		if (self::$pool === null)
 		{
-			self::$pool = static::synthesize_config();
+			self::$pool = self::$initializer ? call_user_func(self::$initializer, $this) : array();
 		}
 
 		$this->class = $class;
@@ -689,54 +737,6 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 		$methods = $this->get_consolided_methods();
 
 		return new \ArrayIterator($methods);
-	}
-
-	/**
-	 * Synthesizes the prototype methods from the "hooks" config.
-	 *
-	 * @throws \InvalidArgumentException if a method definition is missing the '::' separator.
-	 *
-	 * @return array[string]callable
-	 */
-	protected static function synthesize_config()
-	{
-		global $core;
-
-		return $core->configs->synthesize('prototypes', function(array $fragments)
-		{
-			$methods = array();
-
-			foreach ($fragments as $root => $fragment)
-			{
-				if (empty($fragment['prototypes']))
-				{
-					continue;
-				}
-
-				foreach ($fragment['prototypes'] as $method => $callback)
-				{
-					if (strpos($method, '::') === false)
-					{
-						throw new \InvalidArgumentException(format
-						(
-							'Invalid method name %method, must be <code>class_name::method_name</code> in %pathname', array
-							(
-								'method' => $method,
-								'pathname' => $root . 'config/hooks.php'
-							)
-						));
-					}
-
-					list($class, $method) = explode('::', $method);
-
-					$methods[$class][$method] = $callback;
-				}
-			}
-
-			return $methods;
-		},
-
-		'hooks');
 	}
 }
 
