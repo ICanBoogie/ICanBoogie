@@ -105,6 +105,7 @@ else
 	require_once ROOT . 'lib/core/debug.php';
 	require_once ROOT . 'lib/core/exception.php';
 	require_once ROOT . 'lib/core/event.php';
+	require_once ROOT . 'lib/core/prototype.php';
 	require_once ROOT . 'lib/core/object.php';
 	require_once ROOT . 'lib/core/accessors/configs.php';
 	require_once ROOT . 'lib/core/core.php';

@@ -481,7 +481,7 @@ class DatabaseTable extends Object
 			{
 				$filtered[] = $id;
 
-				$statement = 'UPDATE {self} SET ' . implode(', ', $holders) . ' WHERE `{primary}` = ?';
+				$statement = 'UPDATE `{self}` SET ' . implode(', ', $holders) . ' WHERE `{primary}` = ?';
 
 				$statement = $this->prepare($statement);
 
@@ -497,7 +497,7 @@ class DatabaseTable extends Object
 						$holders[] = '`{primary}` = ?';
 					}
 
-					$statement = 'INSERT INTO {self} SET ' . implode(', ', $holders);
+					$statement = 'INSERT INTO `{self}` SET ' . implode(', ', $holders);
 
 					$statement = $this->prepare($statement);
 
@@ -521,7 +521,7 @@ class DatabaseTable extends Object
 				$holders[] = '`{primary}` = ?';
 			}
 
-			$statement = 'INSERT INTO {self} SET ' . implode(', ', $holders);
+			$statement = 'INSERT INTO `{self}` SET ' . implode(', ', $holders);
 
 			$statement = $this->prepare($statement);
 

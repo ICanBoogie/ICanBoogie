@@ -11,13 +11,12 @@
 
 namespace ICanBoogie\ActiveRecord;
 
-use ICanBoogie;
 use ICanBoogie\Module;
 use ICanBoogie\Exception;
 use ICanBoogie\ActiveRecord;
 use ICanBoogie\ActiveRecord\Query;
 
-class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
+class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 {
 	const T_CLASS = 'class';
 	const T_ACTIVERECORD_CLASS = 'activerecord-class';
@@ -261,16 +260,16 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 	{
 		$key = $this->create_cache_key($record->{$this->primary});
 
-		if (!$key)
+		if (!$key || isset(self::$cached_records[$key]))
 		{
 			return;
 		}
 
 		self::$cached_records[$key] = $record;
 
-		if (ICanBoogie\CACHE_ACTIVERECORDS)
+		if (\ICanBoogie\CACHE_ACTIVERECORDS)
 		{
-			apc_store($key, $record);
+			apc_store($key, $record, 3600);
 		}
 	}
 
@@ -297,7 +296,7 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 		{
 			$record = self::$cached_records[$key];
 		}
-		else if (ICanBoogie\CACHE_ACTIVERECORDS)
+		else if (\ICanBoogie\CACHE_ACTIVERECORDS)
 		{
 			$record = apc_fetch($key, $success);
 
@@ -328,7 +327,7 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 			return;
 		}
 
-		if (ICanBoogie\CACHE_ACTIVERECORDS)
+		if (\ICanBoogie\CACHE_ACTIVERECORDS)
 		{
 			apc_delete($key);
 		}
@@ -350,8 +349,15 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 			return;
 		}
 
-		return (ICanBoogie\CACHE_ACTIVERECORDS ? 'ar:' . ICanBoogie\DOCUMENT_ROOT : '') . $this->connection->id . '/' . $this->name . '/' . $key;
+		if (self::$master_cache_key === null)
+		{
+			self::$master_cache_key = md5($_SERVER['DOCUMENT_ROOT']) . '/AR/';
+		}
+
+		return self::$master_cache_key . $this->connection->id . '/' . $this->name . '/' . $key;
 	}
+
+	private static $master_cache_key;
 
 	/**
 	 * Delegation hub.
@@ -643,7 +649,7 @@ class Model extends ICanBoogie\DatabaseTable implements \ArrayAccess
 	 */
 	public static function resolve_class_name($namespace, $model_id='primary')
 	{
-		return $namespace . '\\' . ($model_id == 'primary' ? '' : ICanBoogie\normalize_namespace_part($model_id)) . 'Model';
+		return $namespace . '\\' . ($model_id == 'primary' ? '' : \ICanBoogie\normalize_namespace_part($model_id)) . 'Model';
 	}
 
 	/**

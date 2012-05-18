@@ -189,13 +189,6 @@ class Core extends Object
 		{
 			return $configs['events'];
 		};
-
-		# Initialize prototypes with the "prototypes" config.
-
-		Prototype::$initializer = function() use($configs)
-		{
-			return $configs['prototypes'];
-		};
 	}
 
 	/**
@@ -425,12 +418,19 @@ class Core extends Object
 		$this->modules->autorun = true;
 
 		$this->run_modules();
+
+		# Configure the Prototype class with the "prototypes" config.
+
+		Prototype::configure($this->configs['prototypes']);
+
 		$this->run_context();
 
 		if (CACHE_BOOTSTRAP)
 		{
 			$this->cache_bootstrap();
 		}
+
+		$_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
 	}
 
 	/**

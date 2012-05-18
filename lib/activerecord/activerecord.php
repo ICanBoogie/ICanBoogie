@@ -59,20 +59,6 @@ class ActiveRecord extends Object
 	}
 
 	/**
-	 * Removes the '_model' property before serialization.
-	 *
-	 * @return array
-	 */
-	public function __sleep()
-	{
-		$keys = parent::__sleep();
-
-		unset($keys['_model']);
-
-		return $keys;
-	}
-
-	/**
 	 * Returns the model for the active record.
 	 *
 	 * This getter is used when the model has been provided as a string during construct.
