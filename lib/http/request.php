@@ -326,7 +326,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return string
 	 */
-	protected function __volatile_get_script_name()
+	protected function volatile_get_script_name()
 	{
 		return $this->env['SCRIPT_NAME'];
 	}
@@ -338,7 +338,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @param string $value
 	 */
-	protected function __volatile_set_script_name($value)
+	protected function volatile_set_script_name($value)
 	{
 		$this->env['SCRIPT_NAME'] = $value;
 	}
@@ -352,7 +352,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return string
 	 */
-	protected function __get_method()
+	protected function get_method()
 	{
 		$method = $this->env['REQUEST_METHOD'];
 
@@ -369,22 +369,22 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		return $method;
 	}
 
-	protected function __get_query_string()
+	protected function get_query_string()
 	{
 		return isset($this->env['QUERY_STRING']) ? $this->env['QUERY_STRING'] : null;
 	}
 
-	protected function __get_content_length()
+	protected function get_content_length()
 	{
 		return isset($this->env['CONTENT_LENGTH']) ? $this->env['CONTENT_LENGTH'] : null;
 	}
 
-	protected function __get_referer()
+	protected function get_referer()
 	{
 		return isset($this->env['HTTP_REFERER']) ? $this->env['HTTP_REFERER'] : null;
 	}
 
-	protected function __get_user_agent()
+	protected function get_user_agent()
 	{
 		return isset($this->env['HTTP_USER_AGENT']) ? $this->env['HTTP_USER_AGENT'] : null;
 	}
@@ -394,7 +394,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function __get_is_delete()
+	protected function get_is_delete()
 	{
 		return $this->method == 'delete';
 	}
@@ -404,7 +404,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function __get_is_get()
+	protected function get_is_get()
 	{
 		return $this->method == self::METHOD_GET;
 	}
@@ -414,7 +414,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function __get_is_head()
+	protected function get_is_head()
 	{
 		return $this->method == self::METHOD_HEAD;
 	}
@@ -424,7 +424,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function __get_is_options()
+	protected function get_is_options()
 	{
 		return $this->method == self::METHOD_OPTIONS;
 	}
@@ -434,7 +434,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function __get_is_patch()
+	protected function get_is_patch()
 	{
 		return $this->method == self::METHOD_PATCH;
 	}
@@ -444,7 +444,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function __get_is_post()
+	protected function get_is_post()
 	{
 		return $this->method == self::METHOD_POST;
 	}
@@ -454,7 +454,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function __get_is_put()
+	protected function get_is_put()
 	{
 		return $this->method == self::METHOD_PUT;
 	}
@@ -464,7 +464,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function __get_is_trace()
+	protected function get_is_trace()
 	{
 		return $this->method == self::METHOD_TRACE;
 	}
@@ -474,7 +474,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function __get_is_xhr()
+	protected function get_is_xhr()
 	{
 		return !empty($this->env['HTTP_X_REQUESTED_WITH']) && preg_match('/XMLHttpRequest/', $this->env['HTTP_X_REQUESTED_WITH']);
 	}
@@ -484,7 +484,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function __get_is_local()
+	protected function get_is_local()
 	{
 		static $patterns = array('::1', '/^127\.0\.0\.\d{1,3}$/', '/^0:0:0:0:0:0:0:1(%.*)?$/');
 
@@ -519,7 +519,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return string
 	 */
-	protected function __get_ip()
+	protected function get_ip()
 	{
 		if (isset($this->env['HTTP_X_FORWARDED_FOR']))
 		{
@@ -533,7 +533,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		return $this->env['REMOTE_ADDR'] ?: '::1';
 	}
 
-	protected function __get_authorization()
+	protected function get_authorization()
 	{
 		if (isset($this->env['HTTP_AUTHORIZATION']))
 		{
@@ -553,12 +553,12 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		}
 	}
 
-	protected function __volatile_get_uri()
+	protected function volatile_get_uri()
 	{
 		return $this->env['REQUEST_URI'];
 	}
 
-	protected function __volatile_set_uri($uri)
+	protected function volatile_set_uri($uri)
 	{
 		unset($this->path);
 		unset($this->query_string);
@@ -571,7 +571,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return int
 	 */
-	protected function __volatile_get_port()
+	protected function volatile_get_port()
 	{
 		return $this->env['REQUEST_PORT'];
 	}
@@ -581,7 +581,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @param int $port
 	 */
-	protected function __volatile_set_port($port)
+	protected function volatile_set_port($port)
 	{
 		$this->env['REQUEST_PORT'] = $port;
 	}
@@ -591,7 +591,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return string
 	 */
-	protected function __get_path()
+	protected function get_path()
 	{
 		$path = $this->env['REQUEST_URI'];
 		$qs = $this->query_string;
@@ -609,7 +609,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return mixed
 	 */
-	protected function __volatile_get_extension()
+	protected function volatile_get_extension()
 	{
 		return pathinfo($this->path, PATHINFO_EXTENSION);
 	}
@@ -622,7 +622,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return array
 	 */
-	protected function __get_params()
+	protected function get_params()
 	{
 		return $this->path_params + $this->request_params + $this->query_params;
 	}
@@ -632,12 +632,12 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return Headers
 	 */
-	protected function __get_headers()
+	protected function get_headers()
 	{
 		return new Headers($this->env);
 	}
 
-	protected function __get_files()
+	protected function get_files()
 	{
 		// TODO:2012-03-12 returns the files associated with the request
 	}
@@ -657,7 +657,7 @@ class Context extends \ICanBoogie\Object
 	 * The request the context belongs to.
 	 *
 	 * The variable is declared as private but is actually readdable thanks to the
-	 * {@link __volatile_get_request} getter.
+	 * {@link volatile_get_request} getter.
 	 *
 	 * @var \ICanBoogie\HTTP\Request
 	 */
@@ -673,7 +673,7 @@ class Context extends \ICanBoogie\Object
 		$this->request = $request;
 	}
 
-	protected function __volatile_set_request()
+	protected function volatile_set_request()
 	{
 		throw new \ICanBoogie\Exception\PropertyNotWritable(array('request', $this));
 	}
@@ -683,7 +683,7 @@ class Context extends \ICanBoogie\Object
 	 *
 	 * @return \ICanBoogie\HTTP\Request
 	 */
-	protected function __volatile_get_request()
+	protected function volatile_get_request()
 	{
 		return $this->request;
 	}

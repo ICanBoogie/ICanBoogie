@@ -142,7 +142,7 @@ class Locale extends Object
 	 *
 	 * @return array the conventions for this locale.
 	 */
-	protected function __get_conventions()
+	protected function get_conventions()
 	{
 		$path = ICanBoogie\ROOT . 'locale' . DIRECTORY_SEPARATOR . 'conventions' . DIRECTORY_SEPARATOR;
 
@@ -174,7 +174,7 @@ class Locale extends Object
 	/**
 	 * @return Formatter\Number the number formatter for this locale.
 	 */
-	protected function __get_number_formatter()
+	protected function get_number_formatter()
 	{
 		return new Formatter\Number($this);
 	}
@@ -182,7 +182,7 @@ class Locale extends Object
 	/**
 	 * @return Formatter\Date the date formatter for this locale.
 	 */
-	protected function __get_date_formatter()
+	protected function get_date_formatter()
 	{
 		return new Formatter\Date($this);
 	}
@@ -190,7 +190,7 @@ class Locale extends Object
 	/**
 	 * @return Translator The translator for this locale.
 	 */
-	protected function __get_translator()
+	protected function get_translator()
 	{
 		$id = $this->language;
 

@@ -527,7 +527,7 @@ class Query extends Object implements \IteratorAggregate
 	 *
 	 * @return DatabaseStatement
 	 */
-	protected function __volatile_get_prepared()
+	protected function volatile_get_prepared()
 	{
 		return $this->prepare();
 	}
@@ -584,7 +584,7 @@ class Query extends Object implements \IteratorAggregate
 	 *
 	 * @see all()
 	 */
-	protected function __volatile_get_all()
+	protected function volatile_get_all()
 	{
 		return $this->all();
 	}
@@ -628,7 +628,7 @@ class Query extends Object implements \IteratorAggregate
 	 *
 	 * @see one()
 	 */
-	protected function __volatile_get_one()
+	protected function volatile_get_one()
 	{
 		return $this->one();
 	}
@@ -639,7 +639,7 @@ class Query extends Object implements \IteratorAggregate
 	 *
 	 * @return array
 	 */
-	protected function __volatile_get_pairs()
+	protected function volatile_get_pairs()
 	{
 		return $this->all(\PDO::FETCH_KEY_PAIR);
 	}
@@ -649,7 +649,7 @@ class Query extends Object implements \IteratorAggregate
 	 *
 	 * @return string
 	 */
-	protected function __volatile_get_rc()
+	protected function volatile_get_rc()
 	{
 		$previous_limit = $this->limit;
 
@@ -717,7 +717,7 @@ class Query extends Object implements \IteratorAggregate
 	 *
 	 * @see exists()
 	 */
-	protected function __volatile_get_exists()
+	protected function volatile_get_exists()
 	{
 		return $this->exists();
 	}
@@ -780,7 +780,7 @@ class Query extends Object implements \IteratorAggregate
 	 *
 	 * @return int
 	 */
-	protected function __volatile_get_count()
+	protected function volatile_get_count()
 	{
 		return $this->count();
 	}

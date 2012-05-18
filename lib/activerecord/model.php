@@ -111,12 +111,12 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 		return parent::__get($property);
 	}
 
-	protected function __volatile_get_id()
+	protected function volatile_get_id()
 	{
 		return $this->attributes[self::T_ID];
 	}
 
-	protected function __volatile_set_id()
+	protected function volatile_set_id()
 	{
 		throw new Exception\PropertyNotWritable(array('id', $this));
 	}
@@ -442,7 +442,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 		return $this->defer_to_actionrecord_query();
 	}
 
-	protected function __volatile_get_exists()
+	protected function volatile_get_exists()
 	{
 		return $this->exists();
 	}
@@ -457,7 +457,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 		return $this->defer_to_actionrecord_query();
 	}
 
-	protected function __volatile_get_count()
+	protected function volatile_get_count()
 	{
 		return $this->count();
 	}
@@ -517,7 +517,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	 *
 	 * @return array An array of records.
 	 */
-	protected function __volatile_get_all()
+	protected function volatile_get_all()
 	{
 		return $this->all();
 	}

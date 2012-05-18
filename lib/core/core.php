@@ -196,7 +196,7 @@ class Core extends Object
 	 *
 	 * @return Modules The modules accessor.
 	 */
-	protected function __get_modules()
+	protected function get_modules()
 	{
 		$config = $this->config;
 
@@ -208,7 +208,7 @@ class Core extends Object
 	 *
 	 * @return Models The models accessor.
 	 */
-	protected function __get_models()
+	protected function get_models()
 	{
 		return new Models($this->modules);
 	}
@@ -218,7 +218,7 @@ class Core extends Object
 	 *
 	 * @return Vars The non-volatie variables accessor.
 	 */
-	protected function __get_vars()
+	protected function get_vars()
 	{
 		return new Vars(REPOSITORY . 'vars' . DIRECTORY_SEPARATOR);
 	}
@@ -228,7 +228,7 @@ class Core extends Object
 	 *
 	 * @return Connections
 	 */
-	protected function __get_connections()
+	protected function get_connections()
 	{
 		return new Connections($this->config['connections']);
 	}
@@ -238,7 +238,7 @@ class Core extends Object
 	 *
 	 * @return Database
 	 */
-	protected function __get_db()
+	protected function get_db()
 	{
 		return $this->connections['primary'];
 	}
@@ -248,7 +248,7 @@ class Core extends Object
 	 *
 	 * @return ConfigsAccessor
 	 */
-	protected function __get_configs()
+	protected function get_configs()
 	{
 		return new Configs($this);
 	}
@@ -258,7 +258,7 @@ class Core extends Object
 	 *
 	 * @return array
 	 */
-	protected function __get_config()
+	protected function get_config()
 	{
 		$config = $this->configs['core'];
 
@@ -275,7 +275,7 @@ class Core extends Object
 	 *
 	 * @return HTTP\Dispatcher
 	 */
-	protected function __volatile_get_dispatcher()
+	protected function volatile_get_dispatcher()
 	{
 		return HTTP\get_dispatcher();
 	}
@@ -285,7 +285,7 @@ class Core extends Object
 	 *
 	 * @return HTTP\Request
 	 */
-	protected function __get_initial_request()
+	protected function get_initial_request()
 	{
 		return HTTP\Request::from($_SERVER);
 	}
@@ -295,12 +295,12 @@ class Core extends Object
 	 *
 	 * @return HTTP\Request
 	 */
-	protected function __volatile_get_request()
+	protected function volatile_get_request()
 	{
 		return HTTP\Request::get_current_request();
 	}
 
-	protected function __volatile_set_request()
+	protected function volatile_set_request()
 	{
 		throw new Exception\PropertyNotWritable(array('request', $this));
 	}
@@ -310,7 +310,7 @@ class Core extends Object
 	 *
 	 * @param string $id
 	 */
-	protected function __volatile_set_language($id)
+	protected function volatile_set_language($id)
 	{
 		I18n::set_language($id);
 	}
@@ -320,7 +320,7 @@ class Core extends Object
 	 *
 	 * @param string $id
 	 */
-	protected function __volatile_get_language()
+	protected function volatile_get_language()
 	{
 		return I18n::get_language();
 	}
@@ -328,7 +328,7 @@ class Core extends Object
 	/**
 	 * @throws Exception\PropertyNotWritable when the `locale` property is set.
 	 */
-	protected function __volatile_set_locale()
+	protected function volatile_set_locale()
 	{
 		throw new Exception\PropertyNotWritable(array('locale', $this));
 	}
@@ -340,7 +340,7 @@ class Core extends Object
 	 *
 	 * @return Locale
 	 */
-	protected function __volatile_get_locale()
+	protected function volatile_get_locale()
 	{
 		return I18n::get_locale();
 	}
@@ -355,7 +355,7 @@ class Core extends Object
 	 *
 	 * @param string|int $timezone Name of the timezone, or numeric equivalent e.g. 3600.
 	 */
-	protected function __volatile_set_timezone($timezone)
+	protected function volatile_set_timezone($timezone)
 	{
 		if (is_numeric($timezone))
 		{
@@ -375,7 +375,7 @@ class Core extends Object
 	 * @todo should retrun an instance of http://php.net/manual/en/class.datetimezone.php,
 	 * __toString() should return its name.
 	 */
-	protected function __volatile_get_timezone()
+	protected function volatile_get_timezone()
 	{
 		return $this->_timezone;
 	}
@@ -389,7 +389,7 @@ class Core extends Object
 	 *
 	 * @return Session.
 	 */
-	protected function __get_session()
+	protected function get_session()
 	{
 		$options = $this->config['session'];
 

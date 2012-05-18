@@ -235,7 +235,7 @@ class Module extends Object
 	 *
 	 * @return string
 	 */
-	protected function __volatile_get_id()
+	protected function volatile_get_id()
 	{
 		return $this->id;
 	}
@@ -257,7 +257,7 @@ class Module extends Object
 	 *
 	 * @return array[string]mixed
 	 */
-	protected function __volatile_get_descriptor()
+	protected function volatile_get_descriptor()
 	{
 		return $this->descriptor;
 	}
@@ -274,7 +274,7 @@ class Module extends Object
 		return $this->id;
 	}
 
-	protected function __volatile_get_tags()
+	protected function volatile_get_tags()
 	{
 		trigger_error("The <q>tags</q> property is deprecated");
 
@@ -288,7 +288,7 @@ class Module extends Object
 	 *
 	 * @return string
 	 */
-	protected function __get_flat_id()
+	protected function get_flat_id()
 	{
 		return strtr($this->id, '.', '_');
 	}
@@ -300,7 +300,7 @@ class Module extends Object
 	 *
 	 * @return ActiveRecord\Model
 	 */
-	protected function __get_model()
+	protected function get_model()
 	{
 		return $this->model();
 	}
@@ -310,7 +310,7 @@ class Module extends Object
 	 *
 	 * @return string
 	 */
-	protected function __get_title()
+	protected function get_title()
 	{
 		$default = isset($this->descriptor[self::T_TITLE]) ? $this->descriptor[self::T_TITLE] : 'Undefined';
 
@@ -322,7 +322,7 @@ class Module extends Object
 	 *
 	 * @return Module|null
 	 */
-	protected function __get_parent()
+	protected function get_parent()
 	{
 		global $core;
 

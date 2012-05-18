@@ -16,22 +16,22 @@ use ICanBoogie\Exception;
 /**
  * The response to a HTTP request.
  *
- * @property string $body {@link __volatile_set_body()} {@link __volatile_get_body()}
- * @property string|array $content_type {@link __volatile_set_content_type()} {@link __volatile_get_content_type()}
- * @property integer $date {@link __volatile_set_date()} {@link __volatile_get_date()}
- * @property integer $expires {@link __volatile_set_expires()} {@link __volatile_get_expires()}
- * @property integer $status {@link __volatile_set_status()} {@link __volatile_get_status()}
- * @property integer $last_modified {@link __volatile_set_last_modified()} {@link __volatile_get_last_modified()}
- * @property-read boolean $is_valid {@link __volatile_get_is_valid()}
- * @property-read boolean $is_informational {@link __volatile_get_is_informational()}
- * @property-read boolean $is_successful {@link __volatile_get_is_successful()}
- * @property-read boolean $is_redirection {@link __volatile_get_is_redirection()}
- * @property-read boolean $is_client_error {@link __volatile_get_is_client_error()}
- * @property-read boolean $is_server_error {@link __volatile_get_is_server_error()}
- * @property-read boolean $is_ok {@link __volatile_get_is_ok()}
- * @property-read boolean $is_forbidden {@link __volatile_get_is_forbidden()}
- * @property-read boolean $is_not_found {@link __volatile_get_is_not_found()}
- * @property-read boolean $is_empty {@link __volatile_get_is_empty()}
+ * @property string $body {@link volatile_set_body()} {@link volatile_get_body()}
+ * @property string|array $content_type {@link volatile_set_content_type()} {@link volatile_get_content_type()}
+ * @property integer $date {@link volatile_set_date()} {@link volatile_get_date()}
+ * @property integer $expires {@link volatile_set_expires()} {@link volatile_get_expires()}
+ * @property integer $status {@link volatile_set_status()} {@link volatile_get_status()}
+ * @property integer $last_modified {@link volatile_set_last_modified()} {@link volatile_get_last_modified()}
+ * @property-read boolean $is_valid {@link volatile_get_is_valid()}
+ * @property-read boolean $is_informational {@link volatile_get_is_informational()}
+ * @property-read boolean $is_successful {@link volatile_get_is_successful()}
+ * @property-read boolean $is_redirection {@link volatile_get_is_redirection()}
+ * @property-read boolean $is_client_error {@link volatile_get_is_client_error()}
+ * @property-read boolean $is_server_error {@link volatile_get_is_server_error()}
+ * @property-read boolean $is_ok {@link volatile_get_is_ok()}
+ * @property-read boolean $is_forbidden {@link volatile_get_is_forbidden()}
+ * @property-read boolean $is_not_found {@link volatile_get_is_not_found()}
+ * @property-read boolean $is_empty {@link volatile_get_is_empty()}
  *
  * @see http://www.w3.org/Protocols/rfc2616/rfc2616.html
  */
@@ -103,8 +103,8 @@ class Response extends \ICanBoogie\Object
 			$this->date = 'now';
 		}
 
-		$this->__volatile_set_status($status);
-		$this->__volatile_set_body($body);
+		$this->volatile_set_status($status);
+		$this->volatile_set_body($body);
 	}
 
 	/**
@@ -193,7 +193,7 @@ class Response extends \ICanBoogie\Object
      *
      * @throws \InvalidArgumentException When the HTTP status code is not valid.
      */
-	protected function __volatile_set_status($status)
+	protected function volatile_set_status($status)
 	{
 		$status_message = null;
 
@@ -226,7 +226,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return integer
 	 */
-	protected function __volatile_get_status()
+	protected function volatile_get_status()
 	{
 		return $this->status;
 	}
@@ -236,7 +236,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @var mixed
 	 *
-	 * @see __volatile_set_body(), __volatile_get_body()
+	 * @see volatile_set_body(), volatile_get_body()
 	 */
 	private $body;
 
@@ -252,7 +252,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @throws \UnexpectedValueException when the body cannot be converted to a string.
 	 */
-	protected function __volatile_set_body($body)
+	protected function volatile_set_body($body)
 	{
 		if ($body !== null && !is_string($body) && !is_numeric($body) && !is_callable(array($body, '__toString')) && !is_callable($body))
 		{
@@ -276,7 +276,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return string
 	 */
-	protected function __volatile_get_body()
+	protected function volatile_get_body()
 	{
 		return $this->body;
 	}
@@ -289,7 +289,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return string
 	 */
-	protected function __volatile_get_status_message()
+	protected function volatile_get_status_message()
 	{
 		return self::$status_messages[$this->status];
 	}
@@ -299,7 +299,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param string $url
 	 */
-	protected function __volatile_set_location($url)
+	protected function volatile_set_location($url)
 	{
 		$this->headers['Location'] = $url;
 	}
@@ -309,7 +309,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return string
 	 */
-	protected function __volatile_get_location()
+	protected function volatile_get_location()
 	{
 		return $this->headers['Location'];
 	}
@@ -337,7 +337,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param string $content_type
 	 */
-	protected function __volatile_set_content_type($content_type)
+	protected function volatile_set_content_type($content_type)
 	{
 		$this->content_type = $content_type;
 
@@ -364,7 +364,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return string
 	 */
-	protected function __volatile_get_content_type()
+	protected function volatile_get_content_type()
 	{
 		$content_type = $this->content_type;
 
@@ -381,7 +381,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param int $length
 	 */
-	protected function __volatile_set_content_length($length)
+	protected function volatile_set_content_length($length)
 	{
 		$this->headers['Content-Length'] = $length;
 	}
@@ -391,7 +391,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return int|null The value of the `Content-Length` header or null if it is not defined.
 	 */
-	protected function __volatile_get_content_length()
+	protected function volatile_get_content_length()
 	{
 		return $this->headers['Content-Length'];
 	}
@@ -401,7 +401,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param mixed $time.
 	 */
-	protected function __volatile_set_date($time)
+	protected function volatile_set_date($time)
 	{
 		if ($time == 'now')
 		{
@@ -416,7 +416,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return string|null The value of the `Date` header or null if it is not defined.
 	 */
-	protected function __volatile_get_date()
+	protected function volatile_get_date()
 	{
 		return $this->headers['Date'];
 	}
@@ -426,7 +426,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param mixed $time.
 	 */
-	protected function __volatile_set_last_modified($time)
+	protected function volatile_set_last_modified($time)
 	{
 		$this->headers['Last-Modified'] = $time;
 	}
@@ -436,7 +436,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return string|null The value of the `Last-Modified` header or null if it is not defined.
 	 */
-	protected function __volatile_get_last_modified()
+	protected function volatile_get_last_modified()
 	{
 		return $this->headers['Last-Modified'];
 	}
@@ -448,7 +448,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @param mixed $time.
 	 */
-	protected function __volatile_set_expires($time)
+	protected function volatile_set_expires($time)
 	{
 		$this->headers['Expires'] = $time;
 
@@ -460,7 +460,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return string|null The value of the `Expires` header or null if it is not defined.
 	 */
-	protected function __volatile_get_expires()
+	protected function volatile_get_expires()
 	{
 		return $this->headers['Expires'];
 	}
@@ -474,12 +474,12 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function __volatile_get_is_valid()
+	protected function volatile_get_is_valid()
 	{
 		return $this->status >= 100 && $this->status < 600;
 	}
 
-	protected function __volatile_set_is_valid()
+	protected function volatile_set_is_valid()
 	{
 		throw new Exception\PropertyNotWritable(array('is_valid', $this));
 	}
@@ -493,12 +493,12 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function __volatile_get_is_informational()
+	protected function volatile_get_is_informational()
 	{
 		return $this->status >= 100 && $this->status < 200;
 	}
 
-	protected function __volatile_set_is_informational()
+	protected function volatile_set_is_informational()
 	{
 		throw new Exception\PropertyNotWritable(array('is_informational', $this));
 	}
@@ -512,12 +512,12 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function __volatile_get_is_successful()
+	protected function volatile_get_is_successful()
 	{
 		return $this->status >= 200 && $this->status < 300;
 	}
 
-	protected function __volatile_set_is_successful()
+	protected function volatile_set_is_successful()
 	{
 		throw new Exception\PropertyNotWritable(array('is_successful', $this));
 	}
@@ -532,12 +532,12 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function __volatile_get_is_redirection()
+	protected function volatile_get_is_redirection()
 	{
 		return $this->status >= 300 && $this->status < 400;
 	}
 
-	protected function __volatile_set_is_redirection()
+	protected function volatile_set_is_redirection()
 	{
 		throw new Exception\PropertyNotWritable(array('is_redirection', $this));
 	}
@@ -552,12 +552,12 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function __volatile_get_is_client_error()
+	protected function volatile_get_is_client_error()
 	{
 		return $this->status >= 400 && $this->status < 500;
 	}
 
-	protected function __volatile_set_is_client_error()
+	protected function volatile_set_is_client_error()
 	{
 		throw new Exception\PropertyNotWritable(array('is_client_error', $this));
 	}
@@ -572,12 +572,12 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function __volatile_get_is_server_error()
+	protected function volatile_get_is_server_error()
 	{
 		return $this->status >= 500 && $this->status < 600;
 	}
 
-	protected function __volatile_set_is_server_error()
+	protected function volatile_set_is_server_error()
 	{
 		throw new Exception\PropertyNotWritable(array('is_server_error', $this));
 	}
@@ -591,12 +591,12 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function __volatile_get_is_ok()
+	protected function volatile_get_is_ok()
 	{
 		return $this->status == 200;
 	}
 
-	protected function __volatile_set_is_ok()
+	protected function volatile_set_is_ok()
 	{
 		throw new Exception\PropertyNotWritable(array('is_ok', $this));
 	}
@@ -610,12 +610,12 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function __volatile_get_is_forbidden()
+	protected function volatile_get_is_forbidden()
 	{
 		return $this->status == 403;
 	}
 
-	protected function __volatile_set_is_forbidden()
+	protected function volatile_set_is_forbidden()
 	{
 		throw new Exception\PropertyNotWritable(array('is_forbidden', $this));
 	}
@@ -629,12 +629,12 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function __volatile_get_is_not_found()
+	protected function volatile_get_is_not_found()
 	{
 		return $this->status == 404;
 	}
 
-	protected function __volatile_set_is_not_found()
+	protected function volatile_set_is_not_found()
 	{
 		throw new Exception\PropertyNotWritable(array('is_not_found', $this));
 	}
@@ -648,12 +648,12 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-	protected function __volatile_get_is_empty()
+	protected function volatile_get_is_empty()
 	{
 		return in_array($this->status, array(201, 204, 304));
 	}
 
-	protected function __volatile_set_is_empty()
+	protected function volatile_set_is_empty()
 	{
 		throw new Exception\PropertyNotWritable(array('is_empty', $this));
 	}
@@ -683,7 +683,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * @return boolean
 	 */
-	protected function __volatile_get_private()
+	protected function volatile_get_private()
 	{
 		return !$this->public;
 	}
@@ -691,7 +691,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * @param boolean $value
 	 */
-	protected function __volatile_set_private($value)
+	protected function volatile_set_private($value)
 	{
 		$this->public = !$value;
 	}
@@ -703,17 +703,17 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * @return boolean
 	 */
-    protected function __volatile_get_is_fresh()
+    protected function volatile_get_is_fresh()
     {
         return $this->ttl > 0;
     }
 
-    protected function __volatile_set_is_fresh()
+    protected function volatile_set_is_fresh()
 	{
 		throw new Exception\PropertyNotWritable(array('is_fresh', $this));
 	}
 
-	protected function __volatile_get_is_cacheable()
+	protected function volatile_get_is_cacheable()
 	{
 		if (!in_array($this->status, array(200, 203, 300, 301, 302, 404, 410)))
 		{

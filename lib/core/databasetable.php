@@ -255,22 +255,22 @@ class DatabaseTable extends Object
 		$this->select_join = $join;
 	}
 
-	protected function __volatile_get_connection()
+	protected function volatile_get_connection()
 	{
 		return $this->connection;
 	}
 
-	protected function __set_connection()
+	protected function set_connection()
 	{
 		throw new Exception('The %property property cannot be set', array('%property' => 'connection'));
 	}
 
-	protected function __volatile_get_primary()
+	protected function volatile_get_primary()
 	{
 		return $this->primary;
 	}
 
-	protected function __set_primary()
+	protected function set_primary()
 	{
 		throw new Exception('The %property property cannot be set', array('%property' => 'primary'));
 	}
@@ -311,7 +311,7 @@ class DatabaseTable extends Object
 	/**
 	 * Getter for the {@link $extended_schema} property.
 	 */
-	protected function __get_extended_schema()
+	protected function get_extended_schema()
 	{
 		$table = $this;
 		$schemas = array();

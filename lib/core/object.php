@@ -27,17 +27,17 @@ namespace ICanBoogie;
  * defined by the class or its prototype. For example the `connection` property could have the
  * following getter and setter:
  *
- *     protected function __get_connection()
+ *     protected function get_connection()
  *     {
  *         return new Connection($this->username, $this->password);
  *     }
  *
- *     protected function __set_connection(Connection $connection)
+ *     protected function set_connection(Connection $connection)
  *     {
  *         return $connection;
  *     }
  *
- * In this example the `connection` property is created after the `__get_connection()` is called,
+ * In this example the `connection` property is created after the `get_connection()` is called,
  * which is an ideal behaviour to lazyload resources.
  *
  * Another type of getter/setter is available that doesn't create the requested property. They are
@@ -50,12 +50,12 @@ namespace ICanBoogie;
  *     {
  *         public $seconds;
  *
- *         protected function __volatile_get_minutes()
+ *         protected function volatile_get_minutes()
  *         {
  *             return $this->seconds / 60;
  *         }
  *
- *         protected function __volatile_set_minutes($minutes)
+ *         protected function volatile_set_minutes($minutes)
  *         {
  *             $this->seconds = $minutes * 60;
  *         }
@@ -190,7 +190,7 @@ class Object
 
 		foreach ($keys as $key)
 		{
-			if ($this->has_method('__get_' . $key) || $this->has_method('__volatile_get_' . $key))
+			if ($this->has_method('get_' . $key) || $this->has_method('volatile_get_' . $key))
 			{
 				unset($keys[$key]);
 			}
@@ -214,7 +214,7 @@ class Object
 				continue;
 			}
 
-			if ($this->has_method('__get_' . $key) || $this->has_method('__volatile_get_' . $key))
+			if ($this->has_method('get_' . $key) || $this->has_method('volatile_get_' . $key))
 			{
 				unset($this->$key);
 			}
@@ -241,11 +241,11 @@ class Object
 	 *
 	 * Multiple callbacks are tried in order to retrieve the value of the property:
 	 *
-	 * 1. `__volatile_get_<property>`: Get and return the value of the property.
-	 * 2. `__get_<property>`: Get, set and return the value of the property. Because new properties
+	 * 1. `volatile_get_<property>`: Get and return the value of the property.
+	 * 2. `get_<property>`: Get, set and return the value of the property. Because new properties
 	 * are created as public the callback is only called once which is ideal for lazyloading.
-	 * 3. The prototype is queried for callbacks for the `__volatile_get_<property>` and
-	 * `__get_<property>` methods.
+	 * 3. The prototype is queried for callbacks for the `volatile_get_<property>` and
+	 * `get_<property>` methods.
 	 * 4.Finaly, the `ICanBoogie\Object::property` event is fired to try and retrieve the value of
 	 * the property.
 	 *
@@ -261,14 +261,14 @@ class Object
 	 */
 	public function __get($property)
 	{
-		$method = '__volatile_get_' . $property;
+		$method = 'volatile_get_' . $property;
 
 		if (method_exists($this, $method))
 		{
 			return $this->$method();
 		}
 
-		$method = '__get_' . $property;
+		$method = 'get_' . $property;
 
 		if (method_exists($this, $method))
 		{
@@ -281,14 +281,14 @@ class Object
 
 		$prototype = $this->prototype;
 
-		$method = '__volatile_get_' . $property;
+		$method = 'volatile_get_' . $property;
 
 		if (isset($prototype[$method]))
 		{
 			return call_user_func($prototype[$method], $this, $property);
 		}
 
-		$method  = '__get_' . $property;
+		$method  = 'get_' . $property;
 
 		if (isset($prototype[$method]))
 		{
@@ -365,7 +365,7 @@ class Object
 	 *
 	 * @return Prototype
 	 */
-	protected function __get_prototype()
+	protected function get_prototype()
 	{
 		return Prototype::get($this);
 	}
@@ -380,15 +380,15 @@ class Object
 	 * The method only sets the property if it isn't defined by the class or its visibility is
 	 * "public", but one can provide setters to override this behaviour:
 	 *
-	 * The `__set_<property>` setter can be used to set properties that are protected or private,
+	 * The `set_<property>` setter can be used to set properties that are protected or private,
 	 * which can be used to make properties write-only for example.
 	 *
-	 * The `__volatile_set_<property>` setter can be used the handle virtual properties e.g. a
+	 * The `volatile_set_<property>` setter can be used the handle virtual properties e.g. a
 	 * `minute` property that would alter a `second` property for example.
 	 *
 	 * The setters can be defined by the class or its prototype.
 	 *
-	 * Note: Permission is granted if a `__get_<property>` getter is defined by the class or
+	 * Note: Permission is granted if a `get_<property>` getter is defined by the class or
 	 * its prototype.
 	 *
 	 * @param string $property
@@ -396,21 +396,21 @@ class Object
 	 */
 	public function __set($property, $value)
 	{
-		$method = '__volatile_set_' . $property;
+		$method = 'volatile_set_' . $property;
 
 		if ($this->has_method($method))
 		{
 			return $this->$method($value);
 		}
 
-		$method = '__set_' . $property;
+		$method = 'set_' . $property;
 
 		if ($this->has_method($method))
 		{
 			return $this->$property = $this->$method($value);
 		}
 
-		if (property_exists($this, $property) && !$this->has_method('__get_' . $property))
+		if (property_exists($this, $property) && !$this->has_method('get_' . $property))
 		{
 			$reflection = new \ReflectionObject($this);
 			$property_reflection = $reflection->getProperty($property);
@@ -441,7 +441,7 @@ class Object
 			return true;
 		}
 
-		if ($this->has_method('__get_' . $property) || $this->has_method('__volatile_get_' . $property))
+		if ($this->has_method('get_' . $property) || $this->has_method('volatile_get_' . $property))
 		{
 			return true;
 		}

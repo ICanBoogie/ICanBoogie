@@ -10,12 +10,12 @@ class TimeFixture extends Object
 {
 	public $seconds;
 
-	protected function __volatile_set_minutes($minutes)
+	protected function volatile_set_minutes($minutes)
 	{
 		$this->seconds = $minutes * 60;
 	}
 
-	protected function __volatile_get_minutes()
+	protected function volatile_get_minutes()
 	{
 		return $this->seconds / 60;
 	}
@@ -32,31 +32,31 @@ class Fixture extends Object
 		unset($this->b);
 	}
 
-	protected function __get_a()
+	protected function get_a()
 	{
 		return 'a';
 	}
 
-	protected function __volatile_get_b()
+	protected function volatile_get_b()
 	{
 		return 'b';
 	}
 
 	private $readonly = 'readonly';
 
-	protected function __volatile_get_readonly()
+	protected function volatile_get_readonly()
 	{
 		return $this->readonly;
 	}
 
 	private $writeonly;
 
-	protected function __volatile_set_writeonly($value)
+	protected function volatile_set_writeonly($value)
 	{
 		$this->writeonly = $value;
 	}
 
-	protected function __volatile_get_read_writeonly()
+	protected function volatile_get_read_writeonly()
 	{
 		return $this->writeonly;
 	}

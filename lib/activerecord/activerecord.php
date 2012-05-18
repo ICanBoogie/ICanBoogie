@@ -65,7 +65,7 @@ class ActiveRecord extends Object
 	 *
 	 * @return Model
 	 */
-	protected function __get__model()
+	protected function get__model()
 	{
 		global $core;
 

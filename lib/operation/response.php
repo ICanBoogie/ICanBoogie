@@ -122,7 +122,7 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 
 			if ($this->content_length === null && is_string($body))
 			{
-				$this->__volatile_set_content_length(strlen($body));
+				$this->volatile_set_content_length(strlen($body));
 			}
 
 			$this->body = $body;
@@ -204,7 +204,7 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 		unset($this->metas[$offset]);
 	}
 
-	protected function __get_errors()
+	protected function get_errors()
 	{
 		return new Errors();
 	}

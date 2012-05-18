@@ -31,7 +31,7 @@ class Proxi extends Object
 		}
 	}
 
-	protected function __set_scope($scope)
+	protected function set_scope($scope)
 	{
 		if (is_array($scope))
 		{
@@ -41,12 +41,12 @@ class Proxi extends Object
 		$this->options['scope'] = $scope;
 	}
 
-	protected function __set_language($language)
+	protected function set_language($language)
 	{
 		$this->options['language'] = $language;
 	}
 
-	protected function __set_default($default)
+	protected function set_default($default)
 	{
 		$this->options['default'] = $default;
 	}

@@ -409,7 +409,7 @@ abstract class Operation extends Object
 	 *
 	 * @return array All the controls set to false.
 	 */
-	protected function __get_controls()
+	protected function get_controls()
 	{
 		return array
 		(
@@ -433,7 +433,7 @@ abstract class Operation extends Object
 	 *
 	 * @return ActiveRecord
 	 */
-	protected function __get_record()
+	protected function get_record()
 	{
 		return $this->module->model[$this->key];
 	}
@@ -461,7 +461,7 @@ abstract class Operation extends Object
 	 *
 	 * @return object|null
 	 */
-	protected function __get_form()
+	protected function get_form()
 	{
 		$form = null;
 
@@ -482,7 +482,7 @@ abstract class Operation extends Object
 	 *
 	 * @return array
 	 */
-	protected function __get_properties()
+	protected function get_properties()
 	{
 		return array();
 	}
@@ -503,7 +503,7 @@ abstract class Operation extends Object
 	 */
 	protected $module;
 
-	protected function __volatile_get_module()
+	protected function volatile_get_module()
 	{
 		return $this->module;
 	}
@@ -559,7 +559,7 @@ abstract class Operation extends Object
 	 * control or validation fail the operation is not processed.
 	 *
 	 * The controls passed to the {@link control()} method are obtained through the
-	 * {@link $controls} property or the {@link __get_controls()} getter if the property is not
+	 * {@link $controls} property or the {@link get_controls()} getter if the property is not
 	 * accessible.
 	 *
 	 *
@@ -766,7 +766,7 @@ abstract class Operation extends Object
 	 *     );
 	 *
 	 * The {@link $controls} property is used to get the controls or its magic getter
-	 * {@link __get_controls()} if the property is not accessible.
+	 * {@link get_controls()} if the property is not accessible.
 	 *
 	 * Controls are passed in the following order:
 	 *
@@ -794,7 +794,7 @@ abstract class Operation extends Object
 	 * must throw an exception if the record could not be loaded or the control of this record
 	 * failed.
 	 *
-	 * The {@link record} property, or the {@link __get_record()} getter, is used to get the
+	 * The {@link record} property, or the {@link get_record()} getter, is used to get the
 	 * record.
 	 *
 	 * 5. CONTROL_OWNERSHIP
@@ -960,7 +960,7 @@ abstract class Operation extends Object
 	 * Checks if the operation target record exists.
 	 *
 	 * The method simply returns the {@link $record} property, which calls the
-	 * {@link __get_record()} getter if the property is not accessible.
+	 * {@link get_record()} getter if the property is not accessible.
 	 *
 	 * @return ActiveRecord|null
 	 */
@@ -973,7 +973,7 @@ abstract class Operation extends Object
 	 * Control the operation's form.
 	 *
 	 * The form is retrieved from the {@link $form} property, which invokes the
-	 * {@link __get_form()} getter if the property is not accessible.
+	 * {@link get_form()} getter if the property is not accessible.
 	 *
 	 * @return bool true if the form exists and validates, false otherwise.
 	 */

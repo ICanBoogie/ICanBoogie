@@ -30,7 +30,7 @@ class Save extends Operation
 	 * @param ICanBoogie.Operation $operation
 	 * @return array The controls of the operation.
 	 */
-	protected function __get_controls()
+	protected function get_controls()
 	{
 		return array
 		(
@@ -40,17 +40,17 @@ class Save extends Operation
 			self::CONTROL_FORM => true
 		)
 
-		+ parent::__get_controls();
+		+ parent::get_controls();
 	}
 
 	/**
 	 * Overrides the getter to prevent exceptions when the operation key is empty.
 	 *
-	 * @see ICanBoogie.Operation::__get_record()
+	 * @see ICanBoogie.Operation::get_record()
 	 */
-	protected function __get_record()
+	protected function get_record()
 	{
-		return $this->key ? parent::__get_record() : null;
+		return $this->key ? parent::get_record() : null;
 	}
 
 	/**
@@ -81,10 +81,10 @@ class Save extends Operation
 	 * If the property is not empty in the operation params, the property value is trimed using the
 	 * trim() function, ensuring that there is no leading or trailing white spaces.
 	 *
-	 * @see ICanBoogie.Operation::__get_properties()
+	 * @see ICanBoogie.Operation::get_properties()
 	 * @return array The properties of the operation.
 	 */
-	protected function __get_properties()
+	protected function get_properties()
 	{
 		$schema = $this->module->model->extended_schema;
 		$fields = $schema['fields'];

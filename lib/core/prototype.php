@@ -22,7 +22,7 @@ namespace ICanBoogie;
  * return array
  * (
  *     'ICanBoogie\ActiveRecord\Page::my_additional_method' => 'MyHookClass::my_additional_method',
- *     'ICanBoogie\ActiveRecord\Page::__get_my_property' => 'MyHookClass::get_my_property'
+ *     'ICanBoogie\ActiveRecord\Page::get_my_property' => 'MyHookClass::get_my_property'
  * );
  */
 class Prototype implements \ArrayAccess, \IteratorAggregate

@@ -23,9 +23,9 @@ class Delete extends Operation
 	/**
 	 * Controls for the operation: permission(manage), record and ownership.
 	 *
-	 * @see ICanBoogie.Operation::__get_controls()
+	 * @see ICanBoogie.Operation::get_controls()
 	 */
-	protected function __get_controls()
+	protected function get_controls()
 	{
 		return array
 		(
@@ -34,7 +34,7 @@ class Delete extends Operation
 			self::CONTROL_OWNERSHIP => true
 		)
 
-		+ parent::__get_controls();
+		+ parent::get_controls();
 	}
 
 	protected function validate(\ICanboogie\Errors $errors)

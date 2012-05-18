@@ -212,7 +212,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return array
 	 */
-	protected function __get_index()
+	protected function get_index()
 	{
 		if ($this->cache)
 		{
@@ -611,7 +611,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return array
 	 */
-	public function __get_disabled_modules_descriptors()
+	public function get_disabled_modules_descriptors()
 	{
 		$this->sort_modules_descriptors();
 
@@ -625,7 +625,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return array
 	 */
-	public function __get_enabled_modules_descriptors()
+	public function get_enabled_modules_descriptors()
 	{
 		$this->sort_modules_descriptors();
 

@@ -24,12 +24,12 @@ class PrototypeTest extends \PHPUnit_Framework_TestCase
 		$this->a = $a = new A();
 		$this->b = $b = new B();
 
-		$a->prototype['__volatile_set_minutes'] = function(A $self, $minutes) {
+		$a->prototype['volatile_set_minutes'] = function(A $self, $minutes) {
 
 			$self->seconds = $minutes * 60;
 		};
 
-		$a->prototype['__volatile_get_minutes'] = function(A $self, $minutes) {
+		$a->prototype['volatile_get_minutes'] = function(A $self, $minutes) {
 
 			return $self->seconds / 60;
 		};
@@ -69,12 +69,12 @@ class PrototypeTest extends \PHPUnit_Framework_TestCase
 	{
 		$b = $this->b;
 
-		$b->prototype['__volatile_set_hours'] = function(B $self, $hours) {
+		$b->prototype['volatile_set_hours'] = function(B $self, $hours) {
 
 			$self->seconds = $hours * 3600;
 		};
 
-		$b->prototype['__volatile_get_hours'] = function(B $self, $hours) {
+		$b->prototype['volatile_get_hours'] = function(B $self, $hours) {
 
 			return $self->seconds / 3600;
 		};
