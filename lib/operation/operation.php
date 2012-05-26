@@ -439,6 +439,16 @@ abstract class Operation extends Object
 	}
 
 	/**
+	 * Returns the operation response.
+	 *
+	 * @return Operation\Response
+	 */
+	protected function volatile_get_response()
+	{
+		return $this->response;
+	}
+
+	/**
 	 * The form object of the operation.
 	 *
 	 * @var object

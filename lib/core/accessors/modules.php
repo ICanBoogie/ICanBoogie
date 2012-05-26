@@ -573,29 +573,39 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 
 			$file_base = $path . $model_id;
 
-// 			if (empty($definition[Model::T_CLASS]))
-			{
-				$try = $file_base . '.model.php';
+			# try model
 
-				if (file_exists($try))
+			$pathname = $file_base . '.model.php';
+
+			if (file_exists($pathname))
+			{
+				if (empty($definition[Model::T_CLASS]))
 				{
 					$class = Model::resolve_class_name($namespace, $model_id);
-					$autoload[$class] = $try;
 					$definition[Model::T_CLASS] = $class;
+				}
+
+				if (empty($definition[Model::T_NAME]))
+				{
 					$definition[Model::T_NAME] = Model::format_name($id, $model_id);
 				}
+
+				$autoload[$definition[Model::T_CLASS]] = $pathname;
 			}
 
-// 			if (empty($definition[Model::T_ACTIVERECORD_CLASS]))
-			{
-				$try = $file_base . '.ar.php';
+			# try activerecord
 
-				if (file_exists($try))
+			$pathname = $file_base . '.ar.php';
+
+			if (file_exists($pathname))
+			{
+				if (empty($definition[Model::T_ACTIVERECORD_CLASS]))
 				{
 					$class = ActiveRecord::resolve_class_name($id, $model_id);
-					$autoload[$class] = $try;
 					$definition[Model::T_ACTIVERECORD_CLASS] = $class;
 				}
+
+				$autoload[$definition[Model::T_ACTIVERECORD_CLASS]] = $pathname;
 			}
 		}
 

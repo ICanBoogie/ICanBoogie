@@ -104,7 +104,7 @@ Finally we can execute the HTTP request and return a response.
 
 	# here we could add routes or attach events
 
-	$request = HTTP\Request::from_global($_SERVER);
+	$request = HTTP\Request::from($_SERVER);
 	$response = $request();
 	$response();
 	```

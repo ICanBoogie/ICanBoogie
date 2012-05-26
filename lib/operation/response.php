@@ -42,6 +42,10 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 					$success = null;
 				}
 			}
+			else if (is_array($success))
+			{
+				$success = call_user_func_array('t', $success);
+			}
 
 			$errors = null;
 

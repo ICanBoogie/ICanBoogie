@@ -312,7 +312,10 @@ class Object
 		{
 			$reflexion_property = $reflexion_class->getProperty($property);
 
-			throw new Exception\PropertyNotReadable(array($property, $this));
+			if (!$reflexion_property->isPublic())
+			{
+				throw new Exception\PropertyNotReadable(array($property, $this));
+			}
 		}
 		catch (\ReflectionException $e) { }
 

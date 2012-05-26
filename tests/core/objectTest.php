@@ -21,15 +21,19 @@ class TimeFixture extends Object
 	}
 }
 
-class Fixture extends Object
+class A extends Object
 {
 	public $a;
 	public $b;
+	public $unset;
+	protected $unset_protected;
 
 	public function __construct()
 	{
 		unset($this->a);
 		unset($this->b);
+		unset($this->unset);
+		unset($this->unset_protected);
 	}
 
 	protected function get_a()
@@ -40,6 +44,54 @@ class Fixture extends Object
 	protected function volatile_get_b()
 	{
 		return 'b';
+	}
+
+	protected $c;
+
+	protected function set_c($value)
+	{
+		return $value;
+	}
+
+	protected function get_c()
+	{
+		return $this->c;
+	}
+
+	protected $d;
+
+	protected function volatile_set_d($value)
+	{
+		$this->d = $value;
+	}
+
+	protected function volatile_get_d()
+	{
+		return $this->d;
+	}
+
+	private $e;
+
+	protected function set_e($value)
+	{
+		return $value;
+	}
+
+	protected function get_e()
+	{
+		return $this->e;
+	}
+
+	protected $f;
+
+	protected function volatile_set_f($value)
+	{
+		$this->f = $value;
+	}
+
+	protected function volatile_get_f()
+	{
+		return $this->f;
 	}
 
 	private $readonly = 'readonly';
@@ -60,10 +112,94 @@ class Fixture extends Object
 	{
 		return $this->writeonly;
 	}
+
+	protected function get_pseudo_uniq()
+	{
+		return uniqid();
+	}
+
+	protected function set_with_parent($value)
+	{
+		return $value + 1;
+	}
+}
+
+class B extends A
+{
+	protected function set_with_parent($value)
+	{
+		return parent::set_with_parent($value) * 10;
+	}
 }
 
 class ObjectTest extends \PHPUnit_Framework_TestCase
 {
+	/**
+     * @expectedException ICanBoogie\Exception\PropertyNotFound
+     */
+	public function testGetUnsetPublicProperty()
+	{
+		$fixture = new A();
+		$fixture->unset;
+	}
+
+	/**
+     * @expectedException ICanBoogie\Exception\PropertyNotReadable
+     */
+	public function testGetUnsetProtectedProperty()
+	{
+		$fixture = new A();
+		$fixture->unset_protected;
+	}
+
+	/**
+     * @expectedException ICanBoogie\Exception\PropertyNotFound
+     */
+	public function testGetUndefinedProperty()
+	{
+		$fixture = new A();
+		$fixture->madonna;
+	}
+
+	public function testProtectedProperty()
+	{
+		$fixture = new A();
+		$fixture->c = 'c';
+
+		$this->assertEquals('c', $fixture->c);
+	}
+
+	public function testProtectedVolatileProperty()
+	{
+		$fixture = new A();
+		$fixture->d = 'd';
+
+		$this->assertEquals('d', $fixture->d);
+	}
+
+	/**
+	 * Because `e` is private it is not accessible by the Object class that tries to set
+	 * the result of the `set_e` setter, but PHP won't complain about it and will simply leave
+	 * the property untouched. This situation is not ideal because an error would be nice, so we
+	 * have to note that setters for private properties MUST be _volatile_, that their job is
+	 * to set the property and that we encourage using protected properties.
+	 */
+	public function testPrivateProperty()
+	{
+		$fixture = new A();
+		$fixture->e = 'e';
+
+		$this->assertEquals(null, $fixture->e);
+	}
+
+	public function testPrivateVolatileProperty()
+	{
+		$fixture = new A();
+		$fixture->f = 'f';
+
+		$this->assertEquals('f', $fixture->f);
+	}
+
 	/**
 	 * The `minute` property is virtual and works with seconds.
 	 */
@@ -83,18 +219,9 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals(4, $time->minutes);
 	}
 
-	/**
-     * @expectedException ICanBoogie\Exception\PropertyNotFound
-     */
-	public function testGetUndefinedProperty()
-	{
-		$fixture = new Fixture();
-		$madonna = $fixture->madonna;
-	}
-
 	public function testReadingReadOnlyProperty()
 	{
-		$fixture = new Fixture();
+		$fixture = new A();
 
 		$this->assertEquals('readonly', $fixture->readonly);
 	}
@@ -104,7 +231,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      */
 	public function testWritingReadOnlyProperty()
 	{
-		$fixture = new Fixture();
+		$fixture = new A();
 		$fixture->readonly = 'readandwrite';
 	}
 
@@ -113,7 +240,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
      */
 	public function testReadingWriteOnlyProperty()
 	{
-		$fixture = new Fixture();
+		$fixture = new A();
 
 		$fixture->writeonly = 'writeonly';
 
@@ -122,7 +249,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
 
 	public function testWritingWriteOnlyProperty()
 	{
-		$fixture = new Fixture();
+		$fixture = new A();
 
 		$fixture->writeonly = 'writeonly';
 
@@ -134,7 +261,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testSleepAndGetters()
 	{
-		$fixture = new Fixture();
+		$fixture = new A();
 
 		$this->assertEquals('a', $fixture->a);
 		$this->assertEquals('b', $fixture->b);
@@ -155,7 +282,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
 		# we use get_object_vars() otherwise assertion method would call getters
 		#
 
-		$fixture = unserialize(serialize(new Fixture()));
+		$fixture = unserialize(serialize(new A()));
 		$vars = get_object_vars($fixture);
 
 		$this->assertArrayNotHasKey('a', $vars);
@@ -163,5 +290,28 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertEquals('a', $fixture->a);
 		$this->assertEquals('b', $fixture->b);
+	}
+
+	/**
+	 * The `pseudo_uniq` property use a lazyloading getter, that is the property is created as
+	 * public after the getter has been called, and the getter won't be called again until the
+	 * property is accessible.
+	 */
+	public function testPseudoUnique()
+	{
+		$fixture = new A();
+		$uniq = $fixture->pseudo_uniq;
+
+		$this->assertNotEmpty($uniq);
+		$this->assertEquals($uniq, $fixture->pseudo_uniq);
+		unset($fixture->pseudo_uniq);
+		$this->assertNotEquals($uniq, $fixture->pseudo_uniq);
+	}
+
+	public function testSetWithParent()
+	{
+		$b = new B();
+		$b->with_parent = 3;
+		$this->assertEquals(40, $b->with_parent);
 	}
 }

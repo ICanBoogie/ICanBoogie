@@ -70,6 +70,7 @@ foreach ($rii as $pathname => $file)
 	if ($relative_pathname === 'README.md'
 	|| strpos($relative_pathname, '.git/') === 0
 	|| strpos($relative_pathname, 'build/') === 0
+	|| strpos($relative_pathname, 'tests/') === 0
 	|| strpos($pathname, 'uncompressed') !== false
 	|| $extension == 'md'
 	|| $extension == 'less'
