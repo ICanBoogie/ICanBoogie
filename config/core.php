@@ -43,11 +43,12 @@ return array
 		'ICanBoogie\HTTP\Headers' => $http . 'headers.php',
 		'ICanBoogie\HTTP\Request' => $http . 'request.php',
 		'ICanBoogie\HTTP\Response' => $http . 'response.php',
+		'ICanBoogie\HTTP\UnsupportedMethodException' => $http . 'http.php',
 
 		'ICanBoogie\I18n' => $i18n . 'i18n.php',
 		'ICanBoogie\I18n\Locale' => $i18n . 'locale.php',
-		'ICanBoogie\I18n\Formatter\Date' => $i18n . 'formatter/date.php',
-		'ICanBoogie\I18n\Formatter\Number' => $i18n . 'formatter/number.php',
+		'ICanBoogie\I18n\DateFormatter' => $i18n . 'formatter/date.php',
+		'ICanBoogie\I18n\NumberFormatter' => $i18n . 'formatter/number.php',
 		'ICanBoogie\I18n\Translator' => $i18n . 'translator.php',
 		'ICanBoogie\I18n\Translator\Proxi' => $i18n . 'proxi.php',
 
@@ -65,11 +66,12 @@ return array
 		'ICanBoogie\Operation\GetFormEvent' => $operation . 'operation.php',
 		'ICanBoogie\Operation\ProcessEvent' => $operation . 'operation.php',
 		'ICanBoogie\Operation\ExpiredFormException' => $operation . 'operation.php',
-		'ICanBoogie\Operation\ActiveRecord\Delete' => $operation . 'activerecord/delete.php',
-		'ICanBoogie\Operation\ActiveRecord\Save' => $operation . 'activerecord/save.php',
-		'ICanBoogie\Operation\Core\Aloha' => $operation . 'core/aloha.php',
-		'ICanBoogie\Operation\Core\Ping' => $operation . 'core/ping.php',
-		'ICanBoogie\Operation\Response' => $operation . 'response.php'
+		'ICanBoogie\Operation\Response' => $operation . 'response.php',
+		
+		'ICanBoogie\AlohaOperation' => $operation . 'core/aloha.php',
+		'ICanBoogie\PingOperation' => $operation . 'core/ping.php',
+		'ICanBoogie\DeleteOperation' => $operation . 'activerecord/delete.php',
+		'ICanBoogie\SaveOperation' => $operation . 'activerecord/save.php'
 	),
 
 	'cache bootstrap' => false,

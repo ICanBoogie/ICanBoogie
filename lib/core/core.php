@@ -25,6 +25,7 @@ namespace ICanBoogie;
  * @property string|int $timezeone Date and time timezone.
  * @property \ICanBoogie\I18n\Locale $locale Locale object matching the locale language.
  * @property array $config The "core" configuration.
+ * @property-read \ICanBoogie\HTTP\Request $request The request being processed.
  */
 class Core extends Object
 {
@@ -149,6 +150,7 @@ class Core extends Object
 		spl_autoload_register($class . '::autoload_handler');
 		set_exception_handler($class . '::exception_handler');
 		set_error_handler('ICanBoogie\Debug::error_handler');
+		date_default_timezone_set('UTC');
 
 		if (get_magic_quotes_gpc())
 		{

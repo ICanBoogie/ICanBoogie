@@ -9,19 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Operation\Core;
-
-use ICanBoogie;
-use ICanBoogie\Debug;
-use ICanBoogie\Module;
-use ICanBoogie\Operation;
+namespace ICanBoogie;
 
 /**
  * Displays information about the core and its modules.
  */
-class Aloha extends Operation
+class AlohaOperation extends Operation
 {
-	protected function validate(\ICanboogie\Errors $errors)
+	protected function validate(Errors $errors)
 	{
 		return true;
 	}
@@ -50,7 +45,7 @@ class Aloha extends Operation
 
 		$this->response->content_type = 'text/plain';
 
-		$rc  = 'ICanBoogie v' . ICanBoogie\VERSION . ' is running here with:';
+		$rc  = 'ICanBoogie v' . VERSION . ' is running here with:';
 		$rc .= PHP_EOL . PHP_EOL . implode(PHP_EOL, $enabled);
 		$rc .= PHP_EOL . PHP_EOL . 'Disabled modules:';
 		$rc .= PHP_EOL . PHP_EOL . implode(PHP_EOL, $disabled);

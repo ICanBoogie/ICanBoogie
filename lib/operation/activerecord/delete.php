@@ -9,19 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Operation\ActiveRecord;
-
-use ICanBoogie\Exception;
-use ICanBoogie\Module;
-use ICanBoogie\Operation;
+namespace ICanBoogie;
 
 /**
  * Deletes a record.
  */
-class Delete extends Operation
+class DeleteOperation extends Operation
 {
 	/**
-	 * Controls for the operation: permission(manage), record and ownership.
+	 * Modifies the following controls:
+	 *
+	 *     PERMISSION: MANAGE
+	 *     RECORD: true
+	 *     OWNERSHIP: true
 	 *
 	 * @see ICanBoogie.Operation::get_controls()
 	 */
@@ -37,7 +37,7 @@ class Delete extends Operation
 		+ parent::get_controls();
 	}
 
-	protected function validate(\ICanboogie\Errors $errors)
+	protected function validate(Errors $errors)
 	{
 		return true;
 	}
@@ -53,7 +53,14 @@ class Delete extends Operation
 
 		if (!$this->module->model->delete($key))
 		{
-			throw new Exception('Unable to delete the record %key from %module.', array('%key' => $key, '%module' => (string) $this->module));
+			throw new Exception
+			(
+				'Unable to delete the record %key from %module.', array
+				(
+					'key' => $key,
+					'module' => $this->module->title
+				)
+			);
 		}
 
 		if ($this->request['#location'])
@@ -61,7 +68,7 @@ class Delete extends Operation
 			$this->response->location = $this->request['#location'];
 		}
 
-		\ICanBoogie\log_success('The record %key has been delete from %module.', array('%key' => $key, '%module' => $this->module->title), 'delete');
+		$this->response->success = array('The record %key has been delete from %module.', array('key' => $key, 'module' => $this->module->title));
 
 		return $key;
 	}

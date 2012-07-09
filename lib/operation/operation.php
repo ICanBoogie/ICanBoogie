@@ -15,6 +15,11 @@ use ICanBoogie\Exception;
 use ICanBoogie\HTTP;
 use ICanBoogie\HTTP\Request;
 
+/**
+ * An operation.
+ *
+ * @property ActiveRecord $record The target active record object of the operation.
+ */
 abstract class Operation extends Object
 {
 	const DESTINATION = '#destination';
@@ -26,12 +31,12 @@ abstract class Operation extends Object
 	const RESTFUL_BASE_LENGHT = 5;
 
 	/**
-	 * Creates an Operation instance from a request.
+	 * Creates an operation instance from a request.
 	 *
 	 * An operation can be defined as a route, in which case the path of the request starts with
 	 * "/api/". An operation can also be defined using the request parameters, in which case
-	 * the DESTINATION, NAME and optionaly KEY parameters are defined within the request
-	 * parameters.
+	 * the {@link DESTINATION}, {@link NAME} and optionaly {@link KEY} parameters are defined
+	 * within the request parameters.
 	 *
 	 * When the operation is defined as a route, the method searches for a matching route.
 	 *
@@ -39,14 +44,14 @@ abstract class Operation extends Object
 	 * with the request parameters and the method tries to create an Operation instance using the
 	 * route.
 	 *
-	 * If no matching route could be found, the method tries to extract the DESTINATION, NAME and
-	 * optional KEY parameters from the route using the `/api/:destination(/:key)/:name` pattern.
-	 * If the route matches this pattern, captured parameters are merged with the request
-	 * parameters and the operation decoding continues as if the operation was defined using
-	 * parameters instead of the REST API.
+	 * If no matching route could be found, the method tries to extract the {@link DESTINATION},
+	 * {@link NAME} and optional {@link KEY} parameters from the route using the
+	 * `/api/:destination(/:key)/:name` pattern. If the route matches this pattern, captured
+	 * parameters are merged with the request parameters and the operation decoding continues as
+	 * if the operation was defined using parameters instead of the REST API.
 	 *
-	 * Finally, the method searches for the DESTINATION, NAME and optional KEY aparameters within
-	 * the request parameters to create the Operation instance.
+	 * Finally, the method searches for the {@link DESTINATION}, {@link NAME} and optional
+	 * {@link KEY} aparameters within the request parameters to create the Operation instance.
 	 *
 	 * If no operation was found in the request, the method returns null.
 	 *
@@ -65,18 +70,18 @@ abstract class Operation extends Object
 	 * Instancing using the request parameters
 	 * ---------------------------------------
 	 *
-	 * The operation destination (specified by the DESTINATION parameter) is the id of the
-	 * destination module. The class and the operation name (specified by the NAME
+	 * The operation destination (specified by the {@link DESTINATION} parameter) is the id of the
+	 * destination module. The class and the operation name (specified by the {@link NAME}
 	 * parameter) are used to search for the corresponding operation class to create the instance:
 	 *
-	 *     ICanBoogie\Operation\<normalized_module_id>\<normalized_operation_name>
+	 *     ICanBoogie\<normalized_module_id>\<normalized_operation_name>Operation
 	 *
 	 * The inheritence of the module class is used the find a suitable class. For example,
 	 * these are the classes tried for the "articles" module and the "save" operation:
 	 *
-	 *     ICanBoogie\Operation\Articles\Save
-	 *     ICanBoogie\Operation\Contents\Save
-	 *     ICanBoogie\Operation\Nodes\Save
+	 *     ICanBoogie\Modules\Articles\SaveOperation
+	 *     ICanBoogie\Modules\Contents\SaveOperation
+	 *     ICanBoogie\Modules\Nodes\SaveOperation
 	 *
 	 * An instance of the found class is created with the request arguments and returned. If the
 	 * class could not be found to create the operation instance, an exception is raised.
@@ -169,8 +174,6 @@ abstract class Operation extends Object
 
 	protected static function from_route(HTTP\Request $request, $path)
 	{
-		global $core;
-
 		$route = Routes::get()->find($path, $request->method, 'api');
 
 		if (!$route)
@@ -246,7 +249,7 @@ abstract class Operation extends Object
 	}
 
 	/**
-	 * Encodes a RESful operation.
+	 * Encodes a RESTful operation.
 	 *
 	 * @param string $pattern
 	 * @param array $params
@@ -298,35 +301,6 @@ abstract class Operation extends Object
 	}
 
 	/**
-	 * Constructs the "api" configuration by filtering API routes from the "routes" fragments.
-	 *
-	 * @param array $fragments Configuration fragments.
-	 *
-	 * @return array Synthesized API routes.
-	 */
-	static public function api_constructor(array $fragments)
-	{
-		$routes = array();
-
-		foreach ($fragments as $fragment)
-		{
-			foreach ($fragment as $pattern => $route)
-			{
-				if (substr($pattern, 0, self::RESTFUL_BASE_LENGHT) != self::RESTFUL_BASE)
-				{
-					continue;
-				}
-
-				$routes[$pattern] = $route;
-			}
-		}
-
-		krsort($routes);
-
-		return $routes;
-	}
-
-	/**
 	 * Resolve operation class.
 	 *
 	 * The operation class name is resolved using the inherited classes for the target and the
@@ -337,7 +311,7 @@ abstract class Operation extends Object
 	 *
 	 * @return string|null The resolve class name, or null if none was found.
 	 */
-	private static function resolve_operation_class($name, $target)
+	private static function resolve_operation_class($name, Module $target)
 	{
 		$module = $target;
 
@@ -352,7 +326,6 @@ abstract class Operation extends Object
 
 			$module = $module->parent;
 		}
-
 	}
 
 	/**
@@ -378,18 +351,6 @@ abstract class Operation extends Object
 
 	public $response;
 	public $method;
-
-	/**
-	 * @var $int Origin of the operation.
-	 *
-	 * The origin of the operaton can be used to modify the operation behaviour. The
-	 * ORIGIN_INTERNAL origin for one disables the terminal and location features.
-	 */
-	protected $origin;
-
-	const T_ORIGIN = 'origin';
-	const ORIGIN_API = 0;
-	const ORIGIN_INTERNAL = 1;
 
 	/**
 	 * @var array Controls to pass before validation.
@@ -424,11 +385,6 @@ abstract class Operation extends Object
 	}
 
 	/**
-	 * @var ActiveRecord The target active record object of the operation.
-	 */
-	protected $record;
-
-	/**
 	 * Getter for the {@link $record} property.
 	 *
 	 * @return ActiveRecord
@@ -458,13 +414,8 @@ abstract class Operation extends Object
 	/**
 	 * Getter for the {@link $form} property.
 	 *
-	 * The operation object fires the `get_form` event to retrieve the form. One can listen to the
-	 * event to provide the form associated with the operation. The event is fired with the
-	 * following properties:
-	 *
-	 * - rc: The result of the event. Initialized to null, this is where the associated form must
-	 * be saved.
-	 * - request: The request triggring the operation.
+	 * The operation object fires a {@link GetFormEvent} event to retrieve the form. One can listen
+	 * to the event to provide the form associated with the operation.
 	 *
 	 * One can override this method to provide the form using another method. Or simply define the
 	 * {@link $form} property to circumvent the getter.
@@ -475,7 +426,7 @@ abstract class Operation extends Object
 	{
 		$form = null;
 
-		new \ICanBoogie\Operation\GetFormEvent($this, array('rc' => &$form, 'request' => $this->request));
+		new Operation\GetFormEvent($this, array('form' => &$form, 'request' => $this->request));
 
 		return $form;
 	}
@@ -496,10 +447,6 @@ abstract class Operation extends Object
 	{
 		return array();
 	}
-
-	const T_PARENT = 'parent';
-
-	protected $parent;
 
 	/**
 	 * @var output Format for the operation response.
@@ -587,39 +534,18 @@ abstract class Operation extends Object
 	 * processed if its result is not `null`.
 	 *
 	 *
-	 * Terminus and location
-	 * ---------------------
-	 *
-	 * If the {@link $terminus} property is true after the operation has been processed, the
-	 * script is ended. Remaining debug logs are added to the HTTP header as
-	 * `X-Debug-<i>: <message>`. The {@link $terminus} property is always set to true when the
-	 * request result is formated as JSON or XML.
-	 *
-	 * If the {@link $location} property is set after the operation has been processed, it is used
-	 * to define the `Location` header, causing a redirection of the request. Also, the current
-	 * request URL is set as `Referer`.
-	 *
-	 *
-	 * Nested operations
-	 * -----------------
-	 *
-	 * Operations can be nested, ie an operation can invoke another operation. A nesting counter
-	 * is maintained and will disable handling of the {@link $terminus} and {@link $location}
-	 * properties, until the original operation finishes.
-	 *
-	 *
 	 * Failed operation
 	 * ----------------
 	 *
 	 * If the result of the operation is `null`, the operation is considered as failed, in which
-	 * case the result is not printed out and no event is fired. Still, the {@link $terminus} and
-	 * {@link $location} properties are honored.
+	 * case the status code of the response is changed to 404 and the {@link ProcessEvent} is not
+	 * fired.
 	 *
 	 * Note that exceptions are not caught by the method.
 	 *
 	 * @param HTTP\Request $request The request triggering the operation.
 	 *
-	 * @return Response The response of the operation.
+	 * @return Operation\Response The response of the operation.
 	 */
 	public function __invoke(HTTP\Request $request)
 	{
@@ -641,7 +567,7 @@ abstract class Operation extends Object
 			}
 			else
 			{
-				new Operation\BeforeProcessEvent($this, array('request' => $request, 'response' => $response));
+				new Operation\BeforeProcessEvent($this, array('request' => $request, 'response' => $response, 'errors' => $response->errors));
 
 				if (!count($response->errors))
 				{
@@ -675,7 +601,7 @@ abstract class Operation extends Object
 		}
 
 		#
-		# If the operation succeed (its result is not null), the 'operation.<name>' event is fired.
+		# If the operation succeed (its result is not null), the ProcessEvent event is fired.
 		# Listeners might use the event for further processing. For example, a _comment_ module
 		# might delete the comments related to an _article_ module from which an article was
 		# deleted.
@@ -690,9 +616,13 @@ abstract class Operation extends Object
 			new Operation\ProcessEvent($this, array('rc' => &$response->rc, 'response' => $response, 'request' => $request));
 		}
 
-		if ($this->origin == self::ORIGIN_INTERNAL)
+		#
+		# We log the _success_ message if the request is the main request and is not an XHR.
+		#
+
+		if ($response->success && !$request->previous && !$request->is_xhr)
 		{
-			return $response;
+			call_user_func_array('ICanBoogie\log_success', (array) $response->success);
 		}
 
 		/*
@@ -709,7 +639,7 @@ abstract class Operation extends Object
 		else if ($response->location)
 		{
 			$response->body = '';
-			$response->headers['Referer'] = $_SERVER['REQUEST_URI']; // FIXME-20110918: this should be obtained from the request
+			$response->headers['Referer'] = $request->uri;
 		}
 		else if ($response->status == 304)
 		{
@@ -1061,16 +991,23 @@ class BeforeProcessEvent extends \ICanBoogie\Event
 	/**
 	 * The request that triggered the operation.
 	 *
-	 * @var ICanBoogie\HTTP\Request
+	 * @var \ICanBoogie\HTTP\Request
 	 */
 	public $request;
 
 	/**
 	 * The response of the operation.
 	 *
-	 * @var ICanBoogie\HTTP\Response
+	 * @var \ICanBoogie\HTTP\Response
 	 */
 	public $response;
+
+	/**
+	 * The errors collector.
+	 *
+	 * @var \ICanBoogie\Errors
+	 */
+	public $errors;
 
 	/**
 	 * The event is constructed with the type `process:before`.
@@ -1100,14 +1037,14 @@ class ProcessEvent extends \ICanBoogie\Event
 	/**
 	 * The response object of the operation.
 	 *
-	 * @var ICanBoogie\HTTP\Response
+	 * @var \ICanBoogie\HTTP\Response
 	 */
 	public $response;
 
 	/**
 	 * The request that triggered the operation.
 	 *
-	 * @var ICanBoogie\HTTP\Request
+	 * @var \ICanBoogie\HTTP\Request
 	 */
 	public $request;
 
@@ -1134,12 +1071,12 @@ class GetFormEvent extends \ICanBoogie\Event
 	 *
 	 * @var mixed
 	 */
-	public $rc;
+	public $form;
 
 	/**
 	 * The request that triggered the operation.
 	 *
-	 * @var ICanBoogie\HTTP\Request
+	 * @var \ICanBoogie\HTTP\Request
 	 */
 	public $request;
 

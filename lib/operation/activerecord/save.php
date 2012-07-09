@@ -9,16 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Operation\ActiveRecord;
-
-use ICanBoogie\Exception;
-use ICanBoogie\Module;
-use ICanBoogie\Operation;
+namespace ICanBoogie;
 
 /**
  * The "save" operation is used to create or update a record.
  */
-class Save extends Operation
+class SaveOperation extends Operation
 {
 	/**
 	 * Change controls:
@@ -124,7 +120,7 @@ class Save extends Operation
 	 *
 	 * @see ICanBoogie.Operation::validate()
 	 */
-	protected function validate(\ICanboogie\Errors $errors)
+	protected function validate(Errors $errors)
 	{
 		return true;
 	}
@@ -146,16 +142,15 @@ class Save extends Operation
 	{
 		$key = $this->key;
 		$record_key = $this->module->model->save($this->properties, $key);
-		$log_params = array('%key' => $key, '%module' => $this->module->title);
+		$log_params = array('key' => $key, 'module' => $this->module->title);
 
 		if (!$record_key)
 		{
 			throw new Exception($key ? 'Unable to update record %key in %module.' : 'Unable to create record in %module.', $log_params);
 		}
 
-		$this->response->location = $_SERVER['REQUEST_URI'];
-
-		\ICanBoogie\log_success($key ? 'The record %key in %module has been saved.' : 'A new record has been saved in %module.', $log_params, 'save');
+		$this->response->location = $this->request->uri;
+		$this->response->success = array($key ? 'The record %key in %module has been saved.' : 'A new record has been saved in %module.', $log_params);
 
 		return array('mode' => $key ? 'update' : 'new', 'key' => $record_key);
 	}

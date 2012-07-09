@@ -11,19 +11,16 @@
  * Original code: http://code.google.com/p/yii/source/browse/tags/1.1.6/framework/i18n/CNumberFormatter.php
  */
 
-namespace ICanBoogie\I18n\Formatter;
-
-use ICanBoogie\I18n\Locale;
-use ICanBoogie\Object;
+namespace ICanBoogie\I18n;
 
 /**
- * CNumberFormatter provides number localization functionalities.
+ * NumberFormatter provides number localization functionalities.
  *
- * CNumberFormatter formats a number (integer or float) and outputs a string
- * based on the specified format. A CNumberFormatter instance is associated with a locale,
+ * NumberFormatter formats a number (integer or float) and outputs a string
+ * based on the specified format. A NumberFormatter instance is associated with a locale,
  * and thus generates the string representation of the number in a locale-dependent fashion.
  *
- * CNumberFormatter currently supports currency format, percentage format, decimal format,
+ * NumberFormatter currently supports currency format, percentage format, decimal format,
  * and custom format. The first three formats are specified in the locale data, while the custom
  * format allows you to enter an arbitrary format string.
  *
@@ -49,7 +46,7 @@ use ICanBoogie\Object;
  * Note, in the first example, the number is rounded first before applying the formatting.
  * And in the second example, the pattern specifies two grouping sizes.
  *
- * CNumberFormatter attempts to implement number formatting according to
+ * NumberFormatter attempts to implement number formatting according to
  * the {@link http://www.unicode.org/reports/tr35/ Unicode Technical Standard #35}.
  * The following features are NOT implemented:
  * <ul>
@@ -61,21 +58,36 @@ use ICanBoogie\Object;
  *
  * @author Wei Zhuo <weizhuo[at]gmail[dot]com>
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @version $Id$
- * @package system.i18n
- * @since 1.0
+ * @author Olivier Laviale <gmail@olvlvl.com>
  */
-
-class Number extends Object
+class NumberFormatter
 {
-	private $locale;
-	private $formats=array();
-	private $conventions;
+	/**
+	 * Locale.
+	 *
+	 * @var Locale
+	 */
+	protected $locale;
+
+	/**
+	 * Shortcut to the locale `numbers` convention.
+	 *
+	 * @var array
+	 */
+	protected $conventions;
+
+	/**
+	 * Parsed formats cache.
+	 *
+	 * @var array
+	 */
+	private $formats = array();
+
 
 	/**
 	 * Constructor.
 	 *
-	 * @param WdLocale $locale Locale instance.
+	 * @param Locale $locale Locale instance.
 	 */
 	public function __construct(Locale $locale)
 	{
@@ -111,7 +123,7 @@ class Number extends Object
 			return $result;
 		}
 
-		$currencies = $this->locale->conventions['numbers']['currencies'];
+		$currencies = $this->conventions['currencies'];
 		$symbol = isset($currencies[$currency]['symbol']) ? $currencies[$currency]['symbol'] : $currency;
 
 		return str_replace('¤', $symbol, $result);
@@ -126,7 +138,7 @@ class Number extends Object
 	 */
 	public function format_currency($value, $currency)
 	{
-		return $this->format($value, $this->locale->conventions['numbers']['currencyFormats']['currencyFormatLength']['currencyFormat']['pattern'], $currency);
+		return $this->format($value, $this->conventions['currencyFormats']['currencyFormatLength']['currencyFormat']['pattern'], $currency);
 	}
 
 	/**
@@ -195,7 +207,7 @@ class Number extends Object
 
 		if (strlen($decimal))
 		{
-			$decimal = $this->locale->conventions['numbers']['symbols']['decimal'] . $decimal;
+			$decimal = $this->conventions['symbols']['decimal'] . $decimal;
 		}
 
 		$integer=str_pad($integer,$format['integerDigits'],'0',STR_PAD_LEFT);
@@ -218,84 +230,127 @@ class Number extends Object
 
 	/**
 	 * Parses a given string pattern.
+	 *
 	 * @param string $pattern the pattern to be parsed
+	 *
 	 * @return array the parsed pattern
-	 * @see formatNumber
+	 *
+	 * @see format_number
 	 */
 	protected function parse_format($pattern)
 	{
-		if(isset($this->formats[$pattern]))
+		if (isset($this->formats[$pattern]))
+		{
 			return $this->formats[$pattern];
+		}
 
-		$format=array();
+		$format = array
+		(
+			'positivePrefix' => '',
+			'positiveSuffix' => '',
+			'negativePrefix' => '',
+			'negativeSuffix' => ''
+		);
 
 		// find out prefix and suffix for positive and negative patterns
-		$patterns=explode(';',$pattern);
-		$format['positivePrefix']=$format['positiveSuffix']=$format['negativePrefix']=$format['negativeSuffix']='';
-		if(preg_match('/^(.*?)[#,\.0]+(.*?)$/',$patterns[0],$matches))
+		$patterns = explode(';',$pattern);
+
+		if (preg_match('/^(.*?)[#,\.0]+(.*?)$/', $patterns[0], $matches))
 		{
-			$format['positivePrefix']=$matches[1];
-			$format['positiveSuffix']=$matches[2];
+			$format['positivePrefix'] = $matches[1];
+			$format['positiveSuffix'] = $matches[2];
 		}
 
-		if(isset($patterns[1]) && preg_match('/^(.*?)[#,\.0]+(.*?)$/',$patterns[1],$matches))  // with a negative pattern
+		if (isset($patterns[1]) && preg_match('/^(.*?)[#,\.0]+(.*?)$/', $patterns[1], $matches))  // with a negative pattern
 		{
-			$format['negativePrefix']=$matches[1];
-			$format['negativeSuffix']=$matches[2];
+			$format['negativePrefix'] = $matches[1];
+			$format['negativeSuffix'] = $matches[2];
 		}
 		else
 		{
-			$format['negativePrefix']=$this->conventions['symbols']['minusSign'] . $format['positivePrefix'];
-			$format['negativeSuffix']=$format['positiveSuffix'];
+			$format['negativePrefix'] = $this->conventions['symbols']['minusSign'] . $format['positivePrefix'];
+			$format['negativeSuffix'] = $format['positiveSuffix'];
 		}
-		$pat=$patterns[0];
+
+		$pat = $patterns[0];
 
 		// find out multiplier
-		if(strpos($pat,'%')!==false)
-			$format['multiplier']=100;
-		else if(strpos($pat,'‰')!==false)
-			$format['multiplier']=1000;
+		if (strpos($pat,'%') !== false)
+		{
+			$format['multiplier'] = 100;
+		}
+		else if (strpos($pat,'‰') !== false)
+		{
+			$format['multiplier'] = 1000;
+		}
 		else
-			$format['multiplier']=1;
+		{
+			$format['multiplier'] = 1;
+		}
 
 		// find out things about decimal part
-		if(($pos=strpos($pat,'.'))!==false)
+		if (($pos = strpos($pat,'.')) !== false)
 		{
-			if(($pos2=strrpos($pat,'0'))>$pos)
-				$format['decimalDigits']=$pos2-$pos;
+			if (($pos2 = strrpos($pat,'0')) > $pos)
+			{
+				$format['decimalDigits'] = $pos2-$pos;
+			}
 			else
-				$format['decimalDigits']=0;
-			if(($pos3=strrpos($pat,'#'))>=$pos2)
-				$format['maxDecimalDigits']=$pos3-$pos;
+			{
+				$format['decimalDigits'] = 0;
+			}
+
+			if (($pos3 = strrpos($pat,'#')) >= $pos2)
+			{
+				$format['maxDecimalDigits'] = $pos3 - $pos;
+			}
 			else
-				$format['maxDecimalDigits']=$format['decimalDigits'];
-			$pat=substr($pat,0,$pos);
+			{
+				$format['maxDecimalDigits'] = $format['decimalDigits'];
+			}
+
+			$pat = substr($pat, 0, $pos);
 		}
 		else   // no decimal part
 		{
-			$format['decimalDigits']=0;
-			$format['maxDecimalDigits']=0;
+			$format['decimalDigits'] = 0;
+			$format['maxDecimalDigits'] = 0;
 		}
 
 		// find out things about integer part
-		$p=str_replace(',','',$pat);
-		if(($pos=strpos($p,'0'))!==false)
-			$format['integerDigits']=strrpos($p,'0')-$pos+1;
-		else
-			$format['integerDigits']=0;
-		// find out group sizes. some patterns may have two different group sizes
-		$p=str_replace('#','0',$pat);
-		if(($pos=strrpos($pat,','))!==false)
+		$p = str_replace(',','',$pat);
+
+		if (($pos=strpos($p,'0')) !== false)
 		{
-			$format['groupSize1']=strrpos($p,'0')-$pos;
-			if(($pos2=strrpos(substr($p,0,$pos),','))!==false)
-				$format['groupSize2']=$pos-$pos2-1;
-			else
-				$format['groupSize2']=0;
+			$format['integerDigits'] = strrpos($p, '0') - $pos + 1;
 		}
 		else
-			$format['groupSize1']=$format['groupSize2']=0;
+		{
+			$format['integerDigits'] = 0;
+		}
 
-		return $this->formats[$pattern]=$format;
+		// find out group sizes. some patterns may have two different group sizes
+
+		$p = str_replace('#', '0', $pat);
+
+		if (($pos = strrpos($pat, ',')) !== false)
+		{
+			$format['groupSize1'] = strrpos($p, '0') - $pos;
+
+			if (($pos2 = strrpos(substr($p, 0, $pos), ',')) !== false)
+			{
+				$format['groupSize2'] = $pos - $pos2 - 1;
+			}
+			else
+			{
+				$format['groupSize2'] = 0;
+			}
+		}
+		else
+		{
+			$format['groupSize1'] = $format['groupSize2'] = 0;
+		}
+
+		return $this->formats[$pattern] = $format;
 	}
 }

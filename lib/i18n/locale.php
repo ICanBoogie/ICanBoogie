@@ -11,18 +11,13 @@
 
 namespace ICanBoogie\I18n;
 
-use ICanBoogie;
-use ICanBoogie\I18n\Formatter;
-use ICanBoogie\Object;
-
 /**
  *  @property array $conventions The UNICODE conventions for the locale.
- *  @property WdLocaleDateFormatter $date_formatter The data formater for the locale.
- *  @property WdLocaleNumberFormatter $number_formatter The number formater for the locale.
- *  @property WdLocaleTranslator $translator The translator for the locale.
+ *  @property DateFormatter $date_formatter The data formater for the locale.
+ *  @property NumberFormatter $number_formatter The number formater for the locale.
+ *  @property Translator $translator The translator for the locale.
  */
-
-class Locale extends Object
+class Locale extends \ICanBoogie\Object
 {
 	private static $locales=array();
 
@@ -98,35 +93,37 @@ class Locale extends Object
 		{
 			list(, $standalone, $width, $type) = $matches;
 
+			$dates = $this->conventions['dates'];
+
 			if ($type == 'eras')
 			{
-				if ($width == 'narrow' && empty($this->conventions['dates'][$type][$width]))
+				if ($width == 'narrow' && empty($dates[$type][$width]))
 				{
 					$width = 'abbreviated';
 				}
 
-				$value = $this->conventions['dates'][$type][$width];
+				$value = $dates[$type][$width];
 			}
 			else
 			{
 				$context = $standalone ? 'stand-alone' : 'format';
 
-				if ($standalone && empty($this->conventions['dates'][$type][$context][$width]))
+				if ($standalone && empty($dates[$type][$context][$width]))
 				{
 					$context = 'format';
 				}
 
-				if ($width == 'narrow' && empty($this->conventions['dates'][$type][$context][$width]))
+				if ($width == 'narrow' && empty($dates[$type][$context][$width]))
 				{
 					$width = 'abbreviated';
 				}
 
-				if ($width == 'abbreviated' && empty($this->conventions['dates'][$type][$context][$width]))
+				if ($width == 'abbreviated' && empty($dates[$type][$context][$width]))
 				{
 					$width = 'wide';
 				}
 
-				$value = $this->conventions['dates'][$type][$context][$width];
+				$value = $dates[$type][$context][$width];
 			}
 
 			return $this->$property = $value;
@@ -138,13 +135,13 @@ class Locale extends Object
 	/**
 	 * Returns the conventions for this locale.
 	 *
-	 * The conventions are currently loaded from the <ICanBoogie\Root>locale/conventions directory.
+	 * The conventions are currently loaded from the `<ICanBoogie\ROOT>locale/conventions` directory.
 	 *
 	 * @return array the conventions for this locale.
 	 */
 	protected function get_conventions()
 	{
-		$path = ICanBoogie\ROOT . 'locale' . DIRECTORY_SEPARATOR . 'conventions' . DIRECTORY_SEPARATOR;
+		$path = \ICanBoogie\ROOT . 'locale' . DIRECTORY_SEPARATOR . 'conventions' . DIRECTORY_SEPARATOR;
 
 		$id = null;
 		$territory = $this->territory;
@@ -172,23 +169,29 @@ class Locale extends Object
 	}
 
 	/**
-	 * @return Formatter\Number the number formatter for this locale.
+	 * Returns the number formatter for the locale.
+	 *
+	 * @return NumberFormatter
 	 */
 	protected function get_number_formatter()
 	{
-		return new Formatter\Number($this);
+		return new NumberFormatter($this);
 	}
 
 	/**
-	 * @return Formatter\Date the date formatter for this locale.
+	 * Returns the date formatter for the locale.
+	 *
+	 * @return DateFormatter
 	 */
 	protected function get_date_formatter()
 	{
-		return new Formatter\Date($this);
+		return new DateFormatter($this);
 	}
 
 	/**
-	 * @return Translator The translator for this locale.
+	 * Returns the string translator the the locale.
+	 *
+	 * @return Translator
 	 */
 	protected function get_translator()
 	{

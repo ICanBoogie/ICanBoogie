@@ -224,6 +224,9 @@ class Object
 	/**
 	 * Defers calls for which methods are not defined to the {@link prototype}.
 	 *
+	 * If a property exists with the name $method and holds an object the object is called with
+	 * the arguments.
+	 *
 	 * @param string $method
 	 * @param array $arguments
 	 *
@@ -231,6 +234,11 @@ class Object
 	 */
 	public function __call($method, $arguments)
 	{
+		if (isset($this->$method) && is_object($this->$method))
+		{
+			return call_user_func_array($this->$method, $arguments);
+		}
+
 		array_unshift($arguments, $this);
 
 		return call_user_func_array($this->prototype[$method], $arguments);

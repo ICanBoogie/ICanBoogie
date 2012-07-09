@@ -215,7 +215,7 @@ class Events implements \IteratorAggregate, \ArrayAccess
 		}
 
 		$events = static::get();
-		$events->skipable = array();
+		$events->skippable = array();
 		$ns = '::';
 
 		if (strpos($type, '::'))

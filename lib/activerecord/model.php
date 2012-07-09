@@ -30,15 +30,15 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	protected $attributes;
 
 	/**
-	 * Override the constructor to provide support for the T_ACTIVERECORD_CLASS tag and extended
-	 * support for the T_EXTENDS tag.
+	 * Override the constructor to provide support for the {@link T_ACTIVERECORD_CLASS} tag and
+	 * extended support for the {@link T_EXTENDS} tag.
 	 *
-	 * If T_EXTENDS is defined but the model has no schema (T_SCHEMA is empty), the name of the
-	 * model and the schema are inherited from the extended model and T_EXTENDS is set to the
-	 * parent model object. If T_ACTIVERECORD_CLASS is empty, its value is set to the extended
-	 * model's activerecord class.
+	 * If {@link T_EXTENDS} is defined but the model has no schema ({@link T_SCHEMA} is empty),
+	 * the name of the model and the schema are inherited from the extended model and
+	 * {@link T_EXTENDS} is set to the parent model object. If {@link T_ACTIVERECORD_CLASS} is
+	 * empty, its value is set to the extended model's activerecord class.
 	 *
-	 * If T_ACTIVERECORD_CLASS is set, its value is saved in the `ar_class` property.
+	 * If {@link T_ACTIVERECORD_CLASS} is set, its value is saved in the `ar_class` property.
 	 *
 	 * @param array $tags Tags used to construct the model.
 	 */
@@ -563,9 +563,16 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	 * ArrayAcces implementation
 	 */
 
-	public function offsetSet($key, $properties)
+	/**
+	 * Offsets are not settable.
+	 *
+	 * @throws OffsetNotWritable when one tries to write an offset.
+	 *
+	 * @see ArrayAccess::offsetSet()
+	 */
+	public function offsetSet($offset, $value)
 	{
-		throw new Exception('Offsets are not settable: %key !properties', array('%key' => $key, '!properties' => $properties));
+		throw new Exception\OffsetNotWritable(array($offset, $this));
 	}
 
 	/**

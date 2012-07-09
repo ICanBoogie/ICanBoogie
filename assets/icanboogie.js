@@ -131,14 +131,16 @@ var ICanBoogie = {
 
 !function() {
 
-	var api_base = $(document.html).get('data-api-base')
+	var html = $(document.html)
+	, apiBase = html.get('data-api-base')
+	, apiLanguage = html.get('data-user-lang') || html.get('lang')
 
-	if (!api_base)
+	if (!apiBase)
 	{
-		api_base = ''
+		apiBase = ''
 	}
 
-	api_base += '/api/'
+	apiBase += '/api/'
 
 	/**
 	 * Extends Request.JSON adding specific support to the ICanBoogie API.
@@ -159,7 +161,12 @@ var ICanBoogie = {
 				options.url = options.url.substring(5)
 			}
 
-			options.url = api_base + options.url
+			options.url = apiBase + options.url
+
+			if (apiLanguage)
+			{
+				options.url += (options.url.indexOf('?') == -1 ? '?' : '&') + 'hl=' + apiLanguage
+			}
 
 			this.parent(options)
 		},
@@ -188,7 +195,7 @@ var ICanBoogie = {
 			url = url.substring(5)
 		}
 
-		return api_base + url
+		return apiBase + url
 	}
 
 } ()

@@ -9,19 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Operation\Core;
-
-use ICanBoogie\Operation;
-use ICanBoogie\Session;
+namespace ICanBoogie;
 
 /**
  * Keeps the user's session alive.
  *
  * Only already created sessions are kept alive, new sessions will *not* be created.
  */
-class Ping extends Operation
+class PingOperation extends Operation
 {
-	protected function validate(\ICanboogie\Errors $errors)
+	protected function validate(Errors $errors)
 	{
 		return true;
 	}

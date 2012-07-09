@@ -9,22 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\I18n\Formatter;
+namespace ICanBoogie\I18n;
 
 use ICanBoogie\Exception;
-use ICanBoogie\Object;
-use ICanBoogie\I18n\Locale;
 
 /**
  * Provides date and time localization.
  *
- * The WdLocaleDateFormatter class allows you to format dates and times in a locale-sensitive
- * manner using {@link http://www.unicode.org/reports/tr35/#Date_Format_Patterns Unicode format patterns}.
+ * The class allows you to format dates and times in a locale-sensitive manner using
+ * {@link http://www.unicode.org/reports/tr35/#Date_Format_Patterns Unicode format patterns}.
  *
  * Original code: http://code.google.com/p/yii/source/browse/tags/1.1.7/framework/i18n/CDateFormatter.php
  */
-
-class Date extends Object
+class DateFormatter
 {
 	/**
 	 * @var array Pattern characters mapping to the corresponding translator methods
@@ -65,7 +62,8 @@ class Date extends Object
 
 	/**
 	 * Constructor.
-	 * @param WdLocale $locale
+	 *
+	 * @param Locale $locale
 	 */
 	public function __construct(Locale $locale)
 	{
@@ -91,7 +89,9 @@ class Date extends Object
 
 	/**
 	 * Parses the datetime format pattern.
+	 *
 	 * @param string $pattern the pattern to be parsed
+	 *
 	 * @return array tokenized parsing result
 	 */
 	protected function parse_format($pattern)
@@ -160,8 +160,10 @@ class Date extends Object
 
 	/**
 	 * Formats a date according to a customized pattern.
+	 *
 	 * @param string $pattern the pattern (See {@link http://www.unicode.org/reports/tr35/#Date_Format_Patterns})
-	 * @param mixed $time UNIX timestamp or a string in strtotime format
+	 * @param mixed $time UNIX timestamp, a string in strtotime format, or a {@link \DateTime} object
+	 *
 	 * @return string formatted date time.
 	 */
 	public function format($time, $pattern)
@@ -172,7 +174,11 @@ class Date extends Object
 		}
 		else
 		{
-			if (!is_numeric($time))
+			if ($time instanceof \DateTime)
+			{
+				$time = $time->getTimestamp();
+			}
+			else if (!is_numeric($time))
 			{
 				$time = strtotime($time);
 			}
@@ -205,11 +211,13 @@ class Date extends Object
 	/**
 	 * Formats a date according to a predefined pattern.
 	 * The predefined pattern is determined based on the date pattern width and time pattern width.
+	 *
 	 * @param mixed $timestamp UNIX timestamp or a string in strtotime format
 	 * @param string $dateWidth width of the date pattern. It can be 'full', 'long', 'medium' and 'short'.
 	 * If null, it means the date portion will NOT appear in the formatting result
 	 * @param string $timeWidth width of the time pattern. It can be 'full', 'long', 'medium' and 'short'.
 	 * If null, it means the time portion will NOT appear in the formatting result
+	 *
 	 * @return string formatted date time.
 	 */
 	public function format_datetime($timestamp, $date_pattern='medium', $time_pattern='medium')
@@ -217,11 +225,12 @@ class Date extends Object
 		$date = null;
 		$time = null;
 
-		$available_formats = $this->locale->conventions['dates']['dateTimeFormats'];
+		$dates_conventions = $this->locale->conventions['dates'];
+		$available_formats = $dates_conventions['dateTimeFormats'];
 
 		if ($date_pattern)
 		{
-			$date_widths = $this->locale->conventions['dates']['dateFormats'];
+			$date_widths = $dates_conventions['dateFormats'];
 
 			if (isset($date_widths[$date_pattern]))
 			{
@@ -237,7 +246,7 @@ class Date extends Object
 
 		if ($time_pattern)
 		{
-			$time_widths = $this->locale->conventions['dates']['timeFormats'];
+			$time_widths = $dates_conventions['timeFormats'];
 
 			if (isset($time_widths[$time_pattern]))
 			{
@@ -253,7 +262,7 @@ class Date extends Object
 
 		if ($date && $time)
 		{
-			$date_time_pattern = isset($this->locale->conventions['dates']['date_time_format']) ? $this->locale->$conventions['dates']['date_time_format'] : '{1} {0}';
+			$date_time_pattern = isset($dates_conventions['date_time_format']) ? $dates_conventions['date_time_format'] : '{1} {0}';
 
 			return strtr($date_time_pattern, array('{0}' => $time, '{1}' => $date));
 		}
@@ -398,6 +407,7 @@ class Date extends Object
 	 * @param array $date result of getdate().
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return string formated month.
 	 */
 	protected function format_standalone_month(array $date, $pattern, $length)
@@ -424,6 +434,7 @@ class Date extends Object
 	 * @param array $date result of getdate().
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return integer week in year
 	 */
 	protected function format_week_of_year(array $date, $pattern, $length)
@@ -444,6 +455,7 @@ class Date extends Object
 	 * @param array $date result of getdate().
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return integer week of month
 	 */
 	protected function format_week_of_month(array $date, $pattern, $length)
@@ -464,6 +476,7 @@ class Date extends Object
 	 * @param array $date result of getdate().
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return string day of the month
 	 */
 	protected function format_day_of_month(array $date, $pattern, $length)
@@ -490,6 +503,7 @@ class Date extends Object
 	 * @param array $date result of getdate().
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return string Formated day oy year.
 	 */
 	protected function format_day_of_year(array $date, $pattern, $length)
@@ -510,6 +524,7 @@ class Date extends Object
 	 * @param array $date result of getdate().
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return integer day in month
 	 */
 	protected function format_day_of_week_in_month(array $date, $pattern, $length)
@@ -532,7 +547,9 @@ class Date extends Object
 	 * @param array $date result of {@link CTimestamp::getdate}.
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return string day of the week.
+	 *
 	 * @see http://www.unicode.org/reports/tr35/#Date_Format_Patterns
 	 */
 	protected function format_day_in_week(array $date, $pattern)
@@ -586,9 +603,11 @@ class Date extends Object
 
 	/**
 	 * Get the AM/PM designator, 12 noon is PM, 12 midnight is AM.
+	 *
 	 * @param array $date result of {@link CTimestamp::getdate}.
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return string AM or PM designator
 	 */
 	protected function format_period(array $date, $pattern, $length)

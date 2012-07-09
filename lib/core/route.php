@@ -166,6 +166,7 @@ class Routes implements \IteratorAggregate, \ArrayAccess
 		}
 
 		$found = null;
+		$pattern = null;
 
 		foreach ($this->routes as $id => $route)
 		{
@@ -215,7 +216,7 @@ class Routes implements \IteratorAggregate, \ArrayAccess
 
 		return new Route
 		(
-			$route + array
+			$pattern, $route + array
 			(
 				'id' => $id,
 				'path_params' => is_array($match) ? $match : array()
@@ -444,14 +445,23 @@ class Route
 	 */
 	public $path_params;
 
-	public function __construct(array $properties)
+	public function __construct($pattern, array $properties)
 	{
+		$this->pattern = $pattern;
+
 		foreach ($properties as $property => $value)
 		{
 			$this->$property = $value;
 		}
 	}
 
+	/**
+	 * Map the route and return its response.
+	 *
+	 * @param HTTP\Request $request
+	 *
+	 * @return ICanBoogie\HTTP\Response
+	 */
 	public function __invoke(HTTP\Request $request)
 	{
 		$response = new HTTP\Response;

@@ -16,7 +16,7 @@ namespace ICanBoogie;
  *
  * @var string
  */
-const VERSION = '0.18.0-dev (2012-04-30)';
+const VERSION = '0.20.0-dev (2012-07-09)';
 
 /**
  * The ROOT directory of the ICanBoogie framework.

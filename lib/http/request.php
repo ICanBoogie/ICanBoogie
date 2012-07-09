@@ -18,23 +18,24 @@ use ICanBoogie\Operation;
 /**
  * An HTTP request.
  *
- * @property-read boolean $authorization
- * @property-read int $content_length
- * @property-read string $ip
- * @property-read boolean $is_delete
- * @property-read boolean $is_get
- * @property-read boolean $is_head
- * @property-read boolean $is_options
- * @property-read boolean $is_patch
- * @property-read boolean $is_post
- * @property-read boolean $is_put
- * @property-read boolean $is_trace
- * @property-read boolean $is_xhr
- * @property-read boolean $is_local
- * @property-read string $method
- * @property-read string $query_string
- * @property-read string $referer
- * @property-read string $user_agent
+ * @property-read boolean $authorization {@link get_authorization()}
+ * @property-read int $content_length {@link get_content_length()}
+ * @property-read string $ip {@link get_ip()}
+ * @property-read boolean $is_delete {@link volatile_is_delete()}
+ * @property-read boolean $is_get {@link volatile_is_get()}
+ * @property-read boolean $is_head {@link volatile_is_head()}
+ * @property-read boolean $is_options {@link volatile_is_options()}
+ * @property-read boolean $is_patch {@link volatile_is_path()}
+ * @property-read boolean $is_post {@link volatile_is_patch()}
+ * @property-read boolean $is_put {@link volatile_is_put()}
+ * @property-read boolean $is_trace {@link volatile_is_trace()}
+ * @property-read boolean $is_xhr {@link volatile_is_xhr()}
+ * @property-read boolean $is_local {@link volatile_is_local()}
+ * @property-read string $method {@link get_method()}
+ * @property-read string $query_string {@link get_query_string()}
+ * @property-read string $referer {@link get_referer()}
+ * @property-read string $user_agent {@link get_user_agent()}
+ * @property string $uri {@link volatile_set_uri()} {@link volatile_get_uri()}
  *
  * @see http://en.wikipedia.org/wiki/Uniform_resource_locator
  * @see http://en.wikipedia.org/wiki/URL_normalization
@@ -348,7 +349,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * This is the getter for the `method` magic property.
 	 *
-	 * @throws Exception with code 400 when the request method is not supported.
+	 * @throws UnsupportedMethodException when the request method is not supported.
 	 *
 	 * @return string
 	 */
@@ -363,7 +364,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 
 		if (!in_array($method, self::$methods))
 		{
-			throw new Exception('Unsupported request method: %method', array('%method' => $method), 400);
+			throw new UnsupportedMethodException('Unsupported request method: %method', array('method' => $method));
 		}
 
 		return $method;
@@ -394,7 +395,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function get_is_delete()
+	protected function volatile_get_is_delete()
 	{
 		return $this->method == 'delete';
 	}
@@ -404,7 +405,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function get_is_get()
+	protected function volatile_get_is_get()
 	{
 		return $this->method == self::METHOD_GET;
 	}
@@ -414,7 +415,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function get_is_head()
+	protected function volatile_get_is_head()
 	{
 		return $this->method == self::METHOD_HEAD;
 	}
@@ -424,7 +425,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function get_is_options()
+	protected function volatile_get_is_options()
 	{
 		return $this->method == self::METHOD_OPTIONS;
 	}
@@ -434,7 +435,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function get_is_patch()
+	protected function volatile_get_is_patch()
 	{
 		return $this->method == self::METHOD_PATCH;
 	}
@@ -444,7 +445,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function get_is_post()
+	protected function volatile_get_is_post()
 	{
 		return $this->method == self::METHOD_POST;
 	}
@@ -454,7 +455,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function get_is_put()
+	protected function volatile_get_is_put()
 	{
 		return $this->method == self::METHOD_PUT;
 	}
@@ -464,7 +465,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function get_is_trace()
+	protected function volatile_get_is_trace()
 	{
 		return $this->method == self::METHOD_TRACE;
 	}
@@ -474,7 +475,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function get_is_xhr()
+	protected function volatile_get_is_xhr()
 	{
 		return !empty($this->env['HTTP_X_REQUESTED_WITH']) && preg_match('/XMLHttpRequest/', $this->env['HTTP_X_REQUESTED_WITH']);
 	}
@@ -484,7 +485,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return boolean
 	 */
-	protected function get_is_local()
+	protected function volatile_get_is_local()
 	{
 		static $patterns = array('::1', '/^127\.0\.0\.\d{1,3}$/', '/^0:0:0:0:0:0:0:1(%.*)?$/');
 
@@ -553,11 +554,24 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		}
 	}
 
+	/**
+	 * Returns the `REQUEST_URI` environment key.
+	 *
+	 * @return string
+	 */
 	protected function volatile_get_uri()
 	{
-		return $this->env['REQUEST_URI'];
+		return isset($this->env['REQUEST_URI']) ? $this->env['REQUEST_URI'] : $_SERVER['REQUEST_URI'];
 	}
 
+	/**
+	 * Sets the `REQUEST_URI` environment key.
+	 *
+	 * The {@link path} and {@link query_string} property are unset so that they are updated on
+	 * there next access.
+	 *
+	 * @param string $uri
+	 */
 	protected function volatile_set_uri($uri)
 	{
 		unset($this->path);
