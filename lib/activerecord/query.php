@@ -26,6 +26,7 @@ use ICanBoogie\ActiveRecord;
  * @property int $count The number of records matching the query.
  * @property bool|array $exists true if a record matching the query exists, false otherwise. If
  * there is multiple records, the property is an array of booleans.
+ * @property-read Model $model The target model of the query.
  *
  * @see http://dev.mysql.com/doc/refman/5.6/en/select.html
  */
@@ -47,6 +48,11 @@ class Query extends Object implements \IteratorAggregate
 
 	protected $mode;
 
+	/**
+	 * The target model of the query.
+	 *
+	 * @var Model
+	 */
 	protected $model;
 
 	/**
@@ -66,6 +72,11 @@ class Query extends Object implements \IteratorAggregate
 	 */
 	public function __get($property)
 	{
+		if ($property == 'model')
+		{
+			return $this->model;
+		}
+
 		$scopes = $this->get_model_scope();
 
 		if (in_array($property, $scopes))
