@@ -11,10 +11,61 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\Operation;
 use ICanBoogie\Routes;
 
 class Dispatcher
 {
+	public static function dispatch_operation(Request $request)
+	{
+		$operation = Operation::from($request);
+
+		if (!$operation)
+		{
+			return;
+		}
+
+		$response = $operation($request);
+
+		#
+		# If the response is an error and the request is not XHR we allow the
+		# dispatch to continue, one hook might display an error message.
+		#
+
+		$is_api_operation = strpos($request->path, '/api/') === 0;
+
+		if ($response && ($response->is_client_error || $response->is_server_error) && !$request->is_xhr)
+		{
+			return $is_api_operation ? $response : null;
+		}
+
+		if (!$response && $is_api_operation)
+		{
+			$response = new Response(404);
+		}
+
+		return $response;
+	}
+
+	public static function dispatch_route(Request $request)
+	{
+		$path = $request->path;
+		$path = preg_replace('/^\/index\.(html|php)/', '/', $path);
+
+		$route = \ICanBoogie\Routes::get()->find($path, $request->method);
+
+		if ($route)
+		{
+			$response = $route($request);
+		}
+		else
+		{
+			$response = null;
+		}
+
+		return $response;
+	}
+
 	protected $controllers = array
 	(
 		'operation' => array(__CLASS__, 'dispatch_operation'),
@@ -41,8 +92,19 @@ class Dispatcher
 	 * `ICanBoogie\HTTP\Request\DispatchEvent` is fired with a {@link Response} object. Event hook
 	 * might alter the response object to provide their response.
 	 *
+	 *
+	 * Controllers chain
+	 * -----------------
+	 *
+	 * The controllers chain is traversed until a controller returns a valid response. A response
+	 * is considered valid if it has no client or server error when the request is not a XHR. This
+	 * allows pages to be rendered even after a failed operation, so that an error message can be
+	 * displayed.
+	 *
+	 * Note that this does not apply to '/api/' requests, which return a 404 response when they
+	 * fail.
+	 *
 	 * @param Request $request
-	 * @throws Exception
 	 * @throws \ICanBoogie\Exception\HTTP
 	 *
 	 * @return Response
@@ -51,28 +113,19 @@ class Dispatcher
 	{
 		$response = null;
 
-		try
-		{
-			new Dispatcher\BeforeDispatchEvent($this, array('request' => $request, 'response' => &$response));
+		new Dispatcher\BeforeDispatchEvent($this, array('request' => $request, 'response' => &$response));
 
-			if (!$response)
+		if (!$response)
+		{
+			foreach ($this->controllers as $handler)
 			{
-				foreach ($this->controllers as $handler)
-				{
-					$response = call_user_func($handler, $request);
+				$response = call_user_func($handler, $request);
 
-					if ($response) break;
-				}
+				if ($response) break;
 			}
-
-			new Dispatcher\DispatchEvent($this, array('request' => $request, 'response' => &$response));
 		}
-		catch (\Exception $e) { }
 
-		if (isset($e))
-		{
-			throw $e;
-		}
+		new Dispatcher\DispatchEvent($this, array('request' => $request, 'response' => &$response));
 
 		if (!$response)
 		{
@@ -82,52 +135,19 @@ class Dispatcher
 		return $response;
 	}
 
-	public static function dispatch_operation(Request $request)
+	protected function route($method, $path, $callback, array $options=array())
 	{
-		$operation = \ICanBoogie\Operation::from_request($request);
+		Routes::add
+		(
+			$method . ' ' . $path, array
+			(
+				'pattern' => $path,
+				'via' => $method,
+				'callback' => $callback
+			)
 
-		if (!$operation)
-		{
-			return;
-		}
-
-		$response = $operation($request);
-
-		#
-		# If the response is an error and the request is not XHR we allow the
-		# dispatch to continue, one hook might display an error message.
-		#
-
-		if ($response && ($response->is_client_error || $response->is_server_error) && !$request->is_xhr)
-		{
-			$response = null;
-		}
-
-		if (!$response && strpos($request->path, '/api/') === 0)
-		{
-			$response = new Response(404);
-		}
-
-		return $response;
-	}
-
-	public static function dispatch_route(Request $request)
-	{
-		$path = $request->path;
-		$path = preg_replace('/^\/index\.(html|php)/', '/', $path);
-
-		$route = \ICanBoogie\Routes::get()->find($path, $request->method);
-
-		if ($route)
-		{
-			$response = $route($request);
-		}
-		else
-		{
-			$response = null;
-		}
-
-		return $response;
+			+ $options
+		);
 	}
 
 	public function any($path, $callback, array $options=array())
@@ -169,21 +189,6 @@ class Dispatcher
 	public function patch($path, $callback, array $options=array())
 	{
 		$this->route(Request::METHOD_PATCH, $path, $callback, $options);
-	}
-
-	protected function route($method, $path, $callback, array $options=array())
-	{
-		Routes::add
-		(
-			$method . ' ' . $path, array
-			(
-				'pattern' => $path,
-				'via' => $method,
-				'callback' => $callback
-			)
-
-			+ $options
-		);
 	}
 }
 
