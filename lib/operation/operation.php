@@ -19,6 +19,7 @@ use ICanBoogie\HTTP\Request;
  * An operation.
  *
  * @property ActiveRecord $record The target active record object of the operation.
+ * @property-read Request $request The request.
  */
 abstract class Operation extends Object
 {
@@ -29,6 +30,16 @@ abstract class Operation extends Object
 
 	const RESTFUL_BASE = '/api/';
 	const RESTFUL_BASE_LENGHT = 5;
+
+	public static function from($properties=null, array $construct_args=array(), $class_name=null)
+	{
+		if ($properties instanceof Request)
+		{
+			return static::from_request($properties);
+		}
+
+		return parent::from($properties, $construct_args, $class_name);
+	}
 
 	/**
 	 * Creates an operation instance from a request.
@@ -94,7 +105,7 @@ abstract class Operation extends Object
 	 *
 	 * @return Operation|null The decoded operation or null if no operation was found.
 	 */
-	public static function from_request(HTTP\Request $request)
+	protected static function from_request(HTTP\Request $request)
 	{
 		global $core;
 
@@ -348,6 +359,11 @@ abstract class Operation extends Object
 	 * @var \ICanBoogie\HTTP\Request The request triggring the operation.
 	 */
 	protected $request;
+
+	protected function volatile_get_request()
+	{
+		return $this->request;
+	}
 
 	public $response;
 	public $method;
