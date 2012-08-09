@@ -29,6 +29,8 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	 * @var int
 	 */
 	const MAGIC_LENGTH = 8;
+	
+	private static $release_after;
 
 	/**
 	 * Absolute path to the vars directory.
@@ -45,6 +47,11 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	public function __construct($path)
 	{
 		$this->path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+		if (self::$release_after === null)
+		{
+			self::$release_after = strpos(PHP_OS, 'WIN') === 0 ? false : true;
+		}
 
 		if (!is_writable($this->path))
 		{
@@ -140,7 +147,9 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 			mkdir($dir, 0705, true);
 		}
 
-		$tmp_pathname = $dir . '/var-' . uniqid(mt_rand(), true);
+		$uniq_id = uniqid(mt_rand(), true);
+		$tmp_pathname = $dir . '/var-' . $uniq_id;
+		$garbage_pathname = $dir . '/garbage-var-' . $uniq_id;
 
 		#
 		# If the value is an array or a string it is serialized and prepended with a magic
@@ -173,26 +182,42 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 			{
 				throw new Exception('Unable to open %pathname: :message', array('pathname' => $pathname, 'message' => Debug::$last_error_message));
 			}
-
-			if (flock($fh, LOCK_EX))
-			{
-				file_put_contents($tmp_pathname, $value);
-
-				if (!unlink($pathname))
-				{
-					throw new Exception('Unable to unlink %pathname: :message', array('pathname' => $pathname, 'message' => Debug::$last_error_message));
-				}
-
-				rename($tmp_pathname, $pathname);
-
-				flock($fh, LOCK_UN);
-			}
-			else
+			
+			if (self::$release_after && !flock($fh, LOCK_EX))
 			{
 				throw new Exception('Unable to get to exclusive lock on %pathname: :message', array('pathname' => $pathname, 'message' => Debug::$last_error_message));
 			}
+		
+			file_put_contents($tmp_pathname, $value);
 
-			fclose($fh);
+			#
+			# Windows, this is for you
+			#
+			if (!self::$release_after)
+			{
+				fclose($fh);
+			}
+
+			if (!rename($pathname, $garbage_pathname))
+			{
+				throw new Exception('Unable to rename %old as %new.', array('old' => $pathname, 'new' => $garbage_pathname));
+			}
+			
+			if (!rename($tmp_pathname, $pathname))
+			{
+				throw new Exception('Unable to rename %old as %new.', array('old' => $tmp_pathname, 'new' => $pathname));
+			}
+
+			if (!unlink($garbage_pathname))
+			{
+				throw new Exception('Unable to unlink %pathname: :message', array('pathname' => $garbage_pathname, 'message' => Debug::$last_error_message));
+			}
+			
+			if (self::$release_after)
+			{
+				flock($fh, LOCK_UN);
+				fclose($fh);
+			}
 		}
 	}
 
