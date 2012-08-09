@@ -32,21 +32,21 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @var callable
 	 */
-	public static $initializer;
+	static public $initializer;
 
 	/**
 	 * Prototypes built per class.
 	 *
 	 * @var array[string]Prototype
 	 */
-	protected static $prototypes = array();
+	static protected $prototypes = array();
 
 	/**
 	 * Pool of prototype methods per class.
 	 *
 	 * @var array[string]callable
 	 */
-	protected static $pool;
+	static protected $pool;
 
 	/**
 	 * Returns the prototype associated with the specified class or object.
@@ -55,7 +55,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return Prototype
 	 */
-	public static function get($class)
+	static public function get($class)
 	{
 		if (is_object($class))
 		{
@@ -72,7 +72,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 		return $prototype;
 	}
 
-	public static function configure(array $config)
+	static public function configure(array $config)
 	{
 		self::$pool = $config;
 
@@ -101,7 +101,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return array[string]callable
 	 */
-	public static function synthesize_config(array $fragments)
+	static public function synthesize_config(array $fragments)
 	{
 		$methods = array();
 

@@ -19,7 +19,7 @@ namespace ICanBoogie\I18n;
  */
 class Locale extends \ICanBoogie\Object
 {
-	private static $locales=array();
+	static private $locales=array();
 
 	/**
 	 * Returns a locale for the id.
@@ -28,7 +28,7 @@ class Locale extends \ICanBoogie\Object
 	 *
 	 * @return Locale.
 	 */
-	public static function get($id)
+	static public function get($id)
 	{
 		if (isset(self::$locales[$id]))
 		{

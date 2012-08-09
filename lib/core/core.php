@@ -36,7 +36,7 @@ class Core extends Object
 	 *
 	 * @return Core The core object.
 	 */
-	public static function get()
+	static public function get()
 	{
 		return self::$instance;
 	}
@@ -46,20 +46,20 @@ class Core extends Object
 	 *
 	 * @var boolean
 	 */
-	public static $is_running = false;
+	static public $is_running = false;
 
 	/**
 	 * Echos the exception and kills PHP.
 	 *
 	 * @param \Exception $exception
 	 */
-	public static function exception_handler(\Exception $exception)
+	static public function exception_handler(\Exception $exception)
 	{
 		Debug::exception_handler($exception);
 	}
 
-	protected static $autoload = array();
-	protected static $classes_aliases = array();
+	static protected $autoload = array();
+	static protected $classes_aliases = array();
 
 	/**
 	 * Loads the file defining the specified class.
@@ -87,7 +87,7 @@ class Core extends Object
 	 *
 	 * @return boolean Whether or not the required file could be found.
 	 */
-	private static function autoload_handler($name)
+	static private function autoload_handler($name)
 	{
 		$list = self::$autoload;
 

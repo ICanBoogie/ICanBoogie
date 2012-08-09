@@ -13,7 +13,7 @@ namespace ICanBoogie;
 
 class Image
 {
-	public static function load($file, &$info)
+	static public function load($file, &$info)
 	{
 		if (!is_file($file))
 		{
@@ -78,7 +78,7 @@ class Image
 	const RESIZE_SIMPLE = 'simple';
 	const RESIZE_CONSTRAINED = 'constrained';
 
-	public static function compute_final_size($w, $h, $method, $src)
+	static public function compute_final_size($w, $h, $method, $src)
 	{
 		static $same = array(self::RESIZE_FIT, self::RESIZE_FILL, self::RESIZE_FIXED_HEIGHT_CROPPED, self::RESIZE_FIXED_WIDTH_CROPPED);
 
@@ -141,7 +141,7 @@ class Image
 	 *
 	 * @return resource The resized image.
 	 */
-	public static function resize($source, &$t_w, &$t_h, $method, $fill_callback=null)
+	static public function resize($source, &$t_w, &$t_h, $method, $fill_callback=null)
 	{
 		#
 		# source dimensions
@@ -457,7 +457,7 @@ class Image
 		'purple' => array(0xffffff, 0xdcccf8)
 	);
 
-	public static function draw_grid($image, $x1, $y1, $x2, $y2, $color1=0xFFFFFF, $color2=0xCCCCCC, $size=4)
+	static public function draw_grid($image, $x1, $y1, $x2, $y2, $color1=0xFFFFFF, $color2=0xCCCCCC, $size=4)
 	{
 		#
 		# resolve size
@@ -537,7 +537,7 @@ class Image
 	 * @return array The RGB value decoded as an array of components value
 	 */
 
-	public static function decode_color($color)
+	static public function decode_color($color)
 	{
 		$len = is_string($color) ? strlen($color) : 0;
 
@@ -597,7 +597,7 @@ class Image
 		return array(128, 128, 128);
 	}
 
-	public static function allocate_color($image, $color)
+	static public function allocate_color($image, $color)
 	{
 		$color = self::decode_color($color);
 
@@ -607,7 +607,7 @@ class Image
 		);
 	}
 
-	public static $color_names = array
+	static public $color_names = array
 	(
 		'snow' => 0xFFFAFA,
 		'snow1' => 0xFFFAFA,

@@ -129,7 +129,7 @@ class Query extends Object implements \IteratorAggregate
 	 *
 	 * @var array[]string
 	 */
-	protected static $scopes_by_classes=array();
+	static protected $scopes_by_classes=array();
 
 	/**
 	 * Returns the available scopes for a model class.

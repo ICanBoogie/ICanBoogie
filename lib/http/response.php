@@ -49,7 +49,7 @@ class Response extends \ICanBoogie\Object
      */
 	public $version = '1.0';
 
-	public static $status_messages = array
+	static public $status_messages = array
 	(
         100 => 'Continue',
         101 => 'Switching Protocols',

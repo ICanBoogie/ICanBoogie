@@ -26,7 +26,7 @@ class Session
 	 *
 	 * @return bool true if the session identifier exists in the cookie, false otherwise.
 	 */
-	public static function exists()
+	static public function exists()
 	{
 		global $core;
 

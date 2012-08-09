@@ -21,21 +21,21 @@ class Events implements \IteratorAggregate, \ArrayAccess
 	 *
 	 * @var Events
 	 */
-	protected static $instance;
+	static protected $instance;
 
 	/**
 	 * Callback to initialize events.
 	 *
 	 * @var callable
 	 */
-	public static $initializer;
+	static public $initializer;
 
 	/**
 	 * Returns the singleton instance of the class.
 	 *
 	 * @return Events
 	 */
-	public static function get()
+	static public function get()
 	{
 		if (!self::$instance)
 		{
@@ -55,7 +55,7 @@ class Events implements \IteratorAggregate, \ArrayAccess
 	 *
 	 * @return array[string]array
 	 */
-	public static function synthesize_config(array $fragments)
+	static public function synthesize_config(array $fragments)
 	{
 		$events = array();
 
@@ -199,7 +199,7 @@ class Events implements \IteratorAggregate, \ArrayAccess
 	 *
 	 * @throws \InvalidArgumentException when $callback is not a callable.
 	 */
-	public static function attach($type, $callback)
+	static public function attach($type, $callback)
 	{
 		if (!is_callable($callback))
 		{
@@ -239,7 +239,7 @@ class Events implements \IteratorAggregate, \ArrayAccess
 	 * @param string $type
 	 * @param callable $callback
 	 */
-	public static function detach($type, $callback)
+	static public function detach($type, $callback)
 	{
 		$ns = '::';
 
@@ -345,9 +345,9 @@ class Event
 	 *
 	 * @var array[string]bool
 	 */
-	private static $reserved = array('chain' => true, 'stopped' => true, 'target' => true, 'used' => true);
+	static private $reserved = array('chain' => true, 'stopped' => true, 'target' => true, 'used' => true);
 
-	public static $profiling = array();
+	static public $profiling = array();
 
 	/**
 	 * Creates an event and fires it immediately.
@@ -515,7 +515,7 @@ class Event
 	 *
 	 * @return Event The event created, or `null` if there was no callback for the event type.
 	 */
-	public static function fire($type, array $properties, $target=null)
+	static public function fire($type, array $properties, $target=null)
 	{
 		$event = new self($target, $type, $properties);
 

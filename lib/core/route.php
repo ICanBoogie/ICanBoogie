@@ -18,14 +18,14 @@ use ICanBoogie\HTTP\Request;
  */
 class Routes implements \IteratorAggregate, \ArrayAccess
 {
-	protected static $instance;
+	static protected $instance;
 
 	/**
 	 * Returns the singleton instance of the class.
 	 *
 	 * @return \ICanBoogie\Routes
 	 */
-	public static function get()
+	static public function get()
 	{
 		if (!self::$instance)
 		{
@@ -230,7 +230,7 @@ class Routes implements \IteratorAggregate, \ArrayAccess
  */
 class Route
 {
-	public static $contextualize_callback;
+	static public $contextualize_callback;
 
 	/**
 	 * Contextualize the route.
@@ -242,12 +242,12 @@ class Route
 	 *
 	 * @return string
 	 */
-	public static function contextualize($str)
+	static public function contextualize($str)
 	{
 		return self::$contextualize_callback ? call_user_func(self::$contextualize_callback, $str) : $str;
 	}
 
-	public static $decontextualize_callback;
+	static public $decontextualize_callback;
 
 	/**
 	 * Decontextualize the route.
@@ -259,12 +259,12 @@ class Route
 	 *
 	 * @return string
 	 */
-	public static function decontextualize($str)
+	static public function decontextualize($str)
 	{
 		return self::$decontextualize_callback ? call_user_func(self::$decontextualize_callback, $str) : $str;
 	}
 
-	private static $parse_cache = array();
+	static private $parse_cache = array();
 
 	/**
 	 * Parses a route pattern and return an array of interleaved paths and parameters, parameters
@@ -274,7 +274,7 @@ class Route
 	 *
 	 * @return array
 	 */
-	public static function parse($pattern)
+	static public function parse($pattern)
 	{
 		if (isset(self::$parse_cache[$pattern]))
 		{
@@ -329,7 +329,7 @@ class Route
 		return self::$parse_cache[$pattern] = array($interleave, $params, $regex);
 	}
 
-	public static function match($pathname, $pattern)
+	static public function match($pathname, $pattern)
 	{
 		$parsed = self::parse($pattern);
 
@@ -359,7 +359,7 @@ class Route
 	 *
 	 * @return string The formated route.
 	 */
-	public static function format($pattern, $values=null)
+	static public function format($pattern, $values=null)
 	{
 		$url = '';
 		$parsed = self::parse($pattern);
@@ -389,7 +389,7 @@ class Route
 	 *
 	 * @return true is the given pattern is a route pattern, false otherwise.
 	 */
-	public static function is_pattern($pattern)
+	static public function is_pattern($pattern)
 	{
 		return (strpos($pattern, '<') !== false) || (strpos($pattern, ':') !== false);
 	}

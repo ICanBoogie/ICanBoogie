@@ -30,7 +30,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	 */
 	const MAGIC_LENGTH = 8;
 	
-	private static $release_after;
+	static private $release_after;
 
 	/**
 	 * Absolute path to the vars directory.

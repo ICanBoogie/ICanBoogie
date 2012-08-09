@@ -96,7 +96,7 @@ class Object
 	 *
 	 * @return Object The new instance.
 	 */
-	public static function from($properties=null, array $construct_args=array(), $class_name=null)
+	static public function from($properties=null, array $construct_args=array(), $class_name=null)
 	{
 		if (!$class_name)
 		{

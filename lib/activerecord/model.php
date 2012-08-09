@@ -357,7 +357,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 		return self::$master_cache_key . $this->connection->id . '/' . $this->name . '/' . $key;
 	}
 
-	private static $master_cache_key;
+	static private $master_cache_key;
 
 	/**
 	 * Delegation hub.
@@ -654,7 +654,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	 *
 	 * @return string The resolved class name.
 	 */
-	public static function resolve_class_name($namespace, $model_id='primary')
+	static public function resolve_class_name($namespace, $model_id='primary')
 	{
 		return $namespace . '\\' . ($model_id == 'primary' ? '' : \ICanBoogie\normalize_namespace_part($model_id)) . 'Model';
 	}
@@ -667,7 +667,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	 *
 	 * @return string
 	 */
-	public static function format_name($module_id, $model_id='primary')
+	static public function format_name($module_id, $model_id='primary')
 	{
 		return strtr($module_id, '.', '_') . ($model_id == 'primary' ? '' : '__' . $model_id);
 	}

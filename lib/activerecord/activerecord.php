@@ -21,7 +21,7 @@ class ActiveRecord extends Object
 	protected $_model;
 	protected $_model_id;
 
-	public static function resolve_class_name($module_id, $model_id='primary')
+	static public function resolve_class_name($module_id, $model_id='primary')
 	{
 		$class = __CLASS__ . '\\' . normalize_namespace_part($module_id);
 

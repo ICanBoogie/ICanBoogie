@@ -31,7 +31,7 @@ abstract class Operation extends Object
 	const RESTFUL_BASE = '/api/';
 	const RESTFUL_BASE_LENGHT = 5;
 
-	public static function from($properties=null, array $construct_args=array(), $class_name=null)
+	static public function from($properties=null, array $construct_args=array(), $class_name=null)
 	{
 		if ($properties instanceof Request)
 		{
@@ -105,7 +105,7 @@ abstract class Operation extends Object
 	 *
 	 * @return Operation|null The decoded operation or null if no operation was found.
 	 */
-	protected static function from_request(HTTP\Request $request)
+	static protected function from_request(HTTP\Request $request)
 	{
 		global $core;
 
@@ -183,7 +183,7 @@ abstract class Operation extends Object
 		return static::from_module_request($request, $module_id, $operation_name);
 	}
 
-	protected static function from_route(HTTP\Request $request, $path)
+	static protected function from_route(HTTP\Request $request, $path)
 	{
 		$route = Routes::get()->find($path, $request->method, 'api');
 
@@ -244,7 +244,7 @@ abstract class Operation extends Object
 		return $operation;
 	}
 
-	protected static function from_module_request(HTTP\Request $request, $module_id, $operation_name)
+	static protected function from_module_request(HTTP\Request $request, $module_id, $operation_name)
 	{
 		global $core;
 
@@ -267,7 +267,7 @@ abstract class Operation extends Object
 	 *
 	 * @return string The operation encoded as a RESTful relative URL.
 	 */
-	public static function encode($pattern, array $params=array())
+	static public function encode($pattern, array $params=array())
 	{
 		$destination = null;
 		$name = null;
@@ -322,7 +322,7 @@ abstract class Operation extends Object
 	 *
 	 * @return string|null The resolve class name, or null if none was found.
 	 */
-	private static function resolve_operation_class($name, Module $target)
+	static private function resolve_operation_class($name, Module $target)
 	{
 		$module = $target;
 
@@ -347,7 +347,7 @@ abstract class Operation extends Object
 	 *
 	 * @return string
 	 */
-	public static function format_class_name($namespace, $operation_name)
+	static public function format_class_name($namespace, $operation_name)
 	{
 		return $namespace . '\\' . ucfirst(camelize(strtr($operation_name, '_', '-'))) . 'Operation';
 	}

@@ -18,7 +18,7 @@ use ICanBoogie\Object;
 
 class Translator extends Object implements \ArrayAccess
 {
-	private static $translators=array();
+	static private $translators=array();
 
 	/**
 	 * Return the translator for the specified locale.
@@ -27,7 +27,7 @@ class Translator extends Object implements \ArrayAccess
 	 *
 	 * @return Translator The translator for the locale.
 	 */
-	public static function get($id)
+	static public function get($id)
 	{
 		if (isset(self::$translators[$id]))
 		{
@@ -39,9 +39,9 @@ class Translator extends Object implements \ArrayAccess
 		return $translator;
 	}
 
-	protected static $cache;
+	static protected $cache;
 
-	protected static function get_cache()
+	static protected function get_cache()
 	{
 		global $core;
 

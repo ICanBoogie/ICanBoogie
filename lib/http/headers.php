@@ -212,7 +212,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
 	 */
-	public static function format_time($datetime)
+	static public function format_time($datetime)
 	{
 		if (!($datetime instanceof \DateTime))
 		{
@@ -237,7 +237,7 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @see http://greenbytes.de/tech/tc2231/
 	 */
-	public static function format_parm($parm, $value)
+	static public function format_parm($parm, $value)
 	{
 		if (mb_detect_encoding($value, 'ASCII, UTF-8', true) === 'UTF-8')
 		{

@@ -73,14 +73,14 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @var Request
 	 */
-	protected static $current_request;
+	static protected $current_request;
 
 	/**
 	 * Returns the current request being executed.
 	 *
 	 * @return Request
 	 */
-	public static function get_current_request()
+	static public function get_current_request()
 	{
 		return self::$current_request;
 	}
@@ -152,7 +152,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return Request
 	 */
-	public static function from($properties=null, array $construct_args=array(), $class_name=null)
+	static public function from($properties=null, array $construct_args=array(), $class_name=null)
 	{
 		if (is_string($properties))
 		{

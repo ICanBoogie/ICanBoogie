@@ -23,22 +23,22 @@ class Debug
 
 	const MAX_MESSAGES = 100;
 
-	public static $mode = 'dev';
-	public static $report_address;
+	static public $mode = 'dev';
+	static public $report_address;
 
 	/**
 	 * Last error.
 	 *
 	 * @var array[string]mixed
 	 */
-	public static $last_error;
+	static public $last_error;
 
 	/**
 	 * Last error message.
 	 *
 	 * @var string
 	 */
-	public static $last_error_message;
+	static public $last_error_message;
 
 	static public function synthesize_config(array $fragments)
 	{
@@ -71,7 +71,7 @@ class Debug
 	/**
 	 * Stores logged messages in the session and report fatal errors.
 	 */
-	public static function shutdown_handler()
+	static public function shutdown_handler()
 	{
 		global $core;
 
@@ -95,7 +95,7 @@ class Debug
 		}
 	}
 
-	public static function restore_logs(Event $event, ICanBoogie\Session $session)
+	static public function restore_logs(Event $event, ICanBoogie\Session $session)
 	{
 		if (isset($session->wddebug['messages']))
 		{
@@ -126,7 +126,7 @@ class Debug
 	 * @param int $line The line number the error was raised at.
 	 * @param array $context The active symbol table at the point the error occurred.
 	 */
-	public static function error_handler($no, $str, $file, $line, $context)
+	static public function error_handler($no, $str, $file, $line, $context)
 	{
 		if (!headers_sent())
 		{
@@ -191,7 +191,7 @@ class Debug
 
 	const MAX_STRING_LEN = 16;
 
-	private static $error_names = array
+	static private $error_names = array
 	(
 		E_ERROR => 'Error',
 		E_WARNING => 'Warning',
@@ -207,7 +207,7 @@ class Debug
 	 *
 	 * @param \Exception|array $alert
 	 */
-	public static function format_alert($alert)
+	static public function format_alert($alert)
 	{
 		$type = 'Error';
 		$class = 'error';
@@ -275,7 +275,7 @@ EOT;
 	 *
 	 * @return string
 	 */
-	public static function format_trace(array $trace)
+	static public function format_trace(array $trace)
 	{
 		$root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
 		$count = count($trace);
@@ -348,7 +348,7 @@ EOT;
 	 *
 	 * @return string
 	 */
-	public static function format_code_sample($file, $line=0)
+	static public function format_code_sample($file, $line=0)
 	{
 		$sample = '';
 		$fh = new \SplFileObject($file);
@@ -380,7 +380,7 @@ EOT;
 	 *
 	 * @param string $message
 	 */
-	public static function report($message)
+	static public function report($message)
 	{
 		$config = self::get_config();
 		$report_address = $config['report_address'];
@@ -443,9 +443,9 @@ EOT;
 		mail($report_address, __CLASS__ . ': Report from ' . $host, $message, $headers);
 	}
 
-	public static $logs = array();
+	static public $logs = array();
 
-	public static function log($type, $message, array $params=array(), $message_id=null)
+	static public function log($type, $message, array $params=array(), $message_id=null)
 	{
 		if (empty(self::$logs[$type]))
 		{
@@ -481,7 +481,7 @@ EOT;
 	 *
 	 * @return array The messages available in the given log.
 	 */
-	public static function get_messages($type)
+	static public function get_messages($type)
 	{
 		if (empty(self::$logs[$type]))
 		{
@@ -506,7 +506,7 @@ EOT;
 	 *
 	 * @return array The messages fetched from the given log.
 	 */
-	public static function fetch_messages($type)
+	static public function fetch_messages($type)
 	{
 		$rc = self::get_messages($type);
 
@@ -522,7 +522,7 @@ EOT;
 	 *
 	 * @return string
 	 */
-	private static function strip_root($path)
+	static private function strip_root($path)
 	{
 		$root = rtrim(DOCUMENT_ROOT, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 

@@ -16,7 +16,7 @@ use ICanBoogie\Routes;
 
 class Dispatcher
 {
-	public static function dispatch_operation(Request $request)
+	static public function dispatch_operation(Request $request)
 	{
 		$operation = Operation::from($request);
 
@@ -47,7 +47,7 @@ class Dispatcher
 		return $response;
 	}
 
-	public static function dispatch_route(Request $request)
+	static public function dispatch_route(Request $request)
 	{
 		$path = $request->path;
 		$path = preg_replace('/^\/index\.(html|php)/', '/', $path);

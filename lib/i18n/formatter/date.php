@@ -70,7 +70,7 @@ class DateFormatter
 		$this->locale = $locale;
 	}
 
-	public static function get_date($time=null, $gmt=false)
+	static public function get_date($time=null, $gmt=false)
 	{
 		if ($gmt)
 		{

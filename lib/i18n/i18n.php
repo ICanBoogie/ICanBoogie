@@ -20,21 +20,21 @@ class I18n
 	 *
 	 * @var array
 	 */
-	public static $load_paths = array();
+	static public $load_paths = array();
 
 	/**
 	 * The currently used language.
 	 *
 	 * @var string
 	 */
-	private static $language = 'en';
+	static private $language = 'en';
 
 	/**
 	 * Changes the current language.
 	 *
 	 * @param string $id
 	 */
-	public static function set_language($id)
+	static public function set_language($id)
 	{
 		self::$language = $id;
 	}
@@ -44,7 +44,7 @@ class I18n
 	 *
 	 * @return string
 	 */
-	public static function get_language()
+	static public function get_language()
 	{
 		return self::$language;
 	}
@@ -54,14 +54,14 @@ class I18n
 	 *
 	 * @var Locale
 	 */
-	private static $locale;
+	static private $locale;
 
 	/**
 	 * Returns the current Locale object.
 	 *
 	 * @return Locale
 	 */
-	public static function get_locale()
+	static public function get_locale()
 	{
 		if (!self::$locale)
 		{
@@ -71,7 +71,7 @@ class I18n
 		return self::$locale;
 	}
 
-	private static $translators=array();
+	static private $translators=array();
 
 	/**
 	 * Translates a string to the current language or a given language.
@@ -82,7 +82,7 @@ class I18n
 	 *
 	 * @return string The translated string.
 	 */
-	public static function translate($str, array $args=array(), array $options=array())
+	static public function translate($str, array $args=array(), array $options=array())
 	{
 		$id = empty($options['language']) ? self::$language : $options['language'];
 
@@ -94,22 +94,22 @@ class I18n
 		return self::$translators[$id]->__invoke($str, $args, $options);
 	}
 
-	private static $scope;
-	private static $scope_chain = array();
+	static private $scope;
+	static private $scope_chain = array();
 
-	public static function push_scope($scope)
+	static public function push_scope($scope)
 	{
 		array_push(self::$scope_chain, self::$scope);
 
 		self::$scope = (array) $scope;
 	}
 
-	public static function pop_scope()
+	static public function pop_scope()
 	{
 		self::$scope = array_pop(self::$scope_chain);
 	}
 
-	public static function get_scope()
+	static public function get_scope()
 	{
 		$scope = self::$scope;
 
