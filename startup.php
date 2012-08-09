@@ -34,10 +34,14 @@ define('ICanBoogie\ASSETS', ROOT . 'assets' . DIRECTORY_SEPARATOR);
 
 /**
  * Document root of the application.
+ * 
+ * We ensure that the directory separator is indeed the directory separator used by the file
+ * system. e.g. "c:path/to/my/root" is changed to "c:path\to\my\root" if the directory
+ * separator is "\".
  *
  * @var string
  */
-defined('ICanBoogie\DOCUMENT_ROOT') or define('ICanBoogie\DOCUMENT_ROOT', rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
+defined('ICanBoogie\DOCUMENT_ROOT') or define('ICanBoogie\DOCUMENT_ROOT', rtrim(strtr($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR == '/' ? '\\' : '/', DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
 
 /**
  * Repository root. The repository is the directory where all files are stored. It's the only
