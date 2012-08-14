@@ -51,40 +51,44 @@ For instance, defining the primary database connection:
 1. Edit your _core_ configuration file e.g. `/protected/all/config/core.php` with the following
 lines:
 
-	```php
-	return array
+```php
+<?php
+
+return array
+(
+	'connections' => array
 	(
-		'connections' => array
+		'primary' => array
 		(
-			'primary' => array
-			(
-				'dsn' => 'mysql:dbname=<databasename>;host=<hostname>',
-				'username' => '<username>',
-				'password' => '<password>'
-			)
+			'dsn' => 'mysql:dbname=<databasename>;host=<hostname>',
+			'username' => '<username>',
+			'password' => '<password>'
 		)
-	);
-	```
+	)
+);
+```
 
 2. Then specify your config path while creating the _core_ object:
 
-	```php
-	namespace ICanBoogie;
+```php
+<?php
 
-	require_once 'ICanBoogie.phar';
+namespace ICanBoogie;
 
-	$core = new Core
+require_once 'ICanBoogie.phar';
+
+$core = new Core
+(
+	array
 	(
-		array
+		'paths' => array
 		(
-			'paths' => array
-			(
-				'config' => array(DOCUMENT_ROOT . 'protected/all/'),
-				'locale' => array(DOCUMENT_ROOT . 'protected/all/')
-			)
+			'config' => array(DOCUMENT_ROOT . 'protected/all/'),
+			'locale' => array(DOCUMENT_ROOT . 'protected/all/')
 		)
-	);
-	```
+	)
+);
+```
 
 ### Running
 
@@ -96,12 +100,14 @@ defined in configuration fragments.
 
 Finally we can execute the HTTP request and return a response.
 
-	```php
-	$core->run();
+```php
+<?php
 
-	# here we could add routes or attach events
+$core->run();
 
-	$request = HTTP\Request::from($_SERVER);
-	$response = $request();
-	$response();
-	```
+# here we could add routes or attach events
+
+$request = HTTP\Request::from($_SERVER);
+$response = $request();
+$response();
+```
