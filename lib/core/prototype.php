@@ -78,7 +78,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 
 		foreach (self::$prototypes as $class => $prototype)
 		{
-			$prototype->revoke_consolided_methods();
+			$prototype->revoke_consolidated_methods();
 
 			if (empty($config[$class]))
 			{
@@ -97,9 +97,11 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Synthesizes the prototype methods from the "hooks" config.
 	 *
-	 * @throws \InvalidArgumentException if a method definition is missing the '::' separator.
+	 * @param array $fragments
 	 *
 	 * @return array[string]callable
+	 *
+	 * @throws \InvalidArgumentException if a method definition is missing the '::' separator.
 	 */
 	static public function synthesize_config(array $fragments)
 	{
@@ -161,7 +163,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @var array[string]callable
 	 */
-	protected $consolided_methods;
+	protected $consolidated_methods;
 
 	/**
 	 * Creates a prototype for the specified class.
@@ -203,7 +205,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 
 		foreach (self::$prototypes as $class => $prototype)
 		{
-			$prototype->revoke_consolided_methods();
+			$prototype->revoke_consolidated_methods();
 
 			if (empty($pool[$class]))
 			{
@@ -223,37 +225,37 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 	*/
 
 	/**
-	 * Consolide the methods of the prototype.
+	 * Consolidate the methods of the prototype.
 	 *
 	 * The method creates a single array from the prototype methods and those of its parents.
 	 *
 	 * @return array[string]callable
 	 */
-	protected function get_consolided_methods()
+	protected function get_consolidated_methods()
 	{
 // 		$this->check_initialization();
 
-		if ($this->consolided_methods !== null)
+		if ($this->consolidated_methods !== null)
 		{
-			return $this->consolided_methods;
+			return $this->consolidated_methods;
 		}
 
 		$methods = $this->methods;
 
 		if ($this->parent)
 		{
-			$methods += $this->parent->get_consolided_methods();
+			$methods += $this->parent->get_consolidated_methods();
 		}
 
-		return $this->consolided_methods = $methods;
+		return $this->consolidated_methods = $methods;
 	}
 
 	/**
-	 * Revokes the consolided methods of the prototype.
+	 * Revokes the consolidated methods of the prototype.
 	 *
 	 * The method must be invoked when prototype methods are modified.
 	 */
-	protected function revoke_consolided_methods()
+	protected function revoke_consolidated_methods()
 	{
 		$class = $this->class;
 
@@ -264,7 +266,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 				continue;
 			}
 
-			$prototype->consolided_methods = null;
+			$prototype->consolidated_methods = null;
 		}
 	}
 
@@ -279,7 +281,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 	{
  		self::$prototypes[$this->class]->methods[$method] = $callback;
 
-		$this->revoke_consolided_methods();
+		$this->revoke_consolidated_methods();
 	}
 
 	/**
@@ -291,7 +293,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 	{
 		unset(self::$prototypes[$this->class]->methods[$method]);
 
-		$this->revoke_consolided_methods();
+		$this->revoke_consolidated_methods();
 	}
 
 	/**
@@ -303,7 +305,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function offsetExists($method)
 	{
-		$methods = $this->get_consolided_methods();
+		$methods = $this->get_consolidated_methods();
 
 		return isset($methods[$method]);
 	}
@@ -319,7 +321,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function offsetGet($method)
 	{
-		$methods = $this->get_consolided_methods();
+		$methods = $this->get_consolidated_methods();
 
 		if (!isset($methods[$method]))
 		{
@@ -336,7 +338,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function getIterator()
 	{
-		$methods = $this->get_consolided_methods();
+		$methods = $this->get_consolidated_methods();
 
 		return new \ArrayIterator($methods);
 	}

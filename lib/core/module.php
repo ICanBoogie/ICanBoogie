@@ -170,7 +170,7 @@ class Module extends Object
 	 *
 	 * NONE: Well, you can't do anything
 	 *
-	 * ACCESS: You can acces the module and view its records
+	 * ACCESS: You can access the module and view its records
 	 *
 	 * CREATE: You can create new records
 	 *
@@ -410,7 +410,7 @@ class Module extends Object
 	 * Basically it uninstall the models installed by the module.
 	 *
 	 * @return mixed TRUE is the module has successfully been uninstalled. FALSE if the module
-	 * (or parts of the module) failed to uninstall. NULL if there is no unistall process.
+	 * (or parts of the module) failed to uninstall. NULL if there is no uninstall process.
 	 */
 	public function uninstall()
 	{
@@ -463,9 +463,11 @@ class Module extends Object
 	 *
 	 * If the model has not been created yet, it is created on the fly.
 	 *
-	 * @param $which The identifier of the model to get.
+	 * @param string $which The identifier of the model to get.
 	 *
 	 * @return Model The requested model.
+	 *
+	 * @throws Exception if the model does not exists.
 	 */
 	public function model($which='primary')
 	{
@@ -672,8 +674,11 @@ class Module extends Object
 	/**
 	 * Get a block.
 	 *
-	 * @param $name The name of the block to get.
-	 * @return mixed Depends on the implementation. Should return a string or a stringifyable object.
+	 * @param string $name The name of the block to get.
+	 *
+	 * @return mixed Depends on the implementation. Should return a string or object that can be stringified.
+	 *
+	 * @throws Exception if the block is not defined.
 	 */
 	public function getBlock($name)
 	{

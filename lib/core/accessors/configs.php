@@ -12,7 +12,7 @@
 namespace ICanBoogie;
 
 /**
- * This class provides an accessor to synthesized lowlevel configurations.
+ * This class provides an accessor to synthesized low level configurations.
  */
 class Configs implements \ArrayAccess
 {
@@ -39,7 +39,7 @@ class Configs implements \ArrayAccess
 		throw new Exception\OffsetNotWritable(array($offset, $this));
 	}
 
-	public function offsetExists($id)
+	public function offsetExists($offset)
 	{
 		throw new Exception\OffsetNotReadable(array($offset, $this));
 	}
@@ -98,14 +98,14 @@ class Configs implements \ArrayAccess
 	protected $sorted_paths;
 
 	/**
-	 * Sorts paths by weight while preserving their odrer.
+	 * Sorts paths by weight while preserving their order.
 	 *
-	 * Because PHP's sorting algorithm doesn't respect the order in which entries are added,
+	 * Because PHP's sorting algorithm does not respect the order in which entries are added,
 	 * we need to create a temporary table to sort them.
 	 *
 	 * @return array Sorted paths by weight, from heavier to lighter.
 	 */
-	protected function get_sorted_paths()
+	protected function get_sorted_paths() // TODO-20120813: use stable_sort()
 	{
 		$by_weight = array();
 
@@ -127,8 +127,6 @@ class Configs implements \ArrayAccess
 		{
 			return self::$require_cache[$__file__];
 		}
-
-		$root = $path; // COMPAT-20110108
 
 		return self::$require_cache[$__file__] = require $__file__;
 	}
@@ -179,8 +177,10 @@ class Configs implements \ArrayAccess
 	 *
 	 * @param string $name Name of the configuration to synthesize.
 	 * @param string|array $constructor Callback for the synthesis.
-	 * @param null|string $from[optionnal] If the configuration is a derivative $from is the name
+	 * @param null|string $from[optional] If the configuration is a derivative $from is the name
 	 * of the source configuration.
+	 *
+	 * @return mixed
 	 */
 	public function synthesize($name, $constructor, $from=null)
 	{

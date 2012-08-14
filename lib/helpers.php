@@ -14,11 +14,11 @@ namespace ICanBoogie;
 /**
  * Escape HTML special characters.
  *
- * HTML special characters are escaped using the htmlspecialchars() function with the
- * ENT_COMPAT flag.
+ * HTML special characters are escaped using the {@link htmlspecialchars()} function with the
+ * {@link ENT_COMPAT} flag.
  *
  * @param string $str The string to escape.
- * @param string $charset The charset of the string to escape. Defaults to ICanBoogie\CHARSET
+ * @param string $charset The charset of the string to escape. Defaults to {@link ICanBoogie\CHARSET}
  * (utf-8).
  *
  * @return string
@@ -31,7 +31,7 @@ function escape($str, $charset=CHARSET)
 /**
  * Escape all applicable characters to HTML entities.
  *
- * Applicable characters are escaped using the htmlentities() function with the ENT_COMPAT flag.
+ * Applicable characters are escaped using the {@link htmlentities()} function with the {@link ENT_COMPAT} flag.
  *
  * @param string $str The string to escape.
  * @param string $charset The charset of the string to escape. Defaults to ICanBoogie\CHARSET
@@ -115,7 +115,7 @@ function remove_accents($str, $charset=CHARSET)
 	$str = preg_replace('#&([A-za-z]{2})(?:lig);#', '\1', $str); // pour les ligatures e.g. '&oelig;'
 	$str = preg_replace('#&[^;]+;#', '', $str); // supprime les autres caractères
 
-    return $str;
+	return $str;
 }
 
 /**
@@ -197,7 +197,7 @@ function camelize($str, $separator='-')
 }
 
 /**
- * Converts a camelcased string to a hyphenated string.
+ * Converts a camel-cased string to a hyphenated string.
  *
  * @param string $str
  *
@@ -411,6 +411,8 @@ function stable_sort(&$array, $picker=null)
  * @param $value
  * @param $key
  * @param $after
+ *
+ * @return array
  */
 function array_insert($array, $relative, $value, $key=null, $after=false)
 {
@@ -598,7 +600,7 @@ function dump($value)
  * Formats the given string by replacing placeholders with the values provided.
  *
  * @param string $str The string to format.
- * @param array $args An array of replacement for the placeholders. Occurences in $str of any
+ * @param array $args An array of replacement for the placeholders. Occurrences in $str of any
  * key in $args are replaced with the corresponding sanitized value. The sanitization function
  * depends on the first character of the key:
  *

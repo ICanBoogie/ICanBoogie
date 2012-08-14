@@ -13,8 +13,8 @@ namespace ICanBoogie\I18n;
 
 /**
  *  @property array $conventions The UNICODE conventions for the locale.
- *  @property DateFormatter $date_formatter The data formater for the locale.
- *  @property NumberFormatter $number_formatter The number formater for the locale.
+ *  @property DateFormatter $date_formatter The data formatter for the locale.
+ *  @property NumberFormatter $number_formatter The number formatter for the locale.
  *  @property Translator $translator The translator for the locale.
  */
 class Locale extends \ICanBoogie\Object

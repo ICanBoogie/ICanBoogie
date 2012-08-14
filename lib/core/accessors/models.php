@@ -44,9 +44,9 @@ class Models implements \ArrayAccess
 	 * Checks if a model exists by first checking if the module it belongs to is enabled and that
 	 * it actually defines the model.
 	 *
-	 * @see ArrayAccess::offsetExists()
+	 * @param mixed $offset
 	 *
-	 * @return `true` if the model exists and is accessible, `false` otherwise.
+	 * @return bool `true` if the model exists and is accessible, `false` otherwise.
 	 */
 	public function offsetExists($offset)
 	{
@@ -63,23 +63,19 @@ class Models implements \ArrayAccess
 	}
 
 	/**
-	 * @see ArrayAccess::offsetSet()
-	 *
 	 * @throws Exception\PropertyNotWritable when an offset is set.
 	 */
 	public function offsetSet($offset, $value)
 	{
-		throw new Exception\PropertyNotWritable(array($property, $this));
+		throw new Exception\OffsetNotWritable(array($offset, $this));
 	}
 
 	/**
-	 * @see ArrayAccess::offsetUnset()
-	 *
 	 * @throws Exception\PropertyNotWritable when an offset is unset.
 	 */
 	public function offsetUnset($offset)
 	{
-		throw new Exception\PropertyNotWritable(array($property, $this));
+		throw new Exception\OffsetNotWritable(array($offset, $this));
 	}
 
 	/**
@@ -87,9 +83,9 @@ class Models implements \ArrayAccess
 	 *
 	 * The pattern used to request a model is `<module_id>[/<model_id>]` where `<module_id>` is
 	 * the identifier of the module and `<model_id>` is the identifier of the module's model. The
-	 * `<model_id>` part is optionnal and defaults to `primary`.
+	 * `<model_id>` part is optional and defaults to `primary`.
 	 *
-	 * @see ArrayAccess::offsetGet()
+	 * @param mixed $offset The identifier of the model.
 	 *
 	 * @return ActiveRecord\Model The model for the specified offset.
 	 */

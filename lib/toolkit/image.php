@@ -126,17 +126,17 @@ class Image
 	}
 
 	/**
-	 * Resize a soure image and return its resized version.
+	 * Resize a source image and return its resized version.
 	 *
-	 * @param $source resource The source image.
-	 * @param $t_w integer The desired width of the resized version. You need to provide a
-	 * variable and not a value. If using the RESIZE_SURFACE method, the variable is set to
+	 * @param resource $source The source image.
+	 * @param int $t_w The desired width of the resized version. You need to provide a
+	 * variable and not a value. If using the {@link RESIZE_SURFACE} method, the variable is set to
 	 * the result width of the resized image.
-	 * @param $t_h integer The desired height of the resized version. You need to provide a
-	 * variable and not a value. If using the RESIZE_SURFACE method, the variable is set to
+	 * @param int $t_h The desired height of the resized version. You need to provide a
+	 * variable and not a value. If using the {@link RESIZE_SURFACE} method, the variable is set to
 	 * the result height of the resized image.
-	 * @param $method string One of the resize methods.
-	 * @param $fill_callback callback An optionnal callback used to fill the resized image,
+	 * @param string $method One of the resize methods.
+	 * @param callable $fill_callback An optional callback used to fill the resized image,
 	 * before any pixel are actually copied.
 	 *
 	 * @return resource The resized image.
@@ -398,8 +398,8 @@ class Image
 
 		#
 		# If the user didn't provide a callback to fill the background, the background is filled
-		# with a transparent color. This might be usefull to resample images while preserving
-		# their tranparency.
+		# with a transparent color. This might be useful to resample images while preserving
+		# their transparency.
 		#
 
 		if ($fill_callback)

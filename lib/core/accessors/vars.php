@@ -43,6 +43,8 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	 * Constructor.
 	 *
 	 * @param string $path Absolute path to the vars directory.
+	 *
+	 * @throws Exception when the path is not writable.
 	 */
 	public function __construct($path)
 	{
@@ -55,14 +57,14 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 
 		if (!is_writable($this->path))
 		{
-			throw new Exception('The path %path is not writtable.', array('path' => $this->path));
+			throw new Exception('The path %path is not writable.', array('path' => $this->path));
 		}
 	}
 
 	/**
 	 * Stores the value of a var using the {@link store()} method.
 	 *
-	 * @see ArrayAccess::offsetSet()
+	 * @see \ArrayAccess::offsetSet()
 	 */
 	public function offsetSet($name, $value)
 	{
@@ -72,9 +74,11 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Checks if the var exists.
 	 *
-	 * @see ArrayAccess::offsetExists()
+	 * @param string $name Name of the variable.
 	 *
 	 * @return bool true if the var exists, false otherwise.
+	 *
+	 * @see \ArrayAccess::offsetExists()
 	 */
 	public function offsetExists($name)
 	{
@@ -86,7 +90,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Deletes a var.
 	 *
-	 * @see ArrayAccess::offsetUnset()
+	 * @see \ArrayAccess::offsetUnset()
 	 */
 	public function offsetUnset($name)
 	{
@@ -103,7 +107,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Returns the value of the var using the {@link retrieve()} method.
 	 *
-	 * @see ArrayAccess::offsetGet()
+	 * @see \ArrayAccess::offsetGet()
 	 */
 	public function offsetGet($name)
 	{
@@ -114,7 +118,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	 * Cache a variable in the repository.
 	 *
 	 * If the value is an array or a string it is serialized and prepended with a magic
-	 * indentifier. This magic identifier is used to recognized previously serialized values when
+	 * identifier. This magic identifier is used to recognized previously serialized values when
 	 * they are read back.
 	 *
 	 * @param string $key The key used to identify the value. Keys are unique, so storing a second
@@ -122,7 +126,9 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	 * @param mixed $value The value to store for the key.
 	 * @param int $ttl The time to live in seconds for the stored value. If no _ttl_ is supplied
 	 * (or if the _tll_ is __0__), the value will persist until it is removed from the cache
-	 * manualy or otherwise fails to exist in the cache.
+	 * manually or otherwise fails to exist in the cache.
+	 *
+	 * @throws Exception when a file operation fails.
 	 */
 	public function store($key, $value, $ttl=0)
 	{
@@ -224,7 +230,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Returns the value of variable.
 	 *
-	 * If the value is marked with the magic identifier it is unserialized.
+	 * If the value is marked with the magic identifier it is not serialized.
 	 *
 	 * @param string $name
 	 * @param mixed $default The value returned if the variable does not exists. Defaults to null.

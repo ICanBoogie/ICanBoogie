@@ -88,7 +88,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Request environment.
 	 *
-	 * @var arrays
+	 * @var array
 	 */
 	protected $env;
 
@@ -209,6 +209,8 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 * {@link params} property.
 	 *
 	 * @return Response The response to the request.
+	 *
+	 * @throws \Exception
 	 */
 	public function __invoke($method=null, $params=null)
 	{
@@ -321,9 +323,9 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Returns the sciprt name.
+	 * Returns the script name.
 	 *
-	 * The setter is volatile, the value is returned from the ENV key `SCIPT_NAME`.
+	 * The setter is volatile, the value is returned from the ENV key `SCRIPT_NAME`.
 	 *
 	 * @return string
 	 */
@@ -670,7 +672,7 @@ class Context extends \ICanBoogie\Object
 	/**
 	 * The request the context belongs to.
 	 *
-	 * The variable is declared as private but is actually readdable thanks to the
+	 * The variable is declared as private but is actually readable thanks to the
 	 * {@link volatile_get_request} getter.
 	 *
 	 * @var \ICanBoogie\HTTP\Request

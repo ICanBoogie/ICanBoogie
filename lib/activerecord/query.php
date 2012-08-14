@@ -356,7 +356,7 @@ class Query extends Object implements \IteratorAggregate
 	/**
 	 * Defines the ORDER clause.
 	 *
-	 * @param string The order for the ORDER clause e.g. 'weight, date DESC'.
+	 * @param string $order The order for the ORDER clause e.g. 'weight, date DESC'.
 	 *
 	 * @return Query
 	 */
@@ -370,6 +370,8 @@ class Query extends Object implements \IteratorAggregate
 	/**
 	 * Defines the GROUP clause.
 	 *
+	 * @param $group
+	 *
 	 * @return Query
 	 */
 	public function group($group)
@@ -381,6 +383,9 @@ class Query extends Object implements \IteratorAggregate
 
 	/**
 	 * Defines the HAVING clause.
+	 *
+	 * @param $conditions
+	 * @param array|null $conditions_args
 	 *
 	 * @return Query
 	 */
@@ -397,6 +402,8 @@ class Query extends Object implements \IteratorAggregate
 	/**
 	 * Defines the offset of the LIMIT clause.
 	 *
+	 * @param $offset
+	 *
 	 * @return Query
 	 */
 	public function offset($offset)
@@ -410,14 +417,14 @@ class Query extends Object implements \IteratorAggregate
 	 * Apply the limit and/or offset to the SQL fired.
 	 *
 	 * You can use the limit to specify the number of records to be retrieved, ad use the offset to
-	 * specifythe number of records to skip before starting to return records:
+	 * specify the number of records to skip before starting to return records:
 	 *
-	 * `$model->limit(10);`
+	 *	 $model->limit(10);
 	 *
 	 * Will return a maximum of 10 clients and because ti specifies no offset it will return the
-	 * first 10 in the table.
+	 * first 10 in the table:
 	 *
-	 * `$model->limit(5, 10);`
+	 *	 $model->limit(5, 10);
 	 *
 	 * Will return a maximum of 10 clients beginning with the 5th.
 	 *
@@ -513,7 +520,7 @@ class Query extends Object implements \IteratorAggregate
 	 * We use the connection's prepare() method because the statement has already been resolved
 	 * during the __toString() method and we don't want for the statement to be parsed twice.
 	 *
-	 * @return DatabaseStatement
+	 * @return \ICanBoogie\Database\Statement
 	 */
 	protected function prepare()
 	{
@@ -523,7 +530,7 @@ class Query extends Object implements \IteratorAggregate
 	/**
 	 * Prepares and executes the query.
 	 *
-	 * @return DatabaseStatement
+	 * @return \ICanBoogie\Database\Statement
 	 */
 	public function query()
 	{
@@ -536,7 +543,7 @@ class Query extends Object implements \IteratorAggregate
 	/**
 	 * Returns a prepared query.
 	 *
-	 * @return DatabaseStatement
+	 * @return \ICanBoogie\Database\Statement
 	 */
 	protected function volatile_get_prepared()
 	{
@@ -733,17 +740,13 @@ class Query extends Object implements \IteratorAggregate
 		return $this->exists();
 	}
 
-	/*
-	 * Calculations
-	 */
-
 	/**
-	 * Defered method for all the computationnal methods.
+	 * Handles all the computations.
 	 *
 	 * @param string $method
 	 * @param string $column
 	 *
-	 * @return string|array
+	 * @return int|array
 	 */
 	private function compute($method, $column)
 	{
@@ -775,11 +778,13 @@ class Query extends Object implements \IteratorAggregate
 			return $query->fetchAll(\PDO::FETCH_KEY_PAIR);
 		}
 
-		return $query->fetchColumnAndClose();
+		return (int) $query->fetchColumnAndClose();
 	}
 
 	/**
 	 * Implements the 'COUNT' computation.
+	 *
+	 * @return int|array
 	 */
 	public function count($column=null)
 	{
@@ -800,6 +805,8 @@ class Query extends Object implements \IteratorAggregate
 	 * Implements the 'AVG' computation.
 	 *
 	 * @param string $column
+	 *
+	 * @return int
 	 */
 	public function average($column)
 	{
@@ -810,6 +817,8 @@ class Query extends Object implements \IteratorAggregate
 	 * Implements the 'MIN' computation.
 	 *
 	 * @param string $column
+	 *
+	 * @return int
 	 */
 	public function minimum($column)
 	{
@@ -820,6 +829,8 @@ class Query extends Object implements \IteratorAggregate
 	 * Implements the 'MAX' computation.
 	 *
 	 * @param string $column
+	 *
+	 * @return int
 	 */
 	public function maximum($column)
 	{
@@ -830,6 +841,8 @@ class Query extends Object implements \IteratorAggregate
 	 * Implements the 'SUM' computation.
 	 *
 	 * @param string $column
+	 *
+	 * @return int
 	 */
 	public function sum($column)
 	{

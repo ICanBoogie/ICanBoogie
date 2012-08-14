@@ -137,8 +137,8 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 
 	/*
 	 * TODO-20110923: we used to return *all* the fields of the response, we can't do this anymore
-	 * because most of this stuf belongs to the response object. We need a mean to add
-	 * additionnal properties, and maybe we could use the response as an array for this purpose:
+	 * because most of this stuff belongs to the response object. We need a mean to add
+	 * additional properties, and maybe we could use the response as an array for this purpose:
 	 *
 	 * Example:
 	 *
@@ -159,7 +159,7 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 	 *     }
 	 * }
 	 *
-	 * We could also drop 'rc' because it was formely used to check if the operation was
+	 * We could also drop 'rc' because it was used to check if the operation was
 	 * successful (before we handle HTTP status correctly), we might not need it anymore.
 	 *
 	 * If the operation returns anything but an array, it is converted into an array with the 'rc'

@@ -29,7 +29,7 @@ abstract class Operation extends Object
 	const SESSION_TOKEN = '_session_token';
 
 	const RESTFUL_BASE = '/api/';
-	const RESTFUL_BASE_LENGHT = 5;
+	const RESTFUL_BASE_LENGTH = 5;
 
 	static public function from($properties=null, array $construct_args=array(), $class_name=null)
 	{
@@ -87,7 +87,7 @@ abstract class Operation extends Object
 	 *
 	 *     ICanBoogie\<normalized_module_id>\<normalized_operation_name>Operation
 	 *
-	 * The inheritence of the module class is used the find a suitable class. For example,
+	 * The inheritance of the module class is used the find a suitable class. For example,
 	 * these are the classes tried for the "articles" module and the "save" operation:
 	 *
 	 *     ICanBoogie\Modules\Articles\SaveOperation
@@ -101,7 +101,6 @@ abstract class Operation extends Object
 	 * @param array $params The request parameters.
 	 *
 	 * @throws Exception When there is an error in the operation request.
-	 * @throws Exception\HTTP When the specified operation doesn't exists.
 	 *
 	 * @return Operation|null The decoded operation or null if no operation was found.
 	 */
@@ -127,7 +126,7 @@ abstract class Operation extends Object
 
 		$path = rtrim($path, '/');
 
-		if (substr($path, 0, self::RESTFUL_BASE_LENGHT) == self::RESTFUL_BASE)
+		if (substr($path, 0, self::RESTFUL_BASE_LENGTH) == self::RESTFUL_BASE)
 		{
 			$operation = static::from_route($request, $path);
 
@@ -141,7 +140,7 @@ abstract class Operation extends Object
 			# optional KEY from the URI.
 			#
 
-			preg_match('#^([a-z\.]+)/(([^/]+)/)?([a-zA-Z0-9_\-]+)$#', substr($path, self::RESTFUL_BASE_LENGHT), $matches);
+			preg_match('#^([a-z\.]+)/(([^/]+)/)?([a-zA-Z0-9_\-]+)$#', substr($path, self::RESTFUL_BASE_LENGTH), $matches);
 
 			if (!$matches)
 			{
@@ -356,7 +355,7 @@ abstract class Operation extends Object
 	public $destination;
 
 	/**
-	 * @var \ICanBoogie\HTTP\Request The request triggring the operation.
+	 * @var \ICanBoogie\HTTP\Request The request triggering the operation.
 	 */
 	protected $request;
 
@@ -465,14 +464,18 @@ abstract class Operation extends Object
 	}
 
 	/**
-	 * @var output Format for the operation response.
+	 * Output format of the operation response.
+	 *
+	 * @var string
 	 */
 	protected $format;
 
 	/**
-	 * @var Module Target module for the operation.
+	 * Target module for the operation.
 	 *
 	 * The property is set by the constructor.
+	 *
+	 * @var Module
 	 */
 	protected $module;
 
@@ -513,12 +516,12 @@ abstract class Operation extends Object
 	 * or accompanying the result. For example, the `Operation` class returns success and error
 	 * messages in the `success` and `errors` properties.
 	 *
-	 * Depending on the `Accept` header of the request, the response object can be formated as
-	 * JSON or XML. If the `Accept` header is "application/json" the response is formated as JSON.
-	 * If the `Accept` header is "application/xml" the response is formated as XML. If the
+	 * Depending on the `Accept` header of the request, the response object can be formatted as
+	 * JSON or XML. If the `Accept` header is "application/json" the response is formatted as JSON.
+	 * If the `Accept` header is "application/xml" the response is formatted as XML. If the
 	 * `Accept` header is not of a supported type, only the result is printed, as a string.
 	 *
-	 * For API requests, the output format can also be defined by appending the correspondig
+	 * For API requests, the output format can also be defined by appending the corresponding
 	 * extension to the request path:
 	 *
 	 *     /api/system.nodes/12/online.json
@@ -528,7 +531,7 @@ abstract class Operation extends Object
 	 * ----------------------------------
 	 *
 	 * Before the operation is actually processed with the {@link process()} method, it is
-	 * controled and validated using the {@link control()} and {@link validate()} methods. If the
+	 * controlled and validated using the {@link control()} and {@link validate()} methods. If the
 	 * control or validation fail the operation is not processed.
 	 *
 	 * The controls passed to the {@link control()} method are obtained through the
@@ -746,7 +749,7 @@ abstract class Operation extends Object
 	 *
 	 * Controls the existence of the record specified by the operation's key. The
 	 * {@link control_record()} method is invoked for this control. The value returned by the
-	 * method is set in the operation objet under the {@link record} property. The callback method
+	 * method is set in the operation object under the {@link record} property. The callback method
 	 * must throw an exception if the record could not be loaded or the control of this record
 	 * failed.
 	 *
@@ -766,8 +769,10 @@ abstract class Operation extends Object
 	 * throw an exception, but a message is logged to the debug log.
 	 *
 	 * @param array $controls The controls to pass for the operation to be processed.
-	 * @throws Exception|Exception\HTTP Depends on the control.
+	 *
 	 * @return boolean true if all the controls pass, false otherwise.
+	 *
+	 * @throws Exception\HTTP Depends on the control.
 	 */
 	protected function control(array $controls)
 	{
@@ -851,7 +856,7 @@ abstract class Operation extends Object
 	 *
 	 * @param string $method
 	 *
-	 * @return boolean `true` if the method macthes, `false` otherwise.
+	 * @return boolean `true` if the method matches, `false` otherwise.
 	 */
 	protected function control_method($method)
 	{
@@ -982,7 +987,7 @@ class FailureEvent extends \ICanBoogie\Event
 	/**
 	 * The request that triggered the operation.
 	 *
-	 * @var ICanBoogie\HTTP\Request
+	 * @var \ICanBoogie\HTTP\Request
 	 */
 	public $request;
 
@@ -991,7 +996,6 @@ class FailureEvent extends \ICanBoogie\Event
 	 *
 	 * @param \ICanBoogie\Operation $target
 	 * @param array $properties
-	 * @param string $type Defaults to `failure`.
 	 */
 	public function __construct(\ICanBoogie\Operation $target, array $properties)
 	{
@@ -1030,7 +1034,6 @@ class BeforeProcessEvent extends \ICanBoogie\Event
 	 *
 	 * @param \ICanBoogie\Operation $target
 	 * @param array $properties
-	 * @param string $type Defaults to `process:before`.
 	 */
 	public function __construct(\ICanBoogie\Operation $target, array $properties)
 	{
@@ -1069,7 +1072,6 @@ class ProcessEvent extends \ICanBoogie\Event
 	 *
 	 * @param \ICanBoogie\Operation $target
 	 * @param array $properties
-	 * @param string $type Defaults to `process`.
 	 */
 	public function __construct(\ICanBoogie\Operation $target, array $properties)
 	{
@@ -1101,7 +1103,6 @@ class GetFormEvent extends \ICanBoogie\Event
 	 *
 	 * @param \ICanBoogie\Operation $target
 	 * @param array $properties
-	 * @param string $type Defaults to `get_form`.
 	 */
 	public function __construct(\ICanBoogie\Operation $target, array $properties)
 	{

@@ -109,6 +109,8 @@ class Routes implements \IteratorAggregate, \ArrayAccess
 	 * @param mixed $offset The identifier of the route.
 	 * @param array $route The route definition.
 	 *
+	 * @throws \LogicException if the route definition is invalid.
+	 *
 	 * @see ArrayAccess::offsetSet()
 	 */
 	public function offsetSet($offset, $route)
@@ -152,7 +154,7 @@ class Routes implements \IteratorAggregate, \ArrayAccess
 	/**
 	 * Search for a route matching the specified pathname and method.
 	 *
-	 * @param string $pathname
+	 * @param string $uri
 	 * @param string $method One of HTTP\Request::METHOD_* methods.
 	 * @param string $namespace Namespace restriction.
 	 *
@@ -352,12 +354,12 @@ class Route
 	}
 
 	/**
-	 * Returns a route formated using a pattern and values.
+	 * Returns a route formatted using a pattern and values.
 	 *
 	 * @param string $pattern The route pattern
 	 * @param mixed $values The values to format the pattern, either as an array or an object.
 	 *
-	 * @return string The formated route.
+	 * @return string The formatted route.
 	 */
 	static public function format($pattern, $values=null)
 	{
@@ -387,7 +389,7 @@ class Route
 	 *
 	 * @param string $pattern
 	 *
-	 * @return true is the given pattern is a route pattern, false otherwise.
+	 * @return bool `true` if the given pattern is a route pattern, `false` otherwise.
 	 */
 	static public function is_pattern($pattern)
 	{
@@ -411,7 +413,7 @@ class Route
 	/**
 	 * Redirect location.
 	 *
-	 * If the property is defined the route is consireder an alias.
+	 * If the property is defined the route is considered an alias.
 	 *
 	 * @var string
 	 */
@@ -460,7 +462,7 @@ class Route
 	 *
 	 * @param HTTP\Request $request
 	 *
-	 * @return ICanBoogie\HTTP\Response
+	 * @return HTTP\Response
 	 */
 	public function __invoke(HTTP\Request $request)
 	{

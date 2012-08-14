@@ -41,7 +41,7 @@ class ActiveRecord extends Object
 	 * The constructor function is required when retrieving rows as objects.
 	 *
 	 * @param string|Model $model The model used to store the active record. A model
-	 * object can be provided as well as a model id. If a model id is provied, the model object is
+	 * object can be provided as well as a model id. If a model id is provided, the model object is
 	 * resolved when the `_model` magic property is accessed.
 	 */
 	public function __construct($model)
@@ -73,7 +73,7 @@ class ActiveRecord extends Object
 	}
 
 	/**
-	 * Saves the activerecord to the database using the activerecord model.
+	 * Saves the active record to the database using the active record model.
 	 *
 	 * @return int|bool the primary key value of the record, or false if the record could not be
 	 * saved.
@@ -94,7 +94,7 @@ class ActiveRecord extends Object
 		}
 
 		/*
-		 * We discart null values so that we don't have to define every properties before saving
+		 * We discard null values so that we don't have to define every properties before saving
 		 * our active record.
 		 *
 		 * FIXME-20110904: we should check if the schema allows the column value to be null
@@ -114,7 +114,7 @@ class ActiveRecord extends Object
 	}
 
 	/**
-	 * Deletes the activerecord from the database.
+	 * Deletes the active record from the database.
 	 */
 	public function delete()
 	{

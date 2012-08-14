@@ -14,7 +14,7 @@
 namespace ICanBoogie\I18n;
 
 /**
- * NumberFormatter provides number localization functionalities.
+ * NumberFormatter provides number localization features.
  *
  * NumberFormatter formats a number (integer or float) and outputs a string
  * based on the specified format. A NumberFormatter instance is associated with a locale,

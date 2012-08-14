@@ -26,9 +26,9 @@ class DatabaseTable extends Object
 	const T_SCHEMA = 'schema';
 
 	/**
-	 * The model's connection to the database.
+	 * A database connection.
 	 *
-	 * @var WdDatabase A database connection.
+	 * @var Database
 	 */
 	protected $connection;
 
@@ -42,7 +42,7 @@ class DatabaseTable extends Object
 	/**
 	 * Unprefixed version of the table's name.
 	 *
-	 * The "{self}" placeholder used in queries is replaced by the propertie's value.
+	 * The "{self}" placeholder used in queries is replaced by the properties value.
 	 *
 	 * @var string
 	 */
@@ -58,7 +58,7 @@ class DatabaseTable extends Object
 	/**
 	 * Alias for the table's name, which can be defined using the T_ALIAS tag or automatically created.
 	 *
-	 * The "{primary}" placeholder used in queries is replaced by the propertie's value.
+	 * The "{primary}" placeholder used in queries is replaced by the properties value.
 	 *
 	 * @var string
 	 */
@@ -67,7 +67,7 @@ class DatabaseTable extends Object
 	/**
 	 * Schema for the table.
 	 *
-	 * The "{alias}" placeholder used in queries is replaced by the propertie's value.
+	 * The "{alias}" placeholder used in queries is replaced by the properties value.
 	 *
 	 * @var array
 	 */
@@ -77,7 +77,7 @@ class DatabaseTable extends Object
 	 * The parent is used when the table is in a hierarchy, which is the case if the table
 	 * extends another table.
 	 *
-	 * @var WdDatabaseTable
+	 * @var DatabaseTable
 	 */
 	protected $parent;
 	protected $implements = array();
@@ -94,7 +94,7 @@ class DatabaseTable extends Object
 	 * SQL fragment for the FROM clause of the query, made of the table's name and alias and those
 	 * of the related tables, inherited and implemented.
 	 *
-	 * The "{self_and_related}" placeholder used in queries is replaced by the propertie's value.
+	 * The "{self_and_related}" placeholder used in queries is replaced by the properties value.
 	 *
 	 * @var string
 	 */
@@ -197,7 +197,7 @@ class DatabaseTable extends Object
 		}
 
 		#
-		# resolve inheritence and create a lovely _inner join_ string
+		# resolve inheritance and create a lovely _inner join_ string
 		#
 
 		$join = '';
@@ -239,7 +239,7 @@ class DatabaseTable extends Object
 
 				if (!($table instanceof DatabaseTable))
 				{
-					throw new Exception('Implement must be an instane of ICanBoogie\DatabaseTable: \1', array(get_class($table)));
+					throw new Exception('Implement must be an instance of ICanBoogie\DatabaseTable: \1', array(get_class($table)));
 				}
 
 				$name = $table->name;
@@ -363,9 +363,8 @@ class DatabaseTable extends Object
 	/**
 	 * Interface to the connection's prepare method.
 	 *
-	 * @return WdDatabaseStatement
+	 * @return Database\Statement
 	 */
-
 	public function prepare($query, $options=array())
 	{
 		$query = $this->resolve_statement($query);
@@ -394,9 +393,8 @@ class DatabaseTable extends Object
 	 * @param array $args
 	 * @param array $options
 	 *
-	 * @return WdDatabaseStatement
+	 * @return Database\Statement
 	 */
-
 	public function query($query, array $args=array(), array $options=array())
 	{
 		$query = $this->resolve_statement($query);
@@ -631,8 +629,9 @@ class DatabaseTable extends Object
 	 *
 	 * @param array $values
 	 * @param mixed $key
+	 *
+	 * @return bool
 	 */
-
 	public function update(array $values, $key)
 	{
 		list($values, $holders) = $this->filter_values($values, true);
@@ -643,16 +642,13 @@ class DatabaseTable extends Object
 		return $this->execute($query, $values);
 	}
 
-	/*
-	**
-
-	DELETE & TRUNCATE
-
-	TODO: move delete() to WdModel
-
-	**
-	*/
-
+	/**
+	 * Delete a record.
+	 *
+	 * @param mixed $key Identifier of the record.
+	 *
+	 * @return bool
+	 */
 	public function delete($key)
 	{
 		if ($this->parent)
@@ -678,10 +674,7 @@ class DatabaseTable extends Object
 			$where .= '`{primary}` = ?';
 		}
 
-		return $this->execute
-		(
-			'delete from `{self}` ' . $where, (array) $key
-		);
+		return $this->execute('delete from `{self}` ' . $where, (array) $key);
 	}
 
 	// FIXME-20081223: what about extends ?

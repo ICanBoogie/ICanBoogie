@@ -118,7 +118,7 @@ class Debug
 	 *
 	 * The {@link $last_error} and {@link $last_error_message} properties are updated.
 	 *
-	 * The alert is formated, reported and if the `verbose` option is true the alert is displayed.
+	 * The alert is formatted, reported and if the `verbose` option is true the alert is displayed.
 	 *
 	 * @param int $no The level of the error raised.
 	 * @param string $str The error message.
@@ -206,6 +206,8 @@ class Debug
 	 * trigger_error() function.
 	 *
 	 * @param \Exception|array $alert
+	 *
+	 * @return string
 	 */
 	static public function format_alert($alert)
 	{
@@ -341,7 +343,7 @@ EOT;
 	}
 
 	/**
-	 * Extracts and formats a code sample arround the line that triggered the alert.
+	 * Extracts and formats a code sample around the line that triggered the alert.
 	 *
 	 * @param string $file
 	 * @param int $line
@@ -524,7 +526,7 @@ EOT;
 	 */
 	static private function strip_root($path)
 	{
-		$root = rtrim(DOCUMENT_ROOT, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+		$root = DOCUMENT_ROOT;
 
 		if (strpos($path, $root) === 0)
 		{

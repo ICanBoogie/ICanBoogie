@@ -33,7 +33,7 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Constructor.
 	 *
-	 * @param array $connections Connections definitions usually comming from the _core_ config.
+	 * @param array $connections Connections definitions usually come from the _core_ config.
 	 */
 	public function __construct(array $connections)
 	{
@@ -77,11 +77,14 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * Several connections may be defined.
 	 *
-	 * @see ArrayAccess::offsetGet()
-	 *
-	 * @param $id The name of the connection to get.
+	 * @param string $id The name of the connection to get.
 	 *
 	 * @return Database
+	 *
+	 * @throws Exception\OffsetNotReadable when the connection is not defined.
+	 * @throws Database\ConnectionException when the connection failed.
+	 *
+	 * @see ArrayAccess::offsetGet()
 	 */
 	public function offsetGet($id)
 	{
@@ -90,14 +93,10 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 			return $this->established[$id];
 		}
 
-		if (empty($this->connections[$id]))
+		if (!$this->offsetExists($id))
 		{
 			throw new Exception\OffsetNotReadable(format('The connection %id is not defined.', array('id' => $id)));
 		}
-
-		#
-		# default values for the connection
-		#
 
 		$options = $this->connections[$id] + array
 		(
@@ -117,22 +116,20 @@ class Connections implements \ArrayAccess, \IteratorAggregate
 
 		try
 		{
-			$this->established[$id] = $connection = new Database($options['dsn'], $options['username'], $options['password'], $options['options']);
+			return $this->established[$id] = new Database($options['dsn'], $options['username'], $options['password'], $options['options']);
 		}
 		catch (\PDOException $e)
 		{
 			throw new Database\ConnectionException("Unable to establish database connection. The following message was returned: " . $e->getMessage(), 500, $e);
 		}
-
-		return $connection;
 	}
 
 	/**
-	 * Iterate through established conections.
-	 *
-	 * @see IteratorAggregate::getIterator()
+	 * Iterate through established connections.
 	 *
 	 * @return \ArrayIterator
+	 *
+	 * @see IteratorAggregate::getIterator()
 	 */
 	public function getIterator()
 	{

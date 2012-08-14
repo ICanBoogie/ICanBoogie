@@ -24,8 +24,8 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	protected $headers = array();
 
 	/**
-	 * If the `REQUEST_URI` key is found in the headers they are considered comming from the
-	 * superglobal $_SERVER array in which case the headers are filtered to only keep keys starting
+	 * If the `REQUEST_URI` key is found in the headers they are considered coming from the
+	 * super global $_SERVER array in which case the headers are filtered to only keep keys starting
 	 * with the "HTTP_" prefix, and the keys are normalized e.g. "HTTP_CONTENT_TYPE" is
 	 * converted to "Content-Type".
 	 *
@@ -84,6 +84,8 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Checks if a header exists.
 	 *
+	 * @param mixed $offset
+	 *
 	 * @return boolean true if the header exists, false otherwise.
 	 *
 	 * @see ArrayAccess::offsetExists()
@@ -95,6 +97,8 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 
 	/**
 	 * Returns a header.
+	 *
+	 * @param mixed $offset
 	 *
 	 * @return string|null The header value or null if it is not defined.
 	 *
@@ -147,18 +151,18 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 			{
 				if (is_array($value))
 				{
-					list($disposition_type, $filename_parm) = $value;
+					list($disposition_type, $filename_param) = $value;
 
 					if ($disposition_type != 'inline' && $disposition_type != 'attachment')
 					{
 						throw new \Exception('The disposition-type must be "inline" or "attachment", given: "' . $disposition_type . '"');
 					}
 
-					$value = $disposition_type . '; ' . self::format_parm('filename', $filename_parm);
+					$value = $disposition_type . '; ' . self::format_param('filename', $filename_param);
 				}
-				else if ($disposition_type != 'inline' && $disposition_type != 'attachment')
+				else if ($value != 'inline' || $value != 'attachment')
 				{
-					throw new \Exception('The disposition-type must be "inline" or "attachment", given: "' . $disposition_type . '"');
+					throw new \Exception('The disposition-type must be "inline" or "attachment", given: "' . $value . '"');
 				}
 			}
 			break;
@@ -230,20 +234,20 @@ class Headers implements \ArrayAccess, \IteratorAggregate
 	 * If the value is encoded using UTF-8 the parameter is added twice: once with a normalized
 	 * value, and another with an escaped value.
 	 *
-	 * @param string $parm The parameter.
+	 * @param string $param The parameter.
 	 * @param string $value The value of the parameter.
 	 *
 	 * @return string
 	 *
 	 * @see http://greenbytes.de/tech/tc2231/
 	 */
-	static public function format_parm($parm, $value)
+	static public function format_param($param, $value)
 	{
 		if (mb_detect_encoding($value, 'ASCII, UTF-8', true) === 'UTF-8')
 		{
-			return $parm . '="' . \ICanBoogie\remove_accents($value) . '"' . "; $parm*=UTF-8''" . rawurlencode($value);
+			return $param . '="' . \ICanBoogie\remove_accents($value) . '"' . "; $param*=UTF-8''" . rawurlencode($value);
 		}
 
-		return $parm . '="' . $value . '"';
+		return $param . '="' . $value . '"';
 	}
 }

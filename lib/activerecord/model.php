@@ -23,7 +23,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	const T_ID = 'id';
 
 	/**
-	 * @var string Name of the class to use to created activerecord instances.
+	 * @var string Name of the class to use to created active record instances.
 	 */
 	public $ar_class;
 
@@ -36,7 +36,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	 * If {@link T_EXTENDS} is defined but the model has no schema ({@link T_SCHEMA} is empty),
 	 * the name of the model and the schema are inherited from the extended model and
 	 * {@link T_EXTENDS} is set to the parent model object. If {@link T_ACTIVERECORD_CLASS} is
-	 * empty, its value is set to the extended model's activerecord class.
+	 * empty, its value is set to the extended model's active record class.
 	 *
 	 * If {@link T_ACTIVERECORD_CLASS} is set, its value is saved in the `ar_class` property.
 	 *
@@ -278,7 +278,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	 *
 	 * @param int $key
 	 *
-	 * @return ActiveRecord|null Returns the activerecord found in the cache or null if it wasn't
+	 * @return ActiveRecord|null Returns the active record found in the cache or null if it wasn't
 	 * there.
 	 */
 	protected function retrieve($key)
@@ -364,7 +364,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	 *
 	 * @return mixed
 	 */
-	private function defer_to_actionrecord_query()
+	private function delegate_to_query()
 	{
 		$trace = debug_backtrace(false);
 		$arq = new Query($this);
@@ -373,73 +373,102 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	}
 
 	/**
-	 * Delegation method for the ICanBoogie\ActiveRecord\Query::joins method.
+	 * The method is delegated to {@link Query::joins}.
+	 *
+	 * @param string $expression
 	 *
 	 * @return Query
+	 *
+	 * @see Query::joins
 	 */
 	public function joins($expression)
 	{
-		return $this->defer_to_actionrecord_query();
+		return $this->delegate_to_query();
 	}
 
 	/**
-	 * Delegation method for the ICanBoogie\ActiveRecord\Query::select method.
+	 * The method is delegated {@link Query::select}.
+	 *
+	 * @param string $expression
 	 *
 	 * @return Query
+	 *
+	 * @see Query::select
 	 */
 	public function select($expression)
 	{
-		return $this->defer_to_actionrecord_query();
+		return $this->delegate_to_query();
 	}
 
 	/**
-	 * Delegation method for the ICanBoogie\ActiveRecord\Query::where method.
+	 * The method is delegated to {@link Query::where}.
+	 *
+	 * @param $conditions
+	 *
+	 * @param null $conditions_args
 	 *
 	 * @return Query
+	 *
+	 * @see Query::where
 	 */
 	public function where($conditions, $conditions_args=null)
 	{
-		return $this->defer_to_actionrecord_query();
+		return $this->delegate_to_query();
 	}
 
 	/**
-	 * Delegation method for the ICanBoogie\ActiveRecord\Query::group method.
+	 * The method is delegated to {@link Query::group}.
+	 *
+	 * @param $group
 	 *
 	 * @return Query
+	 *
+	 * @see Query::group
 	 */
 	public function group($group)
 	{
-		return $this->defer_to_actionrecord_query();
+		return $this->delegate_to_query();
 	}
 
 	/**
-	 * Delegation method for the ICanBoogie\ActiveRecord\Query::order method.
+	 * The method is delegated to {@link Query::order}.
+	 *
+	 * @param $order
 	 *
 	 * @return Query
 	 */
 	public function order($order)
 	{
-		return $this->defer_to_actionrecord_query();
+		return $this->delegate_to_query();
 	}
 
 	/**
-	 * Delegation method for the ICanBoogie\ActiveRecord\Query::limit method.
+	 * The method is delegated to {@link Query::limit}.
+	 *
+	 * @param int $limit
+	 * @param int $offset
 	 *
 	 * @return Query
+	 *
+	 * @see Query::limit
 	 */
 	public function limit($limit, $offset=null)
 	{
-		return $this->defer_to_actionrecord_query();
+		return $this->delegate_to_query();
 	}
 
 	/**
-	 * Delegation method for the ICanBoogie\ActiveRecord\Query::exists method.
+	 * The method is delegated to {@link Query::exists}.
+	 *
+	 * @param $key
 	 *
 	 * @return Query
+	 *
+	 * @see Query::exists
 	 */
 	public function exists($key=null)
 	{
-		return $this->defer_to_actionrecord_query();
+		return $this->delegate_to_query();
 	}
 
 	protected function volatile_get_exists()
@@ -448,13 +477,17 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	}
 
 	/**
-	 * Delegation method for the ICanBoogie\ActiveRecord\Query::count method.
+	 * The method is delegated to {@link Query::count}.
+	 *
+	 * @param $column
 	 *
 	 * @return Query
+	 *
+	 * @see Query::count
 	 */
 	public function count($column=null)
 	{
-		return $this->defer_to_actionrecord_query();
+		return $this->delegate_to_query();
 	}
 
 	protected function volatile_get_count()
@@ -463,60 +496,71 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	}
 
 	/**
-	 * Delegation method for the ICanBoogie\ActiveRecord\Query::average method.
+	 * The method is delegated to {@link Query::average}.
+	 *
+	 * @param $column
 	 *
 	 * @return Query
+	 *
+	 * @see Query::average
 	 */
 	public function average($column)
 	{
-		return $this->defer_to_actionrecord_query();
+		return $this->delegate_to_query();
 	}
 
 	/**
-	 * Delegation method for the ICanBoogie\ActiveRecord\Query::minimum method.
+	 * The method is delegated to {@link Query::minimum}.
+	 *
+	 * @param $column
 	 *
 	 * @return Query
+	 *
+	 * @see Query::minimum
 	 */
 	public function minimum($column)
 	{
-		return $this->defer_to_actionrecord_query();
+		return $this->delegate_to_query();
 	}
 
 	/**
-	 * Delegation method for the ICanBoogie\ActiveRecord\Query::maximum method.
+	 * The method is delegated to {@link Query::maximum}.
+	 *
+	 * @param $column
 	 *
 	 * @return Query
+	 *
+	 * @see Query::maximum
 	 */
 	public function maximum($column)
 	{
-		return $this->defer_to_actionrecord_query();
+		return $this->delegate_to_query();
 	}
 
 	/**
-	 * Delegation method for the ICanBoogie\ActiveRecord\Query::sum method.
+	 * The method is delegated to {@link Query::sum}.
+	 *
+	 * @param $column
 	 *
 	 * @return Query
+	 *
+	 * @see Query::sum
 	 */
 	public function sum($column)
 	{
-		return $this->defer_to_actionrecord_query();
+		return $this->delegate_to_query();
 	}
 
 	/**
-	 * Delegation method for the ICanBoogie\ActiveRecord\Query::all method.
+	 * The method is delegated to {@link Query::all}.
 	 *
 	 * @return array An array of records.
 	 */
 	public function all()
 	{
-		return $this->defer_to_actionrecord_query();
+		return $this->delegate_to_query();
 	}
 
-	/**
-	 * Delegation getter for the ICanBoogie\ActiveRecord\Query::all getter.
-	 *
-	 * @return array An array of records.
-	 */
 	protected function volatile_get_all()
 	{
 		return $this->all();
@@ -538,7 +582,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	}
 
 	/**
-	 * Calls a given scope on the activerecord query specified in the scope_args.
+	 * Calls a given scope on the active record query specified in the scope_args.
 	 *
 	 * @param string $scope_name Name of the scope to apply to the query.
 	 * @param array $scope_args Arguments to forward to the scope method.
@@ -560,13 +604,13 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	}
 
 	/*
-	 * ArrayAcces implementation
+	 * ArrayAccess implementation
 	 */
 
 	/**
 	 * Offsets are not settable.
 	 *
-	 * @throws OffsetNotWritable when one tries to write an offset.
+	 * @throws Exception\OffsetNotWritable when one tries to write an offset.
 	 *
 	 * @see ArrayAccess::offsetSet()
 	 */
@@ -579,8 +623,6 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	 * Checks if the record identified by the given key exists.
 	 *
 	 * @see \ArrayAccess::offsetExists()
-	 *
-	 * @return bool true is the record exists, false otherwise.
 	 */
 	public function offsetExists($key)
 	{
@@ -601,10 +643,12 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	/**
 	 * Returns the record corresponding to the given key.
 	 *
-	 * @see \ArrayAccess::offsetGet()
-	 * @see Model::find();
+	 * @param mixed $key
 	 *
-	 * @return ActiveRecord
+	 * @return array|\ICanBoogie\ActiveRecord
+	 *
+	 * @see \ArrayAccess::offsetGet()
+	 * @see Model::find()
 	 */
 	public function offsetGet($key)
 	{

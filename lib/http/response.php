@@ -37,6 +37,51 @@ use ICanBoogie\Exception;
  */
 class Response extends \ICanBoogie\Object
 {
+	static public $status_messages = array
+	(
+		100 => 'Continue',
+		101 => 'Switching Protocols',
+		200 => 'OK',
+		201 => 'Created',
+		202 => 'Accepted',
+		203 => 'Non-Authoritative Information',
+		204 => 'No Content',
+		205 => 'Reset Content',
+		206 => 'Partial Content',
+		300 => 'Multiple Choices',
+		301 => 'Moved Permanently',
+		302 => 'Found',
+		303 => 'See Other',
+		304 => 'Not Modified',
+		305 => 'Use Proxy',
+		307 => 'Temporary Redirect',
+		400 => 'Bad Request',
+		401 => 'Unauthorized',
+		402 => 'Payment Required',
+		403 => 'Forbidden',
+		404 => 'Not Found',
+		405 => 'Method Not Allowed',
+		406 => 'Not Acceptable',
+		407 => 'Proxy Authentication Required',
+		408 => 'Request Timeout',
+		409 => 'Conflict',
+		410 => 'Gone',
+		411 => 'Length Required',
+		412 => 'Precondition Failed',
+		413 => 'Request Entity Too Large',
+		414 => 'Request-URI Too Long',
+		415 => 'Unsupported Media Type',
+		416 => 'Requested Range Not Satisfiable',
+		417 => 'Expectation Failed',
+		418 => 'I\'m a teapot',
+		500 => 'Internal Server Error',
+		501 => 'Not Implemented',
+		502 => 'Bad Gateway',
+		503 => 'Service Unavailable',
+		504 => 'Gateway Timeout',
+		505 => 'HTTP Version Not Supported'
+	);
+
 	/**
 	 * Response headers.
 	 *
@@ -45,54 +90,9 @@ class Response extends \ICanBoogie\Object
 	public $headers;
 
 	/**
-     * @var string The HTTP protocol version (1.0 or 1.1), defaults to '1.0'
-     */
+	 * @var string The HTTP protocol version (1.0 or 1.1), defaults to '1.0'
+	 */
 	public $version = '1.0';
-
-	static public $status_messages = array
-	(
-        100 => 'Continue',
-        101 => 'Switching Protocols',
-        200 => 'OK',
-        201 => 'Created',
-        202 => 'Accepted',
-        203 => 'Non-Authoritative Information',
-        204 => 'No Content',
-        205 => 'Reset Content',
-        206 => 'Partial Content',
-        300 => 'Multiple Choices',
-        301 => 'Moved Permanently',
-        302 => 'Found',
-        303 => 'See Other',
-        304 => 'Not Modified',
-        305 => 'Use Proxy',
-        307 => 'Temporary Redirect',
-        400 => 'Bad Request',
-        401 => 'Unauthorized',
-        402 => 'Payment Required',
-        403 => 'Forbidden',
-        404 => 'Not Found',
-        405 => 'Method Not Allowed',
-        406 => 'Not Acceptable',
-        407 => 'Proxy Authentication Required',
-        408 => 'Request Timeout',
-        409 => 'Conflict',
-        410 => 'Gone',
-        411 => 'Length Required',
-        412 => 'Precondition Failed',
-        413 => 'Request Entity Too Large',
-        414 => 'Request-URI Too Long',
-        415 => 'Unsupported Media Type',
-        416 => 'Requested Range Not Satisfiable',
-        417 => 'Expectation Failed',
-        418 => 'I\'m a teapot',
-        500 => 'Internal Server Error',
-        501 => 'Not Implemented',
-        502 => 'Bad Gateway',
-        503 => 'Service Unavailable',
-        504 => 'Gateway Timeout',
-        505 => 'HTTP Version Not Supported',
-    );
 
 	public function __construct($status=200, array $headers=array(), $body=null)
 	{
@@ -129,7 +129,7 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * - If the {@link is_ok} property is falsy **the method returns**.
 	 *
-	 * Note: If the body is a `callable`, the provided callable must echo the reponse body.
+	 * Note: If the body is a `callable`, the provided callable must echo the response body.
 	 */
 	public function __invoke()
 	{
@@ -185,7 +185,7 @@ class Response extends \ICanBoogie\Object
 	public $status_message;
 
 	/**
-     * Sets response status code and optionnaly status message.
+     * Sets response status code and optionally status message.
      *
      * This method is the setter for the {@link $status} property.
      *
@@ -243,12 +243,12 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Sets the response body.
 	 *
-	 * The body can be any datatype that can be converted into a string this includes numerics and
+	 * The body can be any data type that can be converted into a string this includes numeric and
 	 * objects implementing the `__toString()` method.
 	 *
 	 * Note: This method is the setter for the {@link $body} property.
 	 *
-	 * @param string|numeric|object|callable $body
+	 * @param string|int|object|callable $body
 	 *
 	 * @throws \UnexpectedValueException when the body cannot be converted to a string.
 	 */
@@ -487,7 +487,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Checks if the response is informational.
 	 *
-	 * A response is considered informational when its status is beetween 100 and 200, 100 included.
+	 * A response is considered informational when its status is between 100 and 200, 100 included.
 	 *
 	 * Note: This method is the getter for the `is_informational` magic property.
 	 *
@@ -506,7 +506,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Checks if the response is successful.
 	 *
-	 * A response is considered successful when its status is beetween 200 and 300, 200 included.
+	 * A response is considered successful when its status is between 200 and 300, 200 included.
 	 *
 	 * Note: This method is the getter for the `is_successful` magic property.
 	 *
@@ -525,7 +525,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Checks if the response is a redirection.
 	 *
-	 * A response is considered to be a redirection when its status is beetween 300 and 400, 300
+	 * A response is considered to be a redirection when its status is between 300 and 400, 300
 	 * included.
 	 *
 	 * Note: This method is the getter for the `is_redirection` magic property.
@@ -545,7 +545,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Checks if the response is a client error.
 	 *
-	 * A response is considered a client error when its status is beetween 400 and 500, 400
+	 * A response is considered a client error when its status is between 400 and 500, 400
 	 * included.
 	 *
 	 * Note: This method is the getter for the `is_client_error` magic property.
@@ -565,7 +565,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Checks if the response is a server error.
 	 *
-	 * A response is considered a server error when its status is beetween 500 and 600, 500
+	 * A response is considered a server error when its status is between 500 and 600, 500
 	 * included.
 	 *
 	 * Note: This method is the getter for the `is_server_error` magic property.

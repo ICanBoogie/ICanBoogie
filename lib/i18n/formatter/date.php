@@ -24,7 +24,9 @@ use ICanBoogie\Exception;
 class DateFormatter
 {
 	/**
-	 * @var array Pattern characters mapping to the corresponding translator methods
+	 * Pattern characters mapping to the corresponding translator methods.
+	 *
+	 * @var array
 	 */
 	static private $formatters = array
 	(
@@ -58,18 +60,6 @@ class DateFormatter
 		'v' => 'format_timezone'
 	);
 
-	private $locale;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param Locale $locale
-	 */
-	public function __construct(Locale $locale)
-	{
-		$this->locale = $locale;
-	}
-
 	static public function get_date($time=null, $gmt=false)
 	{
 		if ($gmt)
@@ -85,6 +75,18 @@ class DateFormatter
 		}
 
 		return $rc;
+	}
+
+	private $locale;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param Locale $locale
+	 */
+	public function __construct(Locale $locale)
+	{
+		$this->locale = $locale;
 	}
 
 	/**
@@ -213,9 +215,9 @@ class DateFormatter
 	 * The predefined pattern is determined based on the date pattern width and time pattern width.
 	 *
 	 * @param mixed $timestamp UNIX timestamp or a string in strtotime format
-	 * @param string $dateWidth width of the date pattern. It can be 'full', 'long', 'medium' and 'short'.
+	 * @param string $date_pattern width of the date pattern. It can be 'full', 'long', 'medium' and 'short'.
 	 * If null, it means the date portion will NOT appear in the formatting result
-	 * @param string $timeWidth width of the time pattern. It can be 'full', 'long', 'medium' and 'short'.
+	 * @param string $time_pattern width of the time pattern. It can be 'full', 'long', 'medium' and 'short'.
 	 * If null, it means the time portion will NOT appear in the formatting result
 	 *
 	 * @return string formatted date time.
@@ -279,6 +281,7 @@ class DateFormatter
 	 * @param array $date result of getdate().
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return string formatted quarter.
 	 */
 	protected function format_quarter(array $date, $pattern, $length)
@@ -306,6 +309,7 @@ class DateFormatter
 	 * @param array $date result of getdate().
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return string formatted stand-alone quarter.
 	 */
 	protected function format_standalone_quarter(array $date, $pattern, $length)
@@ -331,6 +335,7 @@ class DateFormatter
 	 * @param array $date result of getdate().
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return string era
 	 * @todo How to support multiple Eras?, e.g. Japanese.
 	 */
@@ -357,6 +362,7 @@ class DateFormatter
 	 * @param array $date result of {@link CTimestamp::getdate}.
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return string formatted year
 	 */
 	protected function format_year(array $date, $pattern, $length)
@@ -380,6 +386,7 @@ class DateFormatter
 	 * @param array $date result of getdate().
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return string formated month.
 	 */
 	protected function format_month(array $date, $pattern, $length)
@@ -408,7 +415,7 @@ class DateFormatter
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
 	 *
-	 * @return string formated month.
+	 * @return string formatted month.
 	 */
 	protected function format_standalone_month(array $date, $pattern, $length)
 	{
@@ -504,7 +511,7 @@ class DateFormatter
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
 	 *
-	 * @return string Formated day oy year.
+	 * @return string Formatted day oy year.
 	 */
 	protected function format_day_of_year(array $date, $pattern, $length)
 	{
@@ -618,9 +625,11 @@ class DateFormatter
 	/**
 	 * Get the hours in 12 hour format, i.e., [1-12]
 	 * "h" for non-padding, "hh" will always return 2 characters.
+	 *
 	 * @param array $date result of {@link CTimestamp::getdate}.
 	 * @param string $pattern a pattern.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return string hours in 12 hour format.
 	 */
 	protected function format_hour12(array $date, $pattern, $length)
@@ -643,9 +652,11 @@ class DateFormatter
 	/**
 	 * Get the hours in 24 hour format, i.e. [0-23].
 	 * "H" for non-padding, "HH" will always return 2 characters.
+	 *
 	 * @param string $pattern a pattern.
 	 * @param array $date result of {@link CTimestamp::getdate}.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return string hours in 24 hour format.
 	 */
 	protected function format_hour24(array $date, $pattern, $length)
@@ -667,9 +678,11 @@ class DateFormatter
 	/**
 	 * Get the hours in AM/PM format, e.g [0-11]
 	 * "K" for non-padding, "KK" will always return 2 characters.
+	 *
 	 * @param string $pattern a pattern.
 	 * @param array $date result of {@link CTimestamp::getdate}.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return integer hours in AM/PM format.
 	 */
 	protected function format_hour_in_period(array $date, $pattern, $length)
@@ -691,9 +704,11 @@ class DateFormatter
 	/**
 	 * Get the hours [1-24].
 	 * 'k' for non-padding, and 'kk' with 2 characters padding.
+	 *
 	 * @param string $pattern a pattern.
 	 * @param array $date result of {@link CTimestamp::getdate}.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return integer hours [1-24]
 	 */
 	protected function format_hour_in_day(array $date, $pattern, $length)
@@ -715,9 +730,11 @@ class DateFormatter
 	/**
 	 * Get the minutes.
 	 * "m" for non-padding, "mm" will always return 2 characters.
+	 *
 	 * @param array $date result of {@link CTimestamp::getdate}.
 	 * @param string $pattern a pattern.
-	 * @param int $length Number of repetition.
+	 * @param int $length Number of repetition
+	 *
 	 * @return string minutes.
 	 */
 	protected function format_minutes(array $date, $pattern, $length)
@@ -739,9 +756,11 @@ class DateFormatter
 	/**
 	 * Get the seconds.
 	 * "s" for non-padding, "ss" will always return 2 characters.
+	 *
 	 * @param string $pattern a pattern.
 	 * @param array $date result of {@link CTimestamp::getdate}.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return string seconds
 	 */
 	protected function format_seconds(array $date, $pattern, $length)
@@ -762,9 +781,11 @@ class DateFormatter
 
 	/**
 	 * Get the timezone of the server machine.
+	 *
 	 * @param string $pattern a pattern.
 	 * @param array $date result of {@link CTimestamp::getdate}.
 	 * @param int $length Number of repetition.
+	 *
 	 * @return string time zone
 	 * @todo How to get the timezone for a different region?
 	 */

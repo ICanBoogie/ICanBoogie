@@ -18,11 +18,11 @@ namespace ICanBoogie;
  * @property \ICanBoogie\Connections $connections Database connections accessor.
  * @property \ICanBoogie\Models $models Models accessor.
  * @property \ICanBoogie\Modules $modules Modules accessor.
- * @property \ICanBoogie\Vars $vars Persistant variables accessor.
+ * @property \ICanBoogie\Vars $vars Persistent variables accessor.
  * @property \ICanBoogie\Database $db The primary database connection.
  * @property \ICanBoogie\Session $session User's session.
  * @property string $language Locale language.
- * @property string|int $timezeone Date and time timezone.
+ * @property string|int $timezone Date and time timezone.
  * @property \ICanBoogie\I18n\Locale $locale Locale object matching the locale language.
  * @property array $config The "core" configuration.
  * @property-read \ICanBoogie\HTTP\Request $request The request being processed.
@@ -119,6 +119,8 @@ class Core extends Object
 	 * Constructor.
 	 *
 	 * @param array $options Initial options to create the core object.
+	 *
+	 * @throws Exception when one tries to create a second instance.
 	 */
 	public function __construct(array $options=array())
 	{
@@ -218,7 +220,7 @@ class Core extends Object
 	/**
 	 * Returns the non-volatile variables accessor.
 	 *
-	 * @return Vars The non-volatie variables accessor.
+	 * @return Vars The non-volatile variables accessor.
 	 */
 	protected function get_vars()
 	{
@@ -248,7 +250,7 @@ class Core extends Object
 	/**
 	 * Returns the configs accessor.
 	 *
-	 * @return ConfigsAccessor
+	 * @return Configs
 	 */
 	protected function get_configs()
 	{
@@ -320,7 +322,7 @@ class Core extends Object
 	/**
 	 * Returns the locale language.
 	 *
-	 * @param string $id
+	 * @return string
 	 */
 	protected function volatile_get_language()
 	{
@@ -340,7 +342,7 @@ class Core extends Object
 	 *
 	 * The locale object is reseted when the {@link language} property is set.
 	 *
-	 * @return Locale
+	 * @return I18n\Locale
 	 */
 	protected function volatile_get_locale()
 	{
@@ -552,7 +554,7 @@ class Core extends Object
 
 /*
  * Possessions don't touch you in your heart.
- * Possessions only tear you appart.
+ * Possessions only tear you apart.
  * Possessions cannot kiss you good night.
  * Possessions will never hold you tight.
  */

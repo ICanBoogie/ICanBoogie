@@ -22,7 +22,7 @@ namespace ICanBoogie;
  * Getters and setters
  * -------------------
  *
- * When an innaccessible property is read or written the class tries to find a method suitable
+ * When an inaccessible property is read or written the class tries to find a method suitable
  * to read or write the property. Theses methods are called getters and setters. They can be
  * defined by the class or its prototype. For example the `connection` property could have the
  * following getter and setter:
@@ -38,9 +38,9 @@ namespace ICanBoogie;
  *     }
  *
  * In this example the `connection` property is created after the `get_connection()` is called,
- * which is an ideal behaviour to lazyload resources.
+ * which is an ideal behaviour to lazy load resources.
  *
- * Another type of getter/setter is available that doesn't create the requested property. They are
+ * Another type of getter/setter is available that does not create the requested property. They are
  * call _volatile_, because their result is not automatically stored in the corresponding property,
  * this choice is up to the setter.
  *
@@ -251,10 +251,10 @@ class Object
 	 *
 	 * 1. `volatile_get_<property>`: Get and return the value of the property.
 	 * 2. `get_<property>`: Get, set and return the value of the property. Because new properties
-	 * are created as public the callback is only called once which is ideal for lazyloading.
+	 * are created as public the callback is only called once which is ideal for lazy loading.
 	 * 3. The prototype is queried for callbacks for the `volatile_get_<property>` and
 	 * `get_<property>` methods.
-	 * 4.Finaly, the `ICanBoogie\Object::property` event is fired to try and retrieve the value of
+	 * 4.Finally, the `ICanBoogie\Object::property` event is fired to try and retrieve the value of
 	 * the property.
 	 *
 	 * @param string $property
@@ -384,7 +384,7 @@ class Object
 	/**
 	 * Sets the value of an inaccessible property.
 	 *
-	 * The method is called because the property doesn't exists, it's visibility is
+	 * The method is called because the property does not exists, it's visibility is
 	 * "protected" or "private", or because although its visibility is "public" is was unset
 	 * and is now inaccessible.
 	 *
@@ -404,6 +404,8 @@ class Object
 	 *
 	 * @param string $property
 	 * @param mixed $value
+	 *
+	 * @throws Exception\PropertyNotWritable if the property is not writable.
 	 */
 	public function __set($property, $value)
 	{
@@ -492,7 +494,7 @@ namespace ICanBoogie\Object;
 class PropertyEvent extends \ICanBoogie\Event
 {
 	/**
-	 * Name of the property to retrieve.
+	 * The name of the property to retrieve.
 	 *
 	 * @var string
 	 */
@@ -501,7 +503,7 @@ class PropertyEvent extends \ICanBoogie\Event
 	/**
 	 * The event is created with the type `property`.
 	 *
-	 * @param Object $target
+	 * @param \ICanBoogie\Object $target
 	 * @param array $properties
 	 */
 	public function __construct(\ICanBoogie\Object $target, array $properties)

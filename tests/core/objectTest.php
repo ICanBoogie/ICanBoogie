@@ -144,8 +144,8 @@ class B extends A
 class ObjectTest extends \PHPUnit_Framework_TestCase
 {
 	/**
-     * @expectedException ICanBoogie\Exception\PropertyNotFound
-     */
+	 * @expectedException ICanBoogie\Exception\PropertyNotFound
+	 */
 	public function testGetUnsetPublicProperty()
 	{
 		$fixture = new A();
@@ -153,8 +153,8 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-     * @expectedException ICanBoogie\Exception\PropertyNotReadable
-     */
+	 * @expectedException ICanBoogie\Exception\PropertyNotReadable
+	 */
 	public function testGetUnsetProtectedProperty()
 	{
 		$fixture = new A();
@@ -162,8 +162,8 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-     * @expectedException ICanBoogie\Exception\PropertyNotFound
-     */
+	 * @expectedException ICanBoogie\Exception\PropertyNotFound
+	 */
 	public function testGetUndefinedProperty()
 	{
 		$fixture = new A();
@@ -236,8 +236,8 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-     * @expectedException ICanBoogie\Exception\PropertyNotWritable
-     */
+	 * @expectedException ICanBoogie\Exception\PropertyNotWritable
+	 */
 	public function testWritingReadOnlyProperty()
 	{
 		$fixture = new A();
@@ -245,8 +245,8 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-     * @expectedException ICanBoogie\Exception\PropertyNotReadable
-     */
+	 * @expectedException ICanBoogie\Exception\PropertyNotReadable
+	 */
 	public function testReadingWriteOnlyProperty()
 	{
 		$fixture = new A();

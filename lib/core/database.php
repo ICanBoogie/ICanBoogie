@@ -44,7 +44,8 @@ class Database extends \PDO
 
 	/**
 	 * Used to specify the collate while creating tables.
-	 * @var unknown_type
+	 *
+	 * @var string
 	 */
 	public $collate = 'utf8_general_ci';
 
@@ -139,7 +140,12 @@ class Database extends \PDO
 	 * Overrides the method to resolve the statement before it is prepared, then set its fetch
 	 * mode and connection.
 	 *
-	 * @return DatabaseStatement The prepared statement.
+	 * @param string $statement Query statement.
+	 * @param array $options
+	 *
+	 * @return Database\Statement The prepared statement.
+	 *
+	 * @throws Exception if the statement could not be prepared.
 	 *
 	 * @see PDO::prepare()
 	 * @see Database::resolve_statement()
@@ -195,7 +201,7 @@ class Database extends \PDO
 	 * Overrides the method to resolve the statement before actually execute it.
 	 *
 	 * The execution of the statement is wrapped in a try/catch block. If an exception of class
-	 * \PDOException is catched, an exception of class ICanBoogie\Exception is thrown with addition
+	 * \PDOException is caught, an exception of class {@link ICanBoogie\Exception} is thrown with additional
 	 * information about the error.
 	 *
 	 * Using this method increments the `queries_by_connection` stat.
@@ -262,7 +268,7 @@ class Database extends \PDO
 	 *
 	 * @param string $statement
 	 *
-	 * @return stirng The resolved statement.
+	 * @return string The resolved statement.
 	 */
 	public function resolve_statement($statement)
 	{
@@ -288,7 +294,7 @@ class Database extends \PDO
 	}
 
 	/**
-	 * Parses a schema to create a schema with lowlevel definitions.
+	 * Parses a schema to create a schema with low level definitions.
 	 *
 	 * For example, a column defined as 'serial' is parsed as :
 	 *
@@ -447,10 +453,12 @@ class Database extends \PDO
 	/**
 	 * Creates a table of the specified name and schema.
 	 *
-	 * @param string $name The unprefixed name of the table.
+	 * @param string $unprefixed_name The unprefixed name of the table.
 	 * @param array $schema The schema of the table.
 	 *
-	 * @throws Exception
+	 * @return bool
+	 *
+	 * @throws Exception if the table could not be created.
 	 */
 	public function create_table($unprefixed_name, array $schema)
 	{
@@ -721,6 +729,8 @@ class Database extends \PDO
 
 namespace ICanBoogie\Database;
 
+use ICanBoogie\Exception;
+
 /**
  * A database statement.
  */
@@ -729,7 +739,7 @@ class Statement extends \PDOStatement
 	/**
 	 * The database connection that created this statement.
 	 *
-	 * @var Database
+	 * @var \ICanBoogie\Database
 	 */
 	public $connection;
 
@@ -744,9 +754,11 @@ class Statement extends \PDOStatement
 	/**
 	 * Dispatch magic properties `all` and `one`.
 	 *
-	 * @param unknown_type $property
+	 * @param string $property
 	 *
-	 * @throws Exception\PropertyNotFound
+	 * @return mixed
+	 *
+	 * @throws Exception\PropertyNotFound if one tries to get a property that is not supported.
 	 */
 	public function __get($property)
 	{
@@ -756,14 +768,13 @@ class Statement extends \PDOStatement
 			case 'one': return $this->fetchAndClose();
 		}
 
-		throw new \ICanBoogie\Exception\PropertyNotFound(array($property, $this));
+		throw new Exception\PropertyNotFound(array($property, $this));
 	}
 
 	/**
 	 * Executes the statement and increments the connection queries count.
 	 *
-	 * The statement is executed in a try/catch block, if an exception of class \PDOException is
-	 * caught an exception of class ICanBoogie\Exception is thrown with additionnal information.
+	 * @throws ExecutionException if the execution of the statement failed.
 	 *
 	 * @see PDOStatement::execute()
 	 */
@@ -820,7 +831,9 @@ class Statement extends \PDOStatement
 	/**
 	 * Fetches a column of the first row of the result set and closes the cursor.
 	 *
-	 * @return string;
+	 * @param int $column_number
+	 *
+	 * @return string
 	 *
 	 * @see PDOStatement::fetchColumn()
 	 */

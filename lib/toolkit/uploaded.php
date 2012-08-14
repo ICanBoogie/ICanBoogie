@@ -66,7 +66,7 @@ class Uploaded
 		//$this->original_file = $data;
 
 		#
-		# consolide multiple files given the 'index'
+		# consolidate multiple files given the 'index'
 		#
 
 		//$name = $data['name'];
@@ -79,14 +79,14 @@ class Uploaded
 
 		if (is_array($name))
 		{
-			$consolided = array();
+			$consolidated = array();
 
 			foreach ($data as $key => $nodes)
 			{
-				$consolided[$key] = $nodes[$index];
+				$consolidated[$key] = $nodes[$index];
 			}
 
-			$data = $consolided;
+			$data = $consolidated;
 		}
 
 		#

@@ -115,7 +115,7 @@ class Mailer
 
 	public function __invoke()
 	{
-		$to = $this->concatAddresses($this->destination);
+		$to = $this->concat_addresses($this->destination);
 		$subject = $this->subject;
 		$message = $this->message;
 
@@ -148,7 +148,7 @@ class Mailer
 		return mail($to, $subject, $message, $header);
 	}
 
-	private function concatAddresses($addresses)
+	private function concat_addresses($addresses)
 	{
 		$rc = array();
 

@@ -13,7 +13,6 @@ namespace ICanBoogie\I18n;
 
 use ICanBoogie\FileCache;
 use ICanBoogie\I18n;
-use ICanBoogie\I18n\Translator;
 use ICanBoogie\Object;
 
 class Translator extends Object implements \ArrayAccess
@@ -81,7 +80,9 @@ class Translator extends Object implements \ArrayAccess
 	}
 
 	/**
-	 * @var array Translation messages.
+	 * Translation messages.
+	 *
+	 * @var array
 	 */
 	protected $messages;
 
@@ -110,7 +111,9 @@ class Translator extends Object implements \ArrayAccess
 	}
 
 	/**
-	 * @var Translator Fallback translator
+	 * Fallback translator.
+	 *
+	 * @var Translator
 	 */
 	protected $fallback;
 

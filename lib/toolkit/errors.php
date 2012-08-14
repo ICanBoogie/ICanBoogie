@@ -27,7 +27,7 @@ class Errors implements \ArrayAccess, \Countable, \Iterator
 	 * var_dump(isset($e['password']);
 	 * #=> false
 	 *
-	 * @return boolean true if an error is defined for the specified attibute, false otherwise.
+	 * @return boolean true if an error is defined for the specified attribute, false otherwise.
 	 *
 	 * @see ArrayAccess::offsetExists()
 	 */
@@ -50,6 +50,8 @@ class Errors implements \ArrayAccess, \Countable, \Iterator
 	 * $e['password'] = 'Ugly password';
 	 * var_dump($e['password']);
 	 * #=> array('Invalid password', 'Ugly password')
+	 *
+	 * @param string|null $attribute The attribute that caused the error, or null if the error is global.
 	 *
 	 * @return string|array|null Return the global error messages or the error messages attached
 	 * to an attribute. If there is only one message a string is returned, otherwise an array
@@ -78,9 +80,9 @@ class Errors implements \ArrayAccess, \Countable, \Iterator
 	 * $e['password'] = 'Invalid password';
 	 * $e[] = 'Requires authentication';
 	 *
-	 * @param string|null attribute If null, the message is considered as a general error message
-	 * instead of an attribute messge.
-	 * @param string message The error message.
+	 * @param string|null $attribute If null, the message is considered as a general error message
+	 * instead of an attribute message.
+	 * @param string $message The error message.
 	 *
 	 * @see ArrayAccess::offsetSet()
 	 */

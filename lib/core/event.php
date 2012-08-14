@@ -180,7 +180,7 @@ class Events implements \IteratorAggregate, \ArrayAccess
 	}
 
 	/**
-	 * Returns wheter or not an event has been marked as skippable.
+	 * Returns whether or not an event has been marked as skippable.
 	 *
 	 * @param string $type
 	 *
@@ -194,7 +194,7 @@ class Events implements \IteratorAggregate, \ArrayAccess
 	/**
 	 * Attaches a hook to an event type.
 	 *
-	 * @param string $pattern
+	 * @param string $type
 	 * @param callable $callback
 	 *
 	 * @throws \InvalidArgumentException when $callback is not a callable.
@@ -205,11 +205,10 @@ class Events implements \IteratorAggregate, \ArrayAccess
 		{
 			throw new \InvalidArgumentException(format
 			(
-				'Event callback must be a callable, %type given: :callback in %path', array
+				'Event callback must be a callable, %type given: :callback', array
 				(
 					'type' => gettype($callback),
-					'callback' => $callback,
-					'path' => $path . 'config/hooks.php'
+					'callback' => $callback
 				)
 			));
 		}
@@ -234,10 +233,14 @@ class Events implements \IteratorAggregate, \ArrayAccess
 	}
 
 	/**
-	 * Detaches a hook from an event type.
+	 * Detaches a event callback from an event type.
 	 *
-	 * @param string $type
-	 * @param callable $callback
+	 * @param string $type The type of the event.
+	 * @param callable $callback The event callback.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception when the event callback doesn't exists.
 	 */
 	static public function detach($type, $callback)
 	{
@@ -355,11 +358,11 @@ class Event
 	 * If $target is provided the callbacks are narrowed to classes events and callbacks are
 	 * called with $target as second parameter.
 	 *
-	 * @param string $type Event type.
-	 * @param array $property Properties of the event.
-	 * @param object|null $target The target of the event.
+	 * @param mixed $target The target of the event.
+	 * @param string $type The event type.
+	 * @param array $properties
 	 *
-	 * @return Event|null The event that was created or null if the fire triggered nothing.
+	 * @throws Exception\PropertyNotWritable if one of the properties is reserved.
 	 */
 	protected function __construct($target, $type, array $properties)
 	{
@@ -491,7 +494,7 @@ class Event
 	/**
 	 * Add a callback to the finish chain.
 	 *
-	 * The finish chain is executed once the event chain is done and wasn't stopped.
+	 * The finish chain is executed once the event chain is done and was not stopped.
 	 *
 	 * @param callable $callback
 	 *

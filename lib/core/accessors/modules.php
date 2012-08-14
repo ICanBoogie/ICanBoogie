@@ -73,10 +73,10 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 * Used to enable or disable a module using the specified offset as the module's id.
 	 *
 	 * The module is enabled or disabled by modifying the value of the {@link Module::T_DISABLED}
-	 * key of the module's descriptor. Set the offset to true to enable the module, set it to
-	 * `false` to disable it.
+	 * key of the module's descriptor.
 	 *
-	 * @see ArrayAccess::offsetSet()
+	 * @param mixed $id Identifier of the module.
+	 * @param mixed $enable Status of the module: `true` for enabled, `false` for disabled.
 	 */
 	public function offsetSet($id, $enable)
 	{
@@ -101,7 +101,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 * you want to use the module you check, better check using `!isset()`, otherwise the module
 	 * you check is loaded too.
 	 *
-	 * @param string $id The module's id.
+	 * @param string $id Identifier of the module.
 	 *
 	 * @return boolean Whether or not the module is available.
 	 */
@@ -118,7 +118,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 * The method also dismisses the {@link enabled_modules_descriptors} and
 	 * {@link disabled_modules_descriptors} properties.
 	 *
-	 * @see ArrayAccess::offsetUnset()
+	 * @param string $id Identifier of the module.
 	 */
 	public function offsetUnset($id)
 	{
@@ -134,17 +134,18 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Gets a module object.
+	 * Returns a module object.
 	 *
 	 * If the {@link autorun} property is `true`, the {@link Module::run()} method of the module
 	 * is invoked upon its first loading.
 	 *
-	 * @param string $id The id of the module to get.
+	 * @param string $id The identifier of the module.
 	 *
-	 * @throws Exception If the module is not available (because it's not defined or disabled) or
-	 * the class used to instanciate the module is missing.
+	 * @return Module
 	 *
-	 * @return Module The module object.
+	 * @throws Exception when the module doesn't exists or the class that should be used to create its instance is
+	 * not defined.
+	 * @throws Exception\DisabledModule when the module is disabled.
 	 */
 	public function offsetGet($id)
 	{
@@ -180,7 +181,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 
 		if (!class_exists($class, true))
 		{
-			throw new Exception('Missing class %class to instanciate module %id.', array('%class' => $class, '%id' => $id));
+			throw new Exception('Missing class %class to instantiate module %id.', array('%class' => $class, '%id' => $id));
 		}
 
 		$this->modules[$id] = $module = new $class($descriptor);
@@ -207,7 +208,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 * Indexes the modules found in the paths specified during construct.
 	 *
 	 * The index is made of an array of descriptors, an array of catalogs paths, an array of
-	 * configs path, an array of autoload classes, an array of classes aliases and finaly an array
+	 * configs path, an array of autoload classes, an array of classes aliases and finally an array
 	 * of configs constructors.
 	 *
 	 * @return array
@@ -336,7 +337,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 * - (array) requires: Empty array.
 	 * - (string) weight: 0.
 	 *
-	 * The descriptors are ordered according to their inheritence and weight.
+	 * The descriptors are ordered according to their inheritance and weight.
 	 *
 	 * @param array $paths
 	 *
@@ -505,7 +506,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 * - If a 'hooks.php' file exists, the "<module_namespace>\Hooks" reference is added to the
 	 * autoload array.
 	 *
-	 * - Autoload references are also created for each model and their activerecord depending on
+	 * - Autoload references are also created for each model and their active record depending on
 	 * the {@link T_MODELS} tag and the exsitance of the corresponding files.
 	 *
 	 * Autoload references are added to the `__autoload` property.
@@ -670,9 +671,10 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Orders the module ids provided according to module inheritence and weight.
+	 * Orders the module ids provided according to module inheritance and weight.
 	 *
 	 * @param array $ids The module ids to order.
+	 * @param array $descriptors Module descriptors.
 	 *
 	 * @return array
 	 */
@@ -793,7 +795,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 namespace ICanBoogie\Exception;
 
 /**
- * This exception is thrown when a disabed module is requested.
+ * This exception is thrown when a disabled module is requested.
  */
 class DisabledModule extends \ICanBoogie\Exception
 {

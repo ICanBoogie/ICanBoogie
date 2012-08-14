@@ -62,7 +62,7 @@ class Exception extends \Exception
 		}
 
 		#
-		# the error message is localized and formated
+		# the error message is localized and formatted
 		#
 
 		$message = \ICanBoogie\format($message, $params);

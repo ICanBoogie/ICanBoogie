@@ -19,13 +19,14 @@ class Security
 {
 	/** PBKDF2 Implementation (described in RFC 2898)
 	 *
-	 *  @param string p password
-	 *  @param string s salt
-	 *  @param int c iteration count (use 1000 or higher)
-	 *  @param int kl derived key length
-	 *  @param string a hash algorithm
+	 *  @param string $p password
+	 *  @param string $s salt
+	 *  @param int $c iteration count (use 1000 or higher)
+	 *  @param int $kl derived key length
+	 *  @param string $a hash algorithm
 	 *
 	 *  @return string derived key
+	 *
 	 *  @source http://www.itnewb.com/v/Encrypting-Passwords-with-PHP-for-Storage-Using-the-RSA-PBKDF2-Standard
 	 */
 	static public function pbkdf2($p, $s, $c=1000, $kl=32, $a='sha256')
@@ -64,6 +65,7 @@ class Security
 	 * @param string $possible The characters that can be used to create the password.
 	 * If you defined your own, pay attention to ambiguous characters such as 0, O, 1, l, I...
 	 * Default: narrow
+	 *
 	 * @return string
 	 */
 	static public function generate_token($length=8, $possible='narrow')
