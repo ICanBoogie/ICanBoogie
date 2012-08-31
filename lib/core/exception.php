@@ -13,9 +13,13 @@ namespace ICanBoogie;
 
 @define('WDEXCEPTION_WITH_LOG', true);
 
+/**
+ * @property-read int $code The code of the exception that can be used as HTTP status code.
+ * @property-read string $message The message of the exception.
+ */
 class Exception extends \Exception
 {
-	public $code;
+	protected $code;
 	public $title = 'Exception';
 
 	public function __construct($message, array $params=array(), $code=500, $previous=null)
@@ -68,6 +72,26 @@ class Exception extends \Exception
 		$message = \ICanBoogie\format($message, $params);
 
 		parent::__construct($message, $code, $previous);
+	}
+
+	/**
+	 * Returns the read-only properties {@link $code} and {@link $message}.
+	 *
+	 * @param string $property The property to get.
+	 *
+	 * @throws Exception\PropertyNotReadable When the property is unaccessible.
+	 *
+	 * @return mixed
+	 */
+	public function __get($property)
+	{
+		switch ($property)
+		{
+			case 'message': return $this->getMessage();
+			case 'code': return $this->code;
+		}
+
+		throw new Exception\PropertyNotReadable(array($property, $this));
 	}
 
 	public function __toString()
@@ -372,6 +396,9 @@ class OffsetNotWritable extends Property
 	}
 }
 
+/**
+ * This exception is thrown when a HTTP error occurs.
+ */
 class HTTP extends \ICanBoogie\Exception
 {
 	public function __toString()
@@ -387,5 +414,29 @@ class HTTP extends \ICanBoogie\Exception
 		$rc .= '</code>';
 
 		return $rc;
+	}
+}
+
+namespace ICanBoogie;
+
+/**
+ * The exception that is thrown when authentication fails.
+ */
+class AuthenticationException extends \ICanBoogie\Exception\HTTP
+{
+	public function __construct($message="The requested URL requires authentication.", array $params=array(), $code=401, $previous=null)
+	{
+		parent::__construct($message, $params, $code, $previous);
+	}
+}
+
+/**
+ * The exception that is thrown when a user doesn't have the required permission.
+ */
+class PermissionException extends \ICanBoogie\Exception\HTTP
+{
+	public function __construct($message="You don't have the required permission.", array $params=array(), $code=401, $previous=null)
+	{
+		parent::__construct($message, $params, $code, $previous);
 	}
 }
