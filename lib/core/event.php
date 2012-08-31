@@ -188,7 +188,7 @@ class Events implements \IteratorAggregate, \ArrayAccess
 	 */
 	public function is_skippable($type)
 	{
-		return !empty($this->skippable[$type]);
+		return isset($this->skippable[$type]);
 	}
 
 	/**
@@ -309,12 +309,21 @@ class Events implements \IteratorAggregate, \ArrayAccess
 /**
  * An event.
  *
- * @property-read $stopped bool `true` is the event propagation was stopped, `false` otherwise.
- * @property-read $used int The number of callbacks called during the propagation of the event.
- * @property-read $target mixed The target of the event.
+ * @property-read $stopped bool The {@link $stopped} property is readable.
+ * @property-read $used int The {@link $used} property is readable.
+ * @property-read $target mixed The {@link $target} property is readable.
  */
 class Event
 {
+	/**
+	 * The reserved properties that cannot be used to provide event properties.
+	 *
+	 * @var array[string]bool
+	 */
+	static private $reserved = array('chain' => true, 'stopped' => true, 'target' => true, 'used' => true);
+
+	static public $profiling = array();
+
 	/**
 	 * `true` when the event was stopped.
 	 *
@@ -344,15 +353,6 @@ class Event
 	private $chain = array();
 
 	/**
-	 * The reserved properties that cannot be used to provide event properties.
-	 *
-	 * @var array[string]bool
-	 */
-	static private $reserved = array('chain' => true, 'stopped' => true, 'target' => true, 'used' => true);
-
-	static public $profiling = array();
-
-	/**
 	 * Creates an event and fires it immediately.
 	 *
 	 * If $target is provided the callbacks are narrowed to classes events and callbacks are
@@ -366,6 +366,8 @@ class Event
 	 */
 	protected function __construct($target, $type, array $properties)
 	{
+		$this->target = $target;
+
 		$events = Events::get();
 
 		#
@@ -384,16 +386,40 @@ class Event
 			$filtered_events = $events['::'];
 		}
 
-		if (!isset(self::$profiling[$skippable_type]))
-		{
-			self::$profiling[$skippable_type] = array();
-		}
-
 		if ($events->is_skippable($skippable_type))
 		{
 			return;
 		}
 
+		#
+
+		$start = microtime(true);
+
+		if ($filtered_events)
+		{
+			$this->dispatch($target, $type, $properties, $filtered_events);
+		}
+
+		if (!$this->used)
+		{
+			$events->skip($skippable_type);
+		}
+
+		if (empty(self::$profiling[$skippable_type]))
+		{
+			self::$profiling[$skippable_type] = array(0, 0);
+		}
+
+		list($count, $time) = self::$profiling[$skippable_type];
+
+		$count++;// += $this->used;
+		$time += microtime(true) - $start;
+
+		self::$profiling[$skippable_type] = array($count, $time);
+	}
+
+	private function dispatch($target, $type, array $properties, array $filtered_events)
+	{
 		$prepared = false;
 
 		foreach ($filtered_events as $pattern => $callbacks)
@@ -405,8 +431,6 @@ class Event
 
 			if (!$prepared)
 			{
-				$this->target = $target;
-
 				foreach ($properties as $property => &$value)
 				{
 					if (isset(self::$reserved[$property]))
@@ -434,7 +458,6 @@ class Event
 			foreach ($callbacks as $callback)
 			{
 				++$this->used;
-				self::$profiling[$skippable_type][] = $callback;
 
 				call_user_func($callback, $this, $target);
 
@@ -446,6 +469,8 @@ class Event
 
 			foreach ($this->chain as $callback)
 			{
+				++$this->used;
+
 				call_user_func($callback, $this, $target);
 
 				if ($this->stopped)
@@ -454,13 +479,18 @@ class Event
 				}
 			}
 		}
-
-		if (!$this->used)
-		{
-			$events->skip($skippable_type);
-		}
 	}
 
+	/**
+	 * Returns the read-only properties {@link $stopped}, {@link $used} and {@link $target}.
+	 *
+	 * @param string $property The read-only property to return.
+	 *
+	 * @throws Exception\PropertyNotReadable if the property exists but is not readable.
+	 * @throws Exception\PropertyNotFound if the property doesn't exists.
+	 *
+	 * @return mixed
+	 */
 	public function __get($property)
 	{
 		switch ($property)
