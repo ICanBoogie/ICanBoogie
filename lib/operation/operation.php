@@ -114,13 +114,13 @@ abstract class Operation extends Object
 		if ($extension == 'json')
 		{
 			$path = substr($path, 0, -5);
-			$request->headers['Accept'] = 'application/json';
+			$request->header['Accept'] = 'application/json';
 			$request->is_xhr = true; // FIXME-20110925: that's not very nice
 		}
 		else if ($extension == 'xml')
 		{
 			$path = substr($path, 0, -4);
-			$request->headers['Accept'] = 'application/xml';
+			$request->header['Accept'] = 'application/xml';
 			$request->is_xhr = true; // FIXME-20110925: that's not very nice
 		}
 
@@ -652,13 +652,13 @@ abstract class Operation extends Object
 
 		if ($request->is_xhr)
 		{
-			$response->content_type = $request->headers['Accept'];
+			$response->content_type = $request->header['Accept'];
 			$response->location = null;
 		}
 		else if ($response->location)
 		{
 			$response->body = '';
-			$response->headers['Referer'] = $request->uri;
+			$response->header['Referer'] = $request->uri;
 		}
 		else if ($response->status == 304)
 		{

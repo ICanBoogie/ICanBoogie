@@ -40,7 +40,7 @@ return array
 		'ICanBoogie\ActiveRecord\Query' => $ar . '/query.php',
 
 		'ICanBoogie\HTTP\Dispatcher' => $http . 'dispatcher.php',
-		'ICanBoogie\HTTP\Headers' => $http . 'headers.php',
+		'ICanBoogie\HTTP\Header' => $http . 'header.php',
 		'ICanBoogie\HTTP\Request' => $http . 'request.php',
 		'ICanBoogie\HTTP\Response' => $http . 'response.php',
 		'ICanBoogie\HTTP\UnsupportedMethodException' => $http . 'http.php',
@@ -67,7 +67,7 @@ return array
 		'ICanBoogie\Operation\ProcessEvent' => $operation . 'operation.php',
 		'ICanBoogie\Operation\ExpiredFormException' => $operation . 'operation.php',
 		'ICanBoogie\Operation\Response' => $operation . 'response.php',
-		
+
 		'ICanBoogie\AlohaOperation' => $operation . 'core/aloha.php',
 		'ICanBoogie\PingOperation' => $operation . 'core/ping.php',
 		'ICanBoogie\DeleteOperation' => $operation . 'activerecord/delete.php',

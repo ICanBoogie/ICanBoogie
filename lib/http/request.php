@@ -20,6 +20,7 @@ use ICanBoogie\Operation;
  *
  * @property-read boolean $authorization {@link get_authorization()}
  * @property-read int $content_length {@link get_content_length()}
+ * @property-read int $cache_control {@link get_cache_control()}
  * @property-read string $ip {@link get_ip()}
  * @property-read boolean $is_delete {@link volatile_is_delete()}
  * @property-read boolean $is_get {@link volatile_is_get()}
@@ -86,13 +87,6 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Request environment.
-	 *
-	 * @var array
-	 */
-	protected $env;
-
-	/**
 	 * Parameters extracted from the request path.
 	 *
 	 * @var array
@@ -121,7 +115,26 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	public $params;
 
-	public $cookies = array();
+	/**
+	 * General purpose container.
+	 *
+	 * @var Request\Context
+	 */
+	public $context;
+
+	/**
+	 * The header of the request.
+	 *
+	 * @var Header
+	 */
+	public $header;
+
+	/**
+	 * Request environment.
+	 *
+	 * @var array
+	 */
+	protected $env;
 
 	/**
 	 * The previous request being executed.
@@ -129,13 +142,6 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 * @var Request
 	 */
 	public $previous;
-
-	/**
-	 * General purpose container.
-	 *
-	 * @var Request\Context
-	 */
-	public $context;
 
 	/**
 	 * A request can be created from the `$_SERVER` super global array. In that case `$_SERVER` is
@@ -192,6 +198,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
  			$this->params = $this->path_params + $this->request_params + $this->query_params;
 		}
 
+		$this->header = new Header($env);
 		$this->context = new Request\Context($this);
 	}
 
@@ -239,7 +246,10 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		}
 		catch (\Exception $e) { }
 
-		self::$current_request = $this->previous;
+		if ($this->previous) // TODO-20120831: This is a workaround
+		{
+			self::$current_request = $this->previous;
+		}
 
 		if (isset($e))
 		{
@@ -320,6 +330,26 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	public function getIterator()
 	{
 		return new \ArrayIterator($this->params);
+	}
+
+	/**
+	 * Returns the `Cache-Control` header.
+	 *
+	 * @return \ICanBoogie\HTTP\Header\CacheControl
+	 */
+	protected function volatile_get_cache_control()
+	{
+		return $this->header['Cache-Control'];
+	}
+
+	/**
+	 * Sets the directives of the `Cache-Control` header.
+	 *
+	 * @param string $cache_directives
+	 */
+	protected function volatile_set_cache_control($cache_directives)
+	{
+		$this->header['Cache-Control'] = $cache_directives;
 	}
 
 	/**
@@ -641,21 +671,6 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	protected function get_params()
 	{
 		return $this->path_params + $this->request_params + $this->query_params;
-	}
-
-	/**
-	 * Returns the headers of the request.
-	 *
-	 * @return Headers
-	 */
-	protected function get_headers()
-	{
-		return new Headers($this->env);
-	}
-
-	protected function get_files()
-	{
-		// TODO:2012-03-12 returns the files associated with the request
 	}
 }
 

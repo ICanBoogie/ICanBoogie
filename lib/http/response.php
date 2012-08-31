@@ -16,22 +16,34 @@ use ICanBoogie\Exception;
 /**
  * The response to a HTTP request.
  *
+ * @property \ICanBoogie\HTTP\Header\DateTime $age {@link volatile_set_age()} {@link volatile_get_age()}
  * @property string $body {@link volatile_set_body()} {@link volatile_get_body()}
+ * @property \ICanBoogie\HTTP\Header\CacheControl $cache_control {@link volatile_set_cache_control()} {@link volatile_get_cache_control()}
+ * @property string|array $content_length {@link volatile_set_content_length()} {@link volatile_get_content_length()}
  * @property string|array $content_type {@link volatile_set_content_type()} {@link volatile_get_content_type()}
- * @property integer $date {@link volatile_set_date()} {@link volatile_get_date()}
- * @property integer $expires {@link volatile_set_expires()} {@link volatile_get_expires()}
+ * @property \ICanBoogie\HTTP\Header\DateTime $date {@link volatile_set_date()} {@link volatile_get_date()}
+ * @property string $etag {@link volatile_set_etag()} {@link volatile_get_etag()}
+ * @property \ICanBoogie\HTTP\Header\DateTime $expires {@link volatile_set_expires()} {@link volatile_get_expires()}
+ * @property \ICanBoogie\HTTP\Header\DateTime $last_modified {@link volatile_set_last_modified()} {@link volatile_get_last_modified()}
+ * @property string $location {@link volatile_set_location()} {@link volatile_get_location()}
  * @property integer $status {@link volatile_set_status()} {@link volatile_get_status()}
- * @property integer $last_modified {@link volatile_set_last_modified()} {@link volatile_get_last_modified()}
- * @property-read boolean $is_valid {@link volatile_get_is_valid()}
- * @property-read boolean $is_informational {@link volatile_get_is_informational()}
- * @property-read boolean $is_successful {@link volatile_get_is_successful()}
- * @property-read boolean $is_redirection {@link volatile_get_is_redirection()}
+ * @property string $status_message {@link volatile_set_status_message()} {@link volatile_get_status_message()}
+ * @property int $ttl {@link volatile_set_ttl()} {@link volatile_get_ttl()}
+ *
+ * @property-read boolean $is_cacheable {@link volatile_get_is_cacheable()}
  * @property-read boolean $is_client_error {@link volatile_get_is_client_error()}
- * @property-read boolean $is_server_error {@link volatile_get_is_server_error()}
- * @property-read boolean $is_ok {@link volatile_get_is_ok()}
- * @property-read boolean $is_forbidden {@link volatile_get_is_forbidden()}
- * @property-read boolean $is_not_found {@link volatile_get_is_not_found()}
  * @property-read boolean $is_empty {@link volatile_get_is_empty()}
+ * @property-read boolean $is_forbidden {@link volatile_get_is_forbidden()}
+ * @property-read boolean $is_fresh {@link volatile_get_is_fresh()}
+ * @property-read boolean $is_informational {@link volatile_get_is_informational()}
+ * @property-read boolean $is_not_found {@link volatile_get_is_not_found()}
+ * @property-read boolean $is_ok {@link volatile_get_is_ok()}
+ * @property-read boolean $is_private {@link volatile_get_is_private()}
+ * @property-read boolean $is_redirection {@link volatile_get_is_redirection()}
+ * @property-read boolean $is_server_error {@link volatile_get_is_server_error()}
+ * @property-read boolean $is_successful {@link volatile_get_is_successful()}
+ * @property-read boolean $is_valid {@link volatile_get_is_valid()}
+ * @property-read boolean $is_validateable {@link volatile_get_is_validateable()}
  *
  * @see http://www.w3.org/Protocols/rfc2616/rfc2616.html
  */
@@ -39,66 +51,74 @@ class Response extends \ICanBoogie\Object
 {
 	static public $status_messages = array
 	(
-		100 => 'Continue',
-		101 => 'Switching Protocols',
-		200 => 'OK',
-		201 => 'Created',
-		202 => 'Accepted',
-		203 => 'Non-Authoritative Information',
-		204 => 'No Content',
-		205 => 'Reset Content',
-		206 => 'Partial Content',
-		300 => 'Multiple Choices',
-		301 => 'Moved Permanently',
-		302 => 'Found',
-		303 => 'See Other',
-		304 => 'Not Modified',
-		305 => 'Use Proxy',
-		307 => 'Temporary Redirect',
-		400 => 'Bad Request',
-		401 => 'Unauthorized',
-		402 => 'Payment Required',
-		403 => 'Forbidden',
-		404 => 'Not Found',
-		405 => 'Method Not Allowed',
-		406 => 'Not Acceptable',
-		407 => 'Proxy Authentication Required',
-		408 => 'Request Timeout',
-		409 => 'Conflict',
-		410 => 'Gone',
-		411 => 'Length Required',
-		412 => 'Precondition Failed',
-		413 => 'Request Entity Too Large',
-		414 => 'Request-URI Too Long',
-		415 => 'Unsupported Media Type',
-		416 => 'Requested Range Not Satisfiable',
-		417 => 'Expectation Failed',
-		418 => 'I\'m a teapot',
-		500 => 'Internal Server Error',
-		501 => 'Not Implemented',
-		502 => 'Bad Gateway',
-		503 => 'Service Unavailable',
-		504 => 'Gateway Timeout',
-		505 => 'HTTP Version Not Supported'
+		100 => "Continue",
+		101 => "Switching Protocols",
+		200 => "OK",
+		201 => "Created",
+		202 => "Accepted",
+		203 => "Non-Authoritative Information",
+		204 => "No Content",
+		205 => "Reset Content",
+		206 => "Partial Content",
+		300 => "Multiple Choices",
+		301 => "Moved Permanently",
+		302 => "Found",
+		303 => "See Other",
+		304 => "Not Modified",
+		305 => "Use Proxy",
+		307 => "Temporary Redirect",
+		400 => "Bad Request",
+		401 => "Unauthorized",
+		402 => "Payment Required",
+		403 => "Forbidden",
+		404 => "Not Found",
+		405 => "Method Not Allowed",
+		406 => "Not Acceptable",
+		407 => "Proxy Authentication Required",
+		408 => "Request Timeout",
+		409 => "Conflict",
+		410 => "Gone",
+		411 => "Length Required",
+		412 => "Precondition Failed",
+		413 => "Request Entity Too Large",
+		414 => "Request-URI Too Long",
+		415 => "Unsupported Media Type",
+		416 => "Requested Range Not Satisfiable",
+		417 => "Expectation Failed",
+		418 => "I'm a teapot",
+		500 => "Internal Server Error",
+		501 => "Not Implemented",
+		502 => "Bad Gateway",
+		503 => "Service Unavailable",
+		504 => "Gateway Timeout",
+		505 => "HTTP Version Not Supported"
 	);
 
 	/**
-	 * Response headers.
+	 * Response header.
 	 *
-	 * @var Headers
+	 * @var Header
 	 */
-	public $headers;
+	public $header;
 
 	/**
 	 * @var string The HTTP protocol version (1.0 or 1.1), defaults to '1.0'
 	 */
 	public $version = '1.0';
 
-	public function __construct($status=200, array $headers=array(), $body=null)
+	/**
+	 * Initializes the {@link $header}, {@link $date}, {@link $status} and {@link $body}
+	 * properties.
+	 *
+	 * @param int $status The status code of the response.
+	 * @param array $header_fields The initial header fields of the response.
+	 * @param mixed $body The body of the response.
+	 */
+	public function __construct($status=200, array $header_fields=array(), $body=null)
 	{
-		$this->headers = new Headers($headers);
+		$this->header = new Header($header_fields);
 
-		if (!$this->headers['Date'])
+		if (!$this->header['Date'])
 		{
 			$this->date = 'now';
 		}
@@ -108,46 +128,76 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * The headers are cloned when the response is cloned.
+	 * The header is cloned when the response is cloned.
 	 */
 	public function __clone()
 	{
-		$this->headers = clone $this->headers;
+		$this->header = clone $this->header;
+	}
+
+	/**
+	 * Renders the response as an HTTP string.
+	 *
+	 * @return string
+	 */
+	public function __toString()
+	{
+		$body = $this->body;
+
+		if (is_callable($body))
+		{
+			ob_start();
+
+			$body();
+
+			$body = ob_get_clean();
+		}
+		else
+		{
+			$body = (string) $body;
+		}
+
+		return "HTTP/{$this->version} {$this->status} {$this->status_message}"
+		. $this->header
+		. "\r\n"
+		. $body;
 	}
 
 	/**
 	 * Issues the HTTP response.
 	 *
-	 * Headers are modified according tp the {@link version}, {@link status} and
-	 * {@link status_message} properties. Additionnal headers can be provided by the framework or
-	 * the user.
+	 * The header is modified according to the {@link version}, {@link status} and
+	 * {@link status_message} properties.
 	 *
-	 * The usual behaviour of the response is to echo its body then terminate the script. But if
-	 * its body is `null` the following happens :
+	 * The usual behaviour of the response is to echo its body and then terminate the script. But
+	 * if its body is `null` the following happens :
 	 *
-	 * - If the {@link location} property is defined the script is terminated.
+	 * - If the {@link $location} property is defined the script is terminated.
 	 *
-	 * - If the {@link is_ok} property is falsy **the method returns**.
+	 * - If the {@link $is_ok} property is falsy **the method returns**.
 	 *
-	 * Note: If the body is a `callable`, the provided callable must echo the response body.
+	 * Note: If the body is a `callable`, the provided callable MUST echo the response body.
 	 */
 	public function __invoke()
 	{
-		if (headers_sent($headers_sent_file, $headers_sent_line))
+		if (headers_sent($file, $line))
 		{
 			trigger_error(\ICanBoogie\format
 			(
-				"Cannot modify header information because headers were already sent. Output started at !at.", array('at' => $headers_sent_file . ':' . $headers_sent_line)
+				"Cannot modify header information because it was already sent. Output started at !at.", array
+				(
+					'at' => $file . ':' . $line
+				)
 			));
 		}
 		else
 		{
+			header_remove('Pragma');
+			header_remove('X-Powered-By');
+
 			header("HTTP/{$this->version} {$this->status} {$this->status_message}");
 
-			foreach ($this->headers as $identifier => $value)
-			{
-				header("$identifier: $value");
-			}
+			$this->header();
 		}
 
 		$body = $this->body;
@@ -182,17 +232,23 @@ class Response extends \ICanBoogie\Object
 	 * @var int
 	 */
 	private $status;
+
+	/**
+	 * Message describing the status code.
+	 *
+	 * @var string
+	 */
 	public $status_message;
 
 	/**
-     * Sets response status code and optionally status message.
-     *
-     * This method is the setter for the {@link $status} property.
-     *
-     * @param integer|array $status HTTP status code or HTTP status code and HTTP status message.
-     *
-     * @throws \InvalidArgumentException When the HTTP status code is not valid.
-     */
+	 * Sets response status code and optionally status message.
+	 *
+	 * This method is the setter for the {@link $status} property.
+	 *
+	 * @param integer|array $status HTTP status code or HTTP status code and HTTP status message.
+	 *
+	 * @throws \InvalidArgumentException When the HTTP status code is not valid.
+	 */
 	protected function volatile_set_status($status)
 	{
 		$status_message = null;
@@ -202,14 +258,17 @@ class Response extends \ICanBoogie\Object
 			list($status, $status_message) = $status;
 		}
 
-        $this->status = (int) $status;
+		$this->status = (int) $status;
 
-        if (!$this->is_valid)
-        {
-            throw new \InvalidArgumentException(t('The HTTP status code %status is not valid.', array('%status' => $status)));
-        }
+		if (!$this->is_valid)
+		{
+			throw new \InvalidArgumentException(\ICanBoogie\format
+			(
+				'The HTTP status code %status is not valid.', array('%status' => $status)
+			));
+		}
 
-        if ($status_message === null)
+		if ($status_message === null)
 		{
 			unset($this->status_message);
 		}
@@ -244,7 +303,7 @@ class Response extends \ICanBoogie\Object
 	 * Sets the response body.
 	 *
 	 * The body can be any data type that can be converted into a string this includes numeric and
-	 * objects implementing the `__toString()` method.
+	 * objects implementing the {@link __toString()} method.
 	 *
 	 * Note: This method is the setter for the {@link $body} property.
 	 *
@@ -295,111 +354,70 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * Sets the `Location` header.
+	 * Sets the value of the `Location` header field.
 	 *
 	 * @param string $url
 	 */
 	protected function volatile_set_location($url)
 	{
-		$this->headers['Location'] = $url;
+		$this->header['Location'] = $url;
 	}
 
 	/**
-	 * Returns the `Location` header.
+	 * Returns the value of the `Location` header field.
 	 *
 	 * @return string
 	 */
 	protected function volatile_get_location()
 	{
-		return $this->headers['Location'];
+		return $this->header['Location'];
 	}
 
 	/**
-	 * Content type.
-	 *
-	 * @var string
-	 */
-	private $content_type;
-
-	/**
-	 * Content charset.
-	 *
-	 * @var string
-	 */
-	public $charset;
-
-	/**
-	 * Sets the `Content-Type` header.
-	 *
-	 * The value provided is altered if the {@link charset} property is defined. If the property
-	 * is empty but the content type is "text/plain" or "text/html" then the charset default to
-	 * "utf-8".
+	 * Sets the value of the `Content-Type` header field.
 	 *
 	 * @param string $content_type
 	 */
 	protected function volatile_set_content_type($content_type)
 	{
-		$this->content_type = $content_type;
-
-		$charset = $this->charset;
-
-		if (!$charset && in_array($content_type, array('text/plain', 'text/html')))
-		{
-			$charset = 'utf-8';
-		}
-
-		if ($charset)
-		{
-			$content_type .= '; charset=' . $charset;
-		}
-
-		$this->headers['Content-Type'] = $content_type;
+		$this->header['Content-Type'] = $content_type;
 	}
 
 	/**
-	 * Returns the content type of the response.
-	 *
-	 * The value is returned for the private {@link content_type} property. If the property is
-	 * empty and the `Content-Type`header is defined, the _type_ part of its value is returned.
+	 * Returns the value of the `Content-Type` header field.
 	 *
 	 * @return string
 	 */
 	protected function volatile_get_content_type()
 	{
-		$content_type = $this->content_type;
-
-		if (!$content_type && isset($this->headers['Content-Type']))
-		{
-			list($content_type) = explode(';', $this->headers['Content-Type']);
-		}
-
-		return $content_type;
+		return $this->header['Content-Type'];
 	}
 
 	/**
-	 * Sets the `Content-Length` header.
+	 * Sets the value of the `Content-Length` header field.
 	 *
 	 * @param int $length
 	 */
 	protected function volatile_set_content_length($length)
 	{
-		$this->headers['Content-Length'] = $length;
+		$this->header['Content-Length'] = $length;
 	}
 
 	/**
-	 * Returns the `Content-Length` header.
+	 * Returns the value of the `Content-Length` header field.
 	 *
-	 * @return int|null The value of the `Content-Length` header or null if it is not defined.
+	 * @return int
 	 */
 	protected function volatile_get_content_length()
 	{
-		return $this->headers['Content-Length'];
+		return $this->header['Content-Length'];
 	}
 
 	/**
-	 * Sets the `Date` header.
+	 * Sets the value of the `Date` header field.
 	 *
-	 * @param mixed $time.
+	 * @param mixed $time If 'now' is passed a {@link \Datetime} object is created with the UTC
+	 * time zone.
 	 */
 	protected function volatile_set_date($time)
 	{
@@ -408,61 +426,179 @@ class Response extends \ICanBoogie\Object
 			$time = new \DateTime(null, new \DateTimeZone('UTC'));
 		}
 
-		$this->headers['Date'] = $time;
+		$this->header['Date'] = $time;
 	}
 
 	/**
-	 * Returns the `Date` header.
+	 * Returns the value of the `Date` header field.
 	 *
-	 * @return string|null The value of the `Date` header or null if it is not defined.
+	 * @return string
 	 */
 	protected function volatile_get_date()
 	{
-		return $this->headers['Date'];
+		return $this->header['Date'];
 	}
 
 	/**
-	 * Sets the `Last-Modified` header.
+	 * Sets the value of the `Age` header field.
+	 *
+	 * @param int $age
+	 */
+	protected function volatile_set_age($age)
+	{
+		$this->header['Age'] = $age;
+	}
+
+	/**
+	 * Returns the age of the response.
+	 *
+	 * @return int
+	 */
+	protected function volatile_get_age()
+	{
+		$age = $this->header['Age'];
+
+		if ($age)
+		{
+			return $age;
+		}
+
+		return max(time() - $this->date->format('U'), 0);
+	}
+
+	/**
+	 * Sets the value of the `Last-Modified` header field.
 	 *
 	 * @param mixed $time.
 	 */
 	protected function volatile_set_last_modified($time)
 	{
-		$this->headers['Last-Modified'] = $time;
+		$this->header['Last-Modified'] = $time;
 	}
 
 	/**
-	 * Returns the `Last-Modified` header.
+	 * Returns the value of the `Last-Modified` header field.
 	 *
-	 * @return string|null The value of the `Last-Modified` header or null if it is not defined.
+	 * @return string
 	 */
 	protected function volatile_get_last_modified()
 	{
-		return $this->headers['Last-Modified'];
+		return $this->header['Last-Modified'];
 	}
 
 	/**
-	 * Sets the `Expires` header.
+	 * Sets the value of the `Expires` header field.
 	 *
-	 * The method also call the session_cache_expire().
+	 * The method also calls the {@link session_cache_expire()} function.
 	 *
 	 * @param mixed $time.
 	 */
 	protected function volatile_set_expires($time)
 	{
-		$this->headers['Expires'] = $time;
+		$this->header['Expires'] = $time;
 
-		session_cache_expire($time);
+		session_cache_expire($time); // TODO-20120831: Is this required now that we have an awesome response system ?
 	}
 
 	/**
-	 * Returns the `Expires` header.
+	 * Returns the value of the `Expires` header field.
 	 *
-	 * @return string|null The value of the `Expires` header or null if it is not defined.
+	 * @return string
 	 */
 	protected function volatile_get_expires()
 	{
-		return $this->headers['Expires'];
+		return $this->header['Expires'];
+	}
+
+	/**
+	 * Sets the value of the `Etag` header field.
+	 *
+	 * @param string $value
+	 */
+	protected function volatile_set_etag($value)
+	{
+		$this->header['Etag'] = $value;
+	}
+
+	/**
+	 * Returns the value of the `Etag` header field.
+	 *
+	 * @return string
+	 */
+	protected function volatile_get_etag()
+	{
+		return $this->header['Etag'];
+	}
+
+	/**
+	 * Sets the directives of the `Cache-Control` header field.
+	 *
+	 * @param string $cache_directives
+	 */
+	protected function volatile_set_cache_control($cache_directives)
+	{
+		$this->header['Cache-Control'] = $cache_directives;
+	}
+
+	/**
+	 * Returns the `Cache-Control` header field.
+	 *
+	 * @return \ICanBoogie\HTTP\Headers\CacheControl
+	 */
+	protected function volatile_get_cache_control()
+	{
+		return $this->header['Cache-Control'];
+	}
+
+	/**
+	 * Sets the response's time-to-live for shared caches.
+	 *
+	 * This method adjusts the Cache-Control/s-maxage directive.
+	 *
+	 * @param int $seconds The number of seconds.
+	 */
+	protected function volatile_set_ttl($seconds)
+	{
+		$this->cache_control->s_max_age = $this->age->timestamp + $seconds;
+	}
+
+	/**
+	 * Returns the response's time-to-live in seconds.
+	 *
+	 * When the responses TTL is <= 0, the response may not be served from cache without first
+	 * revalidating with the origin.
+	 *
+	 * @return int|null The number of seconds to live, or `null` is no freshness information
+	 * is present.
+	 */
+	protected function volatile_get_ttl()
+	{
+		$max_age = $this->cache_control->max_age;
+
+		if ($max_age)
+		{
+			return $max_age - $this->age;
+		}
+	}
+
+	/**
+	 * Set the `cacheable` property of the `Cache-Control` header field to `private`.
+	 *
+	 * @param boolean $value
+	 */
+	protected function volatile_set_is_private($value)
+	{
+		$this->cache_control->cacheable = 'private';
+	}
+
+	/**
+	 * Checks that the `cacheable` property of the `Cache-Control` header field is `private`.
+	 *
+	 * @return boolean
+	 */
+	protected function volatile_get_is_private()
+	{
+		return $this->cache_control->cacheable == 'private';
 	}
 
 	/**
@@ -658,61 +794,33 @@ class Response extends \ICanBoogie\Object
 		throw new Exception\PropertyNotWritable(array('is_empty', $this));
 	}
 
-	/*
-	 * CACHE
-	 *
-	 * http://tools.ietf.org/html/rfc2616#section-14.9
-	 */
-
 	/**
-	 * Marks the response as either public (true) or private (false).
-	 *
-	 * @var boolean
-	 */
-	private $cache_control = array
-	(
-		'public' => true,
-		'no-cache' => false,
-		'no-store' => false,
-		'no-transform' => false,
-		'must-revalidate' => false,
-		'proxy-revalidate' => false,
-		'max-age' => 600
-	);
-
-	/**
-	 * @return boolean
-	 */
-	protected function volatile_get_private()
-	{
-		return !$this->public;
-	}
-
-	/**
-	 * @param boolean $value
-	 */
-	protected function volatile_set_private($value)
-	{
-		$this->public = !$value;
-	}
-
-	/**
-	 * Checks if the response is fresh.
-	 *
-	 *
+	 * Checks that the response includes header fields that can be used to validate the response
+	 * with the origin server using a conditional GET request.
 	 *
 	 * @return boolean
 	 */
-    protected function volatile_get_is_fresh()
-    {
-        return $this->ttl > 0;
-    }
-
-    protected function volatile_set_is_fresh()
+	protected function volatile_get_is_validateable()
 	{
-		throw new Exception\PropertyNotWritable(array('is_fresh', $this));
+		return $this->header['Last-Modified'] || $this->header['ETag'];
 	}
 
+	protected function volatile_set_is_validateable()
+	{
+		throw new Exception\PropertyNotWritable(array('is_validateable', $this));
+	}
+
+	/**
+	 * Checks that the response is worth caching under any circumstance.
+	 *
+	 * Responses marked _private_ with an explicit `Cache-Control` directive are considered
+	 * uncacheable.
+	 *
+	 * Responses with neither a freshness lifetime (Expires, max-age) nor cache validator
+	 * (`Last-Modified`, `ETag`) are considered uncacheable.
+	 *
+	 * @return boolean
+	 */
 	protected function volatile_get_is_cacheable()
 	{
 		if (!in_array($this->status, array(200, 203, 300, 301, 302, 404, 410)))
@@ -720,11 +828,31 @@ class Response extends \ICanBoogie\Object
 			return false;
 		}
 
-		if ($this->headers->has_cache_control_directive['no-store'] || $this->headers->has_cache_control_directive['private'])
+		if ($this->cache_control->no_store || $this->cache_control->cacheable == 'private')
 		{
 			return false;
 		}
 
 		return $this->is_validateable() || $this->is_fresh();
+	}
+
+	protected function volatile_set_is_cacheable()
+	{
+		throw new Exception\PropertyNotWritable(array('is_cacheable', $this));
+	}
+
+	/**
+	 * Checks if the response is fresh.
+	 *
+	 * @return boolean
+	 */
+	protected function volatile_get_is_fresh()
+	{
+		return $this->ttl > 0;
+	}
+
+	protected function volatile_set_is_fresh()
+	{
+		throw new Exception\PropertyNotWritable(array('is_fresh', $this));
 	}
 }
