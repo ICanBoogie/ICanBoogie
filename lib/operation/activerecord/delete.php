@@ -68,7 +68,7 @@ class DeleteOperation extends Operation
 			$this->response->location = $this->request['#location'];
 		}
 
-		$this->response->success = array('The record %key has been delete from %module.', array('key' => $key, 'module' => $this->module->title));
+		$this->response->message = array('The record %key has been delete from %module.', array('key' => $key, 'module' => $this->module->title));
 
 		return $key;
 	}

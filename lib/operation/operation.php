@@ -514,7 +514,7 @@ abstract class Operation extends Object
 	 *
 	 * The operation result is saved in a _response_ object, which may contain meta data describing
 	 * or accompanying the result. For example, the `Operation` class returns success and error
-	 * messages in the `success` and `errors` properties.
+	 * messages in the `message` and `errors` properties.
 	 *
 	 * Depending on the `Accept` header of the request, the response object can be formatted as
 	 * JSON or XML. If the `Accept` header is "application/json" the response is formatted as JSON.
@@ -636,12 +636,12 @@ abstract class Operation extends Object
 		}
 
 		#
-		# We log the _success_ message if the request is the main request and is not an XHR.
+		# We log the `message` if the request is the main request and is not an XHR.
 		#
 
-		if ($response->success && !$request->previous && !$request->is_xhr)
+		if ($response->message && !$request->previous && !$request->is_xhr)
 		{
-			call_user_func_array('ICanBoogie\log_success', (array) $response->success);
+			call_user_func_array('ICanBoogie\log_success', (array) $response->message);
 		}
 
 		/*

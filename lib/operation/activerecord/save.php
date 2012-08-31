@@ -150,7 +150,7 @@ class SaveOperation extends Operation
 		}
 
 		$this->response->location = $this->request->uri;
-		$this->response->success = array($key ? 'The record %key in %module has been saved.' : 'A new record has been saved in %module.', $log_params);
+		$this->response->message = array($key ? 'The record %key in %module has been saved.' : 'A new record has been saved in %module.', $log_params);
 
 		return array('mode' => $key ? 'update' : 'new', 'key' => $record_key);
 	}

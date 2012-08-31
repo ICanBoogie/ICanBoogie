@@ -19,7 +19,7 @@ use ICanBoogie\Errors;
 class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 {
 	public $rc;
-	public $success;
+	public $message;
 
 	protected $metas=array();
 
@@ -27,24 +27,24 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 	{
 		if ($this->body === null)
 		{
-			$success = $this->success;
+			$message = $this->message;
 
-			if ($success === null)
+			if ($message === null)
 			{
-				$success = \ICanBoogie\Debug::fetch_messages('success');
+				$message = \ICanBoogie\Debug::fetch_messages('success');
 
-				if ($success)
+				if ($message)
 				{
-					$success = implode("\n", $success); // FIXME-20110923: we shouldn't use the log anymore !
+					$message = implode("\n", $message); // FIXME-20110923: we shouldn't use the log anymore !
 				}
 				else
 				{
-					$success = null;
+					$message = null;
 				}
 			}
-			else if (is_array($success))
+			else if (is_array($message))
 			{
-				$success = call_user_func_array('t', $success);
+				$message = call_user_func_array('t', $message);
 			}
 
 			$errors = null;
@@ -53,7 +53,7 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 			{
 				$errors = array();
 
-				foreach ($this->errors as $identifier => $message)
+				foreach ($this->errors as $identifier => $error)
 				{
 					if (!$identifier)
 					{
@@ -62,11 +62,11 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 
 					if (isset($errors[$identifier]))
 					{
-						$errors[$identifier] .= '; ' . $message;
+						$errors[$identifier] .= '; ' . $error;
 					}
 					else
 					{
-						$errors[$identifier] = $message;
+						$errors[$identifier] = $error;
 					}
 				}
 			}
@@ -76,15 +76,15 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 			$body_data = array
 			(
 				'rc' => $rc,
-				'success' => $success,
+				'message' => $message,
 				'errors' => $errors
 			)
 
 			+ $this->metas;
 
-			if ($success === null)
+			if ($message === null)
 			{
-				unset($body_data['success']);
+				unset($body_data['message']);
 			}
 
 			if ($errors === null)
