@@ -26,6 +26,8 @@ namespace ICanBoogie;
  * @property \ICanBoogie\I18n\Locale $locale Locale object matching the locale language.
  * @property array $config The "core" configuration.
  * @property-read \ICanBoogie\HTTP\Request $request The request being processed.
+ * @property-read \ICanBoogie\Events $events The events collection.
+ * @property-read \ICanBoogie\Routes $routes The routes collection.
  */
 class Core extends Object
 {
@@ -400,6 +402,46 @@ class Core extends Object
 		unset($options['id']);
 
 		return new Session($options);
+	}
+
+	/**
+	 * Returns the event collection.
+	 *
+	 * @return \ICanBoogie\Events
+	 */
+	protected function volatile_get_events()
+	{
+		return Events::get();
+	}
+
+	/**
+	 * The {@link $events} property is read-only.
+	 *
+	 * @throws Exception\PropertyNotWritable
+	 */
+	protected function volatile_set_events()
+	{
+		throw new Exception\PropertyNotWritable(array('events', $this));
+	}
+
+	/**
+	 * Returns the route collection.
+	 *
+	 * @return \ICanBoogie\Routes
+	 */
+	protected function volatile_get_routes()
+	{
+		return Routes::get();
+	}
+
+	/**
+	 * The {@link $routes} property is read-only.
+	 *
+	 * @throws Exception\PropertyNotWritable
+	 */
+	protected function volatile_set_routes()
+	{
+		throw new Exception\PropertyNotWritable(array('routes', $this));
 	}
 
 	/**
