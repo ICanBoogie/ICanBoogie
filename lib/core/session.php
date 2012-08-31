@@ -129,6 +129,8 @@ class Session
 
 			exit;
 		}
+
+		new Session\StartEvent($this, array());
 	}
 
 	/**
@@ -172,5 +174,24 @@ class Session
 	public function __unset($property)
 	{
 		unset($_SESSION[$property]);
+	}
+}
+
+namespace ICanBoogie\Session;
+
+/**
+ * Event class for the `ICanBoogie\Session::start` event.
+ */
+class StartEvent extends \ICanBoogie\Event
+{
+	/**
+	 * The event is constructed with the type `start`.
+	 *
+	 * @param \ICanBoogie\Session $target
+	 * @param array $properties
+	 */
+	public function __construct(\ICanBoogie\Session $target, array $properties)
+	{
+		parent::__construct($target, 'start', $properties);
 	}
 }

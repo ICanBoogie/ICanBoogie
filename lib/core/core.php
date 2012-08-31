@@ -398,13 +398,8 @@ class Core extends Object
 		$options = $this->config['session'];
 
 		unset($options['id']);
-		$session_name = $options['name'];
 
-		$session = new Session($options);
-
-		Event::fire('start', array(), $session);
-
-		return $session;
+		return new Session($options);
 	}
 
 	/**
