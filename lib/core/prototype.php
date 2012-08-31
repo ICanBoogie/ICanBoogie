@@ -28,13 +28,6 @@ namespace ICanBoogie;
 class Prototype implements \ArrayAccess, \IteratorAggregate
 {
 	/**
-	 * Callback to initialize prototypes.
-	 *
-	 * @var callable
-	 */
-	static public $initializer;
-
-	/**
 	 * Prototypes built per class.
 	 *
 	 * @var array[string]Prototype
@@ -78,7 +71,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 
 		foreach (self::$prototypes as $class => $prototype)
 		{
-			$prototype->revoke_consolidated_methods();
+			$prototype->consolidated_methods = null;
 
 			if (empty($config[$class]))
 			{
@@ -106,6 +99,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 	static public function synthesize_config(array $fragments)
 	{
 		$methods = array();
+		$debug = Debug::$mode == Debug::MODE_DEV;
 
 		foreach ($fragments as $root => $fragment)
 		{
@@ -116,7 +110,7 @@ class Prototype implements \ArrayAccess, \IteratorAggregate
 
 			foreach ($fragment['prototypes'] as $method => $callback)
 			{
-				if (strpos($method, '::') === false)
+				if ($debug && strpos($method, '::') === false)
 				{
 					throw new \InvalidArgumentException(format
 					(
