@@ -322,7 +322,11 @@ class Event
 	 */
 	static private $reserved = array('chain' => true, 'stopped' => true, 'target' => true, 'used' => true);
 
-	static public $profiling = array();
+	static public $profiling = array
+	(
+		'callbacks' => array(),
+		'unused' => array()
+	);
 
 	/**
 	 * `true` when the event was stopped.
@@ -377,49 +381,20 @@ class Event
 		if ($target)
 		{
 			$class = get_class($target);
-			$skippable_type = $class . '::' . $type;
+			$complete_type = $class . '::' . $type;
 			$filtered_events = $events->get_class_events($class);
 		}
 		else
 		{
-			$skippable_type = $type;
+			$complete_type = $type;
 			$filtered_events = $events['::'];
 		}
 
-		if ($events->is_skippable($skippable_type))
+		if ($events->is_skippable($complete_type))
 		{
 			return;
 		}
 
-		#
-
-		$start = microtime(true);
-
-		if ($filtered_events)
-		{
-			$this->dispatch($target, $type, $properties, $filtered_events);
-		}
-
-		if (!$this->used)
-		{
-			$events->skip($skippable_type);
-		}
-
-		if (empty(self::$profiling[$skippable_type]))
-		{
-			self::$profiling[$skippable_type] = array(0, 0);
-		}
-
-		list($count, $time) = self::$profiling[$skippable_type];
-
-		$count++;// += $this->used;
-		$time += microtime(true) - $start;
-
-		self::$profiling[$skippable_type] = array($count, $time);
-	}
-
-	private function dispatch($target, $type, array $properties, array $filtered_events)
-	{
 		$prepared = false;
 
 		foreach ($filtered_events as $pattern => $callbacks)
@@ -459,7 +434,11 @@ class Event
 			{
 				++$this->used;
 
+				$time = microtime(true);
+
 				call_user_func($callback, $this, $target);
+
+				self::$profiling['callbacks'][] = array($time, $complete_type, $callback, microtime(true) - $time);
 
 				if ($this->stopped)
 				{
@@ -471,7 +450,11 @@ class Event
 			{
 				++$this->used;
 
+				$time = microtime(true);
+
 				call_user_func($callback, $this, $target);
+
+				self::$profiling['callbacks'][] = array($time, $type, $callback, microtime(true) - $time);
 
 				if ($this->stopped)
 				{
@@ -479,6 +462,18 @@ class Event
 				}
 			}
 		}
+
+		if (!$this->used)
+		{
+			self::$profiling['unused'][] = array(microtime(true), $complete_type);
+
+			$events->skip($complete_type);
+		}
+	}
+
+	private function dispatch($target, $type, $complete_type, array $properties, array $filtered_events)
+	{
+
 	}
 
 	/**
