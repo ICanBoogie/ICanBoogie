@@ -343,7 +343,7 @@ namespace ICanBoogie\Prototype;
 /**
  * This exception is thrown when one tries to access an undefined prototype method.
  */
-class UnknownMethodException extends \Exception
+class UnknownMethodException extends \BadMethodCallException
 {
 	public function __construct($message, $code=500, $previous=null)
 	{

@@ -122,13 +122,13 @@ class Core extends Object
 	 *
 	 * @param array $options Initial options to create the core object.
 	 *
-	 * @throws Exception when one tries to create a second instance.
+	 * @throws \Exception when one tries to create a second instance.
 	 */
 	public function __construct(array $options=array())
 	{
 		if (self::$instance)
 		{
-			throw new Exception('Only one instance of the Core object can be created');
+			throw new \Exception('Only one instance of the Core object can be created');
 		}
 
 		self::$instance = $this;
@@ -216,7 +216,7 @@ class Core extends Object
 	 */
 	protected function get_models()
 	{
-		return new Models($this->modules);
+		return new Models($this->connections, array(), $this->modules);
 	}
 
 	/**
@@ -232,11 +232,11 @@ class Core extends Object
 	/**
 	 * Returns the connections accessor.
 	 *
-	 * @return Connections
+	 * @return ActiveRecord\Connections
 	 */
 	protected function get_connections()
 	{
-		return new Connections($this->config['connections']);
+		return new ActiveRecord\Connections($this->config['connections']);
 	}
 
 	/**
@@ -297,6 +297,14 @@ class Core extends Object
 	}
 
 	/**
+	 * @throws PropertyNotWritable in attempt to write {@link $request}.
+	 */
+	protected function volatile_set_request()
+	{
+		throw new PropertyNotWritable(array('request', $this));
+	}
+
+	/**
 	 * Returns the current request.
 	 *
 	 * @return HTTP\Request
@@ -304,14 +312,6 @@ class Core extends Object
 	protected function volatile_get_request()
 	{
 		return HTTP\Request::get_current_request();
-	}
-
-	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $request}.
-	 */
-	protected function volatile_set_request()
-	{
-		throw new Exception\PropertyNotWritable(array('request', $this));
 	}
 
 	/**
@@ -335,11 +335,11 @@ class Core extends Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $locale}.
+	 * @throws PropertyNotWritable in attempt to write {@link $locale}.
 	 */
 	protected function volatile_set_locale()
 	{
-		throw new Exception\PropertyNotWritable(array('locale', $this));
+		throw new PropertyNotWritable(array('locale', $this));
 	}
 
 	/**
@@ -418,11 +418,11 @@ class Core extends Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $events}.
+	 * @throws PropertyNotWritable in attempt to write {@link $events}.
 	 */
 	protected function volatile_set_events()
 	{
-		throw new Exception\PropertyNotWritable(array('events', $this));
+		throw new PropertyNotWritable(array('events', $this));
 	}
 
 	/**
@@ -436,11 +436,11 @@ class Core extends Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $routes}.
+	 * @throws PropertyNotWritable in attempt to write {@link $routes}.
 	 */
 	protected function volatile_set_routes()
 	{
-		throw new Exception\PropertyNotWritable(array('routes', $this));
+		throw new PropertyNotWritable(array('routes', $this));
 	}
 
 	/**
@@ -456,13 +456,17 @@ class Core extends Object
 		self::$is_running = true;
 
 		$this->modules->autorun = true;
-
 		$this->run_modules();
-
-		# Configure the Prototype class with the "prototypes" config.
 
 		Prototype::configure($this->configs['prototypes']);
 
+		/* TODO-20120906
+		 *
+		 * We should fire en event instead of using this method:
+		 *
+		 * Core\BeforeRun()
+		 * Core\Run()
+		 */
 		$this->run_context();
 
 		if (CACHE_BOOTSTRAP)

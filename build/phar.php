@@ -9,19 +9,49 @@
  * file that was distributed with this source code.
  */
 
+$phar_filename = 'ICanBoogie.phar';
+
+$exclude = array
+(
+		'.*\.md',
+		'.*-uncompressed\..*',
+		'.git/.*',
+		'.gitignore',
+		'.travis.yml',
+		'build/.*',
+		'Makefile',
+		'phpunit.xml.dist',
+		'README.md',
+		'tests/.*'
+);
+
+$do_not_compress = array('gif' => true, 'jpg' => true, 'jpeg' => true, 'png' => true);
+
+/*
+ * Do not edit the following lines.
+ */
+
 function strip_comments($source)
 {
-	if (!function_exists('token_get_all')) {
+	if (!function_exists('token_get_all'))
+	{
 		return $source;
 	}
 
 	$output = '';
-	foreach (token_get_all($source) as $token) {
-		if (is_string($token)) {
+
+	foreach (token_get_all($source) as $token)
+	{
+		if (is_string($token))
+		{
 			$output .= $token;
-		} elseif ($token[0] == T_COMMENT || $token[0] == T_DOC_COMMENT) {
+		}
+		else if ($token[0] == T_COMMENT || $token[0] == T_DOC_COMMENT)
+		{
 			$output .= str_repeat("\n", substr_count($token[1], "\n"));
-		} else {
+		}
+		else
+		{
 			$output .= $token[1];
 		}
 	}
@@ -33,14 +63,12 @@ $dir = dirname(__DIR__);
 
 chdir($dir);
 
-$phar_pathname = dirname($dir) . '/ICanBoogie.phar';
+$phar_pathname = dirname($dir) . '/' . $phar_filename;
 
 if (file_exists($phar_pathname))
 {
 	unlink($phar_pathname);
 }
-
-$do_not_compress = array('gif' => true, 'jpg' => true, 'jpeg' => true, 'png' => true);
 
 $phar = new Phar($phar_pathname);
 $phar->setSignatureAlgorithm(\Phar::SHA1);
@@ -62,19 +90,27 @@ $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, Filesy
 $n = 0;
 $root_length = strlen($dir . DIRECTORY_SEPARATOR);
 
+array_walk($exclude, function(&$v) { $v = "~^{$v}$~"; });
+
+function is_excluded($pathname)
+{
+	global $exclude;
+
+	foreach ($exclude as $pattern)
+	{
+		if (preg_match($pattern, $pathname))
+		{
+			return true;
+		}
+	}
+}
+
 foreach ($rii as $pathname => $file)
 {
 	$extension = $file->getExtension();
 	$relative_pathname = substr($pathname, $root_length);
 
-	if ($relative_pathname === 'README.md'
-	|| strpos($relative_pathname, '.git/') === 0
-	|| strpos($relative_pathname, 'build/') === 0
-	|| strpos($relative_pathname, 'tests/') === 0
-	|| strpos($pathname, 'uncompressed') !== false
-	|| $extension == 'md'
-	|| $extension == 'less'
-	|| preg_match('#lib/[^.]+\.js$#', $relative_pathname))
+	if (is_excluded($relative_pathname))
 	{
 		continue;
 	}
@@ -85,7 +121,7 @@ foreach ($rii as $pathname => $file)
 
 	if ($extension == 'php')
 	{
-		$contents = strip_comments(file_get_contents($pathname));
+		$contents = strip_comments($contents);
 	}
 
 	$pathname = substr($pathname, $root_length);

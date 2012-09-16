@@ -12,6 +12,32 @@
 namespace ICanBoogie;
 
 /**
+ * Registers a simple autoloader for Brickrouge classes.
+ */
+function register_autoloader()
+{
+	spl_autoload_register
+	(
+		function($name)
+		{
+			static $index;
+
+			if ($index === null)
+			{
+				$path = ROOT; // the $path variable is used within the config file
+				$config = require $path . 'config/core.php';
+				$index = $config['autoload'];
+			}
+
+			if (isset($index[$name]))
+			{
+				require_once $index[$name];
+			}
+		}
+	);
+}
+
+/**
  * Escape HTML special characters.
  *
  * HTML special characters are escaped using the {@link htmlspecialchars()} function with the

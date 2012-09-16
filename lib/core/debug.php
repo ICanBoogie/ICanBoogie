@@ -11,7 +11,6 @@
 
 namespace ICanBoogie;
 
-use ICanBoogie;
 use ICanBoogie\I18n\Locale;
 use ICanBoogie\I18n\Translator;
 
@@ -95,7 +94,7 @@ class Debug
 		}
 	}
 
-	static public function restore_logs(Event $event, ICanBoogie\Session $session)
+	static public function restore_logs(Event $event, Session $session)
 	{
 		if (isset($session->wddebug['messages']))
 		{
@@ -432,7 +431,7 @@ EOT;
 		$parts = array
 		(
 			'From' => 'icanboogie@' . $host,
-			'Content-Type' => 'text/html; charset=' . ICanBoogie\CHARSET
+			'Content-Type' => 'text/html; charset=' . CHARSET
 		);
 
 		$headers = '';

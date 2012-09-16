@@ -36,17 +36,17 @@ class Configs implements \ArrayAccess
 
 	public function offsetSet($offset, $value)
 	{
-		throw new Exception\OffsetNotWritable(array($offset, $this));
+		throw new OffsetNotWritable(array($offset, $this));
 	}
 
 	public function offsetExists($offset)
 	{
-		throw new Exception\OffsetNotReadable(array($offset, $this));
+		throw new OffsetNotReadable(array($offset, $this));
 	}
 
 	public function offsetUnset($offset)
 	{
-		throw new Exception\OffsetNotWritable(array($offset, $this));
+		throw new OffsetNotWritable(array($offset, $this));
 	}
 
 	/**

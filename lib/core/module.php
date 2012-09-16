@@ -543,6 +543,9 @@ class Module extends Object
 			$table_name .= '__' . $which;
 		}
 
+		$modules = $core->modules;
+		$models = $core->models;
+
 		#
 		# The model may use another model, in which case the model to used is defined using a
 		# string e.g. 'contents' or 'terms/nodes'
@@ -556,14 +559,14 @@ class Module extends Object
 			{
 				$class = get_parent_class($this);
 
-				foreach ($core->modules->descriptors as $id => $descriptor)
+				foreach ($modules->descriptors as $id => $descriptor)
 				{
 					if ($class != $descriptor['class'])
 					{
 						continue;
 					}
 
-					$model_name = $core->models[$id];
+					$model_name = $models[$id];
 
 					break;
 				}
@@ -582,8 +585,8 @@ class Module extends Object
 
 		$tags += array
 		(
-			Model::T_CLASS => $has_model_class ? Model::resolve_class_name($this->descriptor[self::T_NAMESPACE], $which) : null,
-			Model::T_ACTIVERECORD_CLASS => $has_ar_class ? ActiveRecord::resolve_class_name($this->id, $which) : null,
+			Model::T_CLASS => $has_model_class ? $modules->resolve_model_class_name($this->descriptor[self::T_NAMESPACE], $which) : null,
+			Model::T_ACTIVERECORD_CLASS => $has_ar_class ? $modules->resolve_activerecord_class_name($this->id, $which) : null,
 			Model::T_NAME => $table_name,
 			Model::T_CONNECTION => 'primary',
 			Model::T_ID => $which == 'primary' ? $this->id : $this->id . '/' . $which
@@ -599,7 +602,7 @@ class Module extends Object
 
 			if (is_string($extends))
 			{
-				$extends = $core->models[$extends];
+				$extends = $models[$extends];
 			}
 
 			if (!$tags[Model::T_CLASS])
@@ -627,7 +630,7 @@ class Module extends Object
 						throw new Exception('Model %module/%model implements itself !', array('%module' => $this->id, '%model' => $which));
 					}
 
-					$module = ($i_module == $this->id) ? $this : $core->modules[$i_module];
+					$module = ($i_module == $this->id) ? $this : $modules[$i_module];
 
 					$implement['table'] = $module->model($i_which);
 				}
@@ -643,7 +646,7 @@ class Module extends Object
 						)
 					);
 
-					$implement['table'] = $core->models[$implement['table']];
+					$implement['table'] = $models[$implement['table']];
 				}
 			}
 		}

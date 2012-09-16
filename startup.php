@@ -16,7 +16,7 @@ namespace ICanBoogie;
  *
  * @var string
  */
-const VERSION = '0.20.0-dev (2012-07-09)';
+const VERSION = '0.30.0-dev (2012-09-13)';
 
 /**
  * The ROOT directory of the ICanBoogie framework.
@@ -34,7 +34,7 @@ define('ICanBoogie\ASSETS', ROOT . 'assets' . DIRECTORY_SEPARATOR);
 
 /**
  * Document root of the application.
- * 
+ *
  * We ensure that the directory separator is indeed the directory separator used by the file
  * system. e.g. "c:path/to/my/root" is changed to "c:path\to\my\root" if the directory
  * separator is "\".
@@ -94,7 +94,7 @@ if (empty($_SERVER['REQUEST_TIME_FLOAT']))
 }
 
 /*
- * bootstrap
+ * Bootstrap
  */
 require_once ROOT . 'lib/helpers.php';
 require_once ROOT . 'lib/http/helpers.php';
@@ -111,6 +111,16 @@ else
 	require_once ROOT . 'lib/core/event.php';
 	require_once ROOT . 'lib/core/prototype.php';
 	require_once ROOT . 'lib/core/object.php';
+	require_once ROOT . 'lib/activerecord/helpers.php';
 	require_once ROOT . 'lib/core/accessors/configs.php';
 	require_once ROOT . 'lib/core/core.php';
 }
+
+/*
+ * Patch Active Record helpers
+ */
+ActiveRecord\Helpers::patch('get_model', function($id) {
+
+	return Core::get()->models[$id];
+
+});

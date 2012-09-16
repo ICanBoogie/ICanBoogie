@@ -145,7 +145,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @throws Exception when the module doesn't exists or the class that should be used to create its instance is
 	 * not defined.
-	 * @throws Exception\DisabledModule when the module is disabled.
+	 * @throws ModuleIsDisabled when the module is disabled.
 	 */
 	public function offsetGet($id)
 	{
@@ -174,7 +174,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 
 		if (!empty($descriptor[Module::T_DISABLED]))
 		{
-			throw new Exception\DisabledModule('The module %id is disabled.', array('%id' => $id), 404);
+			throw new ModuleIsDisabled(format('The module %id is disabled.', array('%id' => $id)), 404);
 		}
 
 		$class = $descriptor[Module::T_CLASS];
@@ -604,7 +604,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 			{
 				if (empty($definition[Model::T_CLASS]))
 				{
-					$class = Model::resolve_class_name($namespace, $model_id);
+					$class = $this->resolve_model_class_name($namespace, $model_id);
 					$definition[Model::T_CLASS] = $class;
 				}
 
@@ -624,7 +624,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 			{
 				if (empty($definition[Model::T_ACTIVERECORD_CLASS]))
 				{
-					$class = ActiveRecord::resolve_class_name($id, $model_id);
+					$class = $this->resolve_activerecord_class_name($id, $model_id);
 					$definition[Model::T_ACTIVERECORD_CLASS] = $class;
 				}
 
@@ -812,14 +812,48 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 
 		return $n;
 	}
-}
 
-namespace ICanBoogie\Exception;
+	/**
+	 * Resolves the class name of a model according to the module that defines it and its id.
+	 *
+	 * @param string $namespace Namespace of the module defining the model.
+	 * @param string $model_id The model id.
+	 *
+	 * @return string The resolved class name.
+	 */
+	public function resolve_model_class_name($namespace, $model_id='primary')
+	{
+		return $namespace . '\\' . ($model_id == 'primary' ? '' : normalize_namespace_part($model_id)) . 'Model';
+	}
+
+	/**
+	 * Resolves the class name of an activerecord according to the module and the model that
+	 * define it.
+	 *
+	 * @param string $module_id
+	 * @param string $model_id
+	 *
+	 * @return string The resolved class name.
+	 */
+	public function resolve_activerecord_class_name($module_id, $model_id='primary')
+	{
+		$class = 'ICanBoogie\ActiveRecord\\' . normalize_namespace_part($module_id); // TODO-20120914: use 'ActiveRecords'
+
+		if ($model_id != 'primary')
+		{
+			$class .= '\\' . normalize_namespace_part($model_id);
+		}
+
+		$class = singularize($class);
+
+		return $class;
+	}
+}
 
 /**
  * This exception is thrown when a disabled module is requested.
  */
-class DisabledModule extends \ICanBoogie\Exception
+class ModuleIsDisabled extends \RuntimeException
 {
 
 }

@@ -11,35 +11,19 @@
 
 namespace ICanBoogie;
 
-use ICanBoogie\ActiveRecord\Model;
-
 /**
  * Active Record faciliates the creation and use of business objects whose data require persistent
  * storage via database.
  *
  * @property Model $_model The model managing the active record.
  */
-class ActiveRecord extends Object
+class ActiveRecord extends \ICanBoogie\Object
 {
 	/**
 	 * @var Model The model associated with the ActiveRecord.
 	 */
 	protected $_model;
 	protected $_model_id;
-
-	static public function resolve_class_name($module_id, $model_id='primary')
-	{
-		$class = __CLASS__ . '\\' . normalize_namespace_part($module_id);
-
-		if ($model_id != 'primary')
-		{
-			$class .= '\\' . normalize_namespace_part($model_id);
-		}
-
-		$class = singularize($class);
-
-		return $class;
-	}
 
 	/**
 	 * Initialize the {@link $_model} and {@link $_model_id} properties.
@@ -69,9 +53,17 @@ class ActiveRecord extends Object
 	 *
 	 * @return Model
 	 */
-	protected function get__model()
+	protected function volatile_get__model()
 	{
-		return \ICanBoogie\ActiveRecord\get_model($this->_model_id);
+		return ActiveRecord\get_model($this->_model_id);
+	}
+
+	/**
+	 * @throws OffsetNotWritable in attempt to set the {@link _model} property.
+	 */
+	protected function volatile_set__model()
+	{
+		throw new OffsetNotWritable(array('_model', $this));
 	}
 
 	/**
@@ -125,28 +117,4 @@ class ActiveRecord extends Object
 
 		return $model->delete($this->$primary);
 	}
-}
-
-namespace ICanBoogie\ActiveRecord;
-
-/**
- * Returns the requested model.
- *
- * @param string $id Model identifier.
- *
- * @return Model
- */
-function get_model($id)
-{
-	global $core;
-
-	return $core->models[$id];
-}
-
-/**
- * Generic Active Record exception class.
- */
-class ActiveRecordException extends \Exception
-{
-
 }

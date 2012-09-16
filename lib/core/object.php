@@ -262,10 +262,10 @@ class Object
 	 *
 	 * @param string $property
 	 *
-	 * @throws Exception\PropertyNotReadable when the property has a protected or private scope and
+	 * @throws PropertyNotReadable when the property has a protected or private scope and
 	 * no suitable callback could be found to retrieve its value.
 	 *
-	 * @throws Exception\PropertyNotFound when the property is undefined and there is no suitable
+	 * @throws PropertyNotFound when the property is undefined and there is no suitable
 	 * callback to retrieve its values.
 	 *
 	 * @return mixed The value of the inaccessible property.
@@ -337,7 +337,7 @@ class Object
 
 			if (!$reflexion_property->isPublic())
 			{
-				throw new Exception\PropertyNotReadable(array($property, $this));
+				throw new PropertyNotReadable(array($property, $this));
 			}
 		}
 		catch (\ReflectionException $e) { }
@@ -346,7 +346,7 @@ class Object
 
 		if ($properties)
 		{
-			throw new Exception\PropertyNotFound(format
+			throw new PropertyNotFound(format
 			(
 				'Unknown or inaccessible property %property for object of class %class (available properties: !list).', array
 				(
@@ -357,7 +357,7 @@ class Object
 			));
 		}
 
-		throw new Exception\PropertyNotFound(array($property, $this));
+		throw new PropertyNotFound(array($property, $this));
 	}
 
 	protected function __defer_get($property, &$success)
@@ -432,7 +432,7 @@ class Object
 	 * @param string $property
 	 * @param mixed $value
 	 *
-	 * @throws Exception\PropertyNotWritable if the property is not writable.
+	 * @throws PropertyNotWritable if the property is not writable.
 	 */
 	public function __set($property, $value)
 	{
@@ -474,11 +474,9 @@ class Object
 			$reflection = new \ReflectionObject($this);
 			$property_reflection = $reflection->getProperty($property);
 
-			var_dump(array_keys(get_object_vars($this)));
-
 			if (!$property_reflection->isPublic())
 			{
-				throw new Exception\PropertyNotWritable(array($property, $this));
+				throw new PropertyNotWritable(array($property, $this));
 			}
 		}
 
@@ -544,6 +542,172 @@ class Object
 	public function has_method($method)
 	{
 		return method_exists($this, $method) || isset($this->prototype[$method]);
+	}
+}
+
+/**
+ * Exception thrown when there is something wrong with an object property.
+ *
+ * This is the base class for property exceptions, one should rather use the
+ * {@link PropertyNotFound}, {@link PropertyNotReadable} or {@link PropertyNotWritable}
+ * exceptions.
+ */
+class PropertyError extends \RuntimeException
+{
+
+}
+
+/**
+ * Exception thrown when a property could not be found.
+ *
+ * For example, this could be triggered by an index out of bounds while setting an array value, or
+ * by an unreadable property while getting the value of an object.
+ */
+class PropertyNotFound extends PropertyError
+{
+	public function __construct($message, $code=500, \Exception $previous=null)
+	{
+		if (is_array($message))
+		{
+			list($property, $container) = $message + array(1 => null);
+
+			if (is_object($container))
+			{
+				$message = format
+				(
+					'Unknown property %property for object of class %class.', array
+					(
+						'property' => $property,
+						'class' => get_class($container)
+					)
+				);
+			}
+			else if (is_array($container))
+			{
+				$message = format
+				(
+					'Unknown index %property for the array: !array', array
+					(
+						'property' => $property,
+						'array' => $container
+					)
+				);
+			}
+			else
+			{
+				$message = format
+				(
+					'Unknown property %property.', array
+					(
+						'property' => $property
+					)
+				);
+			}
+		}
+
+		parent::__construct($message, $code, $previous);
+	}
+}
+
+/**
+ * Exception thrown when a property is not readable.
+ *
+ * For example, this could be triggered when a private property is read from a public scope.
+ */
+class PropertyNotReadable extends PropertyError
+{
+	public function __construct($message, $code=500, \Exception $previous=null)
+	{
+		if (is_array($message))
+		{
+			list($property, $container) = $message + array(1 => null);
+
+			if (is_object($container))
+			{
+				$message = format
+				(
+					'The property %property for object of class %class is not readable.', array
+					(
+						'property' => $property,
+						'class' => get_class($container)
+					)
+				);
+			}
+			else if (is_array($container))
+			{
+				$message = format
+				(
+					'The index %property is not readable for the array: !array', array
+					(
+						'property' => $property,
+						'array' => $container
+					)
+				);
+			}
+			else
+			{
+				$message = format
+				(
+					'The property %property is not readable.', array
+					(
+						'property' => $property
+					)
+				);
+			}
+		}
+
+		parent::__construct($message, $code, $previous);
+	}
+}
+
+/**
+ * Thrown when a property is not writable.
+ *
+ * For example, this could be triggered when a private property is written from a public scope.
+ */
+class PropertyNotWritable extends PropertyError
+{
+	public function __construct($message, $code=500, \Exception $previous=null)
+	{
+		if (is_array($message))
+		{
+			list($property, $container) = $message + array(1 => null);
+
+			if (is_object($container))
+			{
+				$message = format
+				(
+					'The property %property for object of class %class is not writable.', array
+					(
+						'property' => $property,
+						'class' => get_class($container)
+					)
+				);
+			}
+			else if (is_array($container))
+			{
+				$message = format
+				(
+					'The index %property is not writable for the array: !array', array
+					(
+						'property' => $property,
+						'array' => $container
+					)
+				);
+			}
+			else
+			{
+				$message = format
+				(
+					'The property %property is not writable.', array
+					(
+						'property' => $property
+					)
+				);
+			}
+		}
+
+		parent::__construct($message, $code, $previous);
 	}
 }
 

@@ -12,6 +12,7 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Exception;
+use ICanBoogie\PropertyNotWritable;
 
 /**
  * The response to a HTTP request.
@@ -616,11 +617,11 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_valid}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_valid}.
 	 */
 	protected function volatile_set_is_valid()
 	{
-		throw new Exception\PropertyNotWritable(array('is_valid', $this));
+		throw new PropertyNotWritable(array('is_valid', $this));
 	}
 
 	/**
@@ -638,11 +639,11 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to wrtie {@link $is_informational}.
+	 * @throws PropertyNotWritable in attempt to wrtie {@link $is_informational}.
 	 */
 	protected function volatile_set_is_informational()
 	{
-		throw new Exception\PropertyNotWritable(array('is_informational', $this));
+		throw new PropertyNotWritable(array('is_informational', $this));
 	}
 
 	/**
@@ -660,11 +661,11 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_successful}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_successful}.
 	 */
 	protected function volatile_set_is_successful()
 	{
-		throw new Exception\PropertyNotWritable(array('is_successful', $this));
+		throw new PropertyNotWritable(array('is_successful', $this));
 	}
 
 	/**
@@ -683,11 +684,11 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_redirection}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_redirection}.
 	 */
 	protected function volatile_set_is_redirection()
 	{
-		throw new Exception\PropertyNotWritable(array('is_redirection', $this));
+		throw new PropertyNotWritable(array('is_redirection', $this));
 	}
 
 	/**
@@ -706,11 +707,11 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_client_error}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_client_error}.
 	 */
 	protected function volatile_set_is_client_error()
 	{
-		throw new Exception\PropertyNotWritable(array('is_client_error', $this));
+		throw new PropertyNotWritable(array('is_client_error', $this));
 	}
 
 	/**
@@ -729,11 +730,11 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_server_error}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_server_error}.
 	 */
 	protected function volatile_set_is_server_error()
 	{
-		throw new Exception\PropertyNotWritable(array('is_server_error', $this));
+		throw new PropertyNotWritable(array('is_server_error', $this));
 	}
 
 	/**
@@ -751,11 +752,11 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_ok}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_ok}.
 	 */
 	protected function volatile_set_is_ok()
 	{
-		throw new Exception\PropertyNotWritable(array('is_ok', $this));
+		throw new PropertyNotWritable(array('is_ok', $this));
 	}
 
 	/**
@@ -773,11 +774,11 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to wrtie {@link $is_forbidden}.
+	 * @throws PropertyNotWritable in attempt to wrtie {@link $is_forbidden}.
 	 */
 	protected function volatile_set_is_forbidden()
 	{
-		throw new Exception\PropertyNotWritable(array('is_forbidden', $this));
+		throw new PropertyNotWritable(array('is_forbidden', $this));
 	}
 
 	/**
@@ -795,11 +796,11 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_not_found}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_not_found}.
 	 */
 	protected function volatile_set_is_not_found()
 	{
-		throw new Exception\PropertyNotWritable(array('is_not_found', $this));
+		throw new PropertyNotWritable(array('is_not_found', $this));
 	}
 
 	/**
@@ -817,11 +818,11 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link is_empty}.
+	 * @throws PropertyNotWritable in attempt to write {@link is_empty}.
 	 */
 	protected function volatile_set_is_empty()
 	{
-		throw new Exception\PropertyNotWritable(array('is_empty', $this));
+		throw new PropertyNotWritable(array('is_empty', $this));
 	}
 
 	/**
@@ -836,11 +837,11 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_validateable}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_validateable}.
 	 */
 	protected function volatile_set_is_validateable()
 	{
-		throw new Exception\PropertyNotWritable(array('is_validateable', $this));
+		throw new PropertyNotWritable(array('is_validateable', $this));
 	}
 
 	/**
@@ -870,11 +871,11 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_cacheable}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_cacheable}.
 	 */
 	protected function volatile_set_is_cacheable()
 	{
-		throw new Exception\PropertyNotWritable(array('is_cacheable', $this));
+		throw new PropertyNotWritable(array('is_cacheable', $this));
 	}
 
 	/**
@@ -888,18 +889,24 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_fresh}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_fresh}.
 	 */
 	protected function volatile_set_is_fresh()
 	{
-		throw new Exception\PropertyNotWritable(array('is_fresh', $this));
+		throw new PropertyNotWritable(array('is_fresh', $this));
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write an unsupported property.
+	 * @throws PropertyNotWritable in attempt to write an unsupported property.
+	 *
+	 * Check the following:
+	 *
+	 * - status_message is not writeable.
 	 */
+	/*
 	protected function last_chance_set($property, $value, &$success)
 	{
-		throw new Exception\PropertyNotWritable(array($property, $this));
+		throw new PropertyNotWritable(array($property, $this));
 	}
+	*/
 }

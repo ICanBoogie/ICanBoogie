@@ -12,6 +12,7 @@
 namespace ICanBoogie\HTTP;
 
 use ICanBoogie\Exception;
+use ICanBoogie\PropertyNotWritable;
 use ICanBoogie\Object;
 use ICanBoogie\Operation;
 
@@ -220,9 +221,9 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 * {@link $request_params} are set to empty arrays. The provided parameters are set to the
 	 * {@link $params} property.
 	 *
-	 * @return Response The response to the request.
+	 * Note: If an exception is thrown during dispatch {@link $current_request} is not updated!
 	 *
-	 * @throws \Exception
+	 * @return Response The response to the request.
 	 */
 	public function __invoke($method=null, $params=null)
 	{
@@ -245,21 +246,9 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 
 		self::$current_request = $this;
 
-		try
-		{
-			$response = dispatch($this);
-		}
-		catch (\Exception $e) { }
+		$response = dispatch($this);
 
-// 		if ($this->previous) // TODO-20120831: This is a workaround
-		{
-			self::$current_request = $this->previous;
-		}
-
-		if (isset($e))
-		{
-			throw $e;
-		}
+		self::$current_request = $this->previous;
 
 		return $response;
 	}
@@ -453,11 +442,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_delete}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_delete}.
 	 */
 	protected function volatile_set_is_delete()
 	{
-		throw new Exception\PropertyNotWritable(array('is_delete', $this));
+		throw new PropertyNotWritable(array('is_delete', $this));
 	}
 
 	/**
@@ -471,11 +460,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_get}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_get}.
 	 */
 	protected function volatile_set_is_get()
 	{
-		throw new Exception\PropertyNotWritable(array('is_get', $this));
+		throw new PropertyNotWritable(array('is_get', $this));
 	}
 
 	/**
@@ -489,11 +478,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_head}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_head}.
 	 */
 	protected function volatile_set_is_head()
 	{
-		throw new Exception\PropertyNotWritable(array('is_head', $this));
+		throw new PropertyNotWritable(array('is_head', $this));
 	}
 
 	/**
@@ -507,11 +496,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_options}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_options}.
 	 */
 	protected function volatile_set_is_options()
 	{
-		throw new Exception\PropertyNotWritable(array('is_options', $this));
+		throw new PropertyNotWritable(array('is_options', $this));
 	}
 
 	/**
@@ -525,11 +514,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_patch.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_patch.
 	 */
 	protected function volatile_set_is_patch()
 	{
-		throw new Exception\PropertyNotWritable(array('is_patch', $this));
+		throw new PropertyNotWritable(array('is_patch', $this));
 	}
 
 	/**
@@ -543,11 +532,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_post}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_post}.
 	 */
 	protected function volatile_set_is_post()
 	{
-		throw new Exception\PropertyNotWritable(array('is_post', $this));
+		throw new PropertyNotWritable(array('is_post', $this));
 	}
 
 	/**
@@ -561,11 +550,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_put}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_put}.
 	 */
 	protected function volatile_set_is_put()
 	{
-		throw new Exception\PropertyNotWritable(array('is_put', $this));
+		throw new PropertyNotWritable(array('is_put', $this));
 	}
 
 	/**
@@ -579,11 +568,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_trace}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_trace}.
 	 */
 	protected function volatile_set_is_trace()
 	{
-		throw new Exception\PropertyNotWritable(array('is_trace', $this));
+		throw new PropertyNotWritable(array('is_trace', $this));
 	}
 
 	/**
@@ -597,11 +586,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_xhr}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_xhr}.
 	 */
 	protected function volatile_set_is_xhr()
 	{
-		throw new Exception\PropertyNotWritable(array('is_xhr', $this));
+		throw new PropertyNotWritable(array('is_xhr', $this));
 	}
 
 	/**
@@ -615,11 +604,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_local}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_local}.
 	 */
 	protected function volatile_set_is_local()
 	{
-		throw new Exception\PropertyNotWritable(array('is_local', $this));
+		throw new PropertyNotWritable(array('is_local', $this));
 	}
 
 	/**
@@ -652,11 +641,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $ip}.
+	 * @throws PropertyNotWritable in attempt to write {@link $ip}.
 	 */
 	protected function volatile_set_ip()
 	{
-		throw new Exception\PropertyNotWritable(array('ip', $this));
+		throw new PropertyNotWritable(array('ip', $this));
 	}
 
 	/**
@@ -686,11 +675,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $authorization}.
+	 * @throws PropertyNotWritable in attempt to write {@link $authorization}.
 	 */
 	protected function volatile_set_authorization()
 	{
-		throw new Exception\PropertyNotWritable(array('authorization', $this));
+		throw new PropertyNotWritable(array('authorization', $this));
 	}
 
 	protected function volatile_get_authorization()
@@ -760,11 +749,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $path}.
+	 * @throws PropertyNotWritable in attempt to write {@link $path}.
 	 */
 	protected function volatile_set_path()
 	{
-		throw new Exception\PropertyNotWritable(array('path', $this));
+		throw new PropertyNotWritable(array('path', $this));
 	}
 
 	/**
@@ -786,11 +775,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $normalized_path}
+	 * @throws PropertyNotWritable in attempt to write {@link $normalized_path}
 	 */
 	protected function volatile_set_normalized_path()
 	{
-		throw new Exception\PropertyNotWritable(array('normalized_path', $this));
+		throw new PropertyNotWritable(array('normalized_path', $this));
 	}
 
 	/**
@@ -805,11 +794,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $extension}.
+	 * @throws PropertyNotWritable in attempt to write {@link $extension}.
 	 */
 	protected function volatile_set_extension()
 	{
-		throw new Exception\PropertyNotWritable(array('extension', $this));
+		throw new PropertyNotWritable(array('extension', $this));
 	}
 
 	/**
@@ -841,17 +830,19 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write an unsupported property.
+	 * @throws PropertyNotWritable in attempt to write an unsupported property.
 	 */
 	/*
 	protected function last_chance_set($property, $value, &$success)
 	{
-		throw new Exception\PropertyNotWritable(array($property, $this));
+		throw new PropertyNotWritable(array($property, $this));
 	}
 	*/
 }
 
 namespace ICanBoogie\HTTP\Request;
+
+use ICanBoogie\PropertyNotWritable;
 
 /**
  * The context of a request.
@@ -884,11 +875,11 @@ class Context extends \ICanBoogie\Object
 	}
 
 	/**
-	 * @throws \ICanBoogie\Exception\PropertyNotWritable in attempt to write {@link $request}
+	 * @throws PropertyNotWritable in attempt to write {@link $request}
 	 */
 	protected function volatile_set_request()
 	{
-		throw new \ICanBoogie\Exception\PropertyNotWritable(array('request', $this));
+		throw new PropertyNotWritable(array('request', $this));
 	}
 
 	/**

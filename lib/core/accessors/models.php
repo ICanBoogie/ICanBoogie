@@ -11,10 +11,14 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\ActiveRecord\Connections;
+
 /**
- * Accessor for the modules models.
+ * Models manager.
+ *
+ * Extends the ActiveRecord manager to handle module defined models.
  */
-class Models implements \ArrayAccess
+class Models extends \ICanBoogie\ActiveRecord\Models
 {
 	/**
 	 * The modules accessor.
@@ -24,58 +28,39 @@ class Models implements \ArrayAccess
 	protected $modules;
 
 	/**
-	 * Loaded models.
+	 * Initializes the {@link $modules} property.
 	 *
-	 * @var array[string]ActiveRecord\Model
+	 * @param Connections $connections Connections manager.
+	 * @param array $definitions Model definitions.
+	 * @param Modules $modules Modules manager.
 	 */
-	protected $models = array();
-
-	/**
-	 * Constructor.
-	 *
-	 * @param Modules $modules A modules accessor.
-	 */
-	public function __construct(Modules $modules)
+	public function __construct(Connections $connections, array $definitions, Modules $modules)
 	{
 		$this->modules = $modules;
+
+		parent::__construct($connections, $definitions);
 	}
 
 	/**
 	 * Checks if a model exists by first checking if the module it belongs to is enabled and that
 	 * it actually defines the model.
 	 *
-	 * @param mixed $offset
+	 * @param mixed $id
 	 *
-	 * @return bool `true` if the model exists and is accessible, `false` otherwise.
+	 * @return bool
 	 */
-	public function offsetExists($offset)
+	public function offsetExists($id)
 	{
-		list($module_id, $model_id) = explode('/', $offset) + array(1 => 'primary');
+		list($module_id, $model_id) = explode('/', $id) + array(1 => 'primary');
 
 		if (!isset($this->modules[$module_id]))
 		{
-			return false;
+			return parent::offsetExists($id);
 		}
 
 		$descriptor = $this->modules->descriptors[$module_id];
 
 		return isset($descriptor[Module::T_MODELS][$model_id]);
-	}
-
-	/**
-	 * @throws Exception\OffsetNotWritable in attempt to write.
-	 */
-	public function offsetSet($offset, $value)
-	{
-		throw new Exception\OffsetNotWritable(array($offset, $this));
-	}
-
-	/**
-	 * @throws Exception\OffsetNotWritable in attempt to unset.
-	 */
-	public function offsetUnset($offset)
-	{
-		throw new Exception\OffsetNotWritable(array($offset, $this));
 	}
 
 	/**
@@ -85,19 +70,24 @@ class Models implements \ArrayAccess
 	 * the identifier of the module and `<model_id>` is the identifier of the module's model. The
 	 * `<model_id>` part is optional and defaults to `primary`.
 	 *
-	 * @param mixed $offset The identifier of the model.
+	 * @param mixed $id Identifier of the model.
 	 *
-	 * @return ActiveRecord\Model The model for the specified offset.
+	 * @return ActiveRecord\Model
 	 */
-	public function offsetGet($offset)
+	public function offsetGet($id)
 	{
-		if (empty($this->models[$offset]))
+		if (isset($this->instances[$id]))
 		{
-			list($module_id, $model_id) = explode('/', $offset) + array(1 => 'primary');
-
-			$this->models[$offset] = $this->modules[$module_id]->model($model_id);
+			return $this->instances[$id];
 		}
 
-		return $this->models[$offset];
+		list($module_id, $model_id) = explode('/', $id) + array(1 => 'primary');
+
+		if (!isset($this->modules[$module_id]))
+		{
+			return parent::offsetGet($id);
+		}
+
+		return $this->instances[$id] = $this->modules[$module_id]->model($model_id);
 	}
 }

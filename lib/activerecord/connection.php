@@ -9,14 +9,23 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie;
+namespace ICanBoogie\ActiveRecord;
 
-use ICanBoogie\Exception;
+use ICanBoogie\PropertyNotFound;
 
-class Database extends \PDO
+/**
+ * Connection to a databse.
+ *
+ * @property-read string $charset
+ * @property-read string $collate
+ * @property-read string $driver_name
+ * @property-read string $id
+ * @property-read string $table_name_prefix
+ */
+class Connection extends \PDO
 {
 	const T_ID = '#id';
-	const T_PREFIX = '#prefix';
+	const T_TABLE_NAME_PREFIX = '#prefix';
 	const T_CHARSET = '#charset';
 	const T_COLLATE = '#collate';
 	const T_TIMEZONE = '#timezone';
@@ -26,35 +35,39 @@ class Database extends \PDO
 	 *
 	 * @var string
 	 */
-	public $id;
+	protected $id;
 
 	/**
-	 * Prefix for the database tables.
+	 * Prefix to prepend to every table name.
+	 *
+	 * So if set to "dev", all table names will be named like "dev_nodes", "dev_contents", etc.
+	 * This is a convenient way of creating a namespace for tables in a shared database.
+	 * By default, the prefix is the empty string.
 	 *
 	 * @var string
 	 */
-	public $prefix;
+	protected $table_name_prefix = '';
 
 	/**
 	 * Charset for the connection. Also used to specify the charset while creating tables.
 	 *
 	 * @var string
 	 */
-	public $charset = 'utf8';
+	protected $charset = 'utf8';
 
 	/**
 	 * Used to specify the collate while creating tables.
 	 *
 	 * @var string
 	 */
-	public $collate = 'utf8_general_ci';
+	protected $collate = 'utf8_general_ci';
 
 	/**
 	 * Driver name for the connection.
 	 *
 	 * @var string
 	 */
-	public $driver_name;
+	protected $driver_name;
 
 	/**
 	 * The number of database queries and executions, used for statistics purpose.
@@ -76,7 +89,7 @@ class Database extends \PDO
 	 * Custom options can be specified using the driver-specific connection options:
 	 *
 	 * - T_ID: Connection identifier.
-	 * - T_PREFIX: Prefix for the database tables.
+	 * - T_TABLE_NAME_PREFIX: Prefix for the database tables.
 	 * - T_CHARSET and T_COLLATE: Charset and collate used for the connection to the database,
 	 * and to create tables.
 	 * - T_TIMEZONE: Timezone for the connection.
@@ -102,7 +115,7 @@ class Database extends \PDO
 			switch ($option)
 			{
 				case self::T_ID: $this->id = $value; break;
-				case self::T_PREFIX: $this->prefix = $value ? $value . '_' : null; break;
+				case self::T_TABLE_NAME_PREFIX: $this->table_name_prefix = $value ? $value . '_' : null; break;
 				case self::T_CHARSET: $this->charset = $value; $this->collate = null; break;
 				case self::T_COLLATE: $this->collate = $value; break;
 				case self::T_TIMEZONE: $timezone = $value; break;
@@ -120,20 +133,36 @@ class Database extends \PDO
 
 			$options += array
 			(
-				self::MYSQL_ATTR_INIT_COMMAND => $init_command,
-				//self::MYSQL_ATTR_DIRECT_QUERY => true
+				self::MYSQL_ATTR_INIT_COMMAND => $init_command
 			);
 		}
 
 		parent::__construct($dsn, $username, $password, $options);
 
 		$this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION);
-		$this->setAttribute(self::ATTR_STATEMENT_CLASS, array('ICanBoogie\Database\Statement'));
+		$this->setAttribute(self::ATTR_STATEMENT_CLASS, array('ICanBoogie\ActiveRecord\Statement'));
 
 		if ($driver_name == 'oci')
 		{
 			$this->exec("ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD'");
 		}
+	}
+
+	public function __get($property)
+	{
+		switch ($property)
+		{
+			case 'charset':
+			case 'collate':
+			case 'driver_name':
+			case 'id':
+			case 'table_name_prefix':
+				return $this->$property;
+			case 'prefix': // COMPAT-20120913
+				return $this->table_name_prefix;
+		}
+
+		throw new PropertyNotFound(array($property, $this));
 	}
 
 	/**
@@ -162,13 +191,13 @@ class Database extends \PDO
 		{
 			$er = array_pad($this->errorInfo(), 3, '');
 
-			throw new Exception
+			throw new StatementInvalid(\ICanboogie\format
 			(
 				'SQL error: \1(\2) <code>\3</code> &mdash; <code>%query</code>', array
 				(
 					$er[0], $er[1], $er[2], '%query' => $statement
 				)
-			);
+			));
 		}
 
 		$statement->connection = $this;
@@ -201,7 +230,7 @@ class Database extends \PDO
 	 * Overrides the method to resolve the statement before actually execute it.
 	 *
 	 * The execution of the statement is wrapped in a try/catch block. If an exception of class
-	 * \PDOException is caught, an exception of class {@link ICanBoogie\Exception} is thrown with additional
+	 * \PDOException is caught, an exception of class {@link StatementInvalid} is thrown with additional
 	 * information about the error.
 	 *
 	 * Using this method increments the `queries_by_connection` stat.
@@ -222,13 +251,13 @@ class Database extends \PDO
 		{
 			$er = array_pad($this->errorInfo(), 3, '');
 
-			throw new Exception
+			throw new StatementInvalid(\ICanBoogie\format
 			(
 				'SQL error: \1(\2) <code>\3</code> &mdash; <code>\4</code>', array
 				(
 					$er[0], $er[1], $er[2], $statement
 				)
-			);
+			));
 		}
 	}
 
@@ -260,11 +289,13 @@ class Database extends \PDO
 	}
 
 	/**
-	 * Replaces placeholders with their value. The following placeholders are supported:
+	 * Replaces placeholders with their value.
 	 *
-	 * - {prefix}: replaced by the value of the `#prefix` construct option.
-	 * - {charset}: replaced by the value of the `#charset` construct option.
-	 * - {collate}: replaced by the value of the `#collate` construct option.
+	 * The following placeholders are supported:
+	 *
+	 * - {prefix}: replaced by the {@link $table_name_prefix} property.
+	 * - {charset}: replaced by the {@link $charset} property.
+	 * - {collate}: replaced by the {@link $collate} property.
 	 *
 	 * @param string $statement
 	 *
@@ -276,7 +307,7 @@ class Database extends \PDO
 		(
 			$statement, array
 			(
-				'{prefix}' => $this->prefix,
+				'{prefix}' => $this->table_name_prefix,
 				'{charset}' => $this->charset,
 				'{collate}' => $this->collate
 			)
@@ -548,14 +579,14 @@ class Database extends \PDO
 
 				default:
 				{
-					throw new Exception
+					throw new \Exception(\ICanBoogie\format
 					(
 						'Unsupported type %type for row %identifier', array
 						(
 							'%type' => $type,
 							'%identifier' => $identifier
 						)
-					);
+					));
 				}
 				break;
 			}
@@ -596,9 +627,8 @@ class Database extends \PDO
 				}
 				else if ($driver_name == 'sqlite')
 				{
-					$definition .= ' PRIMARY KEY';
-
-					unset($schema['primary']);
+// 					$definition .= ' PRIMARY KEY';
+// 					unset($schema['primary']);
 				}
 			}
 			else if (!empty($params['unique']))
@@ -725,181 +755,4 @@ class Database extends \PDO
 			$this->exec('OPTIMIZE TABLE ' . implode(', ', $tables));
 		}
 	}
-}
-
-namespace ICanBoogie\Database;
-
-use ICanBoogie\Exception;
-
-/**
- * A database statement.
- */
-class Statement extends \PDOStatement
-{
-	/**
-	 * The database connection that created this statement.
-	 *
-	 * @var \ICanBoogie\Database
-	 */
-	public $connection;
-
-	/**
-	 * Alias of {@link execute()}.
-	 */
-	public function __invoke(array $args=array())
-	{
-		return $this->execute($args);
-	}
-
-	/**
-	 * Dispatch magic properties `all` and `one`.
-	 *
-	 * @param string $property
-	 *
-	 * @return mixed
-	 *
-	 * @throws Exception\PropertyNotFound if one tries to get a property that is not supported.
-	 */
-	public function __get($property)
-	{
-		switch ($property)
-		{
-			case 'all': return $this->fetchAll();
-			case 'one': return $this->fetchAndClose();
-		}
-
-		throw new Exception\PropertyNotFound(array($property, $this));
-	}
-
-	/**
-	 * Executes the statement and increments the connection queries count.
-	 *
-	 * @throws ExecutionException if the execution of the statement failed.
-	 *
-	 * @see PDOStatement::execute()
-	 */
-	public function execute($args=array())
-	{
-		$start = microtime(true);
-
-		if (!empty($this->connection))
-		{
-			$this->connection->queries_count++;
-		}
-
-		try
-		{
-			$this->connection->profiling[] = array(microtime(true) - $start, $this->queryString . ' ' . json_encode($args));
-
-			return parent::execute($args);
-		}
-		catch (\PDOException $e)
-		{
-			$er = array_pad($this->errorInfo(), 3, '');
-
-			throw new ExecutionException(\ICanBoogie\format
-			(
-				'SQL error: \1(\2) <code>\3</code> &mdash; <code>%query</code>\5', array
-				(
-					$er[0], $er[1], $er[2], '%query' => $this->queryString, $args
-				)
-			));
-		}
-	}
-
-	/**
-	 * Fetches the first row of the result set and closes the cursor.
-	 *
-	 * @param int $fetch_style[optional]
-	 * @param int $cursor_orientation[optional]
-	 * @param int $cursor_offset[optional]
-	 *
-	 * @return mixed
-	 *
-	 * @see PDOStatement::fetch()
-	 */
-	public function fetchAndClose($fetch_style=\PDO::FETCH_BOTH, $cursor_orientation=\PDO::FETCH_ORI_NEXT, $cursor_offset=0)
-	{
-		$args = func_get_args();
-		$rc = call_user_func_array(array($this, 'parent::fetch'), $args);
-
-		$this->closeCursor();
-
-		return $rc;
-	}
-
-	/**
-	 * Fetches a column of the first row of the result set and closes the cursor.
-	 *
-	 * @param int $column_number
-	 *
-	 * @return string
-	 *
-	 * @see PDOStatement::fetchColumn()
-	 */
-	public function fetchColumnAndClose($column_number=0)
-	{
-		$rc = parent::fetchColumn($column_number);
-
-		$this->closeCursor();
-
-		return $rc;
-	}
-
-	/**
-	 * Returns an array containing all of the result set rows (FETCH_LAZY supported)
-	 *
-	 * @param int $fetch_style
-	 * @param mixed $fetch_argument[optional]
-	 * @param array $ctor_args[optional]
-	 *
-	 * @return array
-	 */
-	public function fetchGroups($fetch_style, $fetch_argument=null, array $ctor_args=array())
-	{
-		$args = func_get_args();
-		$rc = array();
-
-		if($fetch_style === \PDO::FETCH_LAZY)
-		{
-			call_user_func_array(array($this, 'setFetchMode'), $args);
-
-			foreach($this as $row)
-			{
-				$rc[$row[0]][] = $row;
-			}
-
-			return $rc;
-		}
-
-		$args[0] = \PDO::FETCH_GROUP | $fetch_style;
-
-		$rc = call_user_func_array(array($this, 'parent::fetchAll'), $args);
-
-		return $rc;
-	}
-
-	/**
-	 * Alias for {@link \PDOStatement::fetchAll()}
-	 */
-	public function all($fetch_style=null, $column_index=null, array $ctor_args=null)
-	{
-		return call_user_func_array(array($this, 'fetchAll'), func_get_args());
-	}
-}
-
-/**
- * Exception thrown when a connection to a database could not be established.
- */
-class ConnectionException extends \RuntimeException
-{
-
-}
-
-/**
- * Exception thrown when an statement execution failed because of an error.
- */
-class ExecutionException extends \RuntimeException
-{
-
 }

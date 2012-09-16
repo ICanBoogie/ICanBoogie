@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie;
+namespace ICanBoogie\ActiveRecord;
 
 use ICanBoogie\Exception;
 
 /**
  * @property array $extended_schema Extended schema of the table.
  */
-class DatabaseTable extends Object
+class Table extends \ICanBoogie\Object
 {
 	const T_ALIAS = 'alias';
 	const T_CONNECTION = 'connection';
@@ -77,9 +77,10 @@ class DatabaseTable extends Object
 	 * The parent is used when the table is in a hierarchy, which is the case if the table
 	 * extends another table.
 	 *
-	 * @var DatabaseTable
+	 * @var Table
 	 */
 	protected $parent;
+
 	protected $implements = array();
 
 	/**
@@ -237,9 +238,9 @@ class DatabaseTable extends Object
 
 				$table = $implement['table'];
 
-				if (!($table instanceof DatabaseTable))
+				if (!($table instanceof Table))
 				{
-					throw new Exception('Implement must be an instance of ICanBoogie\DatabaseTable: \1', array(get_class($table)));
+					throw new Exception('Implement must be an instance of ICanBoogie\ActiveRecord\Table: \1', array(get_class($table)));
 				}
 
 				$name = $table->name;

@@ -351,6 +351,43 @@ abstract class Operation extends Object
 		return $namespace . '\\' . ucfirst(camelize(strtr($operation_name, '_', '-'))) . 'Operation';
 	}
 
+	/**
+	 * Dispatches a request.
+	 *
+	 * @param Request $request
+	 * @return Response|null
+	 */
+	static public function dispatch_request(Request $request)
+	{
+		$operation = static::from($request);
+
+		if (!$operation)
+		{
+			return;
+		}
+
+		$response = $operation($request);
+
+		#
+		# If the response is an error and the request is not XHR we allow the
+		# dispatch to continue, one hook might display an error message.
+		#
+
+		$is_api_operation = strpos($request->path, '/api/') === 0;
+
+		if ($response && ($response->is_client_error || $response->is_server_error) && !$request->is_xhr)
+		{
+			return $is_api_operation ? $response : null;
+		}
+
+		if (!$response && $is_api_operation)
+		{
+			$response = new \HTTP\Response(404);
+		}
+
+		return $response;
+	}
+
 	public $key;
 	public $destination;
 

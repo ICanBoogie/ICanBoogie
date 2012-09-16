@@ -11,6 +11,9 @@
 
 namespace ICanBoogie\HTTP;
 
+use ICanBoogie\PropertyNotReadable;
+use ICanBoogie\PropertyNotWritable;
+
 /**
  * HTTP Header Field Definitions.
  *
@@ -355,6 +358,11 @@ class DateTime extends \DateTime
 			$timezone = self::get_utc_time_zone();
 		}
 
+		if (!$timezone)
+		{
+			$timezone = self::get_utc_time_zone();
+		}
+
 		parent::__construct($time, $timezone);
 
 		$this->setTimezone(self::get_utc_time_zone());
@@ -370,7 +378,7 @@ class DateTime extends \DateTime
 			case 'timezone': return $this->getTimezone();
 		}
 
-		throw new Exception\PropertyNotReadable(array($property, $this));
+		throw new PropertyNotReadable(array($property, $this));
 	}
 
 	public function __set($property, $value)
@@ -382,7 +390,7 @@ class DateTime extends \DateTime
 			case 'time': call_user_func_array(array($this, 'setTime'), $value);
 			case 'timestamp': $this->setTimestamp($value);
 			case 'timezone': $this->setTimezone($value);
-			default: throw new Exception\PropertyNotWritable(array($property, $this));
+			default: throw new PropertyNotWritable(array($property, $this));
 		}
 	}
 

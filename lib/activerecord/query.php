@@ -12,7 +12,6 @@
 namespace ICanBoogie\ActiveRecord;
 
 use ICanBoogie\Object;
-use ICanBoogie\ActiveRecord;
 
 /**
  * This class is used to query models, it helps to compose SQL queries and offers a lot of features
@@ -88,15 +87,15 @@ class Query extends Object implements \IteratorAggregate
 	}
 
 	/**
-	 * Override the method to handle magic 'find_by_' methods.
+	 * Override the method to handle magic 'filter_by_' methods.
 	 *
 	 * @see ICanBoogie.Object::__call()
 	 */
 	public function __call($method, $arguments)
 	{
-		if (strpos($method, 'find_by_') === 0)
+		if (strpos($method, 'filter_by_') === 0)
 		{
-			return $this->defered_dynamic_finder(substr($method, 8), $arguments); // 8 is for: strlen('find_by_')
+			return $this->defered_dynamic_filter(substr($method, 10), $arguments); // 10 is for: strlen('filter_by_')
 		}
 
 		$scopes = $this->get_model_scope();
@@ -191,11 +190,9 @@ class Query extends Object implements \IteratorAggregate
 	 */
 	public function joins($expression)
 	{
-		global $core;
-
 		if ($expression{0} == ':')
 		{
-			$model = $core->models[substr($expression, 1)];
+			$model = get_model(substr($expression, 1));
 			$expression = $model->resolve_statement('INNER JOIN `{self}` AS `{alias}` USING(`{primary}`)');
 		}
 
@@ -211,8 +208,6 @@ class Query extends Object implements \IteratorAggregate
 	 */
 	private function defered_parse_conditions()
 	{
-		global $core;
-
 		$trace = debug_backtrace(false);
 		$args = $trace[1]['args'];
 
@@ -275,9 +270,9 @@ class Query extends Object implements \IteratorAggregate
 		return array($conditions ? '(' . $conditions . ')' : null, $conditions_args);
 	}
 
-	private function defered_dynamic_finder($finder, array $conditions_args=array())
+	private function defered_dynamic_filter($filter, array $conditions_args=array())
 	{
-		$conditions = explode('_and_', $finder);
+		$conditions = explode('_and_', $filter);
 
 		return $this->where(array_combine($conditions, $conditions_args));
 	}
@@ -570,9 +565,9 @@ class Query extends Object implements \IteratorAggregate
 		{
 			$args = array(\PDO::FETCH_ASSOC);
 		}
-		else if ($this->model->ar_class)
+		else if ($this->model->activerecord_class)
 		{
-			$args = array(\PDO::FETCH_CLASS, $this->model->ar_class, array($this->model));
+			$args = array(\PDO::FETCH_CLASS, $this->model->activerecord_class, array($this->model));
 		}
 		else
 		{

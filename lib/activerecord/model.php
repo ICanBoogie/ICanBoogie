@@ -11,19 +11,20 @@
 
 namespace ICanBoogie\ActiveRecord;
 
-use ICanBoogie\Module;
 use ICanBoogie\Exception;
-use ICanBoogie\ActiveRecord;
-use ICanBoogie\ActiveRecord\Query;
+use ICanBoogie\Module;
+use ICanBoogie\OffsetNotWritable;
+use ICanBoogie\PropertyNotWritable;
 
 /**
  * Base class for activerecord models.
  *
+ * @property-read string $activerecord_class Class of the active records of the model.
  * @property-read int $count The number of records of the model.
  * @property-read bool $exists Whether the SQL table associated with the model exists.
  * @property-read string $id The identifier of the model.
  */
-class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
+class Model extends Table implements \ArrayAccess
 {
 	const T_CLASS = 'class';
 	const T_ACTIVERECORD_CLASS = 'activerecord-class';
@@ -32,7 +33,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	/**
 	 * @var string Name of the class to use to created active record instances.
 	 */
-	public $ar_class;
+	protected $activerecord_class;
 
 	protected $attributes;
 
@@ -45,7 +46,8 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	 * {@link T_EXTENDS} is set to the parent model object. If {@link T_ACTIVERECORD_CLASS} is
 	 * empty, its value is set to the extended model's active record class.
 	 *
-	 * If {@link T_ACTIVERECORD_CLASS} is set, its value is saved in the `ar_class` property.
+	 * If {@link T_ACTIVERECORD_CLASS} is set, its value is saved in the
+	 * {@link $activerecord_class} property.
 	 *
 	 * @param array $tags Tags used to construct the model.
 	 */
@@ -61,8 +63,13 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 
 			if (empty($tags[self::T_ACTIVERECORD_CLASS]))
 			{
-				$tags[self::T_ACTIVERECORD_CLASS] = $extends->ar_class;
+				$tags[self::T_ACTIVERECORD_CLASS] = $extends->activerecord_class;
 			}
+		}
+
+		if (empty($tags[self::T_ID]))
+		{
+			$tags[self::T_ID] = $tags[self::T_NAME];
 		}
 
 		parent::__construct($tags);
@@ -73,25 +80,34 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 
 		if ($this->parent)
 		{
-			$this->ar_class = $this->parent->ar_class;
+			$this->activerecord_class = $this->parent->activerecord_class;
 		}
 
 		if (isset($tags[self::T_ACTIVERECORD_CLASS]))
 		{
-			$this->ar_class = $tags[self::T_ACTIVERECORD_CLASS];
+			$this->activerecord_class = $tags[self::T_ACTIVERECORD_CLASS];
 		}
 
 		$this->attributes = $tags;
 	}
 
 	/**
-	 * Override the method to handle dynamic finders.
+	 * Overrides the method to handle dynamic finders and scopes.
 	 *
 	 * @see Object::__call()
 	 */
 	public function __call($method, $arguments)
 	{
-		if (preg_match('#^find_by_#', $method))
+		if (strpos($method, 'filter_by_') === 0)
+		{
+			$arq = new Query($this);
+
+			return call_user_func_array(array($arq, $method), $arguments);
+		}
+
+		$callback = 'scope_' . $method;
+
+		if (method_exists($this, $callback))
 		{
 			$arq = new Query($this);
 
@@ -102,7 +118,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	}
 
 	/**
-	 * Override the method to handle scopes.
+	 * Overrides the method to handle scopes.
 	 */
 	public function __get($property)
 	{
@@ -129,11 +145,21 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in appenpt to write {@link $id}
+	 * @throws PropertyNotWritable in appenpt to write {@link $id}
 	 */
 	protected function volatile_set_id()
 	{
-		throw new Exception\PropertyNotWritable(array('id', $this));
+		throw new PropertyNotWritable(array('id', $this));
+	}
+
+	/**
+	 * Returns the class of the active records of the model.
+	 *
+	 * @return string
+	 */
+	protected function volatile_get_activerecord_class()
+	{
+		return $this->activerecord_class;
 	}
 
 	/**
@@ -141,7 +167,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	 *
 	 * @param mixed $key A key or an array of keys.
 	 *
-	 * @throws Exception\MissingRecord when the record, or one or more records of the records
+	 * @throws RecordNotFound when the record, or one or more records of the records
 	 * set, could not be found.
 	 *
 	 * @return ActiveRecord|array A record or a set of records.
@@ -190,15 +216,15 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 			{
 				if (count($missing) > 1)
 				{
-					throw new Exception\MissingRecord
+					throw new RecordNotFound
 					(
-						'Records %keys do not exists in model %model.', array
+						\ICanBoogie\format('Records %keys do not exists in model %model.', array
 						(
 							'%model' => $this->name_unprefixed,
 							'%keys' => implode(', ', array_keys($missing))
-						),
+						)),
 
-						404, null, $records
+						$records
 					);
 				}
 				else
@@ -206,15 +232,15 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 					$key = array_keys($missing);
 					$key = array_shift($key);
 
-					throw new Exception\MissingRecord
+					throw new RecordNotFound
 					(
-						'Record %key does not exists in model %model.', array
+						\ICanBoogie\format('Record %key does not exists in model %model.', array
 						(
 							'%model' => $this->name_unprefixed,
 							'%key' => $key
-						),
+						)),
 
-						404, null, $records
+						$records
 					);
 				}
 			}
@@ -230,15 +256,15 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 
 			if (!$record)
 			{
-				throw new Exception\MissingRecord
+				throw new RecordNotFound
 				(
-					'Record %key does not exists in model %model.', array
+					\ICanBoogie\format('Record %key does not exists in model %model.', array
 					(
 						'%model' => $this->name_unprefixed,
 						'%key' => $key
-					),
+					)),
 
-					404, null, array($key => null)
+					array($key => null)
 				);
 			}
 
@@ -252,7 +278,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	 * Because records are cached, we need to removed the record from the cache when it is saved,
 	 * so that loading the record again returns the updated record, not the one in the cache.
 	 *
-	 * @see ICanBoogie.DatabaseTable::save($properies, $key, $options)
+	 * @see ICanBoogie\ActiveRecord\Table::save($properies, $key, $options)
 	 */
 	public function save(array $properties, $key=null, array $options=array())
 	{
@@ -271,7 +297,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	 *
 	 * @param ActiveRecord $record The record to store.
 	 */
-	protected function store(ActiveRecord $record)
+	protected function store(\ICanBoogie\ActiveRecord $record)
 	{
 		$key = $this->create_cache_key($record->{$this->primary});
 
@@ -487,11 +513,11 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $exists}
+	 * @throws PropertyNotWritable in attempt to write {@link $exists}
 	 */
 	protected function volatile_set_exists()
 	{
-		throw new Exception\PropertyNotWritable(array('exists', $this));
+		throw new PropertyNotWritable(array('exists', $this));
 	}
 
 	/**
@@ -519,11 +545,11 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable in attempt to write {@link $count}
+	 * @throws PropertyNotWritable in attempt to write {@link $count}
 	 */
 	protected function volatile_set_count()
 	{
-		throw new Exception\PropertyNotWritable(array('count', $this));
+		throw new PropertyNotWritable(array('count', $this));
 	}
 
 	/**
@@ -638,7 +664,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 
 		if (!method_exists($this, $callback))
 		{
-			throw new Exception('Unknown scope %scope for model %model', array('%scope' => $scope_name, '%model' => $this->name_unprefixed));
+			throw new ScopeNotDefined($scope_name, $this);
 		}
 
 		return call_user_func_array(array($this, $callback), $scope_args);
@@ -651,13 +677,13 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	/**
 	 * Offsets are not settable.
 	 *
-	 * @throws Exception\OffsetNotWritable when one tries to write an offset.
+	 * @throws OffsetNotWritable when one tries to write an offset.
 	 *
 	 * @see ArrayAccess::offsetSet()
 	 */
 	public function offsetSet($offset, $value)
 	{
-		throw new Exception\OffsetNotWritable(array($offset, $this));
+		throw new OffsetNotWritable(array($offset, $this));
 	}
 
 	/**
@@ -682,66 +708,13 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	}
 
 	/**
-	 * Returns the record corresponding to the given key.
+	 * Alias for the {@link find()} method.
 	 *
-	 * @param mixed $key
-	 *
-	 * @return array|\ICanBoogie\ActiveRecord
-	 *
-	 * @see \ArrayAccess::offsetGet()
 	 * @see Model::find()
 	 */
 	public function offsetGet($key)
 	{
 		return $this->find($key);
-	}
-
-	static public function is_extending($tags, $instanceof)
-	{
-		if (is_string($tags))
-		{
-			\ICanBoogie\log('is_extending is not competent with string references: \1', array($tags));
-
-			return true;
-		}
-
-		// TODO-2010630: The method should handle submodels to, not just 'primary'
-
-		if (empty($tags[self::T_EXTENDS]))
-		{
-			return false;
-		}
-
-		$extends = $tags[self::T_EXTENDS];
-
-		if ($extends == $instanceof)
-		{
-			return true;
-		}
-
-		global $core;
-
-		if (empty($core->modules->descriptors[$extends][Module::T_MODELS]['primary']))
-		{
-			return false;
-		}
-
-		$tags = $core->modules->descriptors[$extends][Module::T_MODELS]['primary'];
-
-		return self::is_extending($tags, $instanceof);
-	}
-
-	/**
-	 * Resolves the name of a model giving its module id and model id.
-	 *
-	 * @param string $namespace Namespace of the module defining the model.
-	 * @param string $model_id The model id.
-	 *
-	 * @return string The resolved class name.
-	 */
-	static public function resolve_class_name($namespace, $model_id='primary')
-	{
-		return $namespace . '\\' . ($model_id == 'primary' ? '' : \ICanBoogie\normalize_namespace_part($model_id)) . 'Model';
 	}
 
 	/**
@@ -758,16 +731,90 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	}
 }
 
-namespace ICanBoogie\Exception;
-
-class MissingRecord extends \ICanBoogie\Exception
+/**
+ * Raised when Active Record cannot find record by given id or set of ids.
+ *
+ * @property-read array[int]ActiveRecord|null $records
+ */
+class RecordNotFound extends ActiveRecordException
 {
-	public $rc;
+	/**
+	 * A key/value array where keys are the identifier of the record, and the value is the result
+	 * of finding the record. If the record was found the value is a {@link ActiveRecord}
+	 * object, otherwise the `null` value.
+	 *
+	 * @var array[int]ActiveRecord|null
+	 */
+	private $records;
 
-	public function __construct($message, array $params=array(), $code=500, $previous=null, $rc)
+	/**
+	 * Initializes the {@link $records} property.
+	 *
+	 * @param string $message
+	 * @param array $records
+	 * @param int $code Defaults to 404.
+	 * @param \Exception $previous Previous exception.
+	 */
+	public function __construct($message, array $records, $code=404, \Exception $previous=null)
 	{
-		$this->rc = $rc;
+		$this->records = $records;
 
-		parent::__construct($message, $params, $code, $previous);
+		parent::__construct($message, $code, $previous);
+	}
+
+	public function __get($property)
+	{
+		switch ($property)
+		{
+			case 'records': return $this->records;
+		}
+	}
+}
+
+/**
+ * Raised when a requested scope is not defined.
+ *
+ * @property-read string $scope_name
+ * @property-read Model $model
+ */
+class ScopeNotDefined extends ActiveRecordException
+{
+	/**
+	 * Name of the scope.
+	 *
+	 * @var string
+	 */
+	private $scope_name;
+
+	/**
+	 * Model on which the scope was invoked.
+	 *
+	 * @var Model
+	 */
+	private $model;
+
+	/**
+	 * Initializes the {@link $scope_name} and {@link $model} properties.
+	 *
+	 * @param string $scope_name Name of the scope.
+	 * @param Model $model Model on which the scope was invoked.
+	 * @param int $code Default to 404.
+	 * @param \Exception $previous Previous exception.
+	 */
+	public function __construct($scope_name, Model $model, $code=404, \Exception $previous)
+	{
+		$this->scope_name = $scope_name;
+		$this->model = $model;
+
+		parent::__construct(\ICanBoogie\format('Unknown scope %scope for model %model', array('%scope' => $scope_name, '%model' => $model->name_unprefixed)), $code, $previous);
+	}
+
+	public function __get($property)
+	{
+		switch ($property)
+		{
+			case 'scope_name': return $this->scope_name;
+			case 'model': return $this->model;
+		}
 	}
 }

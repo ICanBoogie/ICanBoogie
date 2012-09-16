@@ -79,7 +79,7 @@ class Exception extends \Exception
 	 *
 	 * @param string $property The property to get.
 	 *
-	 * @throws Exception\PropertyNotReadable When the property is unaccessible.
+	 * @throws PropertyNotReadable When the property is unaccessible.
 	 *
 	 * @return mixed
 	 */
@@ -91,7 +91,7 @@ class Exception extends \Exception
 			case 'code': return $this->code;
 		}
 
-		throw new Exception\PropertyNotReadable(array($property, $this));
+		throw new PropertyNotReadable(array($property, $this));
 	}
 
 	public function __toString()
@@ -108,11 +108,6 @@ class Exception extends \Exception
 		return $message;
 	}
 
-	public function getHTTPCode()
-	{
-		return $this->code;
-	}
-
 	public function getTitle()
 	{
 		return $this->code . ' ' . $this->title;
@@ -127,182 +122,23 @@ class Exception extends \Exception
 	}
 }
 
-namespace ICanBoogie\Exception;
-
 /**
- * Thrown when there is something wrong with a property.
+ * Exception thrown when there is something wrong with an array offset.
  *
- * This is the root class for property exception, one should rather use the
- * {@link PropertyNotFound}, {@link PropertyNotReadable} or {@link PropertyNotWritable}
- * subclasses.
+ * This is the base class for offset exceptions, one should rather use the
+ * {@link OffsetNotReadable} or {@link OffsetNotWritable} exceptions.
  */
-class Property extends \RuntimeException
+class OffsetException extends \RuntimeException
 {
 
 }
 
 /**
- * Thrown when a property could not be found.
- *
- * For example, this could be triggered by an index out of bounds while setting an array value, or
- * by an unreadable property while getting the value of an object.
+ * Exception thrown when an array offset is not readable.
  */
-class PropertyNotFound extends Property
+class OffsetNotReadable extends OffsetException
 {
-	public function __construct($message='', $code=0, $previous=null)
-	{
-		if (is_array($message))
-		{
-			list($property, $container) = $message + array(1 => null);
-
-			if (is_object($container))
-			{
-				$message = \ICanBoogie\format
-				(
-					'Unknown property %property for object of class %class.', array
-					(
-						'property' => $property,
-						'class' => get_class($container)
-					)
-				);
-			}
-			else if (is_array($container))
-			{
-				$message = \ICanBoogie\format
-				(
-					'Unknown index %property for the array: !array', array
-					(
-						'property' => $property,
-						'array' => $container
-					)
-				);
-			}
-			else
-			{
-				$message = \ICanBoogie\format
-				(
-					'Unknown property %property.', array
-					(
-						'property' => $property
-					)
-				);
-			}
-		}
-
-		parent::__construct($message, $code, $previous);
-	}
-}
-
-/**
- * Thrown when a property is not readable.
- *
- * For example, this could be triggered when a private property is read from a public scope.
- */
-class PropertyNotReadable extends Property
-{
-	public function __construct($message='', $code=0, $previous=null)
-	{
-		if (is_array($message))
-		{
-			list($property, $container) = $message + array(1 => null);
-
-			if (is_object($container))
-			{
-				$message = \ICanBoogie\format
-				(
-					'The property %property for object of class %class is not readable.', array
-					(
-						'property' => $property,
-						'class' => get_class($container)
-					)
-				);
-			}
-			else if (is_array($container))
-			{
-				$message = \ICanBoogie\format
-				(
-					'The index %property is not readable for the array: !array', array
-					(
-						'property' => $property,
-						'array' => $container
-					)
-				);
-			}
-			else
-			{
-				$message = \ICanBoogie\format
-				(
-					'The property %property is not readable.', array
-					(
-						'property' => $property
-					)
-				);
-			}
-		}
-
-		parent::__construct($message, $code, $previous);
-	}
-}
-
-/**
- * Thrown when a property is not writable.
- *
- * For example, this could be triggered when a private property is written from a public scope.
- */
-class PropertyNotWritable extends Property
-{
-	public function __construct($message='', $code=0, $previous=null)
-	{
-		if (is_array($message))
-		{
-			list($property, $container) = $message + array(1 => null);
-
-			if (is_object($container))
-			{
-				$message = \ICanBoogie\format
-				(
-					'The property %property for object of class %class is not writable.', array
-					(
-						'property' => $property,
-						'class' => get_class($container)
-					)
-				);
-			}
-			else if (is_array($container))
-			{
-				$message = \ICanBoogie\format
-				(
-					'The index %property is not writable for the array: !array', array
-					(
-						'property' => $property,
-						'array' => $container
-					)
-				);
-			}
-			else
-			{
-				$message = \ICanBoogie\format
-				(
-					'The property %property is not writable.', array
-					(
-						'property' => $property
-					)
-				);
-			}
-		}
-
-		parent::__construct($message, $code, $previous);
-	}
-}
-
-/**
- * Thrown when an offset is not readable.
- *
- * For example, this could be triggered when a value of a readonly ArrayAcces object is read.
- */
-class OffsetNotReadable extends Property
-{
-	public function __construct($message='', $code=0, $previous=null)
+	public function __construct($message, $code=500, \Exception $previous=null)
 	{
 		if (is_array($message))
 		{
@@ -310,7 +146,7 @@ class OffsetNotReadable extends Property
 
 			if (is_object($container))
 			{
-				$message = \ICanBoogie\format
+				$message = format
 				(
 					'The offset %offset for object of class %class is not readable.', array
 					(
@@ -321,7 +157,7 @@ class OffsetNotReadable extends Property
 			}
 			else if (is_array($container))
 			{
-				$message = \ICanBoogie\format
+				$message = format
 				(
 					'The offset %offset is not readable for the array: !array', array
 					(
@@ -332,7 +168,7 @@ class OffsetNotReadable extends Property
 			}
 			else
 			{
-				$message = \ICanBoogie\format
+				$message = format
 				(
 					'The offset %offset is not readable.', array
 					(
@@ -347,13 +183,11 @@ class OffsetNotReadable extends Property
 }
 
 /**
- * Thrown when an offset is not writable.
- *
- * For example, this could be triggered when a value of a readonly ArrayAcces object is set.
+ * Thrown when an array offset is not writable.
  */
-class OffsetNotWritable extends Property
+class OffsetNotWritable extends OffsetException
 {
-	public function __construct($message='', $code=0, $previous=null)
+	public function __construct($message, $code=500, \Exception $previous=null)
 	{
 		if (is_array($message))
 		{
@@ -361,7 +195,7 @@ class OffsetNotWritable extends Property
 
 			if (is_object($container))
 			{
-				$message = \ICanBoogie\format
+				$message = format
 				(
 					'The offset %offset for object of class %class is not writable.', array
 					(
@@ -372,7 +206,7 @@ class OffsetNotWritable extends Property
 			}
 			else if (is_array($container))
 			{
-				$message = \ICanBoogie\format
+				$message = format
 				(
 					'The offset %offset is not writable for the array: !array', array
 					(
@@ -383,7 +217,7 @@ class OffsetNotWritable extends Property
 			}
 			else
 			{
-				$message = \ICanBoogie\format
+				$message = format
 				(
 					'The offset %offset is not writable.', array
 					(
@@ -396,6 +230,41 @@ class OffsetNotWritable extends Property
 		parent::__construct($message, $code, $previous);
 	}
 }
+
+/**
+ * Exception thrown when a security error occurs.
+ *
+ * This is a base class for security exceptions, one should rather use the
+ * {@link AuthenticationRequired} and {@link PermissionRequired} exceptions.
+ */
+class SecurityException extends \Exception
+{
+
+}
+
+/**
+ * Exception thrown when user authentication is required.
+ */
+class AuthenticationRequired extends SecurityException
+{
+	public function __construct($message="The requested URL requires authentication.", $code=401, $previous=null)
+	{
+		parent::__construct($message, $code, $previous);
+	}
+}
+
+/**
+ * Exception thrown when a user doesn't have the required permission.
+ */
+class PermissionRequired extends SecurityException
+{
+	public function __construct($message="You don't have the required permission.", $code=401, $previous=null)
+	{
+		parent::__construct($message, $code, $previous);
+	}
+}
+
+namespace ICanBoogie\Exception;
 
 /**
  * This exception is thrown when a HTTP error occurs.
@@ -415,29 +284,5 @@ class HTTP extends \ICanBoogie\Exception
 		$rc .= '</code>';
 
 		return $rc;
-	}
-}
-
-namespace ICanBoogie;
-
-/**
- * The exception that is thrown when authentication fails.
- */
-class AuthenticationException extends \ICanBoogie\Exception\HTTP
-{
-	public function __construct($message="The requested URL requires authentication.", array $params=array(), $code=401, $previous=null)
-	{
-		parent::__construct($message, $params, $code, $previous);
-	}
-}
-
-/**
- * The exception that is thrown when a user doesn't have the required permission.
- */
-class PermissionException extends \ICanBoogie\Exception\HTTP
-{
-	public function __construct($message="You don't have the required permission.", array $params=array(), $code=401, $previous=null)
-	{
-		parent::__construct($message, $params, $code, $previous);
 	}
 }

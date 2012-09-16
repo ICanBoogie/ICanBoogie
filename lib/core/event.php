@@ -152,14 +152,20 @@ class Events implements \IteratorAggregate, \ArrayAccess
 		return $this->offsetExists($offset) ? $this->events[$offset] : array();
 	}
 
+	/**
+	 * @throws OffsetNotWritable in attempt to set an offset.
+	 */
 	public function offsetSet($offset, $value)
 	{
-		throw new Exception\OffsetNotWritable(array($offset, $this));
+		throw new OffsetNotWritable(array($offset, $this));
 	}
 
+	/**
+	 * @throws OffsetNotWritable in attempt to unset an offset.
+	 */
 	public function offsetUnset($offset)
 	{
-		throw new Exception\OffsetNotWritable(array($offset, $this));
+		throw new OffsetNotWritable(array($offset, $this));
 	}
 
 	/**
@@ -366,7 +372,7 @@ class Event
 	 * @param string $type The event type.
 	 * @param array $properties
 	 *
-	 * @throws Exception\PropertyNotWritable in attempt to use a reserved property.
+	 * @throws PropertyIsReserved in attempt to use a reserved property.
 	 */
 	protected function __construct($target, $type, array $properties)
 	{
@@ -410,10 +416,7 @@ class Event
 				{
 					if (isset(self::$reserved[$property]))
 					{
-						throw new Exception\PropertyNotWritable(format
-						(
-							'%property is a reserved property.', array('property' => $property)
-						));
+						throw new PropertyIsReserved($property);
 					}
 
 					#
@@ -481,8 +484,8 @@ class Event
 	 *
 	 * @param string $property The read-only property to return.
 	 *
-	 * @throws Exception\PropertyNotReadable if the property exists but is not readable.
-	 * @throws Exception\PropertyNotFound if the property doesn't exists.
+	 * @throws PropertyNotReadable if the property exists but is not readable.
+	 * @throws PropertyNotFound if the property doesn't exists.
 	 *
 	 * @return mixed
 	 */
@@ -499,10 +502,10 @@ class Event
 
 		if (array_key_exists($property, $properties))
 		{
-			throw new Exception\PropertyNotReadable(array($property, $this));
+			throw new PropertyNotReadable(array($property, $this));
 		}
 
-		throw new Exception\PropertyNotFound(array($property, $this));
+		throw new PropertyNotFound(array($property, $this));
 	}
 
 	/**
@@ -548,5 +551,26 @@ class Event
 		$event = new self($target, $type, $properties);
 
 		return $event;
+	}
+}
+
+/**
+ * Raised when property has a name reserved by a class.
+ */
+class PropertyIsReserved extends \RuntimeException
+{
+	private $property;
+
+	public function __construct($property, $code=500, \Exception $previous=null)
+	{
+		parent::__construct("Property <q>$property</q> is reserved.", $code, $previous);
+	}
+
+	public function __get($property)
+	{
+		switch ($property)
+		{
+			case 'property': return $this->property;
+		}
 	}
 }

@@ -46,40 +46,9 @@ use ICanBoogie\Routes;
  */
 class Dispatcher
 {
-	static public function dispatch_operation(Request $request)
-	{
-		$operation = Operation::from($request);
-
-		if (!$operation)
-		{
-			return;
-		}
-
-		$response = $operation($request);
-
-		#
-		# If the response is an error and the request is not XHR we allow the
-		# dispatch to continue, one hook might display an error message.
-		#
-
-		$is_api_operation = strpos($request->path, '/api/') === 0;
-
-		if ($response && ($response->is_client_error || $response->is_server_error) && !$request->is_xhr)
-		{
-			return $is_api_operation ? $response : null;
-		}
-
-		if (!$response && $is_api_operation)
-		{
-			$response = new Response(404);
-		}
-
-		return $response;
-	}
-
 	protected $controllers = array
 	(
-		'operation' => array(__CLASS__, 'dispatch_operation'),
+		'operation' => 'ICanBoogie\Operation::dispatch_request',
 		'route' => 'ICanBoogie\Routes::dispatch_request'
 	);
 
@@ -108,6 +77,33 @@ class Dispatcher
 	 */
 	public function __invoke(Request $request)
 	{
+		try
+		{
+			return $this->dispatch($request);
+		}
+		catch (\Exception $e)
+		{
+			return $this->dispatch_exception($e, $request);
+		}
+	}
+
+	/**
+	 * Dispatches a request.
+	 *
+	 * Before controllers are traversed the {@link Dispatcher\BeforeDispatchEvent} is fired. If a
+	 * response is provided the controllers are skipped.
+	 *
+	 * Before the response is returned the {@link Dispatcher\DispatchEvent} is fired.
+	 *
+	 * @param Request $request
+	 *
+	 * @throws \ICanBoogie\Exception\HTTP when neither the events nor the controllers provided a
+	 * response to the request.
+	 *
+	 * @return Response
+	 */
+	protected function dispatch(Request $request)
+	{
 		$response = null;
 
 		new Dispatcher\BeforeDispatchEvent($this, array('request' => $request, 'response' => &$response));
@@ -132,6 +128,42 @@ class Dispatcher
 		return $response;
 	}
 
+	/**
+	 * Tries get a {@link Response} from an exception.
+	 *
+	 * The method fires an event of type `get_response` and class
+	 * {@link \ICanBoogie\Exception\GetResponseEvent} on the exception. The method returns the
+	 * response provided by a event callbacks. If there is no response provided the exception
+	 * is thrown again.
+	 *
+	 * @param \Exception $exception
+	 * @param Request $request
+	 *
+	 * @throws \Exception when there is no response for the exception.
+	 *
+	 * @return Response
+	 */
+	protected function dispatch_exception(\Exception $exception, Request $request)
+	{
+		$response = null;
+
+		new \ICanBoogie\Exception\GetResponseEvent($exception, array('response' => &$response, 'exception' => &$exception, 'request' => $request));
+
+		if (!$response)
+		{
+			throw $exception;
+		}
+
+		return $response;
+	}
+
+	/*
+	 * TODO-20120906: move all of this to Routes:
+	 *
+	 * $core->routes->any('/', function(Request $request) { return 'index!'; });
+	 *
+	 * -> use __call() (get() seams tricky)
+	 */
 	protected function route($method, $path, $callback, array $options=array())
 	{
 		Routes::add
@@ -282,5 +314,43 @@ class DispatchEvent extends \ICanBoogie\Event
 	public function __construct(\ICanBoogie\HTTP\Dispatcher $target, array $properties)
 	{
 		parent::__construct($target, 'dispatch', $properties);
+	}
+}
+
+namespace ICanBoogie\Exception;
+
+/**
+ * Event class for the `Exception\get_response` event type.
+ */
+class GetResponseEvent extends \ICanBoogie\Event
+{
+	/**
+	 * Reference to the response.
+	 *
+	 * @var \ICanBoogie\HTTP\Response
+	 */
+	public $response;
+
+	/**
+	 * Reference tot the exception.
+	 *
+	 * @var \Exception
+	 */
+	public $exception;
+
+	/**
+	 * @var \ICanBoogie\HTTP\Request
+	 */
+	public $request;
+
+	/**
+	 * The event is constructed with the type `get_response`.
+	 *
+	 * @param \Exception $target
+	 * @param array $properties
+	 */
+	public function __construct(\Exception $target, array $properties)
+	{
+		parent::__construct($target, 'get_response', $properties);
 	}
 }

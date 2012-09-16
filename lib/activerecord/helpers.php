@@ -9,39 +9,25 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\HTTP;
+namespace ICanBoogie\ActiveRecord;
 
 /**
- * Returns requests dispatcher.
+ * Returns the requested model.
  *
- * @return Dispatcher
+ * @param string $id Model identifier.
+ *
+ * @return Model
  */
-function get_dispatcher()
+function get_model($id)
 {
-	return Helpers::get_dispatcher();
+	return Helpers::get_model($id);
 }
 
-/**
- * Dispatches a request.
- *
- * @param Request $request
- *
- * @return Response
- */
-function dispatch(Request $request)
-{
-	return Helpers::dispatch($request);
-}
-
-/**
- * Helpers jumptable.
- */
 class Helpers
 {
 	static private $jumptable = array
 	(
-		'dispatch' => array(__CLASS__, 'dispatch'),
-		'get_dispatcher' => array(__CLASS__, 'get_dispatcher')
+		'get_model' => array(__CLASS__, 'get_model')
 	);
 
 	/**
@@ -79,34 +65,16 @@ class Helpers
 	 * Fallbacks
 	 */
 
-	/**
-	 * Returns requests dispatcher.
-	 *
-	 * @return Dispatcher
-	 */
-	static private function get_dispatcher()
+	static private function get_model($id)
 	{
-		static $dispatcher;
-
-		if (!$dispatcher)
-		{
-			$dispatcher = new Dispatcher;
-		}
-
-		return $dispatcher;
+		throw new \RuntimeException("The function " . __FUNCTION__ . "() needs to be patched.");
 	}
+}
 
-	/**
-	 * Dispatches a request.
-	 *
-	 * @param Request $request
-	 *
-	 * @return Response
-	 */
-	static private function dispatch(Request $request)
-	{
-		$dispatcher = get_dispatcher();
+/**
+ * Generic Active Record exception class.
+ */
+class ActiveRecordException extends \Exception
+{
 
-		return $dispatcher($request);
-	}
 }
