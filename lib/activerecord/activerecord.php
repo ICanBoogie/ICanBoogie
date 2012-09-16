@@ -13,6 +13,12 @@ namespace ICanBoogie;
 
 use ICanBoogie\ActiveRecord\Model;
 
+/**
+ * Active Record faciliates the creation and use of business objects whose data require persistent
+ * storage via database.
+ *
+ * @property Model $_model The model managing the active record.
+ */
 class ActiveRecord extends Object
 {
 	/**
@@ -36,13 +42,11 @@ class ActiveRecord extends Object
 	}
 
 	/**
-	 * Constructor.
-	 *
-	 * The constructor function is required when retrieving rows as objects.
+	 * Initialize the {@link $_model} and {@link $_model_id} properties.
 	 *
 	 * @param string|Model $model The model used to store the active record. A model
-	 * object can be provided as well as a model id. If a model id is provided, the model object is
-	 * resolved when the `_model` magic property is accessed.
+	 * object can be provided or a model id. If a model id is provided, the model object
+	 * is resolved when the {@link $_model} property is accessed.
 	 */
 	public function __construct($model)
 	{
@@ -67,9 +71,7 @@ class ActiveRecord extends Object
 	 */
 	protected function get__model()
 	{
-		global $core;
-
-		return $core->models[$this->_model_id];
+		return \ICanBoogie\ActiveRecord\get_model($this->_model_id);
 	}
 
 	/**
@@ -123,4 +125,28 @@ class ActiveRecord extends Object
 
 		return $model->delete($this->$primary);
 	}
+}
+
+namespace ICanBoogie\ActiveRecord;
+
+/**
+ * Returns the requested model.
+ *
+ * @param string $id Model identifier.
+ *
+ * @return Model
+ */
+function get_model($id)
+{
+	global $core;
+
+	return $core->models[$id];
+}
+
+/**
+ * Generic Active Record exception class.
+ */
+class ActiveRecordException extends \Exception
+{
+
 }

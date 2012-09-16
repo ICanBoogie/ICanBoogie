@@ -41,8 +41,8 @@ namespace ICanBoogie;
  * which is an ideal behaviour to lazy load resources.
  *
  * Another type of getter/setter is available that does not create the requested property. They are
- * call _volatile_, because their result is not automatically stored in the corresponding property,
- * this choice is up to the setter.
+ * called _volatile_, because their result is not automatically stored in the corresponding
+ * property, this choice is up to the setter.
  *
  *     namespace ICanBoogie;
  *
@@ -88,6 +88,9 @@ class Object
 	 * Note: Because the method uses the [`unserialize`](http://www.php.net/manual/en/function.unserialize.php)
 	 * function to create the instance, the `__wakeup()` magic method will be called if it is
 	 * defined by the class, and it will be called *before* the constructor.
+	 *
+	 * Note: The {@link __wakeup()} method of the {@link Object} class removes `null` properties
+	 * for which a getter is defined.
 	 *
 	 * @param array $properties Properties to be set before the constructor is invoked.
 	 * @param array $construct_args Arguments passed to the constructor.
@@ -162,7 +165,7 @@ class Object
 
 		$instance = unserialize($serialized);
 
-		if (method_exists($instance, '__construct'))
+		if (is_callable(array($instance, '__construct')))
 		{
 			call_user_func_array(array($instance, '__construct'), $construct_args);
 		}
@@ -214,7 +217,7 @@ class Object
 				continue;
 			}
 
-			if ($this->has_method('get_' . $key) || $this->has_method('volatile_get_' . $key))
+			if ($this->has_method('get_' . $key)/* || $this->has_method('volatile_get_' . $key)*/)
 			{
 				unset($this->$key);
 			}
@@ -314,6 +317,18 @@ class Object
 			return $this->$property = $rc;
 		}
 
+		$success = false;
+		$this->last_chance_get($property, $success);
+
+		if ($success)
+		{
+			return;
+		}
+
+		#
+		# We tried, but the property really is unaccessible.
+		#
+
 		$reflexion_class = new \ReflectionClass($this);
 
 		try
@@ -372,6 +387,18 @@ class Object
 	}
 
 	/**
+	 * The method is invoked as a last chance to get a property,
+	 * just before an exception is thrown.
+	 *
+	 * @param string $property Property to get.
+	 * @param bool $success If the _last chance get_ was successful.
+	 */
+	protected function last_chance_get($property, &$success)
+	{
+
+	}
+
+	/**
 	 * Returns the prototype associated with the class.
 	 *
 	 * @return Prototype
@@ -409,6 +436,13 @@ class Object
 	 */
 	public function __set($property, $value)
 	{
+		if ($property == 'prototype')
+		{
+			$this->prototype = $value;
+
+			return;
+		}
+
 		$method = 'volatile_set_' . $property;
 
 		if ($this->has_method($method))
@@ -423,10 +457,24 @@ class Object
 			return $this->$property = $this->$method($value);
 		}
 
+		$success = false;
+		$this->last_chance_set($property, $value, $success);
+
+		if ($success)
+		{
+			return;
+		}
+
+		#
+		# We tried, but the property really is unaccessible.
+		#
+
 		if (property_exists($this, $property) && !$this->has_method('get_' . $property))
 		{
 			$reflection = new \ReflectionObject($this);
 			$property_reflection = $reflection->getProperty($property);
+
+			var_dump(array_keys(get_object_vars($this)));
 
 			if (!$property_reflection->isPublic())
 			{
@@ -435,6 +483,19 @@ class Object
 		}
 
 		$this->$property = $value;
+	}
+
+	/**
+	 * The method is invoked as a last chance to set a property,
+	 * just before an exception is thrown.
+	 *
+	 * @param string $property Property to set.
+	 * @param mixed $value Value of the property.
+	 * @param bool $success If the _last chance set_ was successful.
+	 */
+	protected function last_chance_set($property, $value, &$success)
+	{
+
 	}
 
 	/**

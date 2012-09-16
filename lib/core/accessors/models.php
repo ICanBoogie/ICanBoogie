@@ -63,7 +63,7 @@ class Models implements \ArrayAccess
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable when an offset is set.
+	 * @throws Exception\OffsetNotWritable in attempt to write.
 	 */
 	public function offsetSet($offset, $value)
 	{
@@ -71,7 +71,7 @@ class Models implements \ArrayAccess
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable when an offset is unset.
+	 * @throws Exception\OffsetNotWritable in attempt to unset.
 	 */
 	public function offsetUnset($offset)
 	{

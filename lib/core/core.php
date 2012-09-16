@@ -23,7 +23,7 @@ namespace ICanBoogie;
  * @property \ICanBoogie\Session $session User's session.
  * @property string $language Locale language.
  * @property string|int $timezone Date and time timezone.
- * @property \ICanBoogie\I18n\Locale $locale Locale object matching the locale language.
+ * @property-read \ICanBoogie\I18n\Locale $locale Locale object matching the locale language.
  * @property array $config The "core" configuration.
  * @property-read \ICanBoogie\HTTP\Request $request The request being processed.
  * @property-read \ICanBoogie\Events $events The events collection.
@@ -306,6 +306,9 @@ class Core extends Object
 		return HTTP\Request::get_current_request();
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $request}.
+	 */
 	protected function volatile_set_request()
 	{
 		throw new Exception\PropertyNotWritable(array('request', $this));
@@ -332,7 +335,7 @@ class Core extends Object
 	}
 
 	/**
-	 * @throws Exception\PropertyNotWritable when the `locale` property is set.
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $locale}.
 	 */
 	protected function volatile_set_locale()
 	{
@@ -342,7 +345,7 @@ class Core extends Object
 	/**
 	 * Returns the locale object used by the framework.
 	 *
-	 * The locale object is reseted when the {@link language} property is set.
+	 * The locale object is reseted when the property {@link $language} is set.
 	 *
 	 * @return I18n\Locale
 	 */
@@ -415,9 +418,7 @@ class Core extends Object
 	}
 
 	/**
-	 * The {@link $events} property is read-only.
-	 *
-	 * @throws Exception\PropertyNotWritable
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $events}.
 	 */
 	protected function volatile_set_events()
 	{
@@ -435,9 +436,7 @@ class Core extends Object
 	}
 
 	/**
-	 * The {@link $routes} property is read-only.
-	 *
-	 * @throws Exception\PropertyNotWritable
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $routes}.
 	 */
 	protected function volatile_set_routes()
 	{

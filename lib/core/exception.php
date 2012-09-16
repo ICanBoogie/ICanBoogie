@@ -132,8 +132,9 @@ namespace ICanBoogie\Exception;
 /**
  * Thrown when there is something wrong with a property.
  *
- * This is the root class for property exception, one should rather use the PropertyNotFound,
- * PropertyNotReadable or PropertyNotWritable subclasses.
+ * This is the root class for property exception, one should rather use the
+ * {@link PropertyNotFound}, {@link PropertyNotReadable} or {@link PropertyNotWritable}
+ * subclasses.
  */
 class Property extends \RuntimeException
 {

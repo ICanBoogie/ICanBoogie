@@ -14,6 +14,7 @@ return array
 	(
 		'ICanBoogie\Configs' => $core . 'accessors/configs.php',
 		'ICanBoogie\Connections' => $core . 'accessors/connections.php',
+		'ICanBoogie\Controller' => $path . 'lib/routing/controller.php',
 		'ICanBoogie\Core' => $core . 'core.php',
 		'ICanBoogie\Database' => $core . 'database.php',
 		'ICanBoogie\Database\ConnectionException' => $core . 'database.php',
@@ -40,7 +41,7 @@ return array
 		'ICanBoogie\ActiveRecord\Query' => $ar . '/query.php',
 
 		'ICanBoogie\HTTP\Dispatcher' => $http . 'dispatcher.php',
-		'ICanBoogie\HTTP\Header' => $http . 'header.php',
+		'ICanBoogie\HTTP\Headers' => $http . 'headers.php',
 		'ICanBoogie\HTTP\Request' => $http . 'request.php',
 		'ICanBoogie\HTTP\Response' => $http . 'response.php',
 		'ICanBoogie\HTTP\UnsupportedMethodException' => $http . 'http.php',

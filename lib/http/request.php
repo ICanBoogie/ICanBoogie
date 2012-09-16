@@ -18,47 +18,49 @@ use ICanBoogie\Operation;
 /**
  * An HTTP request.
  *
- * @property-read boolean $authorization {@link get_authorization()}
- * @property-read int $content_length {@link get_content_length()}
- * @property-read int $cache_control {@link get_cache_control()}
- * @property-read string $ip {@link get_ip()}
- * @property-read boolean $is_delete {@link volatile_is_delete()}
- * @property-read boolean $is_get {@link volatile_is_get()}
- * @property-read boolean $is_head {@link volatile_is_head()}
- * @property-read boolean $is_options {@link volatile_is_options()}
- * @property-read boolean $is_patch {@link volatile_is_path()}
- * @property-read boolean $is_post {@link volatile_is_patch()}
- * @property-read boolean $is_put {@link volatile_is_put()}
- * @property-read boolean $is_trace {@link volatile_is_trace()}
- * @property-read boolean $is_xhr {@link volatile_is_xhr()}
- * @property-read boolean $is_local {@link volatile_is_local()}
- * @property-read string $method {@link get_method()}
- * @property-read string $query_string {@link get_query_string()}
- * @property-read string $referer {@link get_referer()}
- * @property-read string $user_agent {@link get_user_agent()}
- * @property string $uri {@link volatile_set_uri()} {@link volatile_get_uri()}
+ * @property-read boolean $authorization Authorization of the request.
+ * @property-read int $content_length Length of the request content.
+ * @property-read int $cache_control A {@link \ICanBoogie\HTTP\Headers\CacheControl} object.
+ * @property-read string $ip Remote IP of the request.
+ * @property-read boolean $is_delete Is this a `DELETE` request?
+ * @property-read boolean $is_get Is this a `GET` request?
+ * @property-read boolean $is_head Is this a `HEAD` request?
+ * @property-read boolean $is_options Is this a `OPTIONS` request?
+ * @property-read boolean $is_patch Is this a `PATCH` request?
+ * @property-read boolean $is_post Is this a `POST` request?
+ * @property-read boolean $is_put Is this a `PUT` request?
+ * @property-read boolean $is_trace Is this a `TRACE` request?
+ * @property-read boolean $is_local Is this a local request?
+ * @property-read boolean $is_xhr Is this an Ajax request?
+ * @property-read string $method Method of the request.
+ * @property-read string $normalized_path Path of the request normalized using the {@link \ICanBoogie\normalize_url_path()} function.
+ * @property-read Request $previous Previous request.
+ * @property-read string $query_string Query string of the request.
+ * @property-read string $referer Referer of the request.
+ * @property-read string $user_agent User agent of the request.
+ * @property string $uri URI of the request.
  *
  * @see http://en.wikipedia.org/wiki/Uniform_resource_locator
- * @see http://en.wikipedia.org/wiki/URL_normalization
  */
 class Request extends Object implements \ArrayAccess, \IteratorAggregate
 {
 	/*
 	 * HTTP methods as defined by the {@link http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html Hypertext Transfert protocol 1.1}.
 	 */
-	const METHOD_OPTIONS = 'OPTIONS';
+	const METHOD_ANY = 'ANY';
+	const METHOD_CONNECT = 'CONNECT';
+	const METHOD_DELETE = 'DELETE';
 	const METHOD_GET = 'GET';
 	const METHOD_HEAD = 'HEAD';
+	const METHOD_OPTIONS = 'OPTIONS';
 	const METHOD_POST = 'POST';
 	const METHOD_PUT = 'PUT';
 	const METHOD_PATCH = 'PATCH';
-	const METHOD_DELETE = 'DELETE';
 	const METHOD_TRACE = 'TRACE';
-	const METHOD_CONNECT = 'CONNECT';
-	const METHOD_ANY = 'ANY';
 
 	static protected $methods = array
 	(
+		self::METHOD_CONNECT,
 		self::METHOD_DELETE,
 		self::METHOD_GET,
 		self::METHOD_HEAD,
@@ -70,14 +72,14 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	);
 
 	/**
-	 * The request being executed.
+	 * Current request.
 	 *
 	 * @var Request
 	 */
 	static protected $current_request;
 
 	/**
-	 * Returns the current request being executed.
+	 * Returns the current request.
 	 *
 	 * @return Request
 	 */
@@ -108,8 +110,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	public $request_params = array();
 
 	/**
-	 * Union of {@link $path_params}, {@link $request_params} and
-	 * {@link $query_params}.
+	 * Union of {@link $path_params}, {@link $request_params} and {@link $query_params}.
 	 *
 	 * @var array
 	 */
@@ -123,11 +124,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	public $context;
 
 	/**
-	 * The header of the request.
+	 * The headers of the request.
 	 *
-	 * @var Header
+	 * @var Headers
 	 */
-	public $header;
+	public $headers;
 
 	/**
 	 * Request environment.
@@ -137,11 +138,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	protected $env;
 
 	/**
-	 * The previous request being executed.
+	 * Previous request.
 	 *
 	 * @var Request
 	 */
-	public $previous;
+	protected $previous;
 
 	/**
 	 * A request can be created from the `$_SERVER` super global array. In that case `$_SERVER` is
@@ -187,33 +188,37 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * Initialize the properties {@link $env}, {@link $headers} and {@link $context}.
+	 *
+	 * If the {@link $params} property is `null` it is set with an usinon of {@link $path_params},
+	 * {@link $request_params} and {@link $query_params}.
+	 *
 	 * @param array $env Environment of the request, usually the `$_SERVER` super global.
 	 */
 	protected function __construct(array $env=array())
 	{
 		$this->env = $env;
+		$this->headers = new Headers($env);
+		$this->context = new Request\Context($this);
 
 		if ($this->params === null)
 		{
  			$this->params = $this->path_params + $this->request_params + $this->query_params;
 		}
-
-		$this->header = new Header($env);
-		$this->context = new Request\Context($this);
 	}
 
 	/**
 	 * Dispatch the request.
 	 *
-	 * The {@link previous} property is used for request chaining. The {@link current_request}
+	 * The {@link previous} property is used for request chaining. The {@link $current_request}
 	 * class property is set to the current request.
 	 *
 	 * @param string|null $method The request method. Use this parameter to override the request
 	 * method.
 	 * @param array|null $params The request parameters. Use this parameter to override the request
-	 * parameters. The {@link path_params}, {@link query_params} and
-	 * {@link request_params} are set to empty arrays. The provided parameters are set to the
-	 * {@link params} property.
+	 * parameters. The {@link $path_params}, {@link $query_params} and
+	 * {@link $request_params} are set to empty arrays. The provided parameters are set to the
+	 * {@link $params} property.
 	 *
 	 * @return Response The response to the request.
 	 *
@@ -246,7 +251,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		}
 		catch (\Exception $e) { }
 
-		if ($this->previous) // TODO-20120831: This is a workaround
+// 		if ($this->previous) // TODO-20120831: This is a workaround
 		{
 			self::$current_request = $this->previous;
 		}
@@ -264,7 +269,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * Example:
 	 *
-	 * Request::from(array('pathinfo' => '/api/core/aloha'))->get();
+	 *     Request::from(array('pathinfo' => '/api/core/aloha'))->get();
 	 *
 	 * @see ICanBoogie.Object::__call()
 	 */
@@ -333,13 +338,23 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * Returns the previous request.
+	 *
+	 * @return \ICanBoogie\HTTP\Request
+	 */
+	protected function volatile_get_previous()
+	{
+		return $this->previous;
+	}
+
+	/**
 	 * Returns the `Cache-Control` header.
 	 *
-	 * @return \ICanBoogie\HTTP\Header\CacheControl
+	 * @return \ICanBoogie\HTTP\Headers\CacheControl
 	 */
 	protected function volatile_get_cache_control()
 	{
-		return $this->header['Cache-Control'];
+		return $this->headers['Cache-Control'];
 	}
 
 	/**
@@ -349,7 +364,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function volatile_set_cache_control($cache_directives)
 	{
-		$this->header['Cache-Control'] = $cache_directives;
+		$this->headers['Cache-Control'] = $cache_directives;
 	}
 
 	/**
@@ -402,7 +417,22 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		return $method;
 	}
 
-	protected function get_query_string()
+	/**
+	 * Sets the `QUERY_STRING` value of the {@link $env} array.
+	 *
+	 * @param string $query_string
+	 */
+	protected function volatile_set_query_string($query_string)
+	{
+		$this->env['QUERY_STRING'] = $query_string;
+	}
+
+	/**
+	 * Returns the `QUERY_STRING` value of the {@link $env} array.
+	 *
+	 * @param string $query_string The method returns `null` if the key is not defined.
+	 */
+	protected function volatile_get_query_string()
 	{
 		return isset($this->env['QUERY_STRING']) ? $this->env['QUERY_STRING'] : null;
 	}
@@ -423,6 +453,14 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_delete}.
+	 */
+	protected function volatile_set_is_delete()
+	{
+		throw new Exception\PropertyNotWritable(array('is_delete', $this));
+	}
+
+	/**
 	 * Checks if the request method is `DELETE`.
 	 *
 	 * @return boolean
@@ -430,6 +468,14 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	protected function volatile_get_is_delete()
 	{
 		return $this->method == 'delete';
+	}
+
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_get}.
+	 */
+	protected function volatile_set_is_get()
+	{
+		throw new Exception\PropertyNotWritable(array('is_get', $this));
 	}
 
 	/**
@@ -443,6 +489,14 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_head}.
+	 */
+	protected function volatile_set_is_head()
+	{
+		throw new Exception\PropertyNotWritable(array('is_head', $this));
+	}
+
+	/**
 	 * Checks if the request method is `HEAD`.
 	 *
 	 * @return boolean
@@ -450,6 +504,14 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	protected function volatile_get_is_head()
 	{
 		return $this->method == self::METHOD_HEAD;
+	}
+
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_options}.
+	 */
+	protected function volatile_set_is_options()
+	{
+		throw new Exception\PropertyNotWritable(array('is_options', $this));
 	}
 
 	/**
@@ -463,6 +525,14 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_patch.
+	 */
+	protected function volatile_set_is_patch()
+	{
+		throw new Exception\PropertyNotWritable(array('is_patch', $this));
+	}
+
+	/**
 	 * Checks if the request method is `PATCH`.
 	 *
 	 * @return boolean
@@ -470,6 +540,14 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	protected function volatile_get_is_patch()
 	{
 		return $this->method == self::METHOD_PATCH;
+	}
+
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_post}.
+	 */
+	protected function volatile_set_is_post()
+	{
+		throw new Exception\PropertyNotWritable(array('is_post', $this));
 	}
 
 	/**
@@ -483,6 +561,14 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_put}.
+	 */
+	protected function volatile_set_is_put()
+	{
+		throw new Exception\PropertyNotWritable(array('is_put', $this));
+	}
+
+	/**
 	 * Checks if the request method is `PUT`.
 	 *
 	 * @return boolean
@@ -490,6 +576,14 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	protected function volatile_get_is_put()
 	{
 		return $this->method == self::METHOD_PUT;
+	}
+
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_trace}.
+	 */
+	protected function volatile_set_is_trace()
+	{
+		throw new Exception\PropertyNotWritable(array('is_trace', $this));
 	}
 
 	/**
@@ -503,6 +597,14 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_xhr}.
+	 */
+	protected function volatile_set_is_xhr()
+	{
+		throw new Exception\PropertyNotWritable(array('is_xhr', $this));
+	}
+
+	/**
 	 * Checks if the request is a `XMLHTTPRequest`.
 	 *
 	 * @return boolean
@@ -510,6 +612,14 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	protected function volatile_get_is_xhr()
 	{
 		return !empty($this->env['HTTP_X_REQUESTED_WITH']) && preg_match('/XMLHttpRequest/', $this->env['HTTP_X_REQUESTED_WITH']);
+	}
+
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_local}.
+	 */
+	protected function volatile_set_is_local()
+	{
+		throw new Exception\PropertyNotWritable(array('is_local', $this));
 	}
 
 	/**
@@ -542,6 +652,14 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $ip}.
+	 */
+	protected function volatile_set_ip()
+	{
+		throw new Exception\PropertyNotWritable(array('ip', $this));
+	}
+
+	/**
 	 * Returns the remote IP of the request.
 	 *
 	 * If defined, the `HTTP_X_FORWARDED_FOR` header is used to retrieve the original IP.
@@ -552,7 +670,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return string
 	 */
-	protected function get_ip()
+	protected function volatile_get_ip()
 	{
 		if (isset($this->env['HTTP_X_FORWARDED_FOR']))
 		{
@@ -566,7 +684,16 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 		return $this->env['REMOTE_ADDR'] ?: '::1';
 	}
 
-	protected function get_authorization()
+
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $authorization}.
+	 */
+	protected function volatile_set_authorization()
+	{
+		throw new Exception\PropertyNotWritable(array('authorization', $this));
+	}
+
+	protected function volatile_get_authorization()
 	{
 		if (isset($this->env['HTTP_AUTHORIZATION']))
 		{
@@ -587,16 +714,6 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Returns the `REQUEST_URI` environment key.
-	 *
-	 * @return string
-	 */
-	protected function volatile_get_uri()
-	{
-		return isset($this->env['REQUEST_URI']) ? $this->env['REQUEST_URI'] : $_SERVER['REQUEST_URI'];
-	}
-
-	/**
 	 * Sets the `REQUEST_URI` environment key.
 	 *
 	 * The {@link path} and {@link query_string} property are unset so that they are updated on
@@ -613,13 +730,13 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Returns the port of the request.
+	 * Returns the `REQUEST_URI` environment key.
 	 *
-	 * @return int
+	 * @return string
 	 */
-	protected function volatile_get_port()
+	protected function volatile_get_uri()
 	{
-		return $this->env['REQUEST_PORT'];
+		return isset($this->env['REQUEST_URI']) ? $this->env['REQUEST_URI'] : $_SERVER['REQUEST_URI'];
 	}
 
 	/**
@@ -633,11 +750,29 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * Returns the port of the request.
+	 *
+	 * @return int
+	 */
+	protected function volatile_get_port()
+	{
+		return $this->env['REQUEST_PORT'];
+	}
+
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $path}.
+	 */
+	protected function volatile_set_path()
+	{
+		throw new Exception\PropertyNotWritable(array('path', $this));
+	}
+
+	/**
 	 * Returns the path of the request, that is the `REQUEST_URI` without the query string.
 	 *
 	 * @return string
 	 */
-	protected function get_path()
+	protected function volatile_get_path()
 	{
 		$path = $this->env['REQUEST_URI'];
 		$qs = $this->query_string;
@@ -651,6 +786,33 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $normalized_path}
+	 */
+	protected function volatile_set_normalized_path()
+	{
+		throw new Exception\PropertyNotWritable(array('normalized_path', $this));
+	}
+
+	/**
+	 * Returns the {@link $path} property normalized using the
+	 * {@link \ICanBoogie\normalize_url_path()} function.
+	 *
+	 * @return string
+	 */
+	protected function volatile_get_normalized_path()
+	{
+		return \ICanBoogie\normalize_url_path($this->path);
+	}
+
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $extension}.
+	 */
+	protected function volatile_set_extension()
+	{
+		throw new Exception\PropertyNotWritable(array('extension', $this));
+	}
+
+	/**
 	 * Returns the extension of the path info.
 	 *
 	 * @return mixed
@@ -658,6 +820,11 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	protected function volatile_get_extension()
 	{
 		return pathinfo($this->path, PATHINFO_EXTENSION);
+	}
+
+	protected function set_params($params)
+	{
+		return $params;
 	}
 
 	/**
@@ -672,6 +839,16 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	{
 		return $this->path_params + $this->request_params + $this->query_params;
 	}
+
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write an unsupported property.
+	 */
+	/*
+	protected function last_chance_set($property, $value, &$success)
+	{
+		throw new Exception\PropertyNotWritable(array($property, $this));
+	}
+	*/
 }
 
 namespace ICanBoogie\HTTP\Request;
@@ -681,6 +858,8 @@ namespace ICanBoogie\HTTP\Request;
  *
  * This is a general purpose container used to store the objects and variables related to a
  * request.
+ *
+ * @property-read \ICanBoogie\HTTP\Request $request The request associated with the context.
  */
 class Context extends \ICanBoogie\Object
 {
@@ -704,6 +883,9 @@ class Context extends \ICanBoogie\Object
 		$this->request = $request;
 	}
 
+	/**
+	 * @throws \ICanBoogie\Exception\PropertyNotWritable in attempt to write {@link $request}
+	 */
 	protected function volatile_set_request()
 	{
 		throw new \ICanBoogie\Exception\PropertyNotWritable(array('request', $this));

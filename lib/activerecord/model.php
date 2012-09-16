@@ -16,6 +16,13 @@ use ICanBoogie\Exception;
 use ICanBoogie\ActiveRecord;
 use ICanBoogie\ActiveRecord\Query;
 
+/**
+ * Base class for activerecord models.
+ *
+ * @property-read int $count The number of records of the model.
+ * @property-read bool $exists Whether the SQL table associated with the model exists.
+ * @property-read string $id The identifier of the model.
+ */
 class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 {
 	const T_CLASS = 'class';
@@ -111,11 +118,19 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 		return parent::__get($property);
 	}
 
+	/**
+	 * Returns the identifier of the model.
+	 *
+	 * @return string
+	 */
 	protected function volatile_get_id()
 	{
 		return $this->attributes[self::T_ID];
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in appenpt to write {@link $id}
+	 */
 	protected function volatile_set_id()
 	{
 		throw new Exception\PropertyNotWritable(array('id', $this));
@@ -462,7 +477,7 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 	 *
 	 * @param $key
 	 *
-	 * @return Query
+	 * @return bool
 	 *
 	 * @see Query::exists
 	 */
@@ -471,6 +486,19 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 		return $this->delegate_to_query();
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $exists}
+	 */
+	protected function volatile_set_exists()
+	{
+		throw new Exception\PropertyNotWritable(array('exists', $this));
+	}
+
+	/**
+	 * Checks that the SQL table associated with the model exists.
+	 *
+	 * @return bool
+	 */
 	protected function volatile_get_exists()
 	{
 		return $this->exists();
@@ -490,6 +518,19 @@ class Model extends \ICanBoogie\DatabaseTable implements \ArrayAccess
 		return $this->delegate_to_query();
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $count}
+	 */
+	protected function volatile_set_count()
+	{
+		throw new Exception\PropertyNotWritable(array('count', $this));
+	}
+
+	/**
+	 * Returns the number of records of the model.
+	 *
+	 * @return int
+	 */
 	protected function volatile_get_count()
 	{
 		return $this->count();

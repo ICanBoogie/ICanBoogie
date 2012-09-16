@@ -18,10 +18,40 @@ use ICanBoogie\Errors;
  */
 class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 {
+	/**
+	 * Result of the response.
+	 *
+	 * @var mixed
+	 */
 	public $rc;
+
+	/**
+	 * Message associated with the response.
+	 *
+	 * @var string|array
+	 */
 	public $message;
 
+	/**
+	 * Errors occuring during the response.
+	 *
+	 * @var Errors
+	 */
+	public $errors;
+
 	protected $metas=array();
+
+	/**
+	 * Initializes the {@link $errors} property.
+	 *
+	 * @see \ICanBoogie\HTTP\Response::__construct
+	 */
+	public function __construct($status=200, array $headers=array(), $body=null)
+	{
+		parent::__construct($status, $headers, $body);
+
+		$this->errors = new Errors();
+	}
 
 	public function __invoke()
 	{
@@ -206,11 +236,6 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 	public function offsetUnset($offset)
 	{
 		unset($this->metas[$offset]);
-	}
-
-	protected function get_errors()
-	{
-		return new Errors();
 	}
 }
 

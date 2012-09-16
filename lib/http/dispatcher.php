@@ -14,6 +14,36 @@ namespace ICanBoogie\HTTP;
 use ICanBoogie\Operation;
 use ICanBoogie\Routes;
 
+/**
+ * Dispatches requests.
+ *
+ * The request is dispatched using controllers which can be defined during the
+ * {@link Dispatcher\PopulateEvent}. By default dispatchers are setup for operations and routes.
+ *
+ *
+ *
+ * Event: ICanBoogie\HTTP\Dispatcher::populate
+ * -------------------------------------------
+ *
+ * Third parties may use the {@link Dispatcher\PopulateEvent} to populate the controllers
+ * that will be used to dispatch requests. The event is fired during {@link __construct()}.
+ *
+ *
+ *
+ * Event: ICanBoogie\HTTP\Dispatcher::dispatch:before
+ * --------------------------------------------------
+ *
+ * Third parties may use the {@link Dispatcher\BeforeDispatchEventto provide a response
+ * before the controllers are invoked. The event is fired during {@link __invoke()}.
+ *
+ *
+ *
+ * Event: ICanBoogie\HTTP\Dispatcher::dispatch
+ * -------------------------------------------
+ *
+ * Third parties may use the {@link Dispatcher\DispatchEvent} to alter the response returned by
+ * dispatchers. The event is fired during {@link __invoke()}.
+ */
 class Dispatcher
 {
 	static public function dispatch_operation(Request $request)
@@ -47,65 +77,32 @@ class Dispatcher
 		return $response;
 	}
 
-	static public function dispatch_route(Request $request)
-	{
-		$path = $request->path;
-		$path = preg_replace('/^\/index\.(html|php)/', '/', $path);
-
-		$route = \ICanBoogie\Routes::get()->find($path, $request->method);
-
-		if ($route)
-		{
-			$response = $route($request);
-		}
-		else
-		{
-			$response = null;
-		}
-
-		return $response;
-	}
-
 	protected $controllers = array
 	(
 		'operation' => array(__CLASS__, 'dispatch_operation'),
-		'route' => array(__CLASS__, 'dispatch_route')
+		'route' => 'ICanBoogie\Routes::dispatch_request'
 	);
 
+	/**
+	 * Fires the {@link Dispatcher\PopulateEvent}.
+	 */
 	public function __construct()
 	{
 		new Dispatcher\PopulateEvent($this, array('controllers' => &$this->controllers));
 	}
 
 	/**
-	 *
 	 * The request is dispatched using the event system and the operation system. The goal is to
 	 * retrieve a {@link Response}:
 	 *
-	 * - The `ICanBoogie\HTTP\Request::dispatch:before` event of class
-	 * `ICanBoogie\HTTP\Request\BeforeDispatchEvent` class is fired with a reference to an
-	 * `null` response variable. Event hooks might use this event to provide the response.
-	 *
-	 * - If an operation is created from the request it is executed to obtain the response.
-	 *
-	 * - The `ICanBoogie\HTTP\Request::dispatch` event of class
-	 * `ICanBoogie\HTTP\Request\DispatchEvent` is fired with a {@link Response} object. Event hook
-	 * might alter the response object to provide their response.
-	 *
-	 *
-	 * Controllers chain
-	 * -----------------
-	 *
-	 * The controllers chain is traversed until a controller returns a valid response. A response
-	 * is considered valid if it has no client or server error when the request is not a XHR. This
-	 * allows pages to be rendered even after a failed operation, so that an error message can be
-	 * displayed.
-	 *
-	 * Note that this does not apply to '/api/' requests, which return a 404 response when they
-	 * fail.
+	 * 1. The {@link Dispatcher\BeforeDispatchEvent} is fired.
+	 * 2. The controllers chain is traversed until a controller returns a response object.
+	 * 3. The {@link Dispatcher\DispatchEvent} is fired.
 	 *
 	 * @param Request $request
-	 * @throws \ICanBoogie\Exception\HTTP
+	 *
+	 * @throws \ICanBoogie\Exception\HTTP with code 404 if no response could be obtained from the
+	 * events or the controllers.
 	 *
 	 * @return Response
 	 */
@@ -196,13 +193,15 @@ namespace ICanBoogie\HTTP\Dispatcher;
 
 /**
  * Event class for the `ICanBoogie\HTTP\Dispatcher::populate` event.
+ *
+ * Third parties may use this event to register additionnal controllers.
  */
 class PopulateEvent extends \ICanBoogie\Event
 {
 	/**
-	 * Reference to the dispatcher callbacks.
+	 * Reference to the controllers array.
 	 *
-	 * @var array[string]mixed
+	 * @var array[string]callable
 	 */
 	public $controllers;
 
@@ -220,6 +219,10 @@ class PopulateEvent extends \ICanBoogie\Event
 
 /**
  * Event class for the `ICanBoogie\HTTP\Dispatcher::dispatch:before` event.
+ *
+ * Third parties may use this event to provide a response to the request before dispatcher
+ * controllers are invoked. The event is usually used to redirect request or to provide cached
+ * responses.
  */
 class BeforeDispatchEvent extends \ICanBoogie\Event
 {
@@ -231,7 +234,7 @@ class BeforeDispatchEvent extends \ICanBoogie\Event
 	public $request;
 
 	/**
-	 * The HTTP response.
+	 * Reference to the HTTP response.
 	 *
 	 * @var \ICanBoogie\HTTP\Response
 	 */
@@ -251,6 +254,8 @@ class BeforeDispatchEvent extends \ICanBoogie\Event
 
 /**
  * Event class for the `ICanBoogie\HTTP\Dispatcher::dispatch` event.
+ *
+ * Third parties may use this event to alter the response.
  */
 class DispatchEvent extends \ICanBoogie\Event
 {
@@ -262,7 +267,7 @@ class DispatchEvent extends \ICanBoogie\Event
 	public $request;
 
 	/**
-	 * The HTTP response.
+	 * Reference to the HTTP response.
 	 *
 	 * @var \ICanBoogie\HTTP\Response
 	 */

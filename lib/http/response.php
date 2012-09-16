@@ -16,15 +16,15 @@ use ICanBoogie\Exception;
 /**
  * The response to a HTTP request.
  *
- * @property \ICanBoogie\HTTP\Header\DateTime $age {@link volatile_set_age()} {@link volatile_get_age()}
+ * @property \ICanBoogie\HTTP\Headers\DateTime $age {@link volatile_set_age()} {@link volatile_get_age()}
  * @property string $body {@link volatile_set_body()} {@link volatile_get_body()}
- * @property \ICanBoogie\HTTP\Header\CacheControl $cache_control {@link volatile_set_cache_control()} {@link volatile_get_cache_control()}
+ * @property \ICanBoogie\HTTP\Headers\CacheControl $cache_control {@link volatile_set_cache_control()} {@link volatile_get_cache_control()}
  * @property string|array $content_length {@link volatile_set_content_length()} {@link volatile_get_content_length()}
  * @property string|array $content_type {@link volatile_set_content_type()} {@link volatile_get_content_type()}
- * @property \ICanBoogie\HTTP\Header\DateTime $date {@link volatile_set_date()} {@link volatile_get_date()}
+ * @property \ICanBoogie\HTTP\Headers\DateTime $date {@link volatile_set_date()} {@link volatile_get_date()}
  * @property string $etag {@link volatile_set_etag()} {@link volatile_get_etag()}
- * @property \ICanBoogie\HTTP\Header\DateTime $expires {@link volatile_set_expires()} {@link volatile_get_expires()}
- * @property \ICanBoogie\HTTP\Header\DateTime $last_modified {@link volatile_set_last_modified()} {@link volatile_get_last_modified()}
+ * @property \ICanBoogie\HTTP\Headers\DateTime $expires {@link volatile_set_expires()} {@link volatile_get_expires()}
+ * @property \ICanBoogie\HTTP\Headers\DateTime $last_modified {@link volatile_set_last_modified()} {@link volatile_get_last_modified()}
  * @property string $location {@link volatile_set_location()} {@link volatile_get_location()}
  * @property integer $status {@link volatile_set_status()} {@link volatile_get_status()}
  * @property string $status_message {@link volatile_set_status_message()} {@link volatile_get_status_message()}
@@ -95,11 +95,11 @@ class Response extends \ICanBoogie\Object
 	);
 
 	/**
-	 * Response header.
+	 * Response headers.
 	 *
-	 * @var Header
+	 * @var Headers
 	 */
-	public $header;
+	public $headers;
 
 	/**
 	 * @var string The HTTP protocol version (1.0 or 1.1), defaults to '1.0'
@@ -111,14 +111,14 @@ class Response extends \ICanBoogie\Object
 	 * properties.
 	 *
 	 * @param int $status The status code of the response.
-	 * @param array $header_fields The initial header fields of the response.
+	 * @param array $headers The initial header fields of the response.
 	 * @param mixed $body The body of the response.
 	 */
-	public function __construct($status=200, array $header_fields=array(), $body=null)
+	public function __construct($status=200, array $headers=array(), $body=null)
 	{
-		$this->header = new Header($header_fields);
+		$this->headers = new Headers($headers);
 
-		if (!$this->header['Date'])
+		if (!$this->headers['Date'])
 		{
 			$this->date = 'now';
 		}
@@ -132,7 +132,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	public function __clone()
 	{
-		$this->header = clone $this->header;
+		$this->headers = clone $this->headers;
 	}
 
 	/**
@@ -158,7 +158,7 @@ class Response extends \ICanBoogie\Object
 		}
 
 		return "HTTP/{$this->version} {$this->status} {$this->status_message}"
-		. $this->header
+		. $this->headers
 		. "\r\n"
 		. $body;
 	}
@@ -197,7 +197,7 @@ class Response extends \ICanBoogie\Object
 
 			header("HTTP/{$this->version} {$this->status} {$this->status_message}");
 
-			$this->header();
+			$this->headers();
 		}
 
 		$body = $this->body;
@@ -360,7 +360,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_set_location($url)
 	{
-		$this->header['Location'] = $url;
+		$this->headers['Location'] = $url;
 	}
 
 	/**
@@ -370,7 +370,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_get_location()
 	{
-		return $this->header['Location'];
+		return $this->headers['Location'];
 	}
 
 	/**
@@ -380,7 +380,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_set_content_type($content_type)
 	{
-		$this->header['Content-Type'] = $content_type;
+		$this->headers['Content-Type'] = $content_type;
 	}
 
 	/**
@@ -390,7 +390,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_get_content_type()
 	{
-		return $this->header['Content-Type'];
+		return $this->headers['Content-Type'];
 	}
 
 	/**
@@ -400,7 +400,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_set_content_length($length)
 	{
-		$this->header['Content-Length'] = $length;
+		$this->headers['Content-Length'] = $length;
 	}
 
 	/**
@@ -410,7 +410,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_get_content_length()
 	{
-		return $this->header['Content-Length'];
+		return $this->headers['Content-Length'];
 	}
 
 	/**
@@ -426,7 +426,7 @@ class Response extends \ICanBoogie\Object
 			$time = new \DateTime(null, new \DateTimeZone('UTC'));
 		}
 
-		$this->header['Date'] = $time;
+		$this->headers['Date'] = $time;
 	}
 
 	/**
@@ -436,7 +436,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_get_date()
 	{
-		return $this->header['Date'];
+		return $this->headers['Date'];
 	}
 
 	/**
@@ -446,7 +446,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_set_age($age)
 	{
-		$this->header['Age'] = $age;
+		$this->headers['Age'] = $age;
 	}
 
 	/**
@@ -456,7 +456,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_get_age()
 	{
-		$age = $this->header['Age'];
+		$age = $this->headers['Age'];
 
 		if ($age)
 		{
@@ -473,7 +473,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_set_last_modified($time)
 	{
-		$this->header['Last-Modified'] = $time;
+		$this->headers['Last-Modified'] = $time;
 	}
 
 	/**
@@ -483,7 +483,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_get_last_modified()
 	{
-		return $this->header['Last-Modified'];
+		return $this->headers['Last-Modified'];
 	}
 
 	/**
@@ -495,7 +495,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_set_expires($time)
 	{
-		$this->header['Expires'] = $time;
+		$this->headers['Expires'] = $time;
 
 		session_cache_expire($time); // TODO-20120831: Is this required now that we have an awesome response system ?
 	}
@@ -507,7 +507,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_get_expires()
 	{
-		return $this->header['Expires'];
+		return $this->headers['Expires'];
 	}
 
 	/**
@@ -517,7 +517,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_set_etag($value)
 	{
-		$this->header['Etag'] = $value;
+		$this->headers['Etag'] = $value;
 	}
 
 	/**
@@ -527,7 +527,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_get_etag()
 	{
-		return $this->header['Etag'];
+		return $this->headers['Etag'];
 	}
 
 	/**
@@ -537,7 +537,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_set_cache_control($cache_directives)
 	{
-		$this->header['Cache-Control'] = $cache_directives;
+		$this->headers['Cache-Control'] = $cache_directives;
 	}
 
 	/**
@@ -547,7 +547,7 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_get_cache_control()
 	{
-		return $this->header['Cache-Control'];
+		return $this->headers['Cache-Control'];
 	}
 
 	/**
@@ -615,6 +615,9 @@ class Response extends \ICanBoogie\Object
 		return $this->status >= 100 && $this->status < 600;
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_valid}.
+	 */
 	protected function volatile_set_is_valid()
 	{
 		throw new Exception\PropertyNotWritable(array('is_valid', $this));
@@ -634,6 +637,9 @@ class Response extends \ICanBoogie\Object
 		return $this->status >= 100 && $this->status < 200;
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to wrtie {@link $is_informational}.
+	 */
 	protected function volatile_set_is_informational()
 	{
 		throw new Exception\PropertyNotWritable(array('is_informational', $this));
@@ -653,6 +659,9 @@ class Response extends \ICanBoogie\Object
 		return $this->status >= 200 && $this->status < 300;
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_successful}.
+	 */
 	protected function volatile_set_is_successful()
 	{
 		throw new Exception\PropertyNotWritable(array('is_successful', $this));
@@ -673,6 +682,9 @@ class Response extends \ICanBoogie\Object
 		return $this->status >= 300 && $this->status < 400;
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_redirection}.
+	 */
 	protected function volatile_set_is_redirection()
 	{
 		throw new Exception\PropertyNotWritable(array('is_redirection', $this));
@@ -693,6 +705,9 @@ class Response extends \ICanBoogie\Object
 		return $this->status >= 400 && $this->status < 500;
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_client_error}.
+	 */
 	protected function volatile_set_is_client_error()
 	{
 		throw new Exception\PropertyNotWritable(array('is_client_error', $this));
@@ -713,6 +728,9 @@ class Response extends \ICanBoogie\Object
 		return $this->status >= 500 && $this->status < 600;
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_server_error}.
+	 */
 	protected function volatile_set_is_server_error()
 	{
 		throw new Exception\PropertyNotWritable(array('is_server_error', $this));
@@ -732,6 +750,9 @@ class Response extends \ICanBoogie\Object
 		return $this->status == 200;
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_ok}.
+	 */
 	protected function volatile_set_is_ok()
 	{
 		throw new Exception\PropertyNotWritable(array('is_ok', $this));
@@ -751,6 +772,9 @@ class Response extends \ICanBoogie\Object
 		return $this->status == 403;
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to wrtie {@link $is_forbidden}.
+	 */
 	protected function volatile_set_is_forbidden()
 	{
 		throw new Exception\PropertyNotWritable(array('is_forbidden', $this));
@@ -770,6 +794,9 @@ class Response extends \ICanBoogie\Object
 		return $this->status == 404;
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_not_found}.
+	 */
 	protected function volatile_set_is_not_found()
 	{
 		throw new Exception\PropertyNotWritable(array('is_not_found', $this));
@@ -789,6 +816,9 @@ class Response extends \ICanBoogie\Object
 		return in_array($this->status, array(201, 204, 304));
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link is_empty}.
+	 */
 	protected function volatile_set_is_empty()
 	{
 		throw new Exception\PropertyNotWritable(array('is_empty', $this));
@@ -802,9 +832,12 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_get_is_validateable()
 	{
-		return $this->header['Last-Modified'] || $this->header['ETag'];
+		return $this->headers['Last-Modified'] || $this->headers['ETag'];
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_validateable}.
+	 */
 	protected function volatile_set_is_validateable()
 	{
 		throw new Exception\PropertyNotWritable(array('is_validateable', $this));
@@ -836,6 +869,9 @@ class Response extends \ICanBoogie\Object
 		return $this->is_validateable() || $this->is_fresh();
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_cacheable}.
+	 */
 	protected function volatile_set_is_cacheable()
 	{
 		throw new Exception\PropertyNotWritable(array('is_cacheable', $this));
@@ -851,8 +887,19 @@ class Response extends \ICanBoogie\Object
 		return $this->ttl > 0;
 	}
 
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write {@link $is_fresh}.
+	 */
 	protected function volatile_set_is_fresh()
 	{
 		throw new Exception\PropertyNotWritable(array('is_fresh', $this));
+	}
+
+	/**
+	 * @throws Exception\PropertyNotWritable in attempt to write an unsupported property.
+	 */
+	protected function last_chance_set($property, $value, &$success)
+	{
+		throw new Exception\PropertyNotWritable(array($property, $this));
 	}
 }

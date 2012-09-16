@@ -114,13 +114,13 @@ abstract class Operation extends Object
 		if ($extension == 'json')
 		{
 			$path = substr($path, 0, -5);
-			$request->header['Accept'] = 'application/json';
+			$request->headers['Accept'] = 'application/json';
 			$request->is_xhr = true; // FIXME-20110925: that's not very nice
 		}
 		else if ($extension == 'xml')
 		{
 			$path = substr($path, 0, -4);
-			$request->header['Accept'] = 'application/xml';
+			$request->headers['Accept'] = 'application/xml';
 			$request->is_xhr = true; // FIXME-20110925: that's not very nice
 		}
 
@@ -184,7 +184,7 @@ abstract class Operation extends Object
 
 	static protected function from_route(HTTP\Request $request, $path)
 	{
-		$route = Routes::get()->find($path, $request->method, 'api');
+		$route = Routes::get()->find($path, $captured, $request->method, 'api');
 
 		if (!$route)
 		{
@@ -198,10 +198,10 @@ abstract class Operation extends Object
 		# (defined using the `callback` key).
 		#
 
-		if ($route->path_params)
+		if ($captured)
 		{
-			$request->path_params = $route->path_params;
-			$request->params = $route->path_params + $request->params;
+			$request->path_params = $captured;
+			$request->params = $captured + $request->params;
 		}
 
 		if ($route->callback && $route->class)
@@ -493,13 +493,10 @@ abstract class Operation extends Object
 	 * @param Module|array $destination The destination of the operation, either a module or a
 	 * route.
 	 */
-	public function __construct($destination)
+	public function __construct($destination=null)
 	{
 		unset($this->controls);
 
-		$this->destination = $destination;
-
-		$this->target = $destination;
 		$this->module = $destination instanceof Module ? $destination : null;
 	}
 
@@ -652,13 +649,13 @@ abstract class Operation extends Object
 
 		if ($request->is_xhr)
 		{
-			$response->content_type = $request->header['Accept'];
+			$response->content_type = $request->headers['Accept'];
 			$response->location = null;
 		}
 		else if ($response->location)
 		{
 			$response->body = '';
-			$response->header['Referer'] = $request->uri;
+			$response->headers['Referer'] = $request->uri;
 		}
 		else if ($response->status == 304)
 		{

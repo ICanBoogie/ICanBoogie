@@ -366,7 +366,7 @@ class Event
 	 * @param string $type The event type.
 	 * @param array $properties
 	 *
-	 * @throws Exception\PropertyNotWritable if one of the properties is reserved.
+	 * @throws Exception\PropertyNotWritable in attempt to use a reserved property.
 	 */
 	protected function __construct($target, $type, array $properties)
 	{

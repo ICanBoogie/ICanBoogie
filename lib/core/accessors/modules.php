@@ -533,6 +533,8 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 			$autoload[$namespace . '\Hooks'] = $path . 'hooks.php';
 		}
 
+		# operation classes
+
 		$operations_dir = $path . 'operations' . DIRECTORY_SEPARATOR;
 
 		if (is_dir($operations_dir))
@@ -549,21 +551,41 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 			}
 		}
 
-		$operations_dir = $path . 'lib' . DIRECTORY_SEPARATOR . 'operations' . DIRECTORY_SEPARATOR;
+		$try = $path . 'lib' . DIRECTORY_SEPARATOR . 'operations' . DIRECTORY_SEPARATOR;
 
-		if (is_dir($operations_dir))
+		if (is_dir($try))
 		{
-			$dir = new \DirectoryIterator($operations_dir);
+			$dir = new \DirectoryIterator($try);
 			$filter = new \RegexIterator($dir, '#\.php$#');
 
 			foreach ($filter as $file)
 			{
-				$base = $file->getBasename('.php');
-				$operation_class_name = Operation::format_class_name($namespace, $base);
+				$name = $file->getBasename('.php');
+				$classname = Operation::format_class_name($namespace, $name);
 
-				$autoload[$operation_class_name] = $operations_dir . $file;
+				$autoload[$classname] = $try . $file;
 			}
 		}
+
+		# controller classes
+
+		$pathname = $path . 'lib' . DIRECTORY_SEPARATOR . 'controllers' . DIRECTORY_SEPARATOR;
+
+		if (is_dir($pathname))
+		{
+			$dir = new \DirectoryIterator($pathname);
+			$filter = new \RegexIterator($dir, '#\.php$#');
+
+			foreach ($filter as $file)
+			{
+				$name = $file->getBasename('.php');
+				$classname = Controller::format_class_name($namespace, $name);
+
+				$autoload[$classname] = $pathname . $file;
+			}
+		}
+
+		# models and active records
 
 		foreach ($descriptor[Module::T_MODELS] as $model_id => &$definition)
 		{

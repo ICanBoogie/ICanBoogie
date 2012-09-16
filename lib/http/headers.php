@@ -21,7 +21,7 @@ namespace ICanBoogie\HTTP;
  *
  * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
  */
-class Header implements \ArrayAccess, \IteratorAggregate
+class Headers implements \ArrayAccess, \IteratorAggregate
 {
 	/**
 	 * Header fields.
@@ -140,7 +140,7 @@ class Header implements \ArrayAccess, \IteratorAggregate
 			{
 				if (empty($this->fields[$field]))
 				{
-					$this->fields[$field] = new Header\CacheControl();
+					$this->fields[$field] = new Headers\CacheControl();
 				}
 
 				return $this->fields[$field];
@@ -151,7 +151,7 @@ class Header implements \ArrayAccess, \IteratorAggregate
 			{
 				if (empty($this->fields[$field]))
 				{
-					$this->fields[$field] = new Header\ContentType();
+					$this->fields[$field] = new Headers\ContentType();
 				}
 
 				return $this->fields[$field];
@@ -183,7 +183,7 @@ class Header implements \ArrayAccess, \IteratorAggregate
 	 * Cache-Control and Content-Type
 	 * ------------------------------
 	 *
-	 * Instances of the {@link Header\CacheControl} and {@link Header\ContentType} classes are
+	 * Instances of the {@link Headers\CacheControl} and {@link Headers\ContentType} classes are
 	 * used to handle the values of the `Cache-Control` and `Content-Type` header fields.
 	 *
 	 * @param string $field The header field to set.
@@ -215,7 +215,7 @@ class Header implements \ArrayAccess, \IteratorAggregate
 			# http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.29
 			case 'Last-Modified':
 			{
-				$value = new Header\DateTime($value);
+				$value = new Headers\DateTime($value);
 			}
 			break;
 
@@ -258,7 +258,7 @@ class Header implements \ArrayAccess, \IteratorAggregate
 			# http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.37
 			case 'Retry-After':
 			{
-				$value = is_numeric($value) ? $value : new Header\DateTime($value);
+				$value = is_numeric($value) ? $value : new Headers\DateTime($value);
 			}
 			break;
 		}
@@ -310,7 +310,7 @@ class Header implements \ArrayAccess, \IteratorAggregate
 	}
 }
 
-namespace ICanBoogie\HTTP\Header;
+namespace ICanBoogie\HTTP\Headers;
 
 use ICanBoogie\Exception;
 

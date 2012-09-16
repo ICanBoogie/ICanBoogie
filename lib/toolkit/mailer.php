@@ -28,7 +28,7 @@ class Mailer
 	public $type = 'plain';
 	public $bcc = array();
 
-	private $header = array();
+	private $headers = array();
 
 	public function __construct(array $tags)
 	{
@@ -110,7 +110,7 @@ class Mailer
 
 	public function modifyHeader(array $modifiers)
 	{
-		$this->header = $modifiers + $this->header;
+		$this->headers = $modifiers + $this->headers;
 	}
 
 	public function __invoke()
@@ -119,7 +119,7 @@ class Mailer
 		$subject = $this->subject;
 		$message = $this->message;
 
-		$parts = $this->header + array
+		$parts = $this->headers + array
 		(
 			'Content-Type' => 'text/' . $this->type . '; charset=' . $this->charset
 		);

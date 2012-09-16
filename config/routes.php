@@ -2,13 +2,13 @@
 
 return array
 (
-	'core:aloha' => array
+	'api:core/aloha' => array
 	(
 		'pattern' => '/api/core/aloha',
 		'class' => 'ICanBoogie\AlohaOperation'
 	),
 
-	'core:ping' => array
+	'api:core/ping' => array
 	(
 		'pattern' => '/api/core/ping',
 		'class' => 'ICanBoogie\PingOperation'
