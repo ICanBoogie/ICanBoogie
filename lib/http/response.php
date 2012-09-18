@@ -910,3 +910,57 @@ class Response extends \ICanBoogie\Object
 	}
 	*/
 }
+
+/**
+ * Represents a HTML response doing a redirect.
+ */
+class RedirectResponse extends Response
+{
+	/**
+	 * Initializes the `Location` header.
+	 *
+	 * @param string $url URL to redirect to.
+	 * @param int $status Status code (default to 302).
+	 * @param array $headers Additional headers.
+	 *
+	 * @throws \InvalidArgumentException if the provided status code is not a redirect.
+	 */
+	public function __construct($url, $status=302, array $headers=array())
+	{
+		parent::__construct(302, $headers);
+
+		$this->location = $url;
+
+		if (!$this->is_redirect)
+		{
+			throw new \InvalidArgumentException("The HTTP status code is not a redirect (<q>$status</q> given).");
+		}
+	}
+
+	/**
+	 * Creates a HTML fallback as body.
+	 *
+	 * @see ICanBoogie\HTTP.Response::__invoke()
+	 */
+	public function __invoke()
+	{
+		$location = $this->location;
+		$title = \ICanBoogie\escape($location);
+
+		$this->body = <<<EOT
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="refresh" content="1;url={$location}" />
+
+	<title>Redirecting to {$title}</title>
+</head>
+<body>
+	Redirecting to <a href="{$location}">{$title}</a>.
+</body>
+</html>
+EOT;
+		parent::__invoke();
+	}
+}
