@@ -19,15 +19,15 @@ namespace ICanBoogie;
  * @property \ICanBoogie\Models $models Models accessor.
  * @property \ICanBoogie\Modules $modules Modules accessor.
  * @property \ICanBoogie\Vars $vars Persistent variables accessor.
- * @property \ICanBoogie\Database $db The primary database connection.
+ * @property \ICanBoogie\Database $db Primary database connection.
  * @property \ICanBoogie\Session $session User's session.
  * @property string $language Locale language.
  * @property string|int $timezone Date and time timezone.
  * @property-read \ICanBoogie\I18n\Locale $locale Locale object matching the locale language.
  * @property array $config The "core" configuration.
  * @property-read \ICanBoogie\HTTP\Request $request The request being processed.
- * @property-read \ICanBoogie\Events $events The events collection.
- * @property-read \ICanBoogie\Routes $routes The routes collection.
+ * @property-read \ICanBoogie\Events $events Events collection.
+ * @property-read \ICanBoogie\Routes $routes Routes collection.
  */
 class Core extends Object
 {
@@ -61,23 +61,11 @@ class Core extends Object
 	}
 
 	static protected $autoload = array();
-	static protected $classes_aliases = array();
 
 	/**
 	 * Loads the file defining the specified class.
 	 *
-	 * The 'autoload' config property is used to define an array of 'class_name => file_path' pairs
-	 * used to find the file required by the class.
-	 *
-	 * Class alias
-	 * -----------
-	 *
-	 * Using the 'classes aliases' config property, one can specify aliases for classes. The
-	 * 'classes aliases' config property is an array where the key is the alias name and the value
-	 * the class name.
-	 *
-	 * When needed, a final class is created for the alias by extending the real class. The class
-	 * is made final so that it cannot be subclassed.
+	 * The 'autoload' config is used to map class name to PHP files.
 	 *
 	 * Class initializer
 	 * -----------------
@@ -85,7 +73,7 @@ class Core extends Object
 	 * If the loaded class defines the '__static_construct' method, the method is invoked to
 	 * initialize the class.
 	 *
-	 * @param string $name The name of the class
+	 * @param string $name Name of the class
 	 *
 	 * @return boolean Whether or not the required file could be found.
 	 */
@@ -93,28 +81,19 @@ class Core extends Object
 	{
 		$list = self::$autoload;
 
-		if (isset($list[$name]))
+		if (empty($list[$name]))
 		{
-			require_once $list[$name];
-
-			if (method_exists($name, '__static_construct'))
-			{
-				call_user_func($name . '::__static_construct');
-			}
-
-			return true;
+			return false;
 		}
 
-		$list = self::$classes_aliases;
+		require_once $list[$name];
 
-		if (isset($list[$name]))
+		if (method_exists($name, '__static_construct'))
 		{
-			class_alias($list[$name], $name);
-
-			return true;
+			call_user_func($name . '::__static_construct');
 		}
 
-		return false;
+		return true;
 	}
 
 	/**
@@ -180,6 +159,14 @@ class Core extends Object
 		$configs->add($options['paths']['config']);
 
 		$config = array_merge_recursive($options, $this->config);
+
+		#
+		# Initial autoload, only autoload configs defined in the config paths are indexed.
+		#
+
+		self::$autoload = $this->configs['autoload'];
+
+		#
 
 		I18n::$load_paths = array_merge(I18n::$load_paths, $config['paths']['locale']);
 
@@ -256,7 +243,7 @@ class Core extends Object
 	 */
 	protected function get_configs()
 	{
-		return new Configs($this);
+		return new Configs();
 	}
 
 	/**
@@ -267,9 +254,6 @@ class Core extends Object
 	protected function get_config()
 	{
 		$config = $this->configs['core'];
-
-		self::$autoload = $config['autoload'];
-		self::$classes_aliases = $config['classes aliases'];
 
 		$this->configs->constructors += $config['config constructors'];
 
@@ -485,24 +469,14 @@ class Core extends Object
 	 */
 	protected function run_modules()
 	{
-		$index = $this->modules->index;
+		$modules = $this->modules;
+		$index = $modules->index;
 
-		I18n::$load_paths = array_merge(I18n::$load_paths, $index['catalogs']);
+		I18n::$load_paths = array_merge(I18n::$load_paths, $modules->locale_paths);
 
-		if ($index['configs'])
-		{
-			$this->configs->add($index['configs'], 5);
-		}
+		$this->configs->add($modules->config_paths, 5);
 
-		if ($index['autoload'])
-		{
-			self::$autoload += $index['autoload'];
-		}
-
-		if ($index['classes aliases'])
-		{
-			self::$classes_aliases += $index['classes aliases'];
-		}
+		self::$autoload = $this->configs['autoload'] + $this->modules->autoload;
 
 		if ($index['config constructors'])
 		{

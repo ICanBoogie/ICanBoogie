@@ -27,23 +27,24 @@ class Configs implements \ArrayAccess
 		'core' => array('recursive merge', 'core')
 	);
 
-	protected $core;
-
-	public function __construct(Core $core)
-	{
-		$this->core = $core;
-	}
-
 	public function offsetSet($offset, $value)
 	{
 		throw new OffsetNotWritable(array($offset, $this));
 	}
 
+	/**
+	 * Checks if a config has been synthesized.
+	 *
+	 * @see ArrayAccess::offsetExists()
+	 */
 	public function offsetExists($offset)
 	{
-		throw new OffsetNotReadable(array($offset, $this));
+		isset($this->configs[$offsets]);
 	}
 
+	/**
+	 * @throws OffsetNotWritable in attempt to unset an offset.
+	 */
 	public function offsetUnset($offset)
 	{
 		throw new OffsetNotWritable(array($offset, $this));
@@ -71,9 +72,20 @@ class Configs implements \ArrayAccess
 		return $this->synthesize($id, $constructor, $from);
 	}
 
+	/**
+	 * Revokes the synthsized configs.
+	 *
+	 * The method is usually called after the config paths have been modified.
+	 */
+	protected function revoke_configs()
+	{
+		$this->configs = array();
+	}
+
 	public function add($path, $weight=0)
 	{
 		$this->sorted_paths = null;
+		$this->revoke_configs();
 
 		if (is_array($path))
 		{
@@ -131,22 +143,9 @@ class Configs implements \ArrayAccess
 		return self::$require_cache[$__file__] = require $__file__;
 	}
 
-	private $disabled_paths;
-
 	private function get($name, $paths)
 	{
-		$disabled = $this->disabled_paths;
 		$fragments = array();
-
-		if (!$disabled && isset($this->core->modules))
-		{
-			foreach ($this->core->modules->disabled_modules_descriptors as $module_id => $descriptor)
-			{
-				$disabled[$descriptor[Module::T_PATH]] = true;
-			}
-
-			$this->disabled_paths = $disabled;
-		}
 
 		foreach ($paths as $path)
 		{

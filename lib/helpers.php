@@ -25,8 +25,7 @@ function register_autoloader()
 			if ($index === null)
 			{
 				$path = ROOT; // the $path variable is used within the config file
-				$config = require $path . 'config/core.php';
-				$index = $config['autoload'];
+				$index = require $path . 'config/autoload.php';
 			}
 
 			if (isset($index[$name]))

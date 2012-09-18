@@ -16,8 +16,11 @@ use ICanBoogie\ActiveRecord\Model;
 /**
  * Accessor class for the modules of the framework.
  *
- * @property-read array $disabled_modules_descriptors The descriptors of the disabled modules.
- * @property-read array $enabled_modules_descriptors The descriptors of the enabled modules.
+ * @property-read array $autoload Maps of the auto-classes defined by the enabled modules.
+ * @property-read array $config_paths Paths of the enabled modules having a `config` directory.
+ * @property-read array $locale_paths Paths of the enabled modules having a `locale` directory.
+ * @property-read array $disabled_modules_descriptors Descriptors of the disabled modules.
+ * @property-read array $enabled_modules_descriptors Descriptors of the enabled modules.
  * @property-read array $index Index for the modules.
  */
 class Modules extends Object implements \ArrayAccess, \IteratorAggregate
@@ -70,6 +73,27 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * Revokes constructions.
+	 *
+	 * The following properties are revoked:
+	 *
+	 * - {@link $enabled_modules_descriptors}
+	 * - {@link $disabled_modules_descriptors}
+	 * - {@link $catalog_paths}
+	 * - {@link $config_paths}
+	 *
+	 * The method is usually invoked when modules state changes, in order to reflect these
+	 * changes.
+	 */
+	protected function revoke_constructions()
+	{
+		unset($this->enabled_modules_descriptors);
+		unset($this->disabled_modules_descriptors);
+		unset($this->catalog_paths);
+		unset($this->config_paths);
+	}
+
+	/**
 	 * Used to enable or disable a module using the specified offset as the module's id.
 	 *
 	 * The module is enabled or disabled by modifying the value of the {@link Module::T_DISABLED}
@@ -86,9 +110,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 		}
 
 		$this->descriptors[$id][Module::T_DISABLED] = empty($enable);
-
-		unset($this->enabled_modules_descriptors);
-		unset($this->disabled_modules_descriptors);
+		$this->revoke_constructions();
 	}
 
 	/**
@@ -128,9 +150,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 		}
 
 		$this->descriptors[$id][Module::T_DISABLED] = true;
-
-		unset($this->enabled_modules_descriptors);
-		unset($this->disabled_modules_descriptors);
+		$this->revoke_constructions();
 	}
 
 	/**
@@ -141,11 +161,13 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @param string $id The identifier of the module.
 	 *
-	 * @return Module
+	 * @throws ModuleNotDefined when the requested module is not defined.
 	 *
-	 * @throws Exception when the module doesn't exists or the class that should be used to create its instance is
-	 * not defined.
 	 * @throws ModuleIsDisabled when the module is disabled.
+	 *
+	 * @throws Exception when the class that should be used to create its instance is not defined.
+	 *
+	 * @return Module
 	 */
 	public function offsetGet($id)
 	{
@@ -158,23 +180,14 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 
 		if (empty($descriptors[$id]))
 		{
-			throw new Exception
-			(
-				'The module %id does not exists ! (available modules are: :list)', array
-				(
-					'%id' => $id,
-					':list' => implode(', ', array_keys($descriptors))
-				),
-
-				404
-			);
+			throw new ModuleNotDefined($id);
 		}
 
 		$descriptor = $descriptors[$id];
 
 		if (!empty($descriptor[Module::T_DISABLED]))
 		{
-			throw new ModuleIsDisabled(format('The module %id is disabled.', array('%id' => $id)), 404);
+			throw new ModuleIsDisabled($id);
 		}
 
 		$class = $descriptor[Module::T_CLASS];
@@ -222,9 +235,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 
 			if (!$index)
 			{
-				$index = $this->index_construct();
-
-				$this->cache[$key] = $index;
+				$this->cache[$key] = $index = $this->index_construct();
 			}
 		}
 		else
@@ -256,18 +267,6 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 */
 	protected function index_construct()
 	{
-		$descriptors = $this->paths ? $this->index_descriptors($this->paths) : array();
-
-		$index = array
-		(
-			'descriptors' => $descriptors,
-			'catalogs' => array(),
-			'configs' => array(),
-			'autoload' => array(),
-			'classes aliases' => array(),
-			'config constructors' => array()
-		);
-
 		$isolated_require = function ($__file__, $__exposed__)
 		{
 			extract($__exposed__);
@@ -275,20 +274,25 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 			return require $__file__;
 		};
 
-		foreach ($descriptors as $id => $descriptor)
-		{
-			$index['autoload'] = $descriptor['__autoload'] + $index['autoload'];
+		$descriptors = $this->paths ? $this->index_descriptors($this->paths) : array();
+		$catalogs = array();
+		$configs = array();
+		$config_constructors = array();
 
+		foreach ($descriptors as $id => &$descriptor)
+		{
 			$path = $descriptor[Module::T_PATH];
 
 			if (is_dir($path . '/locale'))
 			{
-				$index['catalogs'][] = $path;
+				$descriptor['__has_locale'] = true;
+				$catalogs[] = $path;
 			}
 
 			if (is_dir($path . '/config'))
 			{
-				$index['configs'][] = $path;
+				$descriptor['__has_config'] = true;
+				$configs[] = $path;
 
 				$core_config_path = $path . '/config/core.php';
 
@@ -296,25 +300,21 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 				{
 					$core_config = $isolated_require($core_config_path, array('path' => $path));
 
-					if (isset($core_config['autoload']))
-					{
-						$index['autoload'] += $core_config['autoload'];
-					}
-
-					if (isset($core_config['classes aliases']))
-					{
-						$index['classes aliases'] += $core_config['classes aliases'];
-					}
-
 					if (isset($core_config['config constructors']))
 					{
-						$index['config constructors'] += $core_config['config constructors'];
+						$config_constructors += $core_config['config constructors'];
 					}
 				}
 			}
 		}
 
-		return $index;
+		return array
+		(
+			'descriptors' => $descriptors,
+			'catalogs' => $catalogs,
+			'configs' => $configs,
+			'config constructors' => $config_constructors
+		);
 	}
 
 	/**
@@ -436,7 +436,10 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 					Module::T_VERSION => '0.0',
 					Module::T_WEIGHT => 0,
 
-					'__autoload' => array()
+					'__autoload' => array(),
+					'__has_config' => false,
+					'__has_locale' => false,
+					'__parents' => array()
 				);
 
 				$descriptors[$id] = $descriptor;
@@ -638,34 +641,6 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Returns the descriptors of the disabled modules.
-	 *
-	 * This method is the getter for the {@link $disabled_modules_descriptors} magic property.
-	 *
-	 * @return array
-	 */
-	public function get_disabled_modules_descriptors()
-	{
-		$this->sort_modules_descriptors();
-
-		return $this->disabled_modules_descriptors;
-	}
-
-	/**
-	 * Returns the descriptors of the enabled modules.
-	 *
-	 * This method is the getter for the {@link $enabled_modules_descriptors} magic property.
-	 *
-	 * @return array
-	 */
-	public function get_enabled_modules_descriptors()
-	{
-		$this->sort_modules_descriptors();
-
-		return $this->enabled_modules_descriptors;
-	}
-
-	/**
 	 * Traverses the descriptors and create two array of descriptors: one for the disabled modules
 	 * and the other for enabled modules. The {@link $disabled_modules_descriptors} magic property
 	 * receives the descriptors of the disabled modules, while the {@link $enabled_modules_descriptors}
@@ -675,6 +650,8 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	{
 		$enabled = array();
 		$disabled = array();
+
+		$this->index; // we make sure that the modules were indexed
 
 		foreach ($this->descriptors as $id => &$descriptor)
 		{
@@ -690,6 +667,93 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 
 		$this->enabled_modules_descriptors = $enabled;
 		$this->disabled_modules_descriptors = $disabled;
+	}
+
+	/**
+	 * Returns the descriptors of the disabled modules.
+	 *
+	 * This method is the getter for the {@link $disabled_modules_descriptors} magic property.
+	 *
+	 * @return array
+	 */
+	protected function get_disabled_modules_descriptors()
+	{
+		$this->sort_modules_descriptors();
+
+		return $this->disabled_modules_descriptors;
+	}
+
+	/**
+	 * Returns the descriptors of the enabled modules.
+	 *
+	 * This method is the getter for the {@link $enabled_modules_descriptors} magic property.
+	 *
+	 * @return array
+	 */
+	protected function get_enabled_modules_descriptors()
+	{
+		$this->sort_modules_descriptors();
+
+		return $this->enabled_modules_descriptors;
+	}
+
+	/**
+	 * Returns the paths of the enabled modules which have a `locale` folder.
+	 *
+	 * @return array[]string
+	 */
+	protected function get_locale_paths()
+	{
+		$paths = array();
+
+		foreach ($this->enabled_modules_descriptors as $module_id => $descriptor)
+		{
+			if (!$descriptor['__has_locale'])
+			{
+				continue;
+			}
+
+			$paths[] = $descriptor[Module::T_PATH];
+		}
+
+		return $paths;
+	}
+
+	/**
+	 * Returns the paths of the enabled modules which have a `config` folder.
+	 *
+	 * @return array[]string
+	 */
+	protected function get_config_paths()
+	{
+		$paths = array();
+
+		foreach ($this->enabled_modules_descriptors as $module_id => $descriptor)
+		{
+			if (!$descriptor['__has_config'])
+			{
+				continue;
+			}
+
+			$paths[] = $descriptor[Module::T_PATH];
+		}
+
+		return $paths;
+	}
+
+	/**
+	 * Returns the autoload map of auto-classes of the enabled modules.
+	 */
+	protected function get_autoload()
+	{
+		$autoload = array();
+
+		foreach ($this->enabled_modules_descriptors as $module_id => $descriptor)
+		{
+			$autoload += $descriptor['__autoload'];
+		}
+
+		return $autoload;
 	}
 
 	/**
@@ -850,10 +914,28 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 }
 
+/*
+ * EXCEPTIONS
+ */
+
 /**
  * This exception is thrown when a disabled module is requested.
  */
 class ModuleIsDisabled extends \RuntimeException
 {
+	public function __construct($module_id, $code=500, \Exception $previous)
+	{
+		parent::__construct(format('Module is disabled: %module_id', array('module_id' => $module_id)), $code, $previous);
+	}
+}
 
+/**
+ * This exception is thrown when requested module is not defined.
+ */
+class ModuleNotDefined extends \RuntimeException
+{
+	public function __construct($module_id, $code=500, \Exception $previous)
+	{
+		parent::__construct(format('Module is not defined: %module_id', array('module_id' => $module_id)), $code, $previous);
+	}
 }
