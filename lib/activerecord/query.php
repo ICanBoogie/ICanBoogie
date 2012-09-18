@@ -192,8 +192,22 @@ class Query extends Object implements \IteratorAggregate
 	{
 		if ($expression{0} == ':')
 		{
+			$primary = $this->model->primary;
+
 			$model = get_model(substr($expression, 1));
-			$expression = $model->resolve_statement('INNER JOIN `{self}` AS `{alias}` USING(`{primary}`)');
+			$model_schema = $model->extended_schema;
+
+			if (empty($model_schema['fields'][$primary]))
+			{
+				$primary = $model_schema['primary'];
+
+				if (is_array($primary))
+				{
+					$primary = current($primary);
+				}
+			}
+
+			$expression = $model->resolve_statement("INNER JOIN `{self}` AS `{alias}` USING(`{$primary}`)");
 		}
 
 		$this->join .= ' ' . $expression;
