@@ -115,13 +115,13 @@ abstract class Operation extends Object
 		{
 			$path = substr($path, 0, -5);
 			$request->headers['Accept'] = 'application/json';
-			$request->is_xhr = true; // FIXME-20110925: that's not very nice
+			$request->headers['X-Requested-With'] = 'XMLHttpRequest'; // FIXME-20110925: that's not very nice
 		}
 		else if ($extension == 'xml')
 		{
 			$path = substr($path, 0, -4);
 			$request->headers['Accept'] = 'application/xml';
-			$request->is_xhr = true; // FIXME-20110925: that's not very nice
+			$request->headers['X-Requested-With'] = 'XMLHttpRequest'; // FIXME-20110925: that's not very nice
 		}
 
 		$path = rtrim($path, '/');
