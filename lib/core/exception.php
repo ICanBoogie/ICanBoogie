@@ -247,7 +247,7 @@ class SecurityException extends \Exception
  */
 class AuthenticationRequired extends SecurityException
 {
-	public function __construct($message="The requested URL requires authentication.", $code=401, $previous=null)
+	public function __construct($message="The requested URL requires authentication.", $code=401, \Exception $previous=null)
 	{
 		parent::__construct($message, $code, $previous);
 	}
@@ -258,7 +258,7 @@ class AuthenticationRequired extends SecurityException
  */
 class PermissionRequired extends SecurityException
 {
-	public function __construct($message="You don't have the required permission.", $code=401, $previous=null)
+	public function __construct($message="You don't have the required permission.", $code=401, \Exception $previous=null)
 	{
 		parent::__construct($message, $code, $previous);
 	}
