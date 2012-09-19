@@ -99,7 +99,7 @@ class Statement extends \PDOStatement
 				(
 					$er[0], $er[1], $er[2], '%query' => $this->queryString, $args
 				)
-			), $e->getCode(), $e);
+			), 500, $e);
 		}
 	}
 
