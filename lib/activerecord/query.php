@@ -197,7 +197,19 @@ class Query extends Object implements \IteratorAggregate
 			$model = get_model(substr($expression, 1));
 			$model_schema = $model->extended_schema;
 
-			if (empty($model_schema['fields'][$primary]))
+			if (is_array($primary))
+			{
+				foreach ($primary as $column)
+				{
+					if (isset($model_schema['fields'][$column]))
+					{
+						$primary = $column;
+
+						break;
+					}
+				}
+			}
+			else if (empty($model_schema['fields'][$primary]))
 			{
 				$primary = $model_schema['primary'];
 

@@ -118,11 +118,8 @@ class Core extends Object
 		(
 			array
 			(
-				'paths' => array
-				(
-					'config' => array(ROOT),
-					'locale' => array(ROOT)
-				)
+				'config paths' => array(ROOT),
+				'locale paths' => array(ROOT)
 			),
 
 			$options
@@ -156,7 +153,7 @@ class Core extends Object
 		# the order is important, there's magic involved.
 
 		$configs = $this->configs;
-		$configs->add($options['paths']['config']);
+		$configs->add($options['config paths']);
 
 		$config = array_merge_recursive($options, $this->config);
 
@@ -168,7 +165,7 @@ class Core extends Object
 
 		#
 
-		I18n::$load_paths = array_merge(I18n::$load_paths, $config['paths']['locale']);
+		I18n::$load_paths = array_merge(I18n::$load_paths, $config['locale paths']);
 
 		if ($config['cache configs'])
 		{

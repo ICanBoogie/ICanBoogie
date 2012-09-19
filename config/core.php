@@ -7,11 +7,6 @@ return array
 	'cache configs' => false,
 	'cache modules' => false,
 
-	'classes aliases' => array
-	(
-
-	),
-
 	'config constructors' => array
 	(
 		'autoload' => array('merge'),
@@ -20,12 +15,22 @@ return array
 		'prototypes' => array('ICanBoogie\Prototype::synthesize_config', 'hooks')
 	),
 
+	'config paths' => array
+	(
+
+	),
+
 	'connections' => array
 	(
 
 	),
 
-	'modules' => array
+	'locale paths' => array
+	(
+
+	),
+
+	'modules paths' => array
 	(
 
 	),
