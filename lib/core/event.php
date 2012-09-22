@@ -485,7 +485,7 @@ class Event
 	 * @param string $property The read-only property to return.
 	 *
 	 * @throws PropertyNotReadable if the property exists but is not readable.
-	 * @throws PropertyNotFound if the property doesn't exists.
+	 * @throws PropertyNotDefined if the property doesn't exists.
 	 *
 	 * @return mixed
 	 */
@@ -505,7 +505,7 @@ class Event
 			throw new PropertyNotReadable(array($property, $this));
 		}
 
-		throw new PropertyNotFound(array($property, $this));
+		throw new PropertyNotDefined(array($property, $this));
 	}
 
 	/**

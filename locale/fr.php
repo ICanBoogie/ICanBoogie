@@ -29,7 +29,7 @@ return array
 	),
 
 	#
-	# WdUpload
+	# Upload
 	#
 
 	'error.message.upload.mime' => "Seuls les types de fichier suivant sont acceptés : %accepted.",

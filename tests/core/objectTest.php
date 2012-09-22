@@ -142,7 +142,7 @@ class B extends A
 class ObjectTest extends \PHPUnit_Framework_TestCase
 {
 	/**
-	 * @expectedException ICanBoogie\PropertyNotFound
+	 * @expectedException ICanBoogie\PropertyNotDefined
 	 */
 	public function testGetUnsetPublicProperty()
 	{
@@ -160,7 +160,7 @@ class ObjectTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException ICanBoogie\PropertyNotFound
+	 * @expectedException ICanBoogie\PropertyNotDefined
 	 */
 	public function testGetUndefinedProperty()
 	{

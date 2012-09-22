@@ -265,7 +265,7 @@ class Object
 	 * @throws PropertyNotReadable when the property has a protected or private scope and
 	 * no suitable callback could be found to retrieve its value.
 	 *
-	 * @throws PropertyNotFound when the property is undefined and there is no suitable
+	 * @throws PropertyNotDefined when the property is undefined and there is no suitable
 	 * callback to retrieve its values.
 	 *
 	 * @return mixed The value of the inaccessible property.
@@ -346,7 +346,7 @@ class Object
 
 		if ($properties)
 		{
-			throw new PropertyNotFound(format
+			throw new PropertyNotDefined(format
 			(
 				'Unknown or inaccessible property %property for object of class %class (available properties: !list).', array
 				(
@@ -357,7 +357,7 @@ class Object
 			));
 		}
 
-		throw new PropertyNotFound(array($property, $this));
+		throw new PropertyNotDefined(array($property, $this));
 	}
 
 	protected function __defer_get($property, &$success)
@@ -549,7 +549,7 @@ class Object
  * Exception thrown when there is something wrong with an object property.
  *
  * This is the base class for property exceptions, one should rather use the
- * {@link PropertyNotFound}, {@link PropertyNotReadable} or {@link PropertyNotWritable}
+ * {@link PropertyNotDefined}, {@link PropertyNotReadable} or {@link PropertyNotWritable}
  * exceptions.
  */
 class PropertyError extends \RuntimeException
@@ -563,7 +563,7 @@ class PropertyError extends \RuntimeException
  * For example, this could be triggered by an index out of bounds while setting an array value, or
  * by an unreadable property while getting the value of an object.
  */
-class PropertyNotFound extends PropertyError
+class PropertyNotDefined extends PropertyError
 {
 	public function __construct($message, $code=500, \Exception $previous=null)
 	{

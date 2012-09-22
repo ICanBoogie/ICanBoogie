@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\ActiveRecord;
 
-use ICanBoogie\PropertyNotFound;
+use ICanBoogie\PropertyNotDefined;
 
 /**
  * A database statement.
@@ -53,7 +53,7 @@ class Statement extends \PDOStatement
 	 *
 	 * @return mixed
 	 *
-	 * @throws PropertyNotFound if one tries to get a property that is not supported.
+	 * @throws PropertyNotDefined if one tries to get a property that is not supported.
 	 */
 	public function __get($property)
 	{
@@ -64,7 +64,7 @@ class Statement extends \PDOStatement
 			case 'rc': return $this->fetchColumnAndClose();
 		}
 
-		throw new PropertyNotFound(array($property, $this));
+		throw new PropertyNotDefined(array($property, $this));
 	}
 
 	/**

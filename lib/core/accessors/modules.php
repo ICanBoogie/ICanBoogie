@@ -748,7 +748,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	{
 		$autoload = array();
 
-		foreach ($this->enabled_modules_descriptors as $module_id => $descriptor)
+		foreach ($this->descriptors as $module_id => $descriptor)
 		{
 			$autoload += $descriptor['__autoload'];
 		}
@@ -923,7 +923,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
  */
 class ModuleIsDisabled extends \RuntimeException
 {
-	public function __construct($module_id, $code=500, \Exception $previous)
+	public function __construct($module_id, $code=500, \Exception $previous=null)
 	{
 		parent::__construct(format('Module is disabled: %module_id', array('module_id' => $module_id)), $code, $previous);
 	}
@@ -934,7 +934,7 @@ class ModuleIsDisabled extends \RuntimeException
  */
 class ModuleNotDefined extends \RuntimeException
 {
-	public function __construct($module_id, $code=500, \Exception $previous)
+	public function __construct($module_id, $code=500, \Exception $previous=null)
 	{
 		parent::__construct(format('Module is not defined: %module_id', array('module_id' => $module_id)), $code, $previous);
 	}

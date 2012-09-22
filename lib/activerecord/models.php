@@ -162,7 +162,7 @@ class Models implements \ArrayAccess
  */
 class ModelNotDefined extends ActiveRecordException
 {
-	public function __construct($id, $code=500, \Exception $previous)
+	public function __construct($id, $code=500, \Exception $previous=null)
 	{
 		parent::__construct("Model not defined: $id.", $code, $previous);
 	}
@@ -173,7 +173,7 @@ class ModelNotDefined extends ActiveRecordException
  */
 class ModelAlreadyInstanciated extends ActiveRecordException
 {
-	public function __construct($id, $code=500, \Exception $previous)
+	public function __construct($id, $code=500, \Exception $previous=null)
 	{
 		parent::__construct("Model already instanciated: $id.", $code, $previous);
 	}

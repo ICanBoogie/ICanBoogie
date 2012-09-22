@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\ActiveRecord;
 
-use ICanBoogie\PropertyNotFound;
+use ICanBoogie\PropertyNotDefined;
 
 /**
  * Connection to a databse.
@@ -84,15 +84,15 @@ class Connection extends \PDO
 	public $profiling = array();
 
 	/**
-	 * Creates a WdDatabase instance representing a connection to a database.
+	 * Creates a connection to a database.
 	 *
 	 * Custom options can be specified using the driver-specific connection options:
 	 *
-	 * - T_ID: Connection identifier.
-	 * - T_TABLE_NAME_PREFIX: Prefix for the database tables.
-	 * - T_CHARSET and T_COLLATE: Charset and collate used for the connection to the database,
+	 * - {@link T_ID}: Connection identifier.
+	 * - {@link T_TABLE_NAME_PREFIX}: Prefix for the database tables.
+	 * - {@link T_CHARSET} and {@link T_COLLATE}: Charset and collate used for the connection to the database,
 	 * and to create tables.
-	 * - T_TIMEZONE: Timezone for the connection.
+	 * - {@link T_TIMEZONE}: Timezone for the connection.
 	 *
 	 * @link http://www.php.net/manual/en/pdo.construct.php
 	 * @link http://dev.mysql.com/doc/refman/5.5/en/time-zone-support.html
@@ -162,7 +162,7 @@ class Connection extends \PDO
 				return $this->table_name_prefix;
 		}
 
-		throw new PropertyNotFound(array($property, $this));
+		throw new PropertyNotDefined(array($property, $this));
 	}
 
 	/**
