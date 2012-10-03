@@ -48,7 +48,8 @@ return array
 	'ICanBoogie\HTTP\Headers' => $http . 'headers.php',
 	'ICanBoogie\HTTP\Request' => $http . 'request.php',
 	'ICanBoogie\HTTP\Response' => $http . 'response.php',
-	'ICanBoogie\HTTP\UnsupportedMethodException' => $http . 'http.php',
+	'ICanBoogie\HTTP\StatusCodeNotValid' => $http . 'http.php',
+	'ICanBoogie\HTTP\MethodNotSupported' => $http . 'http.php',
 
 	'ICanBoogie\I18n' => $i18n . 'i18n.php',
 	'ICanBoogie\I18n\Locale' => $i18n . 'locale.php',

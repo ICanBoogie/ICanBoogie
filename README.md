@@ -81,11 +81,8 @@ $core = new Core
 (
 	array
 	(
-		'paths' => array
-		(
-			'config' => array(DOCUMENT_ROOT . 'protected/all/'),
-			'locale' => array(DOCUMENT_ROOT . 'protected/all/')
-		)
+		'config paths' => array(DOCUMENT_ROOT . 'protected/all/'),
+		'locale paths' => array(DOCUMENT_ROOT . 'protected/all/')
 	)
 );
 ```
@@ -111,3 +108,18 @@ $request = HTTP\Request::from($_SERVER);
 $response = $request();
 $response();
 ```
+
+
+
+
+Author
+------
+
+Olivier Laviale - <olivier.laviale@gmail.com> - [@olvlvl](https://twitter.com/olvlvl] - <http://www.weirdog.com/>
+
+
+
+Licence
+-------
+
+ICanBoogie is licensed under the New BSD Licence - See the LICENCE file for details.

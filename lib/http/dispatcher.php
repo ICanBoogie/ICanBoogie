@@ -17,7 +17,7 @@ use ICanBoogie\Routes;
 /**
  * Dispatches requests.
  *
- * The request is dispatched using controllers which can be defined during the
+ * Requests are dispatched using controllers which can be defined during the
  * {@link Dispatcher\PopulateEvent}. By default dispatchers are setup for operations and routes.
  *
  *
@@ -25,7 +25,7 @@ use ICanBoogie\Routes;
  * Event: ICanBoogie\HTTP\Dispatcher::populate
  * -------------------------------------------
  *
- * Third parties may use the {@link Dispatcher\PopulateEvent} to populate the controllers
+ * Third parties may use {@link Dispatcher\PopulateEvent} to populate the controllers
  * that will be used to dispatch requests. The event is fired during {@link __construct()}.
  *
  *
@@ -33,7 +33,7 @@ use ICanBoogie\Routes;
  * Event: ICanBoogie\HTTP\Dispatcher::dispatch:before
  * --------------------------------------------------
  *
- * Third parties may use the {@link Dispatcher\BeforeDispatchEventto provide a response
+ * Third parties may use {@link Dispatcher\BeforeDispatchEventto provide a response
  * before the controllers are invoked. The event is fired during {@link __invoke()}.
  *
  *
@@ -41,11 +41,16 @@ use ICanBoogie\Routes;
  * Event: ICanBoogie\HTTP\Dispatcher::dispatch
  * -------------------------------------------
  *
- * Third parties may use the {@link Dispatcher\DispatchEvent} to alter the response returned by
- * dispatchers. The event is fired during {@link __invoke()}.
+ * Third parties may use {@link Dispatcher\DispatchEvent} to alter the response returned by
+ * dispatchers, or provide a new one. The event is fired during {@link __invoke()}.
  */
 class Dispatcher
 {
+	/**
+	 * The controller functions called during the dispatching of the request.
+	 *
+	 * @var array[string]callable
+	 */
 	protected $controllers = array
 	(
 		'operation' => 'ICanBoogie\Operation::dispatch_request',
@@ -53,7 +58,7 @@ class Dispatcher
 	);
 
 	/**
-	 * Fires the {@link Dispatcher\PopulateEvent}.
+	 * Fires {@link Dispatcher\PopulateEvent}.
 	 */
 	public function __construct()
 	{
@@ -64,16 +69,16 @@ class Dispatcher
 	 * The request is dispatched using the event system and the operation system. The goal is to
 	 * retrieve a {@link Response}:
 	 *
-	 * 1. The {@link Dispatcher\BeforeDispatchEvent} is fired.
+	 * 1. {@link Dispatcher\BeforeDispatchEvent} is fired.
 	 * 2. The controllers chain is traversed until a controller returns a response object.
-	 * 3. The {@link Dispatcher\DispatchEvent} is fired.
+	 * 3. {@link Dispatcher\DispatchEvent} is fired.
 	 *
 	 * @param Request $request
 	 *
+	 * @return Response
+	 *
 	 * @throws \ICanBoogie\Exception\HTTP with code 404 if no response could be obtained from the
 	 * events or the controllers.
-	 *
-	 * @return Response
 	 */
 	public function __invoke(Request $request)
 	{
@@ -90,17 +95,19 @@ class Dispatcher
 	/**
 	 * Dispatches a request.
 	 *
-	 * Before controllers are traversed the {@link Dispatcher\BeforeDispatchEvent} is fired. If a
+	 * The following event are fired during the dispatching:
+	 *
+	 * - {@link Dispatcher\BeforeDispatchEvent} is fired before controllers are traversed. If a
 	 * response is provided the controllers are skipped.
 	 *
-	 * Before the response is returned the {@link Dispatcher\DispatchEvent} is fired.
+	 * - {@link Dispatcher\DispatchEvent} is fired before the response is returned.
 	 *
 	 * @param Request $request
 	 *
-	 * @throws \ICanBoogie\Exception\HTTP when neither the events nor the controllers provided a
-	 * response to the request.
-	 *
 	 * @return Response
+	 *
+	 * @throws \ICanBoogie\Exception\HTTP when neither the events nor the controllers are able
+	 * to provide a response to the request.
 	 */
 	protected function dispatch(Request $request)
 	{
@@ -129,19 +136,18 @@ class Dispatcher
 	}
 
 	/**
-	 * Tries get a {@link Response} from an exception.
+	 * Tries to get a {@link Response} object for an exception.
 	 *
-	 * The method fires an event of type `get_response` and class
-	 * {@link \ICanBoogie\Exception\GetResponseEvent} on the exception. The method returns the
-	 * response provided by a event callbacks. If there is no response provided the exception
-	 * is thrown again.
+	 * {@link \ICanBoogie\Exception\GetResponseEvent} is fired with the exception as target.
+	 * The response provided by one of the event callbacks is returned. If there is no response the
+	 * exception is thrown again.
 	 *
 	 * @param \Exception $exception
 	 * @param Request $request
 	 *
-	 * @throws \Exception when there is no response for the exception.
-	 *
 	 * @return Response
+	 *
+	 * @throws \Exception when there is no response for the exception.
 	 */
 	protected function dispatch_exception(\Exception $exception, Request $request)
 	{
@@ -252,8 +258,8 @@ class PopulateEvent extends \ICanBoogie\Event
 /**
  * Event class for the `ICanBoogie\HTTP\Dispatcher::dispatch:before` event.
  *
- * Third parties may use this event to provide a response to the request before dispatcher
- * controllers are invoked. The event is usually used to redirect request or to provide cached
+ * Third parties may use this event to provide a response to the request before the controllers
+ * are invoked. The event is usually used by third parties to redirect requests or provide cached
  * responses.
  */
 class BeforeDispatchEvent extends \ICanBoogie\Event
@@ -287,19 +293,19 @@ class BeforeDispatchEvent extends \ICanBoogie\Event
 /**
  * Event class for the `ICanBoogie\HTTP\Dispatcher::dispatch` event.
  *
- * Third parties may use this event to alter the response.
+ * Third parties may use this event to alter the response before it is returned by the dispatcher.
  */
 class DispatchEvent extends \ICanBoogie\Event
 {
 	/**
-	 * The HTTP request.
+	 * The request.
 	 *
 	 * @var \ICanBoogie\HTTP\Request
 	 */
 	public $request;
 
 	/**
-	 * Reference to the HTTP response.
+	 * Reference to the response.
 	 *
 	 * @var \ICanBoogie\HTTP\Response
 	 */
@@ -339,6 +345,8 @@ class GetResponseEvent extends \ICanBoogie\Event
 	public $exception;
 
 	/**
+	 * The request.
+	 *
 	 * @var \ICanBoogie\HTTP\Request
 	 */
 	public $request;

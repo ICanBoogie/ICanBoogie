@@ -14,6 +14,8 @@ namespace ICanBoogie\ActiveRecord;
 use ICanBoogie\Exception;
 
 /**
+ * A representation of a database table.
+ *
  * @property array $extended_schema Extended schema of the table.
  */
 class Table extends \ICanBoogie\Object

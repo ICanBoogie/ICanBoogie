@@ -15,21 +15,36 @@ use ICanBoogie\Exception;
 use ICanBoogie\PropertyNotWritable;
 
 /**
- * The response to a HTTP request.
+ * A response to a HTTP request.
  *
- * @property \ICanBoogie\HTTP\Headers\DateTime $age {@link volatile_set_age()} {@link volatile_get_age()}
- * @property string $body {@link volatile_set_body()} {@link volatile_get_body()}
- * @property \ICanBoogie\HTTP\Headers\CacheControl $cache_control {@link volatile_set_cache_control()} {@link volatile_get_cache_control()}
- * @property string|array $content_length {@link volatile_set_content_length()} {@link volatile_get_content_length()}
- * @property string|array $content_type {@link volatile_set_content_type()} {@link volatile_get_content_type()}
- * @property \ICanBoogie\HTTP\Headers\DateTime $date {@link volatile_set_date()} {@link volatile_get_date()}
- * @property string $etag {@link volatile_set_etag()} {@link volatile_get_etag()}
- * @property \ICanBoogie\HTTP\Headers\DateTime $expires {@link volatile_set_expires()} {@link volatile_get_expires()}
- * @property \ICanBoogie\HTTP\Headers\DateTime $last_modified {@link volatile_set_last_modified()} {@link volatile_get_last_modified()}
- * @property string $location {@link volatile_set_location()} {@link volatile_get_location()}
- * @property integer $status {@link volatile_set_status()} {@link volatile_get_status()}
- * @property string $status_message {@link volatile_set_status_message()} {@link volatile_get_status_message()}
- * @property int $ttl {@link volatile_set_ttl()} {@link volatile_get_ttl()}
+ * @property integer $status The HTTP status code.
+ * See: {@link volatile_set_status()} {@link volatile_get_status()}
+ * @property string $status_message The HTTP status message.
+ * See: {@link volatile_set_status_message()} {@link volatile_get_status_message()}
+ * @property int $ttl Adjusts the `s-maxage` part of the `Cache-Control` header field definition according to the `Age` header field definition.
+ * See: {@link volatile_set_ttl()} {@link volatile_get_ttl()}
+ *
+ * @property int $age Shortcut to the `Age` header field definition.
+ * See: {@link volatile_set_age()} {@link volatile_get_age()}
+ * @property \ICanBoogie\HTTP\Headers\CacheControl $cache_control Shortcut to the `Cache-Control` header field definition.
+ * See: {@link volatile_set_cache_control()} {@link volatile_get_cache_control()}
+ * @property int $content_length Shortcut to the `Content-Length` header field definition.
+ * See: {@link volatile_set_content_length()} {@link volatile_get_content_length()}
+ * @property \ICanBoogie\HTTP\Headers\ContentType $content_type Shortcut to the `Content-Length` header field definition.
+ * See: {@link volatile_set_content_type()} {@link volatile_get_content_type()}
+ * @property \ICanBoogie\HTTP\Headers\DateTime $date Shortcut to the `Date` header field definition.
+ * See: {@link volatile_set_date()} {@link volatile_get_date()}
+ * @property string $etag Shortcut to the `Etag` header field definition.
+ * See: {@link volatile_set_etag()} {@link volatile_get_etag()}
+ * @property \ICanBoogie\HTTP\Headers\DateTime $expires Shortcut to the `Expires` header field definition.
+ * See: {@link volatile_set_expires()} {@link volatile_get_expires()}
+ * @property \ICanBoogie\HTTP\Headers\DateTime $last_modified Shortcut to the `Last-Modified` header field definition.
+ * See: {@link volatile_set_last_modified()} {@link volatile_get_last_modified()}
+ * @property string $location Shortcut to the `Location` header field definition.
+ * See: {@link volatile_set_location()} {@link volatile_get_location()}
+ *
+ * @property string|\Closure $body The body of the response.
+ * See: {@link volatile_set_body()} {@link volatile_get_body()}
  *
  * @property-read boolean $is_cacheable {@link volatile_get_is_cacheable()}
  * @property-read boolean $is_client_error {@link volatile_get_is_client_error()}
@@ -40,7 +55,7 @@ use ICanBoogie\PropertyNotWritable;
  * @property-read boolean $is_not_found {@link volatile_get_is_not_found()}
  * @property-read boolean $is_ok {@link volatile_get_is_ok()}
  * @property-read boolean $is_private {@link volatile_get_is_private()}
- * @property-read boolean $is_redirection {@link volatile_get_is_redirection()}
+ * @property-read boolean $is_redirect {@link volatile_get_is_redirect()}
  * @property-read boolean $is_server_error {@link volatile_get_is_server_error()}
  * @property-read boolean $is_successful {@link volatile_get_is_successful()}
  * @property-read boolean $is_valid {@link volatile_get_is_valid()}
@@ -50,10 +65,16 @@ use ICanBoogie\PropertyNotWritable;
  */
 class Response extends \ICanBoogie\Object
 {
+	/**
+	 * HTTP status messages.
+	 *
+	 * @var array[int]string
+	 */
 	static public $status_messages = array
 	(
 		100 => "Continue",
 		101 => "Switching Protocols",
+
 		200 => "OK",
 		201 => "Created",
 		202 => "Accepted",
@@ -61,6 +82,7 @@ class Response extends \ICanBoogie\Object
 		204 => "No Content",
 		205 => "Reset Content",
 		206 => "Partial Content",
+
 		300 => "Multiple Choices",
 		301 => "Moved Permanently",
 		302 => "Found",
@@ -68,6 +90,7 @@ class Response extends \ICanBoogie\Object
 		304 => "Not Modified",
 		305 => "Use Proxy",
 		307 => "Temporary Redirect",
+
 		400 => "Bad Request",
 		401 => "Unauthorized",
 		402 => "Payment Required",
@@ -87,6 +110,7 @@ class Response extends \ICanBoogie\Object
 		416 => "Requested Range Not Satisfiable",
 		417 => "Expectation Failed",
 		418 => "I'm a teapot",
+
 		500 => "Internal Server Error",
 		501 => "Not Implemented",
 		502 => "Bad Gateway",
@@ -129,7 +153,7 @@ class Response extends \ICanBoogie\Object
 	}
 
 	/**
-	 * The header is cloned when the response is cloned.
+	 * Clones the {@link $headers] property.
 	 */
 	public function __clone()
 	{
@@ -145,11 +169,11 @@ class Response extends \ICanBoogie\Object
 	{
 		$body = $this->body;
 
-		if (is_callable($body))
+		if ($body instanceof \Closure)
 		{
 			ob_start();
 
-			$body();
+			$body($this);
 
 			$body = ob_get_clean();
 		}
@@ -215,9 +239,9 @@ class Response extends \ICanBoogie\Object
 			}
 		}
 
-		if (is_callable($body))
+		if ($body instanceof \Closure)
 		{
-			$body();
+			$body($this);
 		}
 		else
 		{
@@ -263,10 +287,7 @@ class Response extends \ICanBoogie\Object
 
 		if (!$this->is_valid)
 		{
-			throw new \InvalidArgumentException(\ICanBoogie\format
-			(
-				'The HTTP status code %status is not valid.', array('%status' => $status)
-			));
+			throw new StatusCodeNotValid($status);
 		}
 
 		if ($status_message === null)
@@ -308,13 +329,17 @@ class Response extends \ICanBoogie\Object
 	 *
 	 * Note: This method is the setter for the {@link $body} property.
 	 *
-	 * @param string|int|object|callable $body
+	 * @param string|\Closure|null $body
 	 *
 	 * @throws \UnexpectedValueException when the body cannot be converted to a string.
 	 */
 	protected function volatile_set_body($body)
 	{
-		if ($body !== null && !is_string($body) && !is_numeric($body) && !is_callable(array($body, '__toString')) && !is_callable($body))
+		if ($body !== null
+		&& !($body instanceof \Closure)
+		&& !is_numeric($body)
+		&& !is_string($body)
+		&& !is_callable(array($body, '__toString')))
 		{
 			throw new \UnexpectedValueException(\ICanBoogie\format
 			(
@@ -357,10 +382,15 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Sets the value of the `Location` header field.
 	 *
-	 * @param string $url
+	 * @param string|null $url
 	 */
 	protected function volatile_set_location($url)
 	{
+		if ($url !== null && !$url)
+		{
+			throw new \InvalidArgumentException('Cannot redirect to an empty URL.' . \ICanBoogie\Debug::format_alert(new Exception('trace')));
+		}
+
 		$this->headers['Location'] = $url;
 	}
 
@@ -387,7 +417,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Returns the value of the `Content-Type` header field.
 	 *
-	 * @return string
+	 * @return Headers\ContentType
 	 */
 	protected function volatile_get_content_type()
 	{
@@ -433,7 +463,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Returns the value of the `Date` header field.
 	 *
-	 * @return string
+	 * @return Headers\DateTime
 	 */
 	protected function volatile_get_date()
 	{
@@ -480,7 +510,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Returns the value of the `Last-Modified` header field.
 	 *
-	 * @return string
+	 * @return Headers\DateTime
 	 */
 	protected function volatile_get_last_modified()
 	{
@@ -504,7 +534,7 @@ class Response extends \ICanBoogie\Object
 	/**
 	 * Returns the value of the `Expires` header field.
 	 *
-	 * @return string
+	 * @return Headers\DateTime
 	 */
 	protected function volatile_get_expires()
 	{
@@ -674,21 +704,21 @@ class Response extends \ICanBoogie\Object
 	 * A response is considered to be a redirection when its status is between 300 and 400, 300
 	 * included.
 	 *
-	 * Note: This method is the getter for the `is_redirection` magic property.
+	 * Note: This method is the getter for the `is_redirect` magic property.
 	 *
 	 * @return boolean
 	 */
-	protected function volatile_get_is_redirection()
+	protected function volatile_get_is_redirect()
 	{
 		return $this->status >= 300 && $this->status < 400;
 	}
 
 	/**
-	 * @throws PropertyNotWritable in attempt to write {@link $is_redirection}.
+	 * @throws PropertyNotWritable in attempt to write {@link $is_redirect}.
 	 */
-	protected function volatile_set_is_redirection()
+	protected function volatile_set_is_redirect()
 	{
-		throw new PropertyNotWritable(array('is_redirection', $this));
+		throw new PropertyNotWritable(array('is_redirect', $this));
 	}
 
 	/**
@@ -814,7 +844,9 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_get_is_empty()
 	{
-		return in_array($this->status, array(201, 204, 304));
+		static $range = array(201, 204, 304);
+
+		return in_array($this->status, $range);
 	}
 
 	/**
@@ -857,7 +889,9 @@ class Response extends \ICanBoogie\Object
 	 */
 	protected function volatile_get_is_cacheable()
 	{
-		if (!in_array($this->status, array(200, 203, 300, 301, 302, 404, 410)))
+		static $range = array(200, 203, 300, 301, 302, 404, 410);
+
+		if (!in_array($this->status, $range))
 		{
 			return false;
 		}
@@ -912,7 +946,7 @@ class Response extends \ICanBoogie\Object
 }
 
 /**
- * Represents a HTML response doing a redirect.
+ * A HTTP response doing a redirect.
  */
 class RedirectResponse extends Response
 {
@@ -927,27 +961,14 @@ class RedirectResponse extends Response
 	 */
 	public function __construct($url, $status=302, array $headers=array())
 	{
-		parent::__construct(302, $headers);
+		parent::__construct
+		(
+			$status, array('Location' => $url) + $headers, function($response) {
 
-		$this->location = $url;
+			$location = $response->location;
+			$title = \ICanBoogie\escape($location);
 
-		if (!$this->is_redirect)
-		{
-			throw new \InvalidArgumentException("The HTTP status code is not a redirect (<q>$status</q> given).");
-		}
-	}
-
-	/**
-	 * Creates a HTML fallback as body.
-	 *
-	 * @see ICanBoogie\HTTP.Response::__invoke()
-	 */
-	public function __invoke()
-	{
-		$location = $this->location;
-		$title = \ICanBoogie\escape($location);
-
-		$this->body = <<<EOT
+			echo <<<EOT
 <!DOCTYPE html>
 <html>
 <head>
@@ -961,6 +982,12 @@ class RedirectResponse extends Response
 </body>
 </html>
 EOT;
-		parent::__invoke();
+
+		});
+
+		if (!$this->is_redirect)
+		{
+			throw new \InvalidArgumentException("The HTTP status code is not a redirect: {$status}.");
+		}
 	}
 }

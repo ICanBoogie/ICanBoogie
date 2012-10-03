@@ -11,25 +11,23 @@
 
 namespace ICanBoogie\ActiveRecord;
 
-use ICanBoogie\Object;
-
 /**
- * This class is used to query models, it helps to compose SQL queries and offers a lot of features
- * to ease the process. Most query related methods of the Model class create a Query object that
- * is return for further specification such as conditions or limits.
+ * The class offers many features to compose model queries. Most query related
+ * methods of the {@link Model} class create a {@link Query} object that is returned for
+ * further specification, such as filters or limits.
  *
- * @property array $all An array with all the records matching the query.
- * @property mixed $one Returns only the first record matching the query.
- * @property array $pairs Returns an array of key/value pairs.
- * @property array $rc Returns the first column of the first row matching the query.
- * @property int $count The number of records matching the query.
- * @property bool|array $exists true if a record matching the query exists, false otherwise. If
- * there is multiple records, the property is an array of booleans.
+ * @property-read array $all An array with all the records matching the query.
+ * @property-read mixed $one The first record matching the query.
+ * @property-read array $pairs An array of key/value pairs.
+ * @property-read array $rc The first column of the first row matching the query.
+ * @property-read int $count The number of records matching the query.
+ * @property-read bool|array $exists `true` if a record matching the query exists, `false`
+ * otherwise. If there is multiple records, the property is an array of booleans.
  * @property-read Model $model The target model of the query.
  *
  * @see http://dev.mysql.com/doc/refman/5.6/en/select.html
  */
-class Query extends Object implements \IteratorAggregate
+class Query extends \ICanBoogie\Object implements \IteratorAggregate
 {
 	protected $select;
 	protected $join;

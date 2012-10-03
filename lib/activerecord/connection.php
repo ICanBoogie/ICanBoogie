@@ -175,9 +175,6 @@ class Connection extends \PDO
 	 * @return Database\Statement The prepared statement.
 	 *
 	 * @throws Exception if the statement could not be prepared.
-	 *
-	 * @see PDO::prepare()
-	 * @see Database::resolve_statement()
 	 */
 	public function prepare($statement, $options=array())
 	{
@@ -216,7 +213,7 @@ class Connection extends \PDO
 	 * Overrides the method in order to prepare (and resolve) the statement and execute it with
 	 * the specified arguments and options.
 	 *
-	 * @see PDO::query()
+	 * @return Statement
 	 */
 	public function query($statement, array $args=array(), array $options=array())
 	{
@@ -234,8 +231,6 @@ class Connection extends \PDO
 	 * information about the error.
 	 *
 	 * Using this method increments the `queries_by_connection` stat.
-	 *
-	 * @see PDO::exec()
 	 */
 	public function exec($statement)
 	{

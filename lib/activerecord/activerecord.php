@@ -15,20 +15,29 @@ namespace ICanBoogie;
  * Active Record faciliates the creation and use of business objects whose data require persistent
  * storage via database.
  *
- * @property Model $_model The model managing the active record.
+ * @property-read Model $_model Model managing the active record.
+ * @property-read string $_model_id Identifier of the model managing the active record.
  */
 class ActiveRecord extends \ICanBoogie\Object
 {
 	/**
-	 * @var Model The model associated with the ActiveRecord.
+	 * Model managing the active record.
+	 *
+	 * @var Model
 	 */
 	protected $_model;
+
+	/**
+	 * Identifier of the model managing the active record.
+	 *
+	 * @var string
+	 */
 	protected $_model_id;
 
 	/**
-	 * Initialize the {@link $_model} and {@link $_model_id} properties.
+	 * Initializes the {@link $_model} and {@link $_model_id} properties.
 	 *
-	 * @param string|Model $model The model used to store the active record. A model
+	 * @param string|Model $model Model managing the active record. A {@link Model}
 	 * object can be provided or a model id. If a model id is provided, the model object
 	 * is resolved when the {@link $_model} property is accessed.
 	 */
@@ -67,10 +76,9 @@ class ActiveRecord extends \ICanBoogie\Object
 	}
 
 	/**
-	 * Saves the active record to the database using the active record model.
+	 * Saves the active record using its model.
 	 *
-	 * @return int|bool the primary key value of the record, or false if the record could not be
-	 * saved.
+	 * @return int Primary key value of the active record.
 	 */
 	public function save()
 	{
@@ -108,7 +116,7 @@ class ActiveRecord extends \ICanBoogie\Object
 	}
 
 	/**
-	 * Deletes the active record from the database.
+	 * Deletes the active record using its model.
 	 */
 	public function delete()
 	{

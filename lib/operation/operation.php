@@ -90,8 +90,8 @@ abstract class Operation extends Object
 	 * The inheritance of the module class is used the find a suitable class. For example,
 	 * these are the classes tried for the "articles" module and the "save" operation:
 	 *
-	 *     Icybee\Modules\Articles\SaveOperation
-	 *     Icybee\Modules\Contents\SaveOperation
+	 *     ICanBoogie\Modules\Articles\SaveOperation
+	 *     ICanBoogie\Modules\Contents\SaveOperation
 	 *     ICanBoogie\Modules\Nodes\SaveOperation
 	 *
 	 * An instance of the found class is created with the request arguments and returned. If the

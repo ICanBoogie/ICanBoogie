@@ -385,7 +385,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * This is the getter for the `method` magic property.
 	 *
-	 * @throws UnsupportedMethodException when the request method is not supported.
+	 * @throws MethodNotSupported when the request method is not supported.
 	 *
 	 * @return string
 	 */
@@ -400,7 +400,7 @@ class Request extends Object implements \ArrayAccess, \IteratorAggregate
 
 		if (!in_array($method, self::$methods))
 		{
-			throw new UnsupportedMethodException('Unsupported request method: %method', array('method' => $method));
+			throw new MethodNotSupported($method);
 		}
 
 		return $method;

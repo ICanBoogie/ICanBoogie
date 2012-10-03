@@ -14,7 +14,7 @@ namespace ICanBoogie\ActiveRecord;
 use ICanBoogie\OffsetNotWritable;
 
 /**
- * Connection manager.
+ * Database connections manager.
  *
  * @property-read array[string]array $definitions Connection definitions.
  * @property-read Database $established Established connections.
@@ -163,18 +163,18 @@ class Connections implements \ArrayAccess, \IteratorAggregate
  */
 
 /**
- * Exception is thrown when connection to the database could not been established.
+ * Exception thrown when a connection is not defined.
  */
 class ConnectionNotDefined extends ActiveRecordException
 {
-	public function __construct($id, $code=500, \Exception $previous)
+	public function __construct($id, $code=500, \Exception $previous=null)
 	{
 		parent::__construct("Connection not defined: {$id}.", $code, $previous);
 	}
 }
 
 /**
- * Exception is thrown when connection to the database could not been established.
+ * Exception thrown when a connection cannot be established.
  */
 class ConnectionNotEstablished extends ActiveRecordException
 {
@@ -182,11 +182,11 @@ class ConnectionNotEstablished extends ActiveRecordException
 }
 
 /**
- * Exception is thrown in attempt to set the definition of an already established connection.
+ * Exception thrown in attempt to set the definition of an already established connection.
  */
 class ConnectionAlreadyEstablished extends ActiveRecordException
 {
-	public function __construct($id, $code=500, \Exception $previous)
+	public function __construct($id, $code=500, \Exception $previous=null)
 	{
 		parent::__construct("Connection already established: {$id}.", $code, $previous);
 	}

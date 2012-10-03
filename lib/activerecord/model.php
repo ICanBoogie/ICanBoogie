@@ -732,7 +732,7 @@ class Model extends Table implements \ArrayAccess
 }
 
 /**
- * Raised when Active Record cannot find record by given id or set of ids.
+ * Exception thrown when an active record cannot be found.
  *
  * @property-read array[int]ActiveRecord|null $records
  */
@@ -772,7 +772,7 @@ class RecordNotFound extends ActiveRecordException
 }
 
 /**
- * Raised when a requested scope is not defined.
+ * Exception thrown when a scope is not defined.
  *
  * @property-read string $scope_name
  * @property-read Model $model

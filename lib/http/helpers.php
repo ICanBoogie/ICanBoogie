@@ -12,29 +12,12 @@
 namespace ICanBoogie\HTTP;
 
 /**
- * Returns requests dispatcher.
+ * Patchable helpers of the HTTP package.
  *
- * @return Dispatcher
- */
-function get_dispatcher()
-{
-	return Helpers::get_dispatcher();
-}
-
-/**
- * Dispatches a request.
+ * The following helpers can be patched:
  *
- * @param Request $request
- *
- * @return Response
- */
-function dispatch(Request $request)
-{
-	return Helpers::dispatch($request);
-}
-
-/**
- * Helpers jumptable.
+ * - {@link dispatch}
+ * - {@link get_dispatcher}
  */
 class Helpers
 {
@@ -109,4 +92,26 @@ class Helpers
 
 		return $dispatcher($request);
 	}
+}
+
+/**
+ * Returns requests dispatcher.
+ *
+ * @return Dispatcher
+ */
+function get_dispatcher()
+{
+	return Helpers::get_dispatcher();
+}
+
+/**
+ * Dispatches a request.
+ *
+ * @param Request $request
+ *
+ * @return Response
+ */
+function dispatch(Request $request)
+{
+	return Helpers::dispatch($request);
 }

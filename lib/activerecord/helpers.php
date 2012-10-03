@@ -23,6 +23,9 @@ function get_model($id)
 	return Helpers::get_model($id);
 }
 
+/**
+ * Patchable helpers of the ActiveRecord package.
+ */
 class Helpers
 {
 	static private $jumptable = array

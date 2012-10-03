@@ -16,9 +16,9 @@ use ICanBoogie\PropertyNotDefined;
 /**
  * A database statement.
  *
- * @property-read array $all
- * @property-read mixed $one
- * @property-read string $rc
+ * @property-read array $all An array with the matching records.
+ * @property-read mixed $one The first matching record.
+ * @property-read string $rc The value of the first column of the first row.
  */
 class Statement extends \PDOStatement
 {
@@ -32,7 +32,10 @@ class Statement extends \PDOStatement
 	/**
 	 * Alias of {@link execute()}.
 	 *
-	 * The arguments can be provided as an array or a list of arguments.
+	 * The arguments can be provided as an array or a list of arguments:
+	 *
+	 *     $statement(1, 2, 3);
+	 *     $statement(array(1, 2, 3));
 	 */
 	public function __invoke()
 	{
@@ -47,13 +50,7 @@ class Statement extends \PDOStatement
 	}
 
 	/**
-	 * Dispatch magic properties `all` and `one`.
-	 *
-	 * @param string $property
-	 *
-	 * @return mixed
-	 *
-	 * @throws PropertyNotDefined if one tries to get a property that is not supported.
+	 * @throws PropertyNotDefined in attempt to get a property that is not defined.
 	 */
 	public function __get($property)
 	{
@@ -68,11 +65,11 @@ class Statement extends \PDOStatement
 	}
 
 	/**
-	 * Executes the statement and increments the connection queries count.
+	 * Executes the statement.
 	 *
-	 * @throws StatementInvalid if the execution of the statement failed.
+	 * The connection queries count is incremented.
 	 *
-	 * @see \PDOStatement::execute()
+	 * @throws StatementInvalid when the execution of the statement fails.
 	 */
 	public function execute($args=array())
 	{
@@ -106,9 +103,9 @@ class Statement extends \PDOStatement
 	/**
 	 * Fetches the first row of the result set and closes the cursor.
 	 *
-	 * @param int $fetch_style[optional]
-	 * @param int $cursor_orientation[optional]
-	 * @param int $cursor_offset[optional]
+	 * @param int $fetch_style
+	 * @param int $cursor_orientation
+	 * @param int $cursor_offset
 	 *
 	 * @return mixed
 	 *
@@ -146,8 +143,8 @@ class Statement extends \PDOStatement
 	 * Returns an array containing all of the result set rows (FETCH_LAZY supported)
 	 *
 	 * @param int $fetch_style
-	 * @param mixed $fetch_argument[optional]
-	 * @param array $ctor_args[optional]
+	 * @param mixed $fetch_argument
+	 * @param array $ctor_args
 	 *
 	 * @return array
 	 */
@@ -185,7 +182,7 @@ class Statement extends \PDOStatement
 }
 
 /**
- * Exception thrown when an statement execution failed because of an error.
+ * Exception thrown when a statement execution failed because of an error.
  */
 class StatementInvalid extends ActiveRecordException
 {

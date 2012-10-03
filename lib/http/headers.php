@@ -15,7 +15,7 @@ use ICanBoogie\PropertyNotReadable;
 use ICanBoogie\PropertyNotWritable;
 
 /**
- * HTTP Header Field Definitions.
+ * HTTP Header field definitions.
  *
  * Instances of this class are used to collect and manipulate HTTP header field definitions.
  * Header field instances are used to handle the definition of complex header fields such as

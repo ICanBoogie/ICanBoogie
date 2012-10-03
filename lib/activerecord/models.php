@@ -28,7 +28,7 @@ class Models implements \ArrayAccess
 	protected $instances = array();
 
 	/**
-	 * Model definitions.
+	 * Models definitions.
 	 *
 	 * @var array[string]array
 	 */
@@ -39,18 +39,22 @@ class Models implements \ArrayAccess
 	 *
 	 * @var Connections
 	 */
-	protected $connections = array();
+	protected $connections;
 
 	/**
 	 * Initializes the {@link $connections} and {@link $definitions} properties.
 	 *
 	 * @param Connections $connections Connections manager.
-	 * @param array $definitions Model definitions.
+	 * @param array[string]array $definitions Model definitions.
 	 */
 	public function __construct(Connections $connections, array $definitions=array())
 	{
 		$this->connections = $connections;
-		$this->definitions = $definitions;
+
+		foreach ($definitions as $id => $definition)
+		{
+			$this[$id] = $definition;
+		}
 	}
 
 	public function __get($property)
@@ -66,7 +70,7 @@ class Models implements \ArrayAccess
 	/**
 	 * Checks if a model is defined.
 	 *
-	 * @see ArrayAccess::offsetExists()
+	 * @return bool
 	 */
 	public function offsetExists($id)
 	{
@@ -83,8 +87,6 @@ class Models implements \ArrayAccess
 	 * @param array $definition Definition of the model.
 	 *
 	 * @throws ModelAlreadyInstanciated in attempt to write a model already instanciated.
-	 *
-	 * @see ArrayAccess::offsetSet()
 	 */
 	public function offsetSet($id, $definition)
 	{
@@ -105,9 +107,9 @@ class Models implements \ArrayAccess
 	 *
 	 * @param string $id Identifier of the model.
 	 *
-	 * @throws ModelNotDefined when the model is not defined.
+	 * @return Model
 	 *
-	 * @see ArrayAccess::offsetGet()
+	 * @throws ModelNotDefined when the model is not defined.
 	 */
 	public function offsetGet($id)
 	{
@@ -139,8 +141,6 @@ class Models implements \ArrayAccess
 	 *
 	 * @throws ModelAlreadyInstanciated in attempt to unset the definition of an already
 	 * instanciated model.
-	 *
-	 * @see ArrayAccess::offsetUnset()
 	 */
 	public function offsetUnset($id)
 	{
@@ -169,7 +169,7 @@ class ModelNotDefined extends ActiveRecordException
 }
 
 /**
- * Exception throw in attempt to set/unset the definition of an already instanciated model.
+ * Exception thrown in attempt to set/unset the definition of an already instanciated model.
  */
 class ModelAlreadyInstanciated extends ActiveRecordException
 {
