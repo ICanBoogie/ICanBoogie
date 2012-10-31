@@ -63,7 +63,7 @@ class Helpers
 	 */
 
 	/**
-	 * Returns requests dispatcher.
+	 * Returns request dispatcher.
 	 *
 	 * @return Dispatcher
 	 */
@@ -95,7 +95,7 @@ class Helpers
 }
 
 /**
- * Returns requests dispatcher.
+ * Returns request dispatcher.
  *
  * @return Dispatcher
  */

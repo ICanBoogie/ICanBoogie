@@ -224,6 +224,9 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 * configs path, an array of autoload classes, an array of classes aliases and finally an array
 	 * of configs constructors.
 	 *
+	 * The method also creates a `..\DIR` constant for each module defined, using the namespace
+	 * and the path of the module.
+	 *
 	 * @return array
 	 */
 	protected function get_index()
@@ -244,6 +247,16 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 		}
 
 		$this->descriptors = $index['descriptors'];
+
+		foreach ($this->descriptors as $descriptor)
+		{
+			$namespace = $descriptor[Module::T_NAMESPACE];
+
+			if (!defined($namespace . '\DIR'))
+			{
+				define($namespace . '\DIR', $descriptor[Module::T_PATH]);
+			}
+		}
 
 		return $index;
 	}

@@ -239,7 +239,7 @@ class Events implements \IteratorAggregate, \ArrayAccess
 	}
 
 	/**
-	 * Detaches a event callback from an event type.
+	 * Detaches an event callback from an event type.
 	 *
 	 * @param string $type The type of the event.
 	 * @param callable $callback The event callback.
@@ -548,29 +548,6 @@ class Event
 	 */
 	static public function fire($type, array $properties, $target=null)
 	{
-		$event = new self($target, $type, $properties);
-
-		return $event;
-	}
-}
-
-/**
- * Raised when property has a name reserved by a class.
- */
-class PropertyIsReserved extends \RuntimeException
-{
-	private $property;
-
-	public function __construct($property, $code=500, \Exception $previous=null)
-	{
-		parent::__construct("Property <q>$property</q> is reserved.", $code, $previous);
-	}
-
-	public function __get($property)
-	{
-		switch ($property)
-		{
-			case 'property': return $this->property;
-		}
+		return new self($target, $type, $properties);
 	}
 }

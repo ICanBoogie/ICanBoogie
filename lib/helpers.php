@@ -12,7 +12,162 @@
 namespace ICanBoogie;
 
 /**
- * Registers a simple autoloader for Brickrouge classes.
+ * Generate a password.
+ *
+ * @param int $length The length of the password. Default: 8
+ * @param string $possible The characters that can be used to create the password.
+ * If you defined your own, pay attention to ambiguous characters such as 0, O, 1, l, I...
+ * Default: narrow
+ *
+ * @return string
+ */
+function generate_token($length=8, $possible='narrow')
+{
+	return Helpers::generate_token($length, $possible);
+}
+
+/** PBKDF2 Implementation (described in RFC 2898)
+ *
+ *  @param string $p password
+ *  @param string $s salt
+ *  @param int $c iteration count (use 1000 or higher)
+ *  @param int $kl derived key length
+ *  @param string $a hash algorithm
+ *
+ *  @return string derived key
+ *
+ *  @source http://www.itnewb.com/v/Encrypting-Passwords-with-PHP-for-Storage-Using-the-RSA-PBKDF2-Standard
+ */
+function pbkdf2($p, $s, $c=1000, $kl=32, $a='sha256')
+{
+	return Helpers::pbkdf2($p, $s, $c=1000, $kl=32, $a='sha256');
+}
+
+/**
+ * Patchable helpers of the ICanBoogie package.
+ *
+ * @method string generate_token() generate_token($length=8, $possible='narrow')
+ * @method string pbkdf2() pbkdf2($p, $s, $c=1000, $kl=32, $a='sha256')
+ */
+class Helpers
+{
+	static private $jumptable = array
+	(
+		'generate_token' => array(__CLASS__, 'generate_token'),
+		'pbkdf2' => array(__CLASS__, 'pbkdf2')
+	);
+
+	/**
+	 * Calls the callback of a patchable function.
+	 *
+	 * @param string $name Name of the function.
+	 * @param array $arguments Arguments.
+	 *
+	 * @return mixed
+	 */
+	static public function __callstatic($name, array $arguments)
+	{
+		return call_user_func_array(self::$jumptable[$name], $arguments);
+	}
+
+	/**
+	 * Patches a patchable function.
+	 *
+	 * @param string $name Name of the function.
+	 * @param collable $callback Callback.
+	 *
+	 * @throws \RuntimeException is attempt to patch an undefined function.
+	 */
+	static public function patch($name, $callback)
+	{
+		if (empty(self::$jumptable[$name]))
+		{
+			throw new \RuntimeException("Undefined patchable: $name.");
+		}
+
+		self::$jumptable[$name] = $callback;
+	}
+
+	/*
+	 * Default implementations
+	 */
+
+	static public $password_characters = array
+	(
+		'narrow' => '$=@#23456789bcdfghjkmnpqrstvwxyz',
+		'medium' => '$=@#23456789bcdfghjkmnpqrstvwxyzBCDFGHJKMNPQRSTVWXYZ',
+		'wide' => '!"#$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+	);
+
+	static private function generate_token($length=8, $possible='narrow')
+	{
+		if (isset(self::$password_characters[$possible]))
+		{
+			$possible = self::$password_characters[$possible];
+		}
+
+		$password = '';
+
+		$possible_length = strlen($possible) - 1;
+
+		#
+		# add random characters to $password for $length
+		#
+
+		while ($length--)
+		{
+			#
+			# pick a random character from the possible ones
+			#
+
+			$except = substr($password, -$possible_length / 2);
+
+			for ($n = 0 ; $n < 5 ; $n++)
+			{
+				$char = $possible{mt_rand(0, $possible_length)};
+
+				#
+				# we don't want this character if it's already in the password
+				# unless it's far enough (half of our possible length)
+				#
+
+				if (strpos($except, $char) === false)
+				{
+					break;
+				}
+			}
+
+			$password .= $char;
+		}
+
+		return $password;
+	}
+
+	static private function pbkdf2($p, $s, $c=1000, $kl=32, $a='sha256')
+	{
+		$hl = strlen(hash($a, null, true)); # Hash length
+		$kb = ceil($kl / $hl); # Key blocks to compute
+		$dk = ''; # Derived key
+
+		# Create key
+		for ($block = 1 ; $block <= $kb ; $block++)
+		{
+			# Initial hash for this block
+			$ib = $b = hash_hmac($a, $s . pack('N', $block), $p, true);
+			# Perform block iterations
+			for ( $i = 1; $i < $c; $i ++ )
+			# XOR each iterate
+			$ib ^= ($b = hash_hmac($a, $b, $p, true));
+			$dk .= $ib; # Append iterated block
+		}
+
+		# Return derived key of correct length
+		return substr($dk, 0, $kl);
+	}
+}
+
+/**
+ * Registers a simple autoloader for ICanBoogie classes.
  */
 function register_autoloader()
 {
@@ -24,7 +179,7 @@ function register_autoloader()
 
 			if ($index === null)
 			{
-				$path = ROOT; // the $path variable is used within the config file
+				$path = ROOT; // the $path variable is used within the autoload file
 				$index = require $path . 'config/autoload.php';
 			}
 
@@ -37,218 +192,83 @@ function register_autoloader()
 }
 
 /**
- * Escape HTML special characters.
+ * Normalize a string to be suitable as a namespace part.
  *
- * HTML special characters are escaped using the {@link htmlspecialchars()} function with the
- * {@link ENT_COMPAT} flag.
+ * @param string $part The string to normalize.
  *
- * @param string $str The string to escape.
- * @param string $charset The charset of the string to escape. Defaults to {@link ICanBoogie\CHARSET}
- * (utf-8).
- *
- * @return string
+ * @return string Normalized string.
  */
-function escape($str, $charset=CHARSET)
+function normalize_namespace_part($part)
 {
-	return htmlspecialchars($str, ENT_COMPAT, $charset);
-}
-
-/**
- * Escape all applicable characters to HTML entities.
- *
- * Applicable characters are escaped using the {@link htmlentities()} function with the {@link ENT_COMPAT} flag.
- *
- * @param string $str The string to escape.
- * @param string $charset The charset of the string to escape. Defaults to ICanBoogie\CHARSET
- * (utf-8).
- *
- * @return string
- */
-function escape_all($str, $charset=CHARSET)
-{
-	return htmlentities($str, ENT_COMPAT, $charset);
-}
-
-function capitalize($str)
-{
-	return mb_convert_case($str, MB_CASE_TITLE);
-}
-
-function downcase($str)
-{
-	return mb_strtolower($str);
-}
-
-function upcase($str)
-{
-	return mb_strtoupper($str);
-}
-
-/**
- * Shortens a string at a specified position.
- *
- * @param string $str The string to shorten.
- * @param int $length The desired length of the string.
- * @param float $position Position at which characters can be removed.
- * @param bool $shortened `true` if the string was shortened, `false` otherwise.
- *
- * @return string
- */
-function shorten($str, $length=32, $position=.75, &$shortened=null)
-{
-	$l = mb_strlen($str);
-
-	if ($l <= $length)
-	{
-		return $str;
-	}
-
-	$length--;
-	$position = (int) ($position * $length);
-
-	if ($position == 0)
-	{
-		$str = '…' . mb_substr($str, $l - $length);
-	}
-	else if ($position == $length)
-	{
-		$str = mb_substr($str, 0, $length) . '…';
-	}
-	else
-	{
-		$str = mb_substr($str, 0, $position) . '…' . mb_substr($str, $l - ($length - $position));
-	}
-
-	$shortened = true;
-
-	return $str;
-}
-
-/**
- * Removes the accents of a string.
- *
- * @param string $str
- * @param string $charset Defaults to {@link ICanBoogie\CHARSET}.
- *
- * @return string
- */
-function remove_accents($str, $charset=CHARSET)
-{
-	$str = htmlentities($str, ENT_NOQUOTES, $charset);
-
-	$str = preg_replace('#&([A-za-z])(?:acute|cedil|circ|grave|orn|ring|slash|th|tilde|uml);#', '\1', $str);
-	$str = preg_replace('#&([A-za-z]{2})(?:lig);#', '\1', $str); // pour les ligatures e.g. '&oelig;'
-	$str = preg_replace('#&[^;]+;#', '', $str); // supprime les autres caractères
-
-	return $str;
-}
-
-/**
- * Binary-safe case-sensitive accents-insensitive string comparison.
- *
- * Accents are removed using the {@link remove_accents()} function.
- *
- * @param string $a
- * @param string $b
- *
- * @return bool
- */
-function unaccent_compare($a, $b)
-{
-    return strcmp(remove_accents($a), remove_accents($b));
-}
-
-/**
- * Binary-safe case-insensitive accents-insensitive string comparison.
- *
- * Accents are removed using the {@link remove_accents()} function.
- *
- * @param string $a
- * @param string $b
- *
- * @return bool
- */
-function unaccent_compare_ci($a, $b)
-{
-    return strcasecmp(remove_accents($a), remove_accents($b));
-}
-
-/**
- * Normalizes a string.
- *
- * Accents are removed, the string is downcased and characters that don't match [a-z0-9] are
- * replaced by the separator character.
- *
- * @param string $str The string to normalize.
- * @param string $separator The separator characters replaces characters the don't match [a-z0-9].
- * @param string $charset The charset of the string to normalize.
- *
- * @return string
- */
-function normalize($str, $separator='-', $charset=CHARSET)
-{
-	$str = str_replace('\'', '', $str);
-	$str = remove_accents($str, $charset);
-	$str = strtolower($str);
-	$str = preg_replace('#[^a-z0-9]+#', $separator, $str);
-	$str = trim($str, $separator);
-
-	return $str;
-}
-
-/**
- * Converts a string separated by a specified separator into a camelCase equivalent.
- *
- * For instance, "foo-bar" would be converted to "fooBar".
- *
- * @param string $str
- * @param string $separator Defaults to "-".
- *
- * @return string
- */
-function camelize($str, $separator='-')
-{
-	static $callback;
-
-	if (!$callback)
-	{
-		$callback = function($match)
+	return preg_replace_callback
+	(
+		'/[-\s_\.]\D/', function ($match)
 		{
-			return mb_strtoupper(mb_substr($match[0], 1));
-		};
-	}
+			$rc = ucfirst($match[0]{1});
 
-	return preg_replace_callback('/' . preg_quote($separator) . '\D/', $callback, $str);
+			if ($match[0]{0} == '.')
+			{
+				$rc = '\\' . $rc;
+			}
+
+			return $rc;
+		},
+
+		' ' . $part
+	);
 }
 
 /**
- * Converts a camel-cased string to a hyphenated string.
+ * Normalizes the path of a URL.
  *
- * @param string $str
+ * @param string $path
  *
  * @return string
+ *
+ * @see http://en.wikipedia.org/wiki/URL_normalization
  */
-function hyphenate($str)
+function normalize_url_path($path)
 {
-	static $callback;
+	static $cache = array();
 
-	if (!$callback)
+	if (isset($cache[$path]))
 	{
-		$callback = function($match)
-		{
-			return "-" . mb_strtolower(mb_substr($match[0], 0, 1));
-		};
+		return $cache[$path];
 	}
 
-	return trim(preg_replace_callback('/[A-Z]/', $callback, $str), '-');
+	$normalized = preg_replace('#\/index\.(html|php)$#', '/', $path);
+	$normalized = rtrim($normalized, '/');
+
+	if (!preg_match('#\.[a-z]+$#', $normalized))
+	{
+		$normalized .= '/';
+	}
+
+	$cache[$path] = $normalized;
+
+	return $normalized;
+}
+
+// https://github.com/rails/rails/blob/master/activesupport/lib/active_support/inflector/inflections.rb
+// http://api.rubyonrails.org/classes/ActiveSupport/Inflector.html#method-i-singularize
+
+function singularize($string)
+{
+	static $rules = array
+	(
+		'/ies$/' => 'y',
+		'/s$/' => ''
+	);
+
+	return preg_replace(array_keys($rules), $rules, $string);
 }
 
 /**
  * Creates an excerpt of an HTML string.
  *
- * Only to following tags are preserved : A, P, CODE, DEL, EM, INS, STRONG.
+ * The following tags are preserved: A, P, CODE, DEL, EM, INS and STRONG.
  *
- * @param string $str
+ * @param string $str HTML string.
  * @param int $limit The maximum number of words.
  *
  * @return string
@@ -332,399 +352,6 @@ function excerpt($str, $limit=55)
 	}
 
 	return $rc;
-}
-
-/**
- * Normalize a string to be suitable as a namespace part.
- *
- * @param string $part The string to normalize.
- *
- * @return string Normalized string.
- */
-function normalize_namespace_part($part)
-{
-	return preg_replace_callback
-	(
-		'/[-\s_\.]\D/', function ($match)
-		{
-			$rc = ucfirst($match[0]{1});
-
-			if ($match[0]{0} == '.')
-			{
-				$rc = '\\' . $rc;
-			}
-
-			return $rc;
-		},
-
-		' ' . $part
-	);
-}
-
-/**
- * Normalizes the path of a URL.
- *
- * @param string $path
- *
- * @return string
- *
- * @see http://en.wikipedia.org/wiki/URL_normalization
- */
-function normalize_url_path($path)
-{
-	static $cache = array();
-
-	if (isset($cache[$path]))
-	{
-		return $cache[$path];
-	}
-
-	$normalized = preg_replace('#\/index\.(html|php)$#', '/', $path);
-	$normalized = rtrim($normalized, '/');
-
-	if (!preg_match('#\.[a-z]+$#', $normalized))
-	{
-		$normalized .= '/';
-	}
-
-	$cache[$path] = $normalized;
-
-	return $normalized;
-}
-
-// https://github.com/rails/rails/blob/master/activesupport/lib/active_support/inflector/inflections.rb
-// http://api.rubyonrails.org/classes/ActiveSupport/Inflector.html#method-i-singularize
-
-function singularize($string)
-{
-	static $rules = array
-	(
-		'/ies$/' => 'y',
-		'/s$/' => ''
-	);
-
-	return preg_replace(array_keys($rules), $rules, $string);
-}
-
-/**
- * Sorts an array using a stable sorting algorithm while preserving its keys.
- *
- * A stable sorting algorithm maintains the relative order of values with equal keys.
- *
- * The array is always sorted in ascending order but one can use the array_reverse() function to
- * reverse the array. Also keys are preserved, even numeric ones, use the array_values() function
- * to create an array with an ascending index.
- *
- * @param array &$array
- * @param callable $picker
- */
-function stable_sort(&$array, $picker=null)
-{
-	static $transform, $restore;
-
-	$i = 0;
-
-	if (!$transform)
-	{
-		$transform = function(&$v, $k) use (&$i)
-		{
-			$v = array($v, ++$i, $k, $v);
-		};
-
-		$restore = function(&$v, $k)
-		{
-			$v = $v[3];
-		};
-	}
-
-	if ($picker)
-	{
-		array_walk
-		(
-			$array, function(&$v, $k) use (&$i, $picker)
-			{
-				$v = array($picker($v), ++$i, $k, $v);
-			}
-		);
-	}
-	else
-	{
-		array_walk($array, $transform);
-	}
-
-	asort($array);
-
-	array_walk($array, $restore);
-}
-
-/**
- * Inserts a value in a array before, or after, at given key.
- *
- * Numeric keys are not preserved.
- *
- * @param $array
- * @param $relative
- * @param $value
- * @param $key
- * @param $after
- *
- * @return array
- */
-function array_insert($array, $relative, $value, $key=null, $after=false)
-{
-	$keys = array_keys($array);
-	$pos = array_search($relative, $keys, true);
-
-	if ($after)
-	{
-		$pos++;
-	}
-
-	$spliced = array_splice($array, $pos);
-
-	if ($key !== null)
-	{
-		$array = array_merge($array, array($key => $value));
-	}
-	else
-	{
-		array_unshift($spliced, $value);
-	}
-
-	return array_merge($array, $spliced);
-}
-
-/**
- * Flattens an array.
- *
- * @param array $array
- * @param string|array $separator
- * @param int $depth
- *
- * @return array
- */
-function array_flatten($array, $separator='.', $depth=0)
-{
-	$rc = array();
-
-	if (is_array($separator))
-	{
-		foreach ($array as $key => $value)
-		{
-			if (!is_array($value))
-			{
-				$rc[$key . ($depth ? $separator[1] : '')] = $value;
-
-				continue;
-			}
-
-			$values = array_flatten($value, $separator, $depth + 1);
-
-			foreach ($values as $vkey => $value)
-			{
-				$rc[$key . ($depth ? $separator[1] : '') . $separator[0] . $vkey] = $value;
-			}
-		}
-	}
-	else
-	{
-		foreach ($array as $key => $value)
-		{
-			if (!is_array($value))
-			{
-				$rc[$key] = $value;
-
-				continue;
-			}
-
-			$values = array_flatten($value, $separator, $depth + 1);
-
-			foreach ($values as $vkey => $value)
-			{
-				$rc[$key . $separator . $vkey] = $value;
-			}
-		}
-	}
-
-	return $rc;
-}
-
-/**
- * Merge arrays recursively with a different algorithm than PHP.
- *
- * @param array $array1
- * @param array $array2 ...
- *
- * @return array
- */
-function array_merge_recursive(array $array1, array $array2=array())
-{
-	$arrays = func_get_args();
-
-	$merge = array_shift($arrays);
-
-	foreach ($arrays as $array)
-	{
-		foreach ($array as $key => $val)
-		{
-			#
-			# if the value is an array and the key already exists
-			# we have to make a recursion
-			#
-
-			if (is_array($val) && array_key_exists($key, $merge))
-			{
-				$val = array_merge_recursive((array) $merge[$key], $val);
-			}
-
-			#
-			# if the key is numeric, the value is pushed. Otherwise, it replaces
-			# the value of the _merge_ array.
-			#
-
-			if (is_numeric($key))
-			{
-				$merge[] = $val;
-			}
-			else
-			{
-				$merge[$key] = $val;
-			}
-		}
-	}
-
-	return $merge;
-}
-
-function exact_array_merge_recursive(array $array1, array $array2=array())
-{
-	$arrays = func_get_args();
-
-	$merge = array_shift($arrays);
-
-	foreach ($arrays as $array)
-	{
-		foreach ($array as $key => $val)
-		{
-			#
-			# if the value is an array and the key already exists
-			# we have to make a recursion
-			#
-
-			if (is_array($val) && array_key_exists($key, $merge))
-			{
-				$val = exact_array_merge_recursive((array) $merge[$key], $val);
-			}
-
-			$merge[$key] = $val;
-		}
-	}
-
-	return $merge;
-}
-
-
-/**
- * Returns information about a variable.
- *
- * The function uses xdebug_var_dump() if [Xdebug](http://xdebug.org/) is installed, otherwise it
- * uses print_r() output wrapped in a PRE element.
- *
- * @param mixed $value
- *
- * @return string
- */
-function dump($value)
-{
-	if (function_exists('xdebug_var_dump'))
-	{
-		ob_start();
-
-		xdebug_var_dump($value);
-
-		$value = ob_get_clean();
-	}
-	else
-	{
-		$value = '<pre>' . escape(print_r($value, true)) . '</pre>';
-	}
-
-	return $value;
-}
-
-/**
- * Formats the given string by replacing placeholders with the values provided.
- *
- * @param string $str The string to format.
- * @param array $args An array of replacement for the placeholders. Occurrences in $str of any
- * key in $args are replaced with the corresponding sanitized value. The sanitization function
- * depends on the first character of the key:
- *
- * * :key: Replace as is. Use this for text that has already been sanitized.
- * * !key: Sanitize using the `ICanBoogie\escape()` function.
- * * %key: Sanitize using the `ICanBoogie\escape()` function and wrap inside a "EM" markup.
- *
- * Numeric indexes can also be used e.g '\2' or "{2}" are replaced by the value of the index
- * "2".
- *
- * @return string
- */
-function format($str, array $args=array())
-{
-	if (!$args)
-	{
-		return $str;
-	}
-
-	$holders = array();
-	$i = 0;
-
-	foreach ($args as $key => $value)
-	{
-		++$i;
-
-		if (is_array($value) || is_object($value))
-		{
-			$value = dump($value);
-		}
-		else if (is_bool($value))
-		{
-			$value = $value ? '<em>true</em>' : '<em>false</em>';
-		}
-		else if (is_null($value))
-		{
-			$value = '<em>null</em>';
-		}
-
-		if (is_string($key))
-		{
-			switch ($key{0})
-			{
-				case ':': break;
-				case '!': $value = escape($value); break;
-				case '%': $value = '<q>' . escape($value) . '</q>'; break;
-
-				default:
-				{
-					$escaped_value = escape($value);
-
-					$holders['!' . $key] = $escaped_value;
-					$holders['%' . $key] = '<q>' . $escaped_value . '</q>';
-
-					$key = ':' . $key;
-				}
-			}
-		}
-		else if (is_numeric($key))
-		{
-			$key = '\\' . $i;
-			$holders['{' . $i . '}'] = $value;
-		}
-
-		$holders[$key] = $value;
-	}
-
-	return strtr($str, $holders);
 }
 
 /**

@@ -11,8 +11,6 @@
 
 namespace ICanBoogie;
 
-@define('WDEXCEPTION_WITH_LOG', true);
-
 /**
  * @property-read int $code The code of the exception that can be used as HTTP status code.
  * @property-read string $message The message of the exception.
@@ -119,115 +117,6 @@ class Exception extends \Exception
 	public function alter_header()
 	{
 		header("HTTP/1.0 $this->code $this->title");
-	}
-}
-
-/**
- * Exception thrown when there is something wrong with an array offset.
- *
- * This is the base class for offset exceptions, one should rather use the
- * {@link OffsetNotReadable} or {@link OffsetNotWritable} exceptions.
- */
-class OffsetException extends \RuntimeException
-{
-
-}
-
-/**
- * Exception thrown when an array offset is not readable.
- */
-class OffsetNotReadable extends OffsetException
-{
-	public function __construct($message, $code=500, \Exception $previous=null)
-	{
-		if (is_array($message))
-		{
-			list($offset, $container) = $message + array(1 => null);
-
-			if (is_object($container))
-			{
-				$message = format
-				(
-					'The offset %offset for object of class %class is not readable.', array
-					(
-						'offset' => $offset,
-						'class' => get_class($container)
-					)
-				);
-			}
-			else if (is_array($container))
-			{
-				$message = format
-				(
-					'The offset %offset is not readable for the array: !array', array
-					(
-						'offset' => $offset,
-						'array' => $container
-					)
-				);
-			}
-			else
-			{
-				$message = format
-				(
-					'The offset %offset is not readable.', array
-					(
-						'offset' => $offset
-					)
-				);
-			}
-		}
-
-		parent::__construct($message, $code, $previous);
-	}
-}
-
-/**
- * Thrown when an array offset is not writable.
- */
-class OffsetNotWritable extends OffsetException
-{
-	public function __construct($message, $code=500, \Exception $previous=null)
-	{
-		if (is_array($message))
-		{
-			list($offset, $container) = $message + array(1 => null);
-
-			if (is_object($container))
-			{
-				$message = format
-				(
-					'The offset %offset for object of class %class is not writable.', array
-					(
-						'offset' => $offset,
-						'class' => get_class($container)
-					)
-				);
-			}
-			else if (is_array($container))
-			{
-				$message = format
-				(
-					'The offset %offset is not writable for the array: !array', array
-					(
-						'offset' => $offset,
-						'array' => $container
-					)
-				);
-			}
-			else
-			{
-				$message = format
-				(
-					'The offset %offset is not writable.', array
-					(
-						'offset' => $offset
-					)
-				);
-			}
-		}
-
-		parent::__construct($message, $code, $previous);
 	}
 }
 

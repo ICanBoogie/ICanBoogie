@@ -628,7 +628,7 @@ abstract class Operation extends Object
 				}
 			}
 		}
-		catch (Operation\ExpiredFormException $e)
+		catch (Operation\FormHasExpired $e)
 		{
 			log_error($e->getMessage());
 
@@ -1149,7 +1149,7 @@ class GetFormEvent extends \ICanBoogie\Event
  *
  * The exception is considered recoverable, if the request is not XHR.
  */
-class ExpiredFormException extends \Exception // TODO-20120922: rename as FormHasExpired
+class FormHasExpired extends \Exception
 {
 	public function __construct($message="The form associated with the request has expired.", $code=500, $previous=null)
 	{

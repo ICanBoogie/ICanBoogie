@@ -1,13 +1,11 @@
-ICanBoogie
+ICanBoogie [![Build Status](https://secure.travis-ci.org/ICanBoogie/ICanBoogie.png?branch=master)](http://travis-ci.org/ICanBoogie/ICanBoogie)
 ==========
-
-[![Build Status](https://secure.travis-ci.org/ICanBoogie/ICanBoogie.png?branch=master)](http://travis-ci.org/ICanBoogie/ICanBoogie)
 
 __ICanBoogie__ is a high-performance object-oriented framework for PHP 5.3+. It is written
 with speed, flexibility and lightness in mind. ICanBoogie doesn't try to be an all-in-one do-it-all
 solution but provides the essential classes and logic to build web applications.
 
-ICanBoogie offers the following features: Prototypes, ActiveRecords, Internationalization,
+ICanBoogie packages offers the following features: Prototypes, ActiveRecords, Internationalization,
 Modules, a RESTful API, Request/Dispatch/Response, Operations, Events, Hooks, Sessions, Routes,
 Caching and more.
 
@@ -15,13 +13,14 @@ Together with [Brickrouge](http://brickrouge.org) and Patron, ICanBoogie is one 
 components that make the CMS [Icybee](http://icybee.org). You might want to check these
 projects too.
 
-*Inspiration*: [MooTools](http://mootools.net/), [Ruby on Rails](http://rubyonrails.org),
-[Yii](http://www.yiiframework.com) and of course [Bacara](http://www.youtube.com/watch?v=KGuFn0RPgaE) :)
 
 
 
-Getting started
----------------
+### Acknowledgement
+
+[MooTools](http://mootools.net/), [Ruby on Rails](http://rubyonrails.org),
+[Yii](http://www.yiiframework.com), and of course [Bacara](http://www.youtube.com/watch?v=KGuFn0RPgaE).
+
 
 ### Requirements
 
@@ -30,15 +29,32 @@ Apache HTTP server on Linux, MacOS and Windows operating systems. The Apache ser
 URL rewriting.
 
 
-### Installation
 
-Clone ICanBoogie from its GitHub repository using the following command:
 
-	$ git clone git@github.com:ICanBoogie/ICanBoogie.git
+## Installation
 
-ICanBoogie doesn't need to be web-accessible, thus a single instance can be used to power multiple
-projects.
+The recommended way to install ICanBoogie is [through composer](http://getcomposer.org/). Create a
+`composer.json` file and run `php composer.phar install` command to install it:
 
+```
+{
+    "minimum-stability": "dev",
+    "require": {
+        "icanboogie/icanboogie": "1.0.*"
+    }
+}
+```
+
+## Tests
+
+To run the test suite, you need [composer](http://getcomposer.org/) and [PHPUnit](http://www.phpunit.de/manual/current/en/).
+First install the required packages with the `make install` command, then run the test suite
+with `make test`.
+
+
+
+
+## Getting started
 
 ### Configuring
 
@@ -104,7 +120,7 @@ $core->run();
 
 # here we could add routes or attach events
 
-$request = HTTP\Request::from($_SERVER);
+$request = $core->initial_request;
 $response = $request();
 $response();
 ```
@@ -112,14 +128,6 @@ $response();
 
 
 
-Author
-------
+## Licence
 
-Olivier Laviale - <olivier.laviale@gmail.com> - [@olvlvl](https://twitter.com/olvlvl] - <http://www.weirdog.com/>
-
-
-
-Licence
--------
-
-ICanBoogie is licensed under the New BSD Licence - See the LICENCE file for details.
+ICanBoogie is licensed under the New BSD License - See the LICENSE file for details.

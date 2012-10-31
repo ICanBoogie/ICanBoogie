@@ -29,7 +29,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	 * @var int
 	 */
 	const MAGIC_LENGTH = 8;
-	
+
 	static private $release_after;
 
 	/**
@@ -57,7 +57,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 
 		if (!is_writable($this->path))
 		{
-			throw new Exception('The path %path is not writable.', array('path' => $this->path));
+			throw new Exception('The directory %path is not writable.', array('directory' => $this->path));
 		}
 	}
 
@@ -188,12 +188,12 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 			{
 				throw new Exception('Unable to open %pathname: :message', array('pathname' => $pathname, 'message' => Debug::$last_error_message));
 			}
-			
+
 			if (self::$release_after && !flock($fh, LOCK_EX))
 			{
 				throw new Exception('Unable to get to exclusive lock on %pathname: :message', array('pathname' => $pathname, 'message' => Debug::$last_error_message));
 			}
-		
+
 			file_put_contents($tmp_pathname, $value);
 
 			#
@@ -208,7 +208,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 			{
 				throw new Exception('Unable to rename %old as %new.', array('old' => $pathname, 'new' => $garbage_pathname));
 			}
-			
+
 			if (!rename($tmp_pathname, $pathname))
 			{
 				throw new Exception('Unable to rename %old as %new.', array('old' => $tmp_pathname, 'new' => $pathname));
@@ -216,9 +216,9 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 
 			if (!unlink($garbage_pathname))
 			{
-				throw new Exception('Unable to unlink %pathname: :message', array('pathname' => $garbage_pathname, 'message' => Debug::$last_error_message));
+				throw new Exception('Unable to delete %pathname: :message', array('pathname' => $garbage_pathname, 'message' => Debug::$last_error_message));
 			}
-			
+
 			if (self::$release_after)
 			{
 				flock($fh, LOCK_UN);

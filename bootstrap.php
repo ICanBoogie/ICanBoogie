@@ -53,25 +53,6 @@ defined('ICanBoogie\DOCUMENT_ROOT') or define('ICanBoogie\DOCUMENT_ROOT', rtrim(
 defined('ICanBoogie\REPOSITORY') or define('ICanBoogie\REPOSITORY', DOCUMENT_ROOT . 'repository' . DIRECTORY_SEPARATOR);
 
 /**
- * If true, APC is used to store and retrieve active records.
- *
- * @var bool
- */
-defined('ICanBoogie\CACHE_ACTIVERECORDS') or define('ICanBoogie\CACHE_ACTIVERECORDS', false);
-
-/**
- * The charset used by the application. Defaults to "utf-8".
- *
- * @var string
- */
-defined('ICanBoogie\CHARSET') or define('ICanBoogie\CHARSET', 'utf-8');
-
-if (function_exists('mb_internal_encoding'))
-{
-	mb_internal_encoding(CHARSET);
-}
-
-/**
  * Enables bootstrap caching.
  *
  * @var bool
@@ -99,6 +80,10 @@ if (empty($_SERVER['REQUEST_TIME_FLOAT']))
 require_once ROOT . 'lib/helpers.php';
 require_once ROOT . 'lib/http/helpers.php';
 require_once ROOT . 'lib/i18n/helpers.php';
+require_once ActiveRecord\ROOT . 'lib/helpers.php';
+
+require_once Prototype\ROOT . 'lib/object.php';
+require_once Prototype\ROOT . 'lib/prototype.php';
 
 if (CACHE_BOOTSTRAP && file_exists(BOOTSTRAP_CACHE_PATHNAME))
 {
@@ -109,18 +94,11 @@ else
 	require_once ROOT . 'lib/core/debug.php';
 	require_once ROOT . 'lib/core/exception.php';
 	require_once ROOT . 'lib/core/event.php';
-	require_once ROOT . 'lib/core/prototype.php';
-	require_once ROOT . 'lib/core/object.php';
-	require_once ROOT . 'lib/activerecord/helpers.php';
 	require_once ROOT . 'lib/core/accessors/configs.php';
 	require_once ROOT . 'lib/core/core.php';
 }
 
 /*
- * Patch Active Record helpers
+ * Patches
  */
-ActiveRecord\Helpers::patch('get_model', function($id) {
-
-	return Core::get()->models[$id];
-
-});
+require_once ROOT . 'lib/patches.php';

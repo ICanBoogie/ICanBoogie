@@ -103,6 +103,11 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 
 			$rc = $this->rc;
 
+			if (is_object($rc) && is_callable(array($rc, '__toString')))
+			{
+				$rc = (string) $rc;
+			}
+
 			$body_data = array
 			(
 				'rc' => $rc,

@@ -326,7 +326,7 @@ class DateTime extends \DateTime
 {
 	private static $utc_time_zone;
 
-	private static function get_utc_time_zone()
+	static private function get_utc_time_zone()
 	{
 		$utc_time_zone = self::$utc_time_zone;
 

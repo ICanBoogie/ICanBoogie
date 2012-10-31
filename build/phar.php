@@ -9,20 +9,20 @@
  * file that was distributed with this source code.
  */
 
-$phar_filename = 'ICanBoogie.phar';
+$package_name = 'ICanBoogie';
 
 $exclude = array
 (
-		'.*\.md',
-		'.*-uncompressed\..*',
-		'.git/.*',
-		'.gitignore',
-		'.travis.yml',
-		'build/.*',
-		'Makefile',
-		'phpunit.xml.dist',
-		'README.md',
-		'tests/.*'
+	'.*\.md',
+	'.*-uncompressed\..*',
+	'.git/.*',
+	'.gitignore',
+	'.travis.yml',
+	'build/.*',
+	'Makefile',
+	'phpunit.xml.dist',
+	'README.md',
+	'tests/.*'
 );
 
 $do_not_compress = array('gif' => true, 'jpg' => true, 'jpeg' => true, 'png' => true);
@@ -63,7 +63,7 @@ $dir = dirname(__DIR__);
 
 chdir($dir);
 
-$phar_pathname = dirname($dir) . '/' . $phar_filename;
+$phar_pathname = dirname($dir) . "/{$package_name}.phar";
 
 if (file_exists($phar_pathname))
 {
@@ -75,9 +75,9 @@ $phar->setSignatureAlgorithm(\Phar::SHA1);
 $phar->setStub(<<<EOT
 <?php
 
-define('ICanBoogie\ROOT', 'phar://' . __FILE__ . DIRECTORY_SEPARATOR);
+define('{$package_name}\ROOT', 'phar://' . __FILE__ . DIRECTORY_SEPARATOR);
 
-require_once ICanBoogie\ROOT . 'startup.php';
+require_once {$package_name}\ROOT . 'bootstrap.php';
 
 __HALT_COMPILER();
 EOT
