@@ -188,10 +188,10 @@ class StartEvent extends \ICanBoogie\Event
 	 * The event is constructed with the type `start`.
 	 *
 	 * @param \ICanBoogie\Session $target
-	 * @param array $properties
+	 * @param array $payload
 	 */
-	public function __construct(\ICanBoogie\Session $target, array $properties)
+	public function __construct(\ICanBoogie\Session $target, array $payload)
 	{
-		parent::__construct($target, 'start', $properties);
+		parent::__construct($target, 'start', $payload);
 	}
 }

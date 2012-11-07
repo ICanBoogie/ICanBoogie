@@ -138,7 +138,7 @@ class Dispatcher
 	/**
 	 * Tries to get a {@link Response} object for an exception.
 	 *
-	 * {@link \ICanBoogie\Exception\GetResponseEvent} is fired with the exception as target.
+	 * {@link \ICanBoogie\Exception\RescueEvent} is fired with the exception as target.
 	 * The response provided by one of the event callbacks is returned. If there is no response the
 	 * exception is thrown again.
 	 *
@@ -153,7 +153,7 @@ class Dispatcher
 	{
 		$response = null;
 
-		new \ICanBoogie\Exception\GetResponseEvent($exception, array('response' => &$response, 'exception' => &$exception, 'request' => $request));
+		new \ICanBoogie\Exception\RescueEvent($exception, array('response' => &$response, 'exception' => &$exception, 'request' => $request));
 
 		if (!$response)
 		{
@@ -247,11 +247,11 @@ class PopulateEvent extends \ICanBoogie\Event
 	 * The event is constructed with the type `populate`.
 	 *
 	 * @param \ICanBoogie\HTTP\Dispatcher $target
-	 * @param array $properties
+	 * @param array $payload
 	 */
-	public function __construct(\ICanBoogie\HTTP\Dispatcher $target, array $properties)
+	public function __construct(\ICanBoogie\HTTP\Dispatcher $target, array $payload)
 	{
-		parent::__construct($target, 'populate', $properties);
+		parent::__construct($target, 'populate', $payload);
 	}
 }
 
@@ -282,11 +282,11 @@ class BeforeDispatchEvent extends \ICanBoogie\Event
 	 * The event is constructed with the type `dispatch:before`.
 	 *
 	 * @param \ICanBoogie\HTTP\Dispatcher $target
-	 * @param array $properties
+	 * @param array $payload
 	 */
-	public function __construct(\ICanBoogie\HTTP\Dispatcher $target, array $properties)
+	public function __construct(\ICanBoogie\HTTP\Dispatcher $target, array $payload)
 	{
-		parent::__construct($target, 'dispatch:before', $properties);
+		parent::__construct($target, 'dispatch:before', $payload);
 	}
 }
 
@@ -315,20 +315,20 @@ class DispatchEvent extends \ICanBoogie\Event
 	 * The event is constructed with the type `dispatch`.
 	 *
 	 * @param \ICanBoogie\HTTP\Dispatcher $target
-	 * @param array $properties
+	 * @param array $payload
 	 */
-	public function __construct(\ICanBoogie\HTTP\Dispatcher $target, array $properties)
+	public function __construct(\ICanBoogie\HTTP\Dispatcher $target, array $payload)
 	{
-		parent::__construct($target, 'dispatch', $properties);
+		parent::__construct($target, 'dispatch', $payload);
 	}
 }
 
 namespace ICanBoogie\Exception;
 
 /**
- * Event class for the `Exception\get_response` event type.
+ * Event class for the `Exception\rescue` event type.
  */
-class GetResponseEvent extends \ICanBoogie\Event
+class RescueEvent extends \ICanBoogie\Event
 {
 	/**
 	 * Reference to the response.
@@ -352,13 +352,13 @@ class GetResponseEvent extends \ICanBoogie\Event
 	public $request;
 
 	/**
-	 * The event is constructed with the type `get_response`.
+	 * The event is constructed with the type `rescue`.
 	 *
 	 * @param \Exception $target
-	 * @param array $properties
+	 * @param array $payload
 	 */
-	public function __construct(\Exception $target, array $properties)
+	public function __construct(\Exception $target, array $payload)
 	{
-		parent::__construct($target, 'get_response', $properties);
+		parent::__construct($target, 'rescue', $payload);
 	}
 }

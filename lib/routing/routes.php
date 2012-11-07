@@ -369,11 +369,11 @@ class BeforeCollectEvent extends \ICanBoogie\Event
 	 * The event is constructed with the type `alter:before`.
 	 *
 	 * @param \ICanBoogie\Routes $target The routes collection.
-	 * @param array $properties
+	 * @param array $payload
 	 */
-	public function __construct(\ICanBoogie\Routes $target, array $properties)
+	public function __construct(\ICanBoogie\Routes $target, array $payload)
 	{
-		parent::__construct($target, 'collect:before', $properties);
+		parent::__construct($target, 'collect:before', $payload);
 	}
 }
 
@@ -395,10 +395,10 @@ class CollectEvent extends \ICanBoogie\Event
 	 * The event is constructed with the type `collect`.
 	 *
 	 * @param \ICanboogie\Routes $target The routes collection.
-	 * @param array $properties
+	 * @param array $payload
 	 */
-	public function __construct(\ICanboogie\Routes $target, array $properties)
+	public function __construct(\ICanboogie\Routes $target, array $payload)
 	{
-		parent::__construct($target, 'collect', $properties);
+		parent::__construct($target, 'collect', $payload);
 	}
 }

@@ -1029,11 +1029,11 @@ class FailureEvent extends \ICanBoogie\Event
 	 * The event is constructed with the type `failure`.
 	 *
 	 * @param \ICanBoogie\Operation $target
-	 * @param array $properties
+	 * @param array $payload
 	 */
-	public function __construct(\ICanBoogie\Operation $target, array $properties)
+	public function __construct(\ICanBoogie\Operation $target, array $payload)
 	{
-		parent::__construct($target, 'failure', $properties);
+		parent::__construct($target, 'failure', $payload);
 	}
 }
 
@@ -1067,11 +1067,11 @@ class BeforeProcessEvent extends \ICanBoogie\Event
 	 * The event is constructed with the type `process:before`.
 	 *
 	 * @param \ICanBoogie\Operation $target
-	 * @param array $properties
+	 * @param array $payload
 	 */
-	public function __construct(\ICanBoogie\Operation $target, array $properties)
+	public function __construct(\ICanBoogie\Operation $target, array $payload)
 	{
-		parent::__construct($target, 'process:before', $properties);
+		parent::__construct($target, 'process:before', $payload);
 	}
 }
 
@@ -1105,11 +1105,11 @@ class ProcessEvent extends \ICanBoogie\Event
 	 * The event is constructed with the type `process`.
 	 *
 	 * @param \ICanBoogie\Operation $target
-	 * @param array $properties
+	 * @param array $payload
 	 */
-	public function __construct(\ICanBoogie\Operation $target, array $properties)
+	public function __construct(\ICanBoogie\Operation $target, array $payload)
 	{
-		parent::__construct($target, 'process', $properties);
+		parent::__construct($target, 'process', $payload);
 	}
 }
 
@@ -1136,11 +1136,11 @@ class GetFormEvent extends \ICanBoogie\Event
 	 * The event is constructed with the type `get_form`.
 	 *
 	 * @param \ICanBoogie\Operation $target
-	 * @param array $properties
+	 * @param array $payload
 	 */
-	public function __construct(\ICanBoogie\Operation $target, array $properties)
+	public function __construct(\ICanBoogie\Operation $target, array $payload)
 	{
-		parent::__construct($target, 'get_form', $properties);
+		parent::__construct($target, 'get_form', $payload);
 	}
 }
 

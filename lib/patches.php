@@ -25,11 +25,11 @@ class PropertyEvent extends \ICanBoogie\Event
 	 * The event is created with the type `property`.
 	 *
 	 * @param \ICanBoogie\Object $target
-	 * @param array $properties
+	 * @param array $payload
 	 */
-	public function __construct(\ICanBoogie\Object $target, array $properties)
+	public function __construct(\ICanBoogie\Object $target, array $payload)
 	{
-		parent::__construct($target, 'property', $properties);
+		parent::__construct($target, 'property', $payload);
 	}
 }
 
