@@ -172,13 +172,6 @@ class Core extends Object
 			$configs->cache_syntheses = true;
 			$configs->cache_repository = $config['repository.cache'] . '/core';
 		}
-
-		# Initialize events with the "events" config.
-
-		Events::$initializer = function() use($configs)
-		{
-			return $configs['events'];
-		};
 	}
 
 	/**
@@ -190,7 +183,7 @@ class Core extends Object
 	{
 		$config = $this->config;
 
-		return new Modules($config['modules'], $config['cache modules'] ? $this->vars : null);
+		return new Modules($config['modules paths'], $config['cache modules'] ? $this->vars : null);
 	}
 
 	/**
@@ -302,7 +295,7 @@ class Core extends Object
 	 */
 	protected function volatile_set_language($id)
 	{
-		I18n::set_language($id);
+		throw new PropertyNotWritable(array('language', $this));
 	}
 
 	/**
@@ -312,27 +305,29 @@ class Core extends Object
 	 */
 	protected function volatile_get_language()
 	{
-		return I18n::get_language();
+		return I18n\get_language();
 	}
 
 	/**
-	 * @throws PropertyNotWritable in attempt to write {@link $locale}.
+	 * Sets the current locate.
+	 *
+	 * @param string $id Locale identifier.
 	 */
-	protected function volatile_set_locale()
+	protected function volatile_set_locale($id)
 	{
-		throw new PropertyNotWritable(array('locale', $this));
+		I18n\set_locale($id);
 	}
 
 	/**
 	 * Returns the locale object used by the framework.
 	 *
-	 * The locale object is reseted when the property {@link $language} is set.
+	 * DIRTY:The locale object is reseted when the property {@link $language} is set.
 	 *
 	 * @return I18n\Locale
 	 */
 	protected function volatile_get_locale()
 	{
-		return I18n::get_locale();
+		return I18n\get_locale();
 	}
 
 	/**
@@ -437,7 +432,53 @@ class Core extends Object
 		self::$is_running = true;
 
 		$this->modules->autorun = true;
+
 		$this->run_modules();
+
+// 		new Core\BeforeRunEvent($this); TODO-20121127: if we fire an event now, module events won't be taken into account because the events have already been collected
+
+		$events = $this->configs->synthesize('events', function(array $fragments) {
+
+			$events = array();
+
+			foreach ($fragments as $path => $fragment)
+			{
+				if (empty($fragment['events']))
+				{
+					continue;
+				}
+
+				foreach ($fragment['events'] as $type => $callback)
+				{
+					if (!is_string($callback))
+					{
+						throw new \InvalidArgumentException(format
+						(
+							'Event callback must be a string, %type given: :callback in %path', array
+							(
+								'type' => gettype($callback),
+								'callback' => $callback,
+								'path' => $path . 'config/hooks.php'
+							)
+						));
+					}
+
+					#
+					# because modules are ordered by weight (most important are first), we can
+					# push callbacks instead of unshifting them.
+					#
+
+					$events[$type][] = $callback;
+				}
+			}
+
+			return $events;
+
+		}, 'hooks');
+
+		Events::get()->batch_attach($events);
+
+		#
 
 		Prototype::configure($this->configs['prototypes']);
 
@@ -455,6 +496,8 @@ class Core extends Object
 			$this->cache_bootstrap();
 		}
 
+		new Core\RunEvent($this);
+
 		$_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
 	}
 
@@ -471,7 +514,18 @@ class Core extends Object
 
 		I18n::$load_paths = array_merge(I18n::$load_paths, $modules->locale_paths);
 
-		$this->configs->add($modules->config_paths, 5);
+		#
+		# add modules config paths to the configs path
+		#
+
+		$modules_config_paths = $modules->config_paths;
+
+		if ($modules_config_paths)
+		{
+			$this->configs->add($modules->config_paths, 5);
+		}
+
+		#
 
 		self::$autoload = $this->configs['autoload'] + $this->modules->autoload;
 
@@ -560,6 +614,40 @@ class Core extends Object
 		}
 
 		fclose($out);
+	}
+}
+
+namespace ICanBoogie\Core;
+
+/**
+ * Event class for the `ICanBoogie\Core::run:before` event.
+ */
+class BeforeRunEvent extends \ICanBoogie\Event
+{
+	/**
+	 * The event is constructed with the type `run:before`.
+	 *
+	 * @param \ICanBoogie\Core $target
+	 */
+	public function __construct(\ICanBoogie\Core $target)
+	{
+		parent::__construct($target, 'run:before', array());
+	}
+}
+
+/**
+ * Event class for the `ICanBoogie\Core::run` event.
+ */
+class RunEvent extends \ICanBoogie\Event
+{
+	/**
+	 * The event is constructed with the type `run`.
+	 *
+	 * @param \ICanBoogie\Core $target
+	 */
+	public function __construct(\ICanBoogie\Core $target)
+	{
+		parent::__construct($target, 'run', array());
 	}
 }
 

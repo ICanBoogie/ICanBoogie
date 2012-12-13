@@ -640,7 +640,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 			{
 				if (empty($definition[Model::T_ACTIVERECORD_CLASS]))
 				{
-					$class = $this->resolve_activerecord_class_name($id, $model_id);
+					$class = $this->resolve_activerecord_class_name($namespace, $id, $model_id);
 					$definition[Model::T_ACTIVERECORD_CLASS] = $class;
 				}
 
@@ -912,9 +912,9 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return string The resolved class name.
 	 */
-	public function resolve_activerecord_class_name($module_id, $model_id='primary')
+	public function resolve_activerecord_class_name($namespace, $module_id, $model_id='primary')
 	{
-		$class = 'ICanBoogie\ActiveRecord\\' . normalize_namespace_part($module_id); // TODO-20120914: use 'ActiveRecords'
+		$class = $namespace . '\\' . normalize_namespace_part($module_id); // TODO-20120914: use 'ActiveRecords'
 
 		if ($model_id != 'primary')
 		{

@@ -74,30 +74,7 @@ if (empty($_SERVER['REQUEST_TIME_FLOAT']))
 	$_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 }
 
-/*
- * Bootstrap
- */
-require_once ROOT . 'lib/helpers.php';
-require_once ROOT . 'lib/http/helpers.php';
-require_once ROOT . 'lib/i18n/helpers.php';
-require_once ActiveRecord\ROOT . 'lib/helpers.php';
-
-require_once Prototype\ROOT . 'lib/object.php';
-require_once Prototype\ROOT . 'lib/prototype.php';
-
-if (CACHE_BOOTSTRAP && file_exists(BOOTSTRAP_CACHE_PATHNAME))
-{
-	require_once BOOTSTRAP_CACHE_PATHNAME;
-}
-else
-{
-	require_once ROOT . 'lib/core/debug.php';
-	require_once ROOT . 'lib/core/exception.php';
-	require_once Event\ROOT . 'lib/events.php';
-	require_once Event\ROOT . 'lib/event.php';
-	require_once ROOT . 'lib/core/accessors/configs.php';
-	require_once ROOT . 'lib/core/core.php';
-}
+register_shutdown_function('ICanBoogie\Debug::shutdown_handler');
 
 /*
  * Patches

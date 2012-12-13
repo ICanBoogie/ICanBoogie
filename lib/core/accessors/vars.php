@@ -57,7 +57,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 
 		if (!is_writable($this->path))
 		{
-			throw new Exception('The directory %path is not writable.', array('directory' => $this->path));
+			throw new Exception('The directory %directory is not writable.', array('directory' => $this->path));
 		}
 	}
 

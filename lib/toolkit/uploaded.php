@@ -11,6 +11,10 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\I18n\FormattedString;
+
+// TODO-20121121: MOVE TO ICanBoogie\HTTP\File
+
 class Uploaded
 {
 	const ERR_TYPE = 20;
@@ -20,6 +24,11 @@ class Uploaded
 	public $extension;
 	public $mime;
 
+	/**
+	 * File location.
+	 *
+	 * @var string
+	 */
 	public $location;
 	protected $is_temporary = true;
 	protected $accepted_types;
@@ -37,6 +46,17 @@ class Uploaded
 	 */
 	public function __construct($key, $accepted_types=null, $required=false, $index=0)
 	{
+		if ($accepted_types == 'image')
+		{
+			$accepted_types = array
+			(
+				'.gif' => 'image/gif',
+				'.jpg' => 'image/jpeg',
+				'.jpeg' => 'image/jpeg',
+				'.png' => 'image/png'
+			);
+		}
+
 		$this->accepted_types = $accepted_types;
 
 		#
@@ -221,36 +241,46 @@ class Uploaded
 		{
 			case UPLOAD_ERR_INI_SIZE:
 			{
-				$this->er_message = t('Maximum file size is :sizeMo', array(':size' => (int) ini_get('upload_max_filesize')));
+				$this->er_message = new FormattedString('Maximum file size is :sizeMo', array(':size' => (int) ini_get('upload_max_filesize')));
 			}
 			break;
 
 			case UPLOAD_ERR_FORM_SIZE:
 			{
-				$this->er_message = t('Maximum file size is :sizeMo', array(':size' => round(MAX_FILE_SIZE / 1024 / 1024, 2)));
+				$this->er_message = new FormattedString('Maximum file size is :sizeMo', array(':size' => round(MAX_FILE_SIZE / 1024 / 1024, 2)));
 			}
 			break;
 
 			case UPLOAD_ERR_NO_FILE:
 			{
-				$this->er_message = t('No file was uploaded');
+				$this->er_message = new FormattedString('No file was uploaded');
 			}
 			break;
 
 			case self::ERR_TYPE:
 			{
-				$this->er_message = t('error.message.upload.mime', array('%accepted' => implode(', ', array_keys($this->accepted_types))));
+				$this->er_message = new FormattedString('error.message.upload.mime', array('%accepted' => implode(', ', array_keys($this->accepted_types))));
 			}
 			break;
 
 			default:
 			{
-				$this->er_message = t('Error code: :code', array(':code' => $error));
+				$this->er_message = new FormattedString('Error code: :code', array(':code' => $error));
 			}
 			break;
 		}
 	}
 
+	/**
+	 * Move file.
+	 *
+	 * @param string $destination Destination file.
+	 * @param bool $overrite Should the destination file be overriten if it exists ?
+	 *
+	 * @throws Exception If the file cannot be moved.
+	 *
+	 * @return bool `true` if the file was moved, `false` otherwise.
+	 */
 	public function move($destination, $overrite=false)
 	{
 		if (!$this->location)

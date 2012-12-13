@@ -84,6 +84,11 @@ class Configs implements \ArrayAccess
 
 	public function add($path, $weight=0)
 	{
+		if (!$path)
+		{
+			throw new \InvalidArgumentException('Path is empty.');
+		}
+
 		$this->sorted_paths = null;
 		$this->revoke_configs();
 

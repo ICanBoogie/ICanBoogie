@@ -22,9 +22,12 @@
         "icanboogie/common": "1.0.*",
         "icanboogie/prototype": "1.0.*",
         "icanboogie/activerecord": "1.0.*",
-        "icanboogie/event": "1.0.*"
+        "icanboogie/event": "1.0.*",
+        "icanboogie/http": "1.0.*",
+        "icanboogie/i18n": "1.0.*"
     },
     "autoload": {
-        "classmap": ["lib/"]
+        "classmap": [ "lib/" ],
+        "files": [ "bootstrap.php", "lib/helpers.php" ]
     }
 }

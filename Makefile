@@ -21,10 +21,6 @@ doc:
 	@mkdir -p "docs"
 
 	@apigen \
-	--source ./vendor/icanboogie/common \
-	--source ./vendor/icanboogie/prototype \
-	--source ./vendor/icanboogie/activerecord \
-	--source ./vendor/icanboogie/event \
 	--source ./ \
 	--destination docs/ --title ICanBoogie \
 	--exclude "*/tests/*" \

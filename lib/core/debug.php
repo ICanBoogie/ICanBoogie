@@ -81,7 +81,7 @@ class Debug
 				$core->session;
 			}
 
-			$_SESSION['wddebug']['messages'] = self::$logs;
+			$_SESSION['alerts'] = self::$logs;
 		}
 
 		$error = error_get_last();
@@ -96,12 +96,12 @@ class Debug
 
 	static public function restore_logs(Event $event, Session $session)
 	{
-		if (isset($session->wddebug['messages']))
+		if ($session->alerts)
 		{
-			self::$logs = array_merge($session->wddebug['messages'], self::$logs);
+			self::$logs = array_merge($session->alerts, self::$logs);
 		}
 
-		$session->wddebug['messages'] = array();
+		$session->alerts = array();
 	}
 
 	/*
@@ -535,5 +535,3 @@ EOT;
 		return $path;
 	}
 }
-
-register_shutdown_function('ICanBoogie\Debug::shutdown_handler');

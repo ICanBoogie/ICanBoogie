@@ -46,9 +46,9 @@ class Response extends \ICanBoogie\HTTP\Response implements \ArrayAccess
 	 *
 	 * @see \ICanBoogie\HTTP\Response::__construct
 	 */
-	public function __construct($status=200, array $headers=array(), $body=null)
+	public function __construct($body=null, $status=200, array $headers=array())
 	{
-		parent::__construct($status, $headers, $body);
+		parent::__construct($body, $status, $headers);
 
 		$this->errors = new Errors();
 	}

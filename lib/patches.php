@@ -72,3 +72,27 @@ ActiveRecord\Helpers::patch('get_model', function($id) {
 	return Core::get()->models[$id];
 
 });
+
+/*
+ * Patches the `get_dispatcher` helper to initialize the dispatcher with operation and route
+ * controllers.
+ */
+HTTP\Helpers::patch('get_dispatcher', function() {
+
+	static $dispatcher;
+
+	if (!$dispatcher)
+	{
+		$dispatcher = new HTTP\Dispatcher
+		(
+			array
+			(
+				'operation' => 'ICanBoogie\OperationDispatcher',
+				'route' => 'ICanBoogie\RouteDispatcher'
+			)
+		);
+	}
+
+	return $dispatcher;
+
+});

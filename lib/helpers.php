@@ -218,37 +218,6 @@ function normalize_namespace_part($part)
 	);
 }
 
-/**
- * Normalizes the path of a URL.
- *
- * @param string $path
- *
- * @return string
- *
- * @see http://en.wikipedia.org/wiki/URL_normalization
- */
-function normalize_url_path($path)
-{
-	static $cache = array();
-
-	if (isset($cache[$path]))
-	{
-		return $cache[$path];
-	}
-
-	$normalized = preg_replace('#\/index\.(html|php)$#', '/', $path);
-	$normalized = rtrim($normalized, '/');
-
-	if (!preg_match('#\.[a-z]+$#', $normalized))
-	{
-		$normalized .= '/';
-	}
-
-	$cache[$path] = $normalized;
-
-	return $normalized;
-}
-
 // https://github.com/rails/rails/blob/master/activesupport/lib/active_support/inflector/inflections.rb
 // http://api.rubyonrails.org/classes/ActiveSupport/Inflector.html#method-i-singularize
 

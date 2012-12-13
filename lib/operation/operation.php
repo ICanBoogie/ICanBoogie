@@ -13,6 +13,7 @@ namespace ICanBoogie;
 
 use ICanBoogie\Exception;
 use ICanBoogie\HTTP;
+use ICanBoogie\HTTP\HTTPError;
 use ICanBoogie\HTTP\Request;
 
 /**
@@ -204,6 +205,7 @@ abstract class Operation extends Object
 			$request->params = $captured + $request->params;
 		}
 
+		/*DIRTY
 		if ($route->callback && $route->class)
 		{
 			throw new \LogicException('Ambiguous definition for operation route, both callback and class are defined:' . dump($route));
@@ -239,6 +241,48 @@ abstract class Operation extends Object
 		{
 			throw new Exception('The operation route must either define a class or a callback.');
 		}
+		*/
+
+		if ($route->controller)
+		{
+			$controller = $route->controller;
+
+			if (is_callable($controller))
+			{
+				$operation = call_user_func($controller, $request);
+			}
+			else
+			{
+				$operation = new $controller($route); // TODO-20121119: should be $request instead of $route
+			}
+
+			if (!($operation instanceof self))
+			{
+				throw new Exception
+				(
+					'The controller for the route %route failed to produce an operation object, %rc returned.', array
+					(
+						'route' => $path,
+						'rc' => $operation
+					)
+				);
+			}
+		}
+		else
+		{
+			if ($route->callback)
+			{
+				throw new \InvalidArgumentException("'callback' is no longer supported, use 'controller'.");
+			}
+			else if ($route->class)
+			{
+				throw new \InvalidArgumentException("'class' is no longer supported, use 'controller'.");
+			}
+			else
+			{
+				throw new \InvalidArgumentException("'controller' is required.");
+			}
+		}
 
 		return $operation;
 	}
@@ -252,7 +296,7 @@ abstract class Operation extends Object
 
 		if (!$class)
 		{
-			throw new Exception\HTTP('Uknown operation %operation for the %module module.', array('%module' => (string) $module, '%operation' => $operation_name), 404);
+			throw new HTTPError(format('Uknown operation %operation for the %module module.', array('%module' => (string) $module, '%operation' => $operation_name)), 404);
 		}
 
 		return new $class($module);
@@ -349,43 +393,6 @@ abstract class Operation extends Object
 	static public function format_class_name($namespace, $operation_name)
 	{
 		return $namespace . '\\' . ucfirst(camelize(strtr($operation_name, '_', '-'))) . 'Operation';
-	}
-
-	/**
-	 * Dispatches a request.
-	 *
-	 * @param Request $request
-	 * @return Response|null
-	 */
-	static public function dispatch_request(Request $request)
-	{
-		$operation = static::from($request);
-
-		if (!$operation)
-		{
-			return;
-		}
-
-		$response = $operation($request);
-
-		#
-		# If the response is an error and the request is not XHR we allow the
-		# dispatch to continue, one hook might display an error message.
-		#
-
-		$is_api_operation = strpos($request->path, '/api/') === 0;
-
-		if ($response && ($response->is_client_error || $response->is_server_error) && !$request->is_xhr)
-		{
-			return $is_api_operation ? $response : null;
-		}
-
-		if (!$response && $is_api_operation)
-		{
-			$response = new \HTTP\Response(404);
-		}
-
-		return $response;
 	}
 
 	public $key;
@@ -610,21 +617,49 @@ abstract class Operation extends Object
 
 		try
 		{
-			if (!$this->control($this->controls))
+			$controls = $this->controls;
+			$control_success = true;
+			$control_payload = array('success' => &$control_success, 'controls' => &$controls, 'request' => $request);
+
+			new Operation\BeforeControlEvent($this, $control_payload);
+
+			if ($control_success)
+			{
+				$control_success = $this->control($controls);
+			}
+
+			new Operation\ControlEvent($this, $control_payload);
+
+			if (!$control_success)
 			{
 				new Operation\FailureEvent($this, array('type' => 'control', 'request' => $request));
 			}
-			else if (!$this->validate($response->errors) || count($response->errors))
-			{
-				new Operation\FailureEvent($this, array('type' => 'validation', 'request' => $request));
-			}
 			else
 			{
-				new Operation\BeforeProcessEvent($this, array('request' => $request, 'response' => $response, 'errors' => $response->errors));
+				$validate_success = true;
+				$validate_payload = array('success' => &$validate_success, 'errors' => &$response->errors, 'request' => $request);
 
-				if (!count($response->errors))
+				new Operation\BeforeValidateEvent($this, $validate_payload);
+
+				if ($validate_success)
 				{
-					$rc = $this->process();
+					$validate_success = $this->validate($response->errors);
+				}
+
+				new Operation\ValidateEvent($this, $validate_payload);
+
+				if (!$validate_success || count($response->errors))
+				{
+					new Operation\FailureEvent($this, array('type' => 'validation', 'request' => $request));
+				}
+				else
+				{
+					new Operation\BeforeProcessEvent($this, array('request' => $request, 'response' => $response, 'errors' => $response->errors));
+
+					if (!count($response->errors))
+					{
+						$rc = $this->process();
+					}
 				}
 			}
 		}
@@ -806,7 +841,7 @@ abstract class Operation extends Object
 	 *
 	 * @return boolean true if all the controls pass, false otherwise.
 	 *
-	 * @throws Exception\HTTP Depends on the control.
+	 * @throws HTTPError Depends on the control.
 	 */
 	protected function control(array $controls)
 	{
@@ -816,29 +851,29 @@ abstract class Operation extends Object
 
 		if ($method && !$this->control_method($method))
 		{
-			throw new Exception\HTTP
+			throw new HTTPError
 			(
-				"The %operation operation requires the %method method.", array
+				format("The %operation operation requires the %method method.", array
 				(
 					'operation' => get_class($this),
 					'method' => $method
-				)
+				))
 			);
 		}
 
 		if ($controls[self::CONTROL_SESSION_TOKEN] && !$this->control_session_token())
 		{
-			throw new Exception\HTTP("Session token doesn't match", array(), 401);
+			throw new HTTPError("Session token doesn't match", 401);
 		}
 
 		if ($controls[self::CONTROL_AUTHENTICATION] && !$this->control_authentication())
 		{
-			throw new Exception\HTTP
+			throw new HTTPError
 			(
-				'The %operation operation requires authentication.', array
+				format('The %operation operation requires authentication.', array
 				(
 					'%operation' => get_class($this)
-				),
+				)),
 
 				401
 			);
@@ -846,12 +881,12 @@ abstract class Operation extends Object
 
 		if ($controls[self::CONTROL_PERMISSION] && !$this->control_permission($controls[self::CONTROL_PERMISSION]))
 		{
-			throw new Exception\HTTP
+			throw new HTTPError
 			(
-				"You don't have permission to perform the %operation operation.", array
+				format("You don't have permission to perform the %operation operation.", array
 				(
 					'%operation' => get_class($this)
-				),
+				)),
 
 				401
 			);
@@ -859,18 +894,18 @@ abstract class Operation extends Object
 
 		if ($controls[self::CONTROL_RECORD] && !$this->control_record())
 		{
-			throw new Exception\HTTP
+			throw new HTTPError
 			(
-				'Unable to retrieve record required for the %operation operation.', array
+				format('Unable to retrieve record required for the %operation operation.', array
 				(
 					'%operation' => get_class($this)
-				)
+				))
 			);
 		}
 
 		if ($controls[self::CONTROL_OWNERSHIP] && !$this->control_ownership())
 		{
-			throw new Exception\HTTP("You don't have ownership of the record.", array(), 401);
+			throw new HTTPError("You don't have ownership of the record.", 401);
 		}
 
 		if ($controls[self::CONTROL_FORM] && !$this->control_form())
@@ -1005,6 +1040,122 @@ abstract class Operation extends Object
  */
 
 namespace ICanBoogie\Operation;
+
+abstract class ControlEventBase extends \ICanBoogie\Event
+{
+	/**
+	 * Reference to the success result of the control.
+	 *
+	 * @var bool
+	 */
+	public $success;
+
+	/**
+	 * Reference to operation controls.
+	 *
+	 * @var array
+	 */
+	public $controls;
+
+	/**
+	 * The request that triggered the operation.
+	 *
+	 * @ var \ICanBoogie\HTTP\Request
+	 */
+	public $request;
+}
+
+/**
+ * Event class for the `ICanBoogie\Operation::control:before` event.
+ */
+class BeforeControlEvent extends ControlEventBase
+{
+	/**
+	 * The event is constructed with the type `control:before`.
+	 *
+	 * @param \ICanBoogie\Operation $target
+	 * @param array $payload
+	 */
+	public function __construct(\ICanBoogie\Operation $target, array $payload)
+	{
+		parent::__construct($target, 'control:before', $payload);
+	}
+}
+
+/**
+ * Event class for the `ICanBoogie\Operation::control` event.
+ */
+class ControlEvent extends ControlEventBase
+{
+	/**
+	 * The event is constructed with the type `control`.
+	 *
+	 * @param \ICanBoogie\Operation $target
+	 * @param array $payload
+	 */
+	public function __construct(\ICanBoogie\Operation $target, array $payload)
+	{
+		parent::__construct($target, 'control', $payload);
+	}
+}
+
+abstract class ValidateEventBase extends \ICanBoogie\Event
+{
+	/**
+	 * Reference the success of the validation.
+	 *
+	 * @var bool
+	 */
+	public $success;
+
+	/**
+	 * Reference to the validation errors.
+	 *
+	 * @var \ICanBoogie\Errors
+	 */
+	public $errors;
+
+	/**
+	 * Request that triggered the operation.
+	 *
+	 * @var \ICanBoogie\HTTP\Request
+	 */
+	public $request;
+}
+
+/**
+ * Event class for the `ICanBoogie\Operation::validate:before` event.
+ */
+class BeforeValidateEvent extends ValidateEventBase
+{
+	/**
+	 * The event is constructed with the type `validate:before`.
+	 *
+	 * @param \ICanBoogie\Operation $target
+	 * @param array $payload
+	 */
+	public function __construct(\ICanBoogie\Operation $target, array $payload)
+	{
+		parent::__construct($target, 'validate:before', $payload);
+	}
+}
+
+/**
+ * Event class for the `ICanBoogie\Operation::validate` event.
+ */
+class ValidateEvent extends ValidateEventBase
+{
+	/**
+	 * The event is constructed with the type `validate`.
+	 *
+	 * @param \ICanBoogie\Operation $target
+	 * @param array $payload
+	 */
+	public function __construct(\ICanBoogie\Operation $target, array $payload)
+	{
+		parent::__construct($target, 'validate', $payload);
+	}
+}
 
 /**
  * Event class for the `ICanBoogie\Operation::failure` event.
