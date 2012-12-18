@@ -19,12 +19,14 @@
 	},
     "require": {
         "php": ">=5.3.0",
-        "icanboogie/common": "1.0.*",
+        "icanboogie/common": "dev-master as 1.0.4",
         "icanboogie/prototype": "1.0.*",
         "icanboogie/activerecord": "1.0.*",
         "icanboogie/event": "1.0.*",
         "icanboogie/http": "1.0.*",
-        "icanboogie/i18n": "1.0.*"
+        "icanboogie/routing": "dev-master",
+        "icanboogie/operation": "dev-master",
+        "icanboogie/i18n": "dev-master"
     },
     "autoload": {
         "classmap": [ "lib/" ],

@@ -405,6 +405,11 @@ EOT;
 
 		$more .= "\n\n<strong>Remote address:</strong>\n\n" . escape($_SERVER['REMOTE_ADDR']);
 
+		if ($message instanceof \Exception)
+		{
+			$message = self::format_alert($message);
+		}
+
 		$message = str_replace('</pre>', '', $message);
 		$message = trim($message) . $more . '</pre>';
 

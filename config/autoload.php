@@ -7,29 +7,21 @@ $toolkit = $lib . 'toolkit' . DIRECTORY_SEPARATOR;
 
 return array
 (
-	'ICanBoogie\Configs' => $core . 'accessors/configs.php',
+	'ICanBoogie\Configs' => $core . 'configs.php',
 	'ICanBoogie\Core' => $core . 'core.php',
 	'ICanBoogie\Debug' => $core . 'debug.php',
 	'ICanBoogie\Exception' => $core . 'exception.php',
-	'ICanBoogie\Models' => $core . 'accessors/models.php',
+	'ICanBoogie\Models' => $core . 'models.php',
 	'ICanBoogie\Module' => $core . 'module.php',
-	'ICanBoogie\Modules' => $core . 'accessors/modules.php',
+	'ICanBoogie\Modules' => $core . 'modules.php',
 	'ICanBoogie\Session' => $core . 'session.php',
-	'ICanBoogie\Vars' => $core . 'accessors/vars.php',
+	'ICanBoogie\Vars' => $core . 'vars.php',
 
 	'ICanBoogie\Errors' => $toolkit . 'errors.php',
 	'ICanBoogie\FileCache' => $toolkit . 'filecache.php',
 	'ICanBoogie\Hook' => $toolkit . 'hook.php',
 	'ICanBoogie\Mailer' => $toolkit . 'mailer.php',
 	'ICanBoogie\Uploaded' => $toolkit . 'uploaded.php',
-
-	'ICanBoogie\Operation' => $operation . 'operation.php',
-	'ICanBoogie\Operation\BeforeProcessEvent' => $operation . 'operation.php',
-	'ICanBoogie\Operation\FailureEvent' => $operation . 'operation.php',
-	'ICanBoogie\Operation\GetFormEvent' => $operation . 'operation.php',
-	'ICanBoogie\Operation\ProcessEvent' => $operation . 'operation.php',
-	'ICanBoogie\Operation\FormHasExpired' => $operation . 'operation.php',
-	'ICanBoogie\Operation\Response' => $operation . 'response.php',
 
 	'ICanBoogie\AlohaOperation' => $operation . 'core/aloha.php',
 	'ICanBoogie\PingOperation' => $operation . 'core/ping.php',
