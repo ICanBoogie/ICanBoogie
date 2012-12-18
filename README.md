@@ -1,5 +1,4 @@
-ICanBoogie [![Build Status](https://secure.travis-ci.org/ICanBoogie/ICanBoogie.png?branch=master)](http://travis-ci.org/ICanBoogie/ICanBoogie)
-==========
+# ICanBoogie
 
 __ICanBoogie__ is a high-performance object-oriented framework for PHP 5.3+. It is written
 with speed, flexibility and lightness in mind. ICanBoogie doesn't try to be an all-in-one do-it-all
@@ -16,10 +15,14 @@ projects too.
 
 
 
+
 ### Acknowledgement
 
 [MooTools](http://mootools.net/), [Ruby on Rails](http://rubyonrails.org),
 [Yii](http://www.yiiframework.com), and of course [Bacara](http://www.youtube.com/watch?v=KGuFn0RPgaE).
+
+
+
 
 
 ### Requirements
@@ -27,6 +30,7 @@ projects too.
 The minimum requirement for the ICanBoogie framework is PHP5.3. ICanBoogie has been tested with
 Apache HTTP server on Linux, MacOS and Windows operating systems. The Apache server must support
 URL rewriting.
+
 
 
 
@@ -45,6 +49,10 @@ The recommended way to install ICanBoogie is [through composer](http://getcompos
 }
 ```
 
+
+
+
+
 ## Tests
 
 To run the test suite, you need [composer](http://getcomposer.org/) and [PHPUnit](http://www.phpunit.de/manual/current/en/).
@@ -54,7 +62,12 @@ with `make test`.
 
 
 
+
 ## Getting started
+
+
+
+
 
 ### Configuring
 
@@ -103,6 +116,10 @@ $core = new Core
 );
 ```
 
+
+
+
+
 ### Running
 
 Before we can process requests we need to run the framework. Running the framework indexes
@@ -128,6 +145,7 @@ $response();
 
 
 
-## Licence
+
+## License
 
 ICanBoogie is licensed under the New BSD License - See the LICENSE file for details.
