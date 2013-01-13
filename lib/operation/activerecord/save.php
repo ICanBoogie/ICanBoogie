@@ -11,6 +11,8 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\I18n\FormattedString;
+
 /**
  * The "save" operation is used to create or update a record.
  */
@@ -150,7 +152,7 @@ class SaveOperation extends Operation
 		}
 
 		$this->response->location = $this->request->uri;
-		$this->response->message = array($key ? 'The record %key in %module has been saved.' : 'A new record has been saved in %module.', $log_params);
+		$this->response->message = new FormattedString($key ? 'The record %key in %module has been saved.' : 'A new record has been saved in %module.', $log_params);
 
 		return array('mode' => $key ? 'update' : 'new', 'key' => $record_key);
 	}

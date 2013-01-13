@@ -12,6 +12,7 @@
 namespace ICanBoogie;
 
 use ICanBoogie\ActiveRecord\Model;
+use ICanBoogie\I18n;
 
 /**
  * A module of the framework.
@@ -314,7 +315,7 @@ class Module extends Object
 	{
 		$default = isset($this->descriptor[self::T_TITLE]) ? $this->descriptor[self::T_TITLE] : 'Undefined';
 
-		return t($this->flat_id, array(), array('scope' => 'module_title', 'default' => $default));
+		return I18n\t($this->flat_id, array(), array('scope' => 'module_title', 'default' => $default));
 	}
 
 	/**

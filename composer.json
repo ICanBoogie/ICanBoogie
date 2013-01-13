@@ -24,9 +24,10 @@
         "icanboogie/activerecord": "1.0.*",
         "icanboogie/event": "1.0.*",
         "icanboogie/http": "1.0.*",
-        "icanboogie/routing": "dev-master",
-        "icanboogie/operation": "dev-master",
-        "icanboogie/i18n": "dev-master"
+        "icanboogie/routing": "*",
+        "icanboogie/operation": "*",
+        "icanboogie/i18n": "*",
+        "icanboogie/errors": "*"
     },
     "autoload": {
         "classmap": [ "lib/" ],

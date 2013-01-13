@@ -19,8 +19,7 @@ class Configs implements \ArrayAccess
 	protected $paths = array();
 	protected $configs = array();
 
-	public $cache_syntheses = false;
-	public $cache_repository = '/repository/cache/core/';
+	public $cache_repository;
 
 	public $constructors = array
 	(
@@ -200,7 +199,7 @@ class Configs implements \ArrayAccess
 
 		$args = array($from, $constructor);
 
-		if ($this->cache_syntheses)
+		if ($this->cache_repository)
 		{
 			$cache = self::$syntheses_cache ? self::$syntheses_cache : self::$syntheses_cache = new FileCache
 			(

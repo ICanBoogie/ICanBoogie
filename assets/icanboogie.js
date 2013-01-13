@@ -134,6 +134,7 @@ var ICanBoogie = {
 	var html = $(document.html)
 	, apiBase = html.get('data-api-base')
 	, apiLanguage = html.get('data-user-lang') || html.get('lang')
+	, methods = {}
 
 	if (!apiBase)
 	{
@@ -141,6 +142,20 @@ var ICanBoogie = {
 	}
 
 	apiBase += '/api/'
+
+	;['patch', 'PATCH'].each(function(method) {
+
+		methods[method] = function(data) {
+
+			var object = { method: method }
+
+			if (data != null) object.data = data
+
+			return this.send(object)
+		}
+	})
+
+	Request.implement(methods)
 
 	/**
 	 * Extends Request.JSON adding specific support to the ICanBoogie API.

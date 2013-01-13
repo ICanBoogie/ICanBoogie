@@ -249,7 +249,8 @@ function excerpt($str, $limit=55)
 		'a', 'p', 'code', 'del', 'em', 'ins', 'strong'
 	);
 
-	$str = strip_tags((string) $str, '<' . implode('><', $allowed_tags) . '>');
+	$str = strip_tags(trim($str), '<' . implode('><', $allowed_tags) . '>');
+	$str = preg_replace('#(<p>|<p\s+[^\>]+>)\s*</p>#', '', $str);
 
 	$parts = preg_split('#<([^\s>]+)([^>]*)>#m', $str, 0, PREG_SPLIT_DELIM_CAPTURE);
 

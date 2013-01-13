@@ -44,7 +44,7 @@ The recommended way to install ICanBoogie is [through composer](http://getcompos
 {
     "minimum-stability": "dev",
     "require": {
-        "icanboogie/icanboogie": "1.0.*"
+        "icanboogie/icanboogie": "*"
     }
 }
 ```

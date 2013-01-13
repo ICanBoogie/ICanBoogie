@@ -11,6 +11,8 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\I18n\FormattedString;
+
 /**
  * Deletes a record.
  */
@@ -68,7 +70,7 @@ class DeleteOperation extends Operation
 			$this->response->location = $this->request['#location'];
 		}
 
-		$this->response->message = array('The record %key has been delete from %module.', array('key' => $key, 'module' => $this->module->title));
+		$this->response->message = new FormattedString('The record %key has been delete from %module.', array('key' => $key, 'module' => $this->module->title));
 
 		return $key;
 	}

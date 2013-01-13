@@ -17,7 +17,6 @@ return array
 	'ICanBoogie\Session' => $core . 'session.php',
 	'ICanBoogie\Vars' => $core . 'vars.php',
 
-	'ICanBoogie\Errors' => $toolkit . 'errors.php',
 	'ICanBoogie\FileCache' => $toolkit . 'filecache.php',
 	'ICanBoogie\Hook' => $toolkit . 'hook.php',
 	'ICanBoogie\Mailer' => $toolkit . 'mailer.php',

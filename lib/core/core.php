@@ -96,6 +96,13 @@ class Core extends Object
 		return true;
 	}
 
+	static protected $paths = array();
+
+	static public function add_path($path)
+	{
+		self::$paths[] = $path;
+	}
+
 	/**
 	 * Constructor.
 	 *
@@ -118,8 +125,8 @@ class Core extends Object
 		(
 			array
 			(
-				'config paths' => array(ROOT),
-				'locale paths' => array(ROOT)
+				'config paths' => array_merge(array(ROOT), self::$paths),
+				'locale paths' => array_merge(array(ROOT), self::$paths)
 			),
 
 			$options
@@ -155,7 +162,7 @@ class Core extends Object
 		$configs = $this->configs;
 		$configs->add($options['config paths']);
 
-		$config = array_merge_recursive($options, $this->config);
+		$this->config = $config = array_merge_recursive($options, $this->config);
 
 		#
 		# Initial autoload, only autoload configs defined in the config paths are indexed.
@@ -167,9 +174,12 @@ class Core extends Object
 
 		I18n::$load_paths = array_merge(I18n::$load_paths, $config['locale paths']);
 
+		#
+		# Setting the cache repository to enable config caching.
+		#
+
 		if ($config['cache configs'])
 		{
-			$configs->cache_syntheses = true;
 			$configs->cache_repository = $config['repository.cache'] . '/core';
 		}
 	}
@@ -309,7 +319,7 @@ class Core extends Object
 	}
 
 	/**
-	 * Sets the current locate.
+	 * Sets the working locate.
 	 *
 	 * @param string $id Locale identifier.
 	 */
@@ -319,9 +329,7 @@ class Core extends Object
 	}
 
 	/**
-	 * Returns the locale object used by the framework.
-	 *
-	 * DIRTY:The locale object is reseted when the property {@link $language} is set.
+	 * Returns the working locale object.
 	 *
 	 * @return I18n\Locale
 	 */
@@ -331,12 +339,12 @@ class Core extends Object
 	}
 
 	/**
-	 * @var string Timezone used by the framework.
+	 * @var string The working timezone.
 	 */
-	private $_timezone;
+	private $timezone;
 
 	/**
-	 * Sets the timezone for the framework.
+	 * Sets the working timezone.
 	 *
 	 * @param string|int $timezone Name of the timezone, or numeric equivalent e.g. 3600.
 	 */
@@ -349,20 +357,20 @@ class Core extends Object
 
 		date_default_timezone_set($timezone);
 
-		$this->_timezone = $timezone;
+		$this->timezone = $timezone;
 	}
 
 	/**
-	 * Returns the timezone used by the framework.
+	 * Returns the working timezone.
 	 *
-	 * @return string The timezone used by the framework.
+	 * @return string
 	 *
 	 * @todo should retrun an instance of http://php.net/manual/en/class.datetimezone.php,
 	 * __toString() should return its name.
 	 */
 	protected function volatile_get_timezone()
 	{
-		return $this->_timezone;
+		return $this->timezone;
 	}
 
 	/**
@@ -482,21 +490,11 @@ class Core extends Object
 
 		Prototype::configure($this->configs['prototypes']);
 
-		/* TODO-20120906
-		 *
-		 * We should fire en event instead of using this method:
-		 *
-		 * Core\BeforeRun()
-		 * Core\Run()
-		 */
-		$this->run_context();
+		new Core\RunEvent($this, $this->initial_request);
 
-		if (CACHE_BOOTSTRAP)
-		{
-			$this->cache_bootstrap();
-		}
-
-		new Core\RunEvent($this);
+		#
+		# Register the time it took to run the core.
+		#
 
 		$_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
 	}
@@ -544,80 +542,11 @@ class Core extends Object
 	{
 
 	}
-
-	/**
-	 * Joins all declared classes also defined in the autoload index into a single file.
-	 */
-	protected function cache_bootstrap()
-	{
-		$pathname = BOOTSTRAP_CACHE_PATHNAME;
-
-		if (file_exists($pathname))
-		{
-			return;
-		}
-
-		$strip_comments = function($source)
-		{
-			if (!function_exists('token_get_all'))
-			{
-				return $source;
-			}
-
-			$output = '';
-
-			foreach (token_get_all($source) as $token)
-			{
-				if (is_string($token))
-				{
-					$output .= $token;
-				}
-				else if ($token[0] == T_COMMENT || $token[0] == T_DOC_COMMENT)
-				{
-					$output .= '';
-				}
-				else
-				{
-					$output .= $token[1];
-				}
-			}
-
-			return $output;
-		};
-
-		$classes = get_declared_classes();
-		$autoload = self::$autoload;
-		$order = array_intersect_key(array_flip($classes), $autoload);
-		$included = array();
-		$out = fopen($pathname, 'w');
-
-		fwrite($out, '<?php' . PHP_EOL . PHP_EOL);
-
-		foreach ($order as $class => $weight)
-		{
-			$pathname = $autoload[$class];
-
-			if (isset($included[$pathname]))
-			{
-				continue;
-			}
-
-			$included[$pathname] = true;
-
-			$in = file_get_contents($pathname);
-			$in = $strip_comments($in);
-			$in = preg_replace('#^\<\?php\s+#', '', $in);
-			$in = trim($in);
-			$in = "// original location: $pathname\n\n" . $in . PHP_EOL . PHP_EOL;
-
-			fwrite($out, $in, strlen($in));
-		}
-
-		fclose($out);
-	}
 }
 
 namespace ICanBoogie\Core;
+
+use ICanBoogie\HTTP\Request;
 
 /**
  * Event class for the `ICanBoogie\Core::run:before` event.
@@ -641,13 +570,22 @@ class BeforeRunEvent extends \ICanBoogie\Event
 class RunEvent extends \ICanBoogie\Event
 {
 	/**
+	 * Initial request.
+	 *
+	 * @var Request
+	 */
+	public $request;
+
+	/**
 	 * The event is constructed with the type `run`.
 	 *
 	 * @param \ICanBoogie\Core $target
 	 */
-	public function __construct(\ICanBoogie\Core $target)
+	public function __construct(\ICanBoogie\Core $target, Request $request)
 	{
-		parent::__construct($target, 'run', array());
+		$this->request = $request;
+
+		parent::__construct($target, 'run');
 	}
 }
 

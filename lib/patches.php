@@ -88,7 +88,7 @@ HTTP\Helpers::patch('get_dispatcher', function() {
 			array
 			(
 				'operation' => 'ICanBoogie\OperationDispatcher',
-				'route' => 'ICanBoogie\RouteDispatcher'
+				'route' => 'ICanBoogie\Routing\Dispatcher'
 			)
 		);
 	}
