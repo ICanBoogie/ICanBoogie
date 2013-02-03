@@ -94,14 +94,21 @@ class SaveOperation extends Operation
 
 			if ($type == 'boolean')
 			{
-				if (empty($properties[$identifier]))
+				if (!empty($definition['null']) && ($this->request[$identifier] === null || $this->request[$identifier] === ''))
 				{
-					$properties[$identifier] = false;
-
-					continue;
+					$properties[$identifier] = null;
 				}
+				else
+				{
+					if (empty($properties[$identifier]))
+					{
+						$properties[$identifier] = false;
 
-				$properties[$identifier] = filter_var($properties[$identifier], FILTER_VALIDATE_BOOLEAN);
+						continue;
+					}
+
+					$properties[$identifier] = filter_var($properties[$identifier], FILTER_VALIDATE_BOOLEAN);
+				}
 			}
 			else if ($type == 'varchar')
 			{

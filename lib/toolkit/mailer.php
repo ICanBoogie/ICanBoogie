@@ -115,13 +115,17 @@ class Mailer
 
 	public function __invoke()
 	{
-		$to = $this->concat_addresses($this->destination);
 		$subject = $this->subject;
 		$message = $this->message;
+		$type = $this->type;
+
+		new Mailer\BeforeSendEvent($this, $subject, $message, $type);
+
+		$to = $this->concat_addresses($this->destination);
 
 		$parts = $this->headers + array
 		(
-			'Content-Type' => 'text/' . $this->type . '; charset=' . $this->charset
+			'Content-Type' => 'text/' . $type . '; charset=' . $this->charset
 		);
 
 		$header = null;
@@ -158,5 +162,51 @@ class Mailer
 		}
 
 		return implode(',', $rc);
+	}
+}
+
+namespace ICanBoogie\Mailer;
+
+/**
+ * Event class for the `ICanBoogie\Mailer::send:before` event.
+ */
+class BeforeSendEvent extends \ICanBoogie\Event
+{
+	/**
+	 * Reference to the subject.
+	 *
+	 * @var string
+	 */
+	public $subject;
+
+	/**
+	 * Reference to the message.
+	 *
+	 * @var string
+	 */
+	public $message;
+
+	/**
+	 * Reference to the type.
+	 *
+	 * @var string
+	 */
+	public $type;
+
+	/**
+	 * The event is constructed with the type `send:before`.
+	 *
+	 * @param \ICanBoogie\Mailer $target
+	 * @param string $subject
+	 * @param string $message
+	 * @param string $type
+	 */
+	public function __construct(\ICanBoogie\Mailer $target, &$subject, &$message, &$type)
+	{
+		$this->subject = &$subject;
+		$this->message = &$message;
+		$this->type = &$type;
+
+		parent::__construct($target, 'send:before');
 	}
 }

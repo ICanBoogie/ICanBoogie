@@ -143,6 +143,20 @@ class AuthenticationRequired extends SecurityException
 }
 
 /**
+ * Exception thrown when the user is already authenticated.
+ *
+ * Third parties may use this exception to redirect authenticated user from a login page to their
+ * profile page.
+ */
+class AlreadyAuthenticated extends SecurityException
+{
+	public function __construct($message="The user is already authenticated", $code=401, \Exception $previous=null)
+	{
+		parent::__construct($message, $code, $previous);
+	}
+}
+
+/**
  * Exception thrown when a user doesn't have the required permission.
  */
 class PermissionRequired extends SecurityException
