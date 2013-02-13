@@ -11,9 +11,6 @@
 
 namespace ICanBoogie;
 
-use ICanBoogie\I18n\Locale;
-use ICanBoogie\I18n\Translator;
-
 class Debug
 {
 	const MODE_DEV = 'dev';
@@ -23,7 +20,6 @@ class Debug
 	const MAX_MESSAGES = 100;
 
 	static public $mode = 'dev';
-	static public $report_address;
 
 	/**
 	 * Last error.
@@ -49,6 +45,29 @@ class Debug
 
 	static private $config;
 
+	static private $config_code_sample = true;
+	static private $config_line_number = true;
+	static private $config_report = false;
+	static private $config_report_address = null;
+	static private $config_stack_trace = true;
+	static private $config_exception_chain = true;
+	static private $config_verbose = true;
+
+	static public function is_dev()
+	{
+		return self::$mode == self::MODE_DEV;
+	}
+
+	static public function is_test()
+	{
+		return self::$mode == self::MODE_TEST;
+	}
+
+	static public function is_production()
+	{
+		return self::$mode == self::MODE_PRODUCTION;
+	}
+
 	static public function get_config()
 	{
 		global $core;
@@ -61,8 +80,44 @@ class Debug
 		self::$config = ROOT . 'config/debug.php'; // initial debug config
 
 		$config = (isset($core) ? $core->configs['debug'] : require ROOT . 'config/debug.php');
-		self::$mode = $config['mode'];
-		self::$report_address = $config['report_address'];
+
+		$mode = self::$mode;
+		$modes = array();
+
+		foreach ($config as $directive => $value)
+		{
+			if ($directive == 'mode')
+			{
+				$mode = $value;
+
+				continue;
+			}
+			else if ($directive == 'modes')
+			{
+				$modes = $value;
+
+				continue;
+			}
+
+			$directive = 'config_' . $directive;
+
+			self::$$directive = $value;
+		}
+
+		self::$mode = $mode;
+
+		if (isset($modes[$mode]))
+		{
+			foreach ($modes[$mode] as $directive => $value)
+			{
+				$directive = 'config_' . $directive;
+
+				self::$$directive = $value;
+			}
+		}
+
+// 		self::$mode = $config['mode'];
+// 		self::$report_address = $config['report_address'];
 
 		return self::$config = $config;
 	}
@@ -258,13 +313,25 @@ class Debug
 
 		$file = self::strip_root($file);
 
+		$previous = null;
+
+		if (self::$config_exception_chain && $alert instanceof \Exception)
+		{
+			$previous = $alert->getPrevious();
+
+			if ($previous)
+			{
+				$previous = self::format_alert($previous);
+			}
+		}
+
 		return <<<EOT
 <pre class="alert alert-error $class">
 <strong>$type with the following message:</strong>
 
 $message
 
-in <em>$file</em> at line <em>$line</em>$more
+in <em>$file</em> at line <em>$line</em>$more{$previous}
 </pre>
 EOT;
 	}
@@ -317,7 +384,7 @@ EOT;
 						{
 							if (strlen($arg) > self::MAX_STRING_LEN)
 							{
-								$arg = substr($arg, 0, self::MAX_STRING_LEN) . '...';
+								$arg = substr($arg, 0, self::MAX_STRING_LEN) . '…';
 							}
 
 							$arg = '\'' . $arg .'\'';
@@ -384,7 +451,7 @@ EOT;
 	static public function report($message)
 	{
 		$config = self::get_config();
-		$report_address = $config['report_address'];
+		$report_address = self::$config_report_address;
 
 		if (!$report_address)
 		{

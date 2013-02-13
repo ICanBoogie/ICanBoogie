@@ -2,40 +2,37 @@
 
 return array
 (
-	'report_address' => null,
-	'verbose' => true,
-	'line_number' => true,
-	'stack_trace' => true,
 	'code_sample' => true,
-
+	'line_number' => true,
 	'mode' => 'dev',
+	'report' => false,
+	'report_address' => null,
+	'stack_trace' => true,
+	'exception_chain' => true,
+	'verbose' => true,
+
 	'modes' => array
 	(
 		'dev' => array
 		(
-			'verbose' => true,
-			'report' => false,
-			'line_number' => true,
-			'stack_trace' => true,
-			'code_sample' => true
+			'report' => false
 		),
 
 		'test' => array
 		(
-			'verbose' => true,
-			'report' => true,
+			'code_sample' => false,
 			'line_number' => false,
-			'stack_trace' => true,
-			'code_sample' => false
+			'report' => true
 		),
 
 		'production' => array
 		(
-			'verbose' => false,
-			'report' => true,
+			'code_sample' => false,
 			'line_number' => false,
+			'report' => true,
 			'stack_trace' => false,
-			'code_sample' => false
+			'exception_chain' => false,
+			'verbose' => false
 		)
 	)
 );
