@@ -449,7 +449,7 @@ class Core extends Object
 
 			$events = array();
 
-			foreach ($fragments as $path => $fragment)
+			foreach ($fragments as $pathname => $fragment)
 			{
 				if (empty($fragment['events']))
 				{
@@ -466,7 +466,7 @@ class Core extends Object
 							(
 								'type' => gettype($callback),
 								'callback' => $callback,
-								'path' => $path . 'config/hooks.php'
+								'path' => $pathname
 							)
 						));
 					}

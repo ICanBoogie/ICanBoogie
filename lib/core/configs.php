@@ -81,14 +81,24 @@ class Configs implements \ArrayAccess
 		$this->configs = array();
 	}
 
+	/**
+	 * Adds a path or several paths to the config.
+	 *
+	 * Paths are sorted according to their weight. The order in which they were defined is
+	 * preserved for paths with the same weight.
+	 *
+	 * @param string|array $path
+	 * @param int $weight Weight of the path. The argument is discarted if `$path` is an array.
+	 *
+	 * @throws \InvalidArgumentException if the path is empty.
+	 */
 	public function add($path, $weight=0)
 	{
 		if (!$path)
 		{
-			throw new \InvalidArgumentException('Path is empty.');
+			throw new \InvalidArgumentException('$path is empty.');
 		}
 
-		$this->sorted_paths = null;
 		$this->revoke_configs();
 
 		if (is_array($path))
@@ -104,35 +114,13 @@ class Configs implements \ArrayAccess
 			}
 
 			$this->paths += $combined;
-
-			return;
 		}
-
-		$this->paths[$path] = $weight;
-	}
-
-	protected $sorted_paths;
-
-	/**
-	 * Sorts paths by weight while preserving their order.
-	 *
-	 * Because PHP's sorting algorithm does not respect the order in which entries are added,
-	 * we need to create a temporary table to sort them.
-	 *
-	 * @return array Sorted paths by weight, from heavier to lighter.
-	 */
-	protected function get_sorted_paths() // TODO-20120813: use stable_sort()
-	{
-		$by_weight = array();
-
-		foreach ($this->paths as $path => $weight)
+		else
 		{
-			$by_weight[$weight][] = $path;
+			$this->paths[$path] = $weight;
 		}
 
-		arsort($by_weight);
-
-		return $this->sorted_paths = call_user_func_array('array_merge', array_values($by_weight));
+		stable_sort($this->paths);
 	}
 
 	static private $require_cache = array();
@@ -147,27 +135,30 @@ class Configs implements \ArrayAccess
 		return self::$require_cache[$__file__] = require $__file__;
 	}
 
-	private function get($name, $paths)
+	/**
+	 * Returns the fragments of a configuration.
+	 *
+	 * @param string $name Name of the configuration.
+	 *
+	 * @return array Where _key_ is the pathname to the fragment file and _value_ the value
+	 * returned when the file was required.
+	 */
+	public function get_fragments($name)
 	{
 		$fragments = array();
+		$config_path = 'config' . DIRECTORY_SEPARATOR . $name . '.php';
 
-		foreach ($paths as $path)
+		foreach ($this->paths as $path => $weight)
 		{
 			$path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+			$pathname = $path . $config_path;
 
-			if (isset($disabled[$path]))
+			if (!file_exists($pathname))
 			{
 				continue;
 			}
 
-			$file = $path . 'config/' . $name . '.php';
-
-			if (!file_exists($file))
-			{
-				continue;
-			}
-
-			$fragments[$path] = self::isolated_require($file, $path);
+			$fragments[$path . $config_path] = self::isolated_require($pathname, $path);
 		}
 
 		return $fragments;
@@ -226,7 +217,7 @@ class Configs implements \ArrayAccess
 	{
 		list($name, $constructor) = $userdata;
 
-		$fragments = $this->get($name, $this->sorted_paths ? $this->sorted_paths : $this->get_sorted_paths());
+		$fragments = $this->get_fragments($name);
 
 		if (!$fragments)
 		{

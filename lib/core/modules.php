@@ -583,6 +583,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 			}
 		}
 
+		/* DEPRECATED-20130214: We use composer's autoloading
 		# controller classes
 
 		$pathname = $path . 'lib' . DIRECTORY_SEPARATOR . 'controllers' . DIRECTORY_SEPARATOR;
@@ -600,6 +601,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 				$autoload[$classname] = $pathname . $file;
 			}
 		}
+		*/
 
 		# models and active records
 
