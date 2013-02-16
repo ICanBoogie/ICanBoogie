@@ -9,7 +9,6 @@ return array
 
 	'config constructors' => array
 	(
-		'autoload' => array('merge'),
 		'debug' => array('ICanBoogie\Debug::synthesize_config'),
 		'events' => array('ICanBoogie\Events::synthesize_config', 'hooks'),
 		'prototypes' => array('ICanBoogie\Prototype::synthesize_config', 'hooks')

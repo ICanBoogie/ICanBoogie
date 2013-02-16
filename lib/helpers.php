@@ -167,31 +167,6 @@ class Helpers
 }
 
 /**
- * Registers a simple autoloader for ICanBoogie classes.
- */
-function register_autoloader()
-{
-	spl_autoload_register
-	(
-		function($name)
-		{
-			static $index;
-
-			if ($index === null)
-			{
-				$path = ROOT; // the $path variable is used within the autoload file
-				$index = require $path . 'config/autoload.php';
-			}
-
-			if (isset($index[$name]))
-			{
-				require_once $index[$name];
-			}
-		}
-	);
-}
-
-/**
  * Normalize a string to be suitable as a namespace part.
  *
  * @param string $part The string to normalize.

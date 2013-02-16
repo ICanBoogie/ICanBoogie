@@ -16,7 +16,6 @@ use ICanBoogie\ActiveRecord\Model;
 /**
  * Accessor class for the modules of the framework.
  *
- * @property-read array $autoload Maps of the auto-classes defined by the enabled modules.
  * @property-read array $config_paths Paths of the enabled modules having a `config` directory.
  * @property-read array $locale_paths Paths of the enabled modules having a `locale` directory.
  * @property-read array $disabled_modules_descriptors Descriptors of the disabled modules.
@@ -221,8 +220,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 * Indexes the modules found in the paths specified during construct.
 	 *
 	 * The index is made of an array of descriptors, an array of catalogs paths, an array of
-	 * configs path, an array of autoload classes, an array of classes aliases and finally an array
-	 * of configs constructors.
+	 * configs path, an array of classes aliases and finally an array of configs constructors.
 	 *
 	 * The method also creates a `..\DIR` constant for each module defined, using the namespace
 	 * and the path of the module.
@@ -269,8 +267,6 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 * - (array) descriptors: The descriptors of the modules, ordered by weight.
 	 * - (array) catalogs: Absolute paths to locale catalog directories.
 	 * - (array) configs: Absolute paths to config directories.
-	 * - (array) autoload: An array of _key/value_ pairs where _key_ is the name of a class and
-	 * _value_ the absolute path to the file where it is defined.
 	 * - (array) classes aliases: An array of _key/value_ pairs where _key_ is the alias of a class
 	 * and _value_ if the real class.
 	 * - (array) config constructors: An array of _key/value_ pairs where _key_ if the name of a
@@ -449,7 +445,6 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 					Module::T_VERSION => '0.0',
 					Module::T_WEIGHT => 0,
 
-					'__autoload' => array(),
 					'__has_config' => false,
 					'__has_locale' => false,
 					'__parents' => array()
@@ -514,19 +509,6 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * Alters the module descriptor.
 	 *
-	 * Creates an array of autoload references based on the available files:
-	 *
-	 * - If a 'module.php' file exists, the "<module_namespace>\Module" reference is added to the
-	 * autoload array.
-	 *
-	 * - If a 'hooks.php' file exists, the "<module_namespace>\Hooks" reference is added to the
-	 * autoload array.
-	 *
-	 * - Autoload references are also created for each model and their active record depending on
-	 * the {@link T_MODELS} tag and the exsitance of the corresponding files.
-	 *
-	 * Autoload references are added to the `__autoload` property.
-	 *
 	 * @param array $descriptor Descriptor of the module to index.
 	 *
 	 * @return array The altered descriptor.
@@ -536,72 +518,6 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 		$id = $descriptor[Module::T_ID];
 		$path = $descriptor[Module::T_PATH];
 		$namespace = $descriptor[Module::T_NAMESPACE];
-
-		$autoload = array();
-
-		if (file_exists($path . 'module.php'))
-		{
-			$autoload[$descriptor[Module::T_CLASS]] = $path . 'module.php';
-		}
-
-		if (file_exists($path . 'hooks.php'))
-		{
-			$autoload[$namespace . '\Hooks'] = $path . 'hooks.php';
-		}
-
-		# operation classes
-
-		$operations_dir = $path . 'operations' . DIRECTORY_SEPARATOR;
-
-		if (is_dir($operations_dir))
-		{
-			$dir = new \DirectoryIterator($operations_dir);
-			$filter = new \RegexIterator($dir, '#\.php$#');
-
-			foreach ($filter as $file)
-			{
-				$base = $file->getBasename('.php');
-				$operation_class_name = Operation::format_class_name($namespace, $base);
-
-				$autoload[$operation_class_name] = $operations_dir . $file;
-			}
-		}
-
-		$try = $path . 'lib' . DIRECTORY_SEPARATOR . 'operations' . DIRECTORY_SEPARATOR;
-
-		if (is_dir($try))
-		{
-			$dir = new \DirectoryIterator($try);
-			$filter = new \RegexIterator($dir, '#\.php$#');
-
-			foreach ($filter as $file)
-			{
-				$name = $file->getBasename('.php');
-				$classname = Operation::format_class_name($namespace, $name);
-
-				$autoload[$classname] = $try . $file;
-			}
-		}
-
-		/* DEPRECATED-20130214: We use composer's autoloading
-		# controller classes
-
-		$pathname = $path . 'lib' . DIRECTORY_SEPARATOR . 'controllers' . DIRECTORY_SEPARATOR;
-
-		if (is_dir($pathname))
-		{
-			$dir = new \DirectoryIterator($pathname);
-			$filter = new \RegexIterator($dir, '#\.php$#');
-
-			foreach ($filter as $file)
-			{
-				$name = $file->getBasename('.php');
-				$classname = Controller::format_class_name($namespace, $name);
-
-				$autoload[$classname] = $pathname . $file;
-			}
-		}
-		*/
 
 		# models and active records
 
@@ -630,8 +546,6 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 				{
 					$definition[Model::T_NAME] = Model::format_name($id, $model_id);
 				}
-
-				$autoload[$definition[Model::T_CLASS]] = $pathname;
 			}
 
 			# try activerecord
@@ -645,12 +559,8 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 					$class = $this->resolve_activerecord_class_name($namespace, $id, $model_id);
 					$definition[Model::T_ACTIVERECORD_CLASS] = $class;
 				}
-
-				$autoload[$definition[Model::T_ACTIVERECORD_CLASS]] = $pathname;
 			}
 		}
-
-		$descriptor['__autoload'] = $autoload + $descriptor['__autoload'];
 
 		return $descriptor;
 	}
@@ -754,21 +664,6 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 		}
 
 		return $paths;
-	}
-
-	/**
-	 * Returns the autoload map of auto-classes of the enabled modules.
-	 */
-	protected function get_autoload()
-	{
-		$autoload = array();
-
-		foreach ($this->descriptors as $module_id => $descriptor)
-		{
-			$autoload += $descriptor['__autoload'];
-		}
-
-		return $autoload;
 	}
 
 	/**

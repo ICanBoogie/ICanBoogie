@@ -60,42 +60,6 @@ class Core extends Object
 		Debug::exception_handler($exception);
 	}
 
-	static protected $autoload = array();
-
-	/**
-	 * Loads the file defining the specified class.
-	 *
-	 * The 'autoload' config is used to map class name to PHP files.
-	 *
-	 * Class initializer
-	 * -----------------
-	 *
-	 * If the loaded class defines the '__static_construct' method, the method is invoked to
-	 * initialize the class.
-	 *
-	 * @param string $name Name of the class
-	 *
-	 * @return boolean Whether or not the required file could be found.
-	 */
-	static private function autoload_handler($name)
-	{
-		$list = self::$autoload;
-
-		if (empty($list[$name]))
-		{
-			return false;
-		}
-
-		require_once $list[$name];
-
-		if (method_exists($name, '__static_construct'))
-		{
-			call_user_func($name . '::__static_construct');
-		}
-
-		return true;
-	}
-
 	static protected $paths = array();
 
 	static public function add_path($path)
@@ -134,7 +98,6 @@ class Core extends Object
 
 		$class = get_class($this);
 
-		spl_autoload_register($class . '::autoload_handler');
 		set_exception_handler($class . '::exception_handler');
 		set_error_handler('ICanBoogie\Debug::error_handler');
 		date_default_timezone_set('UTC');
@@ -163,12 +126,6 @@ class Core extends Object
 		$configs->add($options['config paths']);
 
 		$this->config = $config = array_merge_recursive($options, $this->config);
-
-		#
-		# Initial autoload, only autoload configs defined in the config paths are indexed.
-		#
-
-		self::$autoload = $this->configs['autoload'];
 
 		#
 
@@ -503,7 +460,7 @@ class Core extends Object
 	 * Run the enabled modules.
 	 *
 	 * Before the modules are actually ran, their index is used to alter the I18n load paths, the
-	 * config paths and the core's `autoload` and `classes aliases` config properties.
+	 * config paths and the core's `classes aliases` config properties.
 	 */
 	protected function run_modules()
 	{
@@ -524,8 +481,6 @@ class Core extends Object
 		}
 
 		#
-
-		self::$autoload = $this->configs['autoload'] + $this->modules->autoload;
 
 		if ($index['config constructors'])
 		{
