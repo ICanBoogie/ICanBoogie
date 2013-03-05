@@ -93,6 +93,42 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * Enables a module.
+	 *
+	 * @param string $id Identifier of the module.
+	 */
+	public function enable($id)
+	{
+		$this->index;
+
+		if (empty($this->descriptors[$id]))
+		{
+			return;
+		}
+
+		$this->descriptors[$id][Module::T_DISABLED] = false;
+		$this->revoke_constructions();
+	}
+
+	/**
+	 * Disables a module.
+	 *
+	 * @param string $id Identifier of the module.
+	 */
+	public function disable($id)
+	{
+		$this->index;
+
+		if (empty($this->descriptors[$id]))
+		{
+			return;
+		}
+
+		$this->descriptors[$id][Module::T_DISABLED] = true;
+		$this->revoke_constructions();
+	}
+
+	/**
 	 * Used to enable or disable a module using the specified offset as the module's id.
 	 *
 	 * The module is enabled or disabled by modifying the value of the {@link Module::T_DISABLED}

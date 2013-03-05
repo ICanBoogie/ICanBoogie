@@ -311,7 +311,7 @@ class Debug
 			$more .= self::format_code_sample($file, $line);
 		}
 
-		$file = self::strip_root($file);
+		$file = \ICanBoogie\strip_root($file);
 
 		$previous = null;
 
@@ -384,7 +384,7 @@ EOT;
 						{
 							if (strlen($arg) > self::MAX_STRING_LEN)
 							{
-								$arg = substr($arg, 0, self::MAX_STRING_LEN) . '…';
+								$arg = substr($arg, 0, self::MAX_STRING_LEN) . '...';
 							}
 
 							$arg = '\'' . $arg .'\'';
@@ -458,7 +458,7 @@ EOT;
 			return;
 		}
 
-		$more = "\n\n<strong>Request URI:</strong>\n\n" . escape($_SERVER['REQUEST_URI']);
+		$more = "\n\n<strong>Request URI:</strong>\n\n" . escape($_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['REQUEST_URI']);
 
 		if (!empty($_SERVER['HTTP_REFERER']))
 		{

@@ -133,7 +133,6 @@ var ICanBoogie = {
 
 	var html = $(document.html)
 	, apiBase = html.get('data-api-base')
-	, apiLanguage = html.get('data-user-lang') || html.get('lang')
 	, methods = {}
 
 	if (!apiBase)
@@ -171,6 +170,8 @@ var ICanBoogie = {
 
 		initialize: function(options)
 		{
+			var apiLanguage = html.get('data-user-lang') || html.get('lang')
+
 			if (options.url.match(/^\/api\//))
 			{
 				options.url = options.url.substring(5)

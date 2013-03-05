@@ -73,26 +73,61 @@ ActiveRecord\Helpers::patch('get_model', function($id) {
 
 });
 
+namespace ICanBoogie\HTTP;
+
 /*
- * Patches the `get_dispatcher` helper to initialize the dispatcher with operation and route
- * controllers.
+ * Patches the `get_dispatcher` helper to initialize the dispatcher with the operation and route
+ * dispatchers.
  */
-HTTP\Helpers::patch('get_dispatcher', function() {
+Helpers::patch('get_dispatcher', function() {
 
 	static $dispatcher;
 
 	if (!$dispatcher)
 	{
-		$dispatcher = new HTTP\Dispatcher
+		$dispatchers = array
 		(
-			array
-			(
-				'operation' => 'ICanBoogie\OperationDispatcher',
-				'route' => 'ICanBoogie\Routing\Dispatcher'
-			)
+			'operation' => 'ICanBoogie\OperationDispatcher',
+			'route' => 'ICanBoogie\Routing\Dispatcher'
 		);
+
+		new Dispatcher\CollectEvent(new Dispatcher(), $dispatchers);
+
+		$dispatcher = new Dispatcher($dispatchers);
 	}
 
 	return $dispatcher;
 
 });
+
+namespace ICanBoogie\HTTP\Dispatcher;
+
+use ICanBoogie\HTTP\Dispatcher;
+
+/**
+ * Event class for the `ICanBoogie\HTTP\Dispatcher::collect` event.
+ *
+ * Third parties may use this event to register additionnal dispatchers.
+ */
+class CollectEvent extends \ICanBoogie\Event
+{
+	/**
+	 * Reference to the dispatchers array.
+	 *
+	 * @var array[string]callable
+	 */
+	public $dispatchers;
+
+	/**
+	 * The event is constructed with the type `collect`.
+	 *
+	 * @param Dispatcher $target
+	 * @param array $payload
+	 */
+	public function __construct(Dispatcher $target, array &$dispatchers)
+	{
+		$this->dispatchers = &$dispatchers;
+
+		parent::__construct($target, 'collect');
+	}
+}

@@ -1,12 +1,12 @@
 # ICanBoogie
 
-__ICanBoogie__ is a high-performance object-oriented framework for PHP 5.3+. It is written
-with speed, flexibility and lightness in mind. ICanBoogie doesn't try to be an all-in-one do-it-all
-solution but provides the essential classes and logic to build web applications.
+__ICanBoogie__ is a high-performance framework for PHP 5.3+. It is written with speed, flexibility
+and lightness in mind. ICanBoogie doesn't try to be an all-in-one do-it-all solution but provides
+the essential classes and logic to build web applications.
 
 ICanBoogie packages offers the following features: Prototypes, ActiveRecords, Internationalization,
-Modules, a RESTful API, Request/Dispatch/Response, Operations, Events, Hooks, Sessions, Routes,
-Caching and more.
+Modules, a RESTful API, Request/Dispatch/Response/Rescue, Operations, Events, Hooks, Sessions,
+Routes, Caching and more.
 
 Together with [Brickrouge](http://brickrouge.org) and Patron, ICanBoogie is one of the
 components that make the CMS [Icybee](http://icybee.org). You might want to check these
@@ -25,11 +25,10 @@ projects too.
 
 
 
-### Requirements
+## Requirements
 
-The minimum requirement for the ICanBoogie framework is PHP5.3. ICanBoogie has been tested with
-Apache HTTP server on Linux, MacOS and Windows operating systems. The Apache server must support
-URL rewriting.
+The minimum requirement is PHP5.3. ICanBoogie has been tested with Apache HTTP server on Linux,
+MacOS and Windows operating systems. The Apache server must support URL rewriting.
 
 
 
@@ -37,15 +36,16 @@ URL rewriting.
 
 ## Installation
 
-The recommended way to install ICanBoogie is [through composer](http://getcomposer.org/). Create a
-`composer.json` file and run `php composer.phar install` command to install it:
+The recommended way to install this package is through [composer](http://getcomposer.org/).
+Create a `composer.json` file and run `php composer.phar install` command to install it:
 
-```
+```json
 {
-    "minimum-stability": "dev",
-    "require": {
-        "icanboogie/icanboogie": "*"
-    }
+	"minimum-stability": "dev",
+	"require":
+	{
+		"icanboogie/icanboogie": "*"
+	}
 }
 ```
 
@@ -53,11 +53,24 @@ The recommended way to install ICanBoogie is [through composer](http://getcompos
 
 
 
-## Tests
+### Cloning the repository
 
-To run the test suite, you need [composer](http://getcomposer.org/) and [PHPUnit](http://www.phpunit.de/manual/current/en/).
-First install the required packages with the `make install` command, then run the test suite
-with `make test`.
+The package is [available on GitHub](https://github.com/ICanBoogie/ICanBoogie), its repository can be
+cloned with the following command line:
+
+	$ git clone git://github.com/ICanBoogie/ICanBoogie.git
+
+
+
+
+
+## Documentation
+
+The documentation for the package and its dependencies can be generated with the `make doc`
+command. The documentation is generated in the `docs` directory using [ApiGen](http://apigen.org/).
+The package directory can later by cleaned with the `make clean` command.
+
+The documentation for the complete framework is also available online: <http://icanboogie.org/docs/> 
 
 
 
@@ -104,8 +117,6 @@ return array
 
 namespace ICanBoogie;
 
-require_once 'ICanBoogie.phar';
-
 $core = new Core
 (
 	array
@@ -140,6 +151,95 @@ $core->run();
 $request = $core->initial_request;
 $response = $request();
 $response();
+```
+
+
+
+
+
+## Events
+
+
+
+
+
+### The core is running
+
+The `ICanBoogie\Core::run` event of class [ICanBoogie\Core\RunEvent](http://icanboogie.org/docs/class-ICanBoogie.Core.RunEvent.html)
+is fired when the core is running.
+
+Third parties may use this event to alter various states of the application, starting with the
+initial request. 
+
+
+```php
+<?php
+
+namespace Icybee\Modules\Sites;
+
+use ICanBoogie\Routing;
+
+$core->events->attach(function(\ICanBoogie\Core\RunEvent $event, \ICanBoogie\Core $target) {
+
+	$target->site = $site = Model::find_by_request($event->request);
+	$target->locale = $site->language;
+
+	if ($site->timezone)
+	{
+		$target->timezone = $site->timezone;
+	}
+
+	$path = $site->path;
+
+	if ($path)
+	{
+		Routing\Helpers::patch('contextualize', function ($str) use ($path)
+		{
+			return $path . $str;
+		});
+
+		Routing\Helpers::patch('decontextualize', function ($str) use ($path)
+		{
+			if (strpos($str, $path . '/') === 0)
+			{
+				$str = substr($str, strlen($path));
+			}
+
+			return $str;
+		});
+	}
+});
+```
+
+
+
+
+
+### The main dispatcher is instantiated
+
+The `ICanBoogie\HTTP\Dispatcher::collect` event of class [ICanBoogie\HTTP\Dispatcher\CollectEvent](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.CollectEvent.html)
+is fired when the dispatcher is instantiated.
+
+Third parties may use this event to register dispatchers or alter dispatchers.
+
+```php
+<?php
+
+use ICanBoogie\HTTP\Dispatcher;
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Response;
+
+$core->events->attach(function(Dispatcher\CollectEvent $event, Dispatcher $target) {
+
+	$event->dispatchers['hello'] = function(Request $request) {
+	
+		if ($request->path === '/hello')
+		{
+			return new Response('Hello world!');
+		}
+	}
+
+});
 ```
 
 

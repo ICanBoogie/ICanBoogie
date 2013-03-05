@@ -100,7 +100,11 @@ class Core extends Object
 
 		set_exception_handler($class . '::exception_handler');
 		set_error_handler('ICanBoogie\Debug::error_handler');
-		date_default_timezone_set('UTC');
+
+		if (!date_default_timezone_get())
+		{
+			date_default_timezone_set('UTC');
+		}
 
 		if (get_magic_quotes_gpc())
 		{

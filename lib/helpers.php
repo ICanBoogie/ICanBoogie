@@ -11,17 +11,27 @@
 
 namespace ICanBoogie;
 
+const TOKEN_NUMERIC = "23456789";
+const TOKEN_ALPHA = "abcdefghjkmnpqrstuvwxyz";
+const TOKEN_ALPHA_UPCASE = "ABCDEFGHJKLMNPQRTUVWXYZ";
+const TOKEN_SYMBOL = "!$=@#";
+const TOKEN_SYMBOL_WIDE = '%&()*+,-./:;<>?@[]^_`{|}~';
+
+define('ICanBoogie\TOKEN_NARROW', TOKEN_NUMERIC . TOKEN_ALPHA . TOKEN_SYMBOL);
+define('ICanBoogie\TOKEN_MEDIUM', TOKEN_NUMERIC . TOKEN_ALPHA . TOKEN_SYMBOL . TOKEN_ALPHA_UPCASE);
+define('ICanBoogie\TOKEN_WIDE', TOKEN_NUMERIC . TOKEN_ALPHA . TOKEN_SYMBOL . TOKEN_ALPHA_UPCASE . TOKEN_SYMBOL_WIDE);
+
 /**
  * Generate a password.
  *
  * @param int $length The length of the password. Default: 8
  * @param string $possible The characters that can be used to create the password.
  * If you defined your own, pay attention to ambiguous characters such as 0, O, 1, l, I...
- * Default: narrow
+ * Default: {@link TOKEN_NARROW}
  *
  * @return string
  */
-function generate_token($length=8, $possible='narrow')
+function generate_token($length=8, $possible=TOKEN_NARROW)
 {
 	return Helpers::generate_token($length, $possible);
 }
@@ -46,7 +56,7 @@ function pbkdf2($p, $s, $c=1000, $kl=32, $a='sha256')
 /**
  * Patchable helpers of the ICanBoogie package.
  *
- * @method string generate_token() generate_token($length=8, $possible='narrow')
+ * @method string generate_token() generate_token($length=8, $possible=TOKEN_WIDE)
  * @method string pbkdf2() pbkdf2($p, $s, $c=1000, $kl=32, $a='sha256')
  */
 class Helpers
@@ -92,55 +102,16 @@ class Helpers
 	 * Default implementations
 	 */
 
-	static public $password_characters = array
-	(
-		'narrow' => '$=@#23456789bcdfghjkmnpqrstvwxyz',
-		'medium' => '$=@#23456789bcdfghjkmnpqrstvwxyzBCDFGHJKMNPQRSTVWXYZ',
-		'wide' => '!"#$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
-	);
-
-	static private function generate_token($length=8, $possible='narrow')
+	static private function generate_token($length=8, $possible=TOKEN_NARROW)
 	{
-		if (isset(self::$password_characters[$possible]))
+		$possible_length = strlen($possible);
+
+		if ($length > $possible_length)
 		{
-			$possible = self::$password_characters[$possible];
+			str_repeat($possible, ceil($length / $possible_length));
 		}
 
-		$password = '';
-
-		$possible_length = strlen($possible) - 1;
-
-		#
-		# add random characters to $password for $length
-		#
-
-		while ($length--)
-		{
-			#
-			# pick a random character from the possible ones
-			#
-
-			$except = substr($password, -$possible_length / 2);
-
-			for ($n = 0 ; $n < 5 ; $n++)
-			{
-				$char = $possible{mt_rand(0, $possible_length)};
-
-				#
-				# we don't want this character if it's already in the password
-				# unless it's far enough (half of our possible length)
-				#
-
-				if (strpos($except, $char) === false)
-				{
-					break;
-				}
-			}
-
-			$password .= $char;
-		}
-
-		return $password;
+		return substr(str_shuffle($possible), 0, $length);
 	}
 
 	static private function pbkdf2($p, $s, $c=1000, $kl=32, $a='sha256')
@@ -308,7 +279,12 @@ function excerpt($str, $limit=55)
  */
 function strip_root($pathname)
 {
-	return substr($pathname, strlen($_SERVER['DOCUMENT_ROOT']));
+	$root = rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR);
+
+	if (strpos($pathname, $root) === 0)
+	{
+		return substr($pathname, strlen($root));
+	}
 }
 
 /**
