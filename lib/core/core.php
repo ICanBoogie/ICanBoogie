@@ -481,7 +481,7 @@ class Core extends Object
 
 		if ($modules_config_paths)
 		{
-			$this->configs->add($modules->config_paths, 5);
+			$this->configs->add($modules->config_paths, -10);
 		}
 
 		#

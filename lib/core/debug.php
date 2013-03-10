@@ -311,7 +311,7 @@ class Debug
 			$more .= self::format_code_sample($file, $line);
 		}
 
-		$file = \ICanBoogie\strip_root($file);
+		$file = strip_root($file);
 
 		$previous = null;
 
