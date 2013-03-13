@@ -164,20 +164,6 @@ function normalize_namespace_part($part)
 	);
 }
 
-// https://github.com/rails/rails/blob/master/activesupport/lib/active_support/inflector/inflections.rb
-// http://api.rubyonrails.org/classes/ActiveSupport/Inflector.html#method-i-singularize
-
-function singularize($string)
-{
-	static $rules = array
-	(
-		'/ies$/' => 'y',
-		'/s$/' => ''
-	);
-
-	return preg_replace(array_keys($rules), $rules, $string);
-}
-
 /**
  * Creates an excerpt of an HTML string.
  *
