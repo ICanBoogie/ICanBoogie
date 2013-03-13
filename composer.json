@@ -21,7 +21,7 @@
 	"require": {
 		"php": ">=5.3.0",
 		"icanboogie/common": "*",
-		"icanboogie/inflect": "*",
+		"icanboogie/inflector": "*",
 		"icanboogie/datetime": "*",
 		"icanboogie/prototype": "*",
 		"icanboogie/activerecord": "*",
