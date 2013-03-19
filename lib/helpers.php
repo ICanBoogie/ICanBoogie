@@ -36,6 +36,19 @@ function generate_token($length=8, $possible=TOKEN_NARROW)
 	return Helpers::generate_token($length, $possible);
 }
 
+/**
+ * Generate a 512 bit (64 chars) length token from {@link TOKEN_WIDE}.
+ *
+ * @param int $length=64
+ * @param string $possible=TOKEN_WIDE
+ *
+ * @return string
+ */
+function generate_token_wide()
+{
+	return Helpers::generate_token(64, TOKEN_WIDE);
+}
+
 /** PBKDF2 Implementation (described in RFC 2898)
  *
  *  @param string $p password
@@ -104,14 +117,16 @@ class Helpers
 
 	static private function generate_token($length=8, $possible=TOKEN_NARROW)
 	{
-		$possible_length = strlen($possible);
+		$token = '';
+		$y = strlen($possible) - 1;
 
-		if ($length > $possible_length)
+		while ($length--)
 		{
-			str_repeat($possible, ceil($length / $possible_length));
+			$i = mt_rand(0, $y);
+			$token .= $possible[$i];
 		}
 
-		return substr(str_shuffle($possible), 0, $length);
+		return $token;
 	}
 
 	static private function pbkdf2($p, $s, $c=1000, $kl=32, $a='sha256')
