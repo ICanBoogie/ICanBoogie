@@ -11,10 +11,12 @@
 
 namespace ICanBoogie;
 
+use Brickrouge\format;
+
 use ICanBoogie\ActiveRecord\Model;
 
 /**
- * Accessor class for the modules of the framework.
+ * Modules manager.
  *
  * @property-read array $config_paths Paths of the enabled modules having a `config` directory.
  * @property-read array $locale_paths Paths of the enabled modules having a `locale` directory.
@@ -24,13 +26,6 @@ use ICanBoogie\ActiveRecord\Model;
  */
 class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 {
-	/**
-	 * If true loaded module are run when loaded for the first time.
-	 *
-	 * @var boolean
-	 */
-	public $autorun = false;
-
 	/**
 	 * The descriptors for the modules.
 	 *
@@ -232,18 +227,11 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 			throw new Exception('Missing class %class to instantiate module %id.', array('%class' => $class, '%id' => $id));
 		}
 
-		$this->modules[$id] = $module = new $class($descriptor);
-
-		if ($this->autorun)
-		{
-			$module->run();
-		}
-
-		return $module;
+		return $this->modules[$id] = new $class($descriptor);
 	}
 
 	/**
-	 * @see IteratorAggregate::getIterator()
+	 * Returns an iterator for the modules.
 	 *
 	 * @return \ArrayIterator
 	 */
@@ -256,10 +244,10 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	 * Indexes the modules found in the paths specified during construct.
 	 *
 	 * The index is made of an array of descriptors, an array of catalogs paths, an array of
-	 * configs path, an array of classes aliases and finally an array of configs constructors.
+	 * configs path, and finally an array of configs constructors.
 	 *
-	 * The method also creates a `..\DIR` constant for each module defined, using the namespace
-	 * and the path of the module.
+	 * The method also creates a `DIR` constant for each module. The constant is defined in the
+	 * namespace of the module e.g. `Icybee\Modules\Nodes\DIR`.
 	 *
 	 * @return array
 	 */
@@ -285,10 +273,11 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 		foreach ($this->descriptors as $descriptor)
 		{
 			$namespace = $descriptor[Module::T_NAMESPACE];
+			$constant = $namespace . '\DIR';
 
-			if (!defined($namespace . '\DIR'))
+			if (!defined($constant))
 			{
-				define($namespace . '\DIR', $descriptor[Module::T_PATH]);
+				define($constant, $descriptor[Module::T_PATH]);
 			}
 		}
 
@@ -421,7 +410,7 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 
 				if (!is_array($descriptor))
 				{
-					throw new Exception
+					throw new \InvalidArgumentException(format
 					(
 						'%var should be an array: %type given instead in %path', array
 						(
@@ -429,20 +418,33 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 							'type' => gettype($descriptor),
 							'path' => strip_root($descriptor_path)
 						)
-					);
+					));
 				}
 
 				if (empty($descriptor[Module::T_TITLE]))
 				{
-					throw new Exception
+					throw new \InvalidArgumentException(format
 					(
 						'The %name value of the %id module descriptor is empty in %path.', array
 						(
 							'name' => Module::T_TITLE,
 							'id' => $id,
-							'path' => $descriptor_path
+							'path' => strip_root($descriptor_path)
 						)
-					);
+					));
+				}
+
+				if (empty($descriptor[Module::T_NAMESPACE]))
+				{
+					throw new \InvalidArgumentException(format
+					(
+						'%name is required. Invalid descriptor for module %id in %path.', array
+						(
+							'name' => Module::T_NAMESPACE,
+							'id' => $id,
+							'path' => strip_root($descriptor_path)
+						)
+					));
 				}
 
 				/*TODO-20120108: activate version checking
@@ -460,25 +462,21 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 				}
 				*/
 
-				$namespace = isset($descriptor[Module::T_NAMESPACE]) ? $descriptor[Module::T_NAMESPACE] : 'ICanBoogie\Modules\\' . normalize_namespace_part($id);
-
 				$descriptor += array
 				(
 					Module::T_CATEGORY => null,
-					Module::T_CLASS => $namespace . '\Module',
+					Module::T_CLASS => $descriptor[Module::T_NAMESPACE] . '\Module',
 					Module::T_DESCRIPTION => null,
 					Module::T_DISABLED => empty($descriptor[Module::T_REQUIRED]),
 					Module::T_EXTENDS => null,
 					Module::T_ID => $id,
 					Module::T_MODELS => array(),
-					Module::T_NAMESPACE => $namespace,
 					Module::T_PATH => $path,
 					Module::T_PERMISSION => null,
 					Module::T_PERMISSIONS => array(),
-					Module::T_STARTUP => false,
 					Module::T_REQUIRED => false,
 					Module::T_REQUIRES => array(),
-					Module::T_VERSION => '0.0',
+					Module::T_VERSION => 'dev',
 					Module::T_WEIGHT => 0,
 
 					'__has_config' => false,
@@ -561,40 +559,30 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 		{
 			if (!is_array($definition))
 			{
-				throw new Exception('Model definition is not an array, given: %value.', array('value' => $definition));
+				throw new \InvalidArgumentException(format('Model definition is not an array, given: %value.', array('value' => $definition)));
 			}
 
-			$file_base = $path . $model_id;
+			$basename = $id;
+			$separator_position = strrpos($basename, '.');
 
-			# try model
-
-			$pathname = $file_base . '.model.php';
-
-			if (file_exists($pathname))
+			if ($separator_position)
 			{
-				if (empty($definition[Model::T_CLASS]))
-				{
-					$class = $this->resolve_model_class_name($namespace, $model_id);
-					$definition[Model::T_CLASS] = $class;
-				}
-
-				if (empty($definition[Model::T_NAME]))
-				{
-					$definition[Model::T_NAME] = Model::format_name($id, $model_id);
-				}
+				$basename = substr($basename, $separator_position + 1);
 			}
 
-			# try activerecord
-
-			$pathname = $file_base . '.ar.php';
-
-			if (file_exists($pathname))
+			if (empty($definition[Model::NAME]))
 			{
-				if (empty($definition[Model::T_ACTIVERECORD_CLASS]))
-				{
-					$class = $this->resolve_activerecord_class_name($namespace, $id, $model_id);
-					$definition[Model::T_ACTIVERECORD_CLASS] = $class;
-				}
+				$definition[Model::NAME] = Model::format_name($id, $model_id);
+			}
+
+			if (empty($definition[Model::CLASSNAME]))
+			{
+				$definition[Model::CLASSNAME] = $namespace . '\\' . ($model_id == 'primary' ? 'Model' : camelize(singularize($model_id)) . 'Model');
+			}
+
+			if (empty($definition[Model::ACTIVERECORD_CLASS]))
+			{
+				$definition[Model::ACTIVERECORD_CLASS] = $namespace . '\\' . camelize(singularize($model_id == 'primary' ? $basename : $model_id));
 			}
 		}
 
@@ -770,26 +758,6 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Runs the modules having a truthy {@link Module::T_STARTUP} value.
-	 */
-	public function run()
-	{
-		foreach ($this->descriptors as $id => $descriptor)
-		{
-			if (!$descriptor[Module::T_STARTUP] || !isset($this[$id]))
-			{
-				continue;
-			}
-
-			#
-			# loading the module is enough to run it.
-			#
-
-			$this[$id];
-		}
-	}
-
-	/**
 	 * Returns the usage of a module by other modules.
 	 *
 	 * @param string $module_id The identifier of the module.
@@ -824,39 +792,28 @@ class Modules extends Object implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
-	 * Resolves the class name of a model according to the module that defines it and its id.
+	 * Checks if a module extends another.
 	 *
-	 * @param string $namespace Namespace of the module defining the model.
-	 * @param string $model_id The model id.
+	 * @param string $module_id Module identifier.
+	 * @param string $extending_id Identifier of the extended module.
 	 *
-	 * @return string The resolved class name.
+	 * @return boolean `true` if the module extends the other.
 	 */
-	public function resolve_model_class_name($namespace, $model_id='primary')
+	public function is_extending($module_id, $extending_id)
 	{
-		return $namespace . '\\' . ($model_id == 'primary' ? '' : normalize_namespace_part($model_id)) . 'Model';
-	}
-
-	/**
-	 * Resolves the class name of an activerecord according to the module and the model that
-	 * define it.
-	 *
-	 * @param string $module_id
-	 * @param string $model_id
-	 *
-	 * @return string The resolved class name.
-	 */
-	public function resolve_activerecord_class_name($namespace, $module_id, $model_id='primary')
-	{
-		$class = $namespace . '\\' . normalize_namespace_part($module_id); // TODO-20120914: use 'ActiveRecords'
-
-		if ($model_id != 'primary')
+		while ($module_id)
 		{
-			$class .= '\\' . normalize_namespace_part($model_id);
+			if ($module_id == $extending_id)
+			{
+				return true;
+			}
+
+			$descriptor = $this->descriptors[$module_id];
+
+			$module_id = isset($descriptor[Module::T_EXTENDS]) ? $descriptor[Module::T_EXTENDS] : null;
 		}
 
-		$class = singularize($class);
-
-		return $class;
+		return false;
 	}
 }
 

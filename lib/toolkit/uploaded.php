@@ -11,7 +11,7 @@
 
 namespace ICanBoogie;
 
-use ICanBoogie\I18n\FormattedString;
+use ICanBoogie\I18n;
 
 // TODO-20121121: MOVE TO ICanBoogie\HTTP\File
 
@@ -241,31 +241,31 @@ class Uploaded
 		{
 			case UPLOAD_ERR_INI_SIZE:
 			{
-				$this->er_message = new FormattedString('Maximum file size is :sizeMo', array(':size' => (int) ini_get('upload_max_filesize')));
+				$this->er_message = new I18n\FormattedString('Maximum file size is :sizeMo', array(':size' => (int) ini_get('upload_max_filesize')));
 			}
 			break;
 
 			case UPLOAD_ERR_FORM_SIZE:
 			{
-				$this->er_message = new FormattedString('Maximum file size is :sizeMo', array(':size' => round(MAX_FILE_SIZE / 1024 / 1024, 2)));
+				$this->er_message = new I18n\FormattedString('Maximum file size is :sizeMo', array(':size' => round(MAX_FILE_SIZE / 1024 / 1024, 2)));
 			}
 			break;
 
 			case UPLOAD_ERR_NO_FILE:
 			{
-				$this->er_message = new FormattedString('No file was uploaded');
+				$this->er_message = new I18n\FormattedString('No file was uploaded');
 			}
 			break;
 
 			case self::ERR_TYPE:
 			{
-				$this->er_message = new FormattedString('error.message.upload.mime', array('%accepted' => implode(', ', array_keys($this->accepted_types))));
+				$this->er_message = new I18n\FormattedString('error.message.upload.mime', array('%accepted' => implode(', ', array_keys($this->accepted_types))));
 			}
 			break;
 
 			default:
 			{
-				$this->er_message = new FormattedString('Error code: :code', array(':code' => $error));
+				$this->er_message = new I18n\FormattedString('Error code: :code', array(':code' => $error));
 			}
 			break;
 		}

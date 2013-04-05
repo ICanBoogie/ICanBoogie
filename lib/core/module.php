@@ -27,6 +27,8 @@ class Module extends Object
 	 * When modules are listed they are usually grouped by category. The category is also often
 	 * used to create the main navigation menu of the admin interface.
 	 *
+	 * The category of the module is translated within the `module_category` scope.
+	 *
 	 * @var string
 	 */
 	const T_CATEGORY = 'category';
@@ -36,8 +38,6 @@ class Module extends Object
 	 *
 	 * If the class is not defined it is resolved during indexing using the {@link T_NAMESPACE}
 	 * tag and the following pattern : `<namespace>\Module`.
-	 *
-	 * The category of the module is translated within the `module_category` scope.
 	 *
 	 * @var string
 	 */
@@ -134,13 +134,6 @@ class Module extends Object
 	const T_PERMISSIONS = 'permissions';
 
 	/**
-	 * Defines whether the module should be run when the framework is run.
-	 *
-	 * @var bool
-	 */
-	const T_STARTUP = 'startup';
-
-	/**
 	 * Defines the title of the module.
 	 *
 	 * The title of the module is translated within the `module_title` scope.
@@ -202,25 +195,6 @@ class Module extends Object
 	 * @var string
 	 */
 	const OPERATION_DELETE = 'delete';
-
-	static public function is_extending($module_id, $extending_id)
-	{
-		global $core;
-
-		while ($module_id)
-		{
-			if ($module_id == $extending_id)
-			{
-				return true;
-			}
-
-			$descriptor = $core->modules->descriptors[$module_id];
-
-			$module_id = isset($descriptor[self::T_EXTENDS]) ? $descriptor[self::T_EXTENDS] : null;
-		}
-
-		return false;
-	}
 
 	/**
 	 * Unique identifier of the module.
@@ -289,7 +263,7 @@ class Module extends Object
 	 *
 	 * @return string
 	 */
-	protected function get_flat_id()
+	protected function volatile_get_flat_id()
 	{
 		return strtr($this->id, '.', '_');
 	}
@@ -301,7 +275,7 @@ class Module extends Object
 	 *
 	 * @return ActiveRecord\Model
 	 */
-	protected function get_model()
+	protected function volatile_get_model()
 	{
 		return $this->model();
 	}
@@ -311,7 +285,7 @@ class Module extends Object
 	 *
 	 * @return string
 	 */
-	protected function get_title()
+	protected function volatile_get_title()
 	{
 		$default = isset($this->descriptor[self::T_TITLE]) ? $this->descriptor[self::T_TITLE] : 'Undefined';
 
@@ -340,10 +314,10 @@ class Module extends Object
 	/**
 	 * Checks if the module is installed.
 	 *
-	 * @param Errors $errors The object used to collect errors.
+	 * @param Errors $errors Error collection.
 	 *
-	 * @return mixed `true` if the module is installed, FALSE if the module
-	 * (or parts of) is not installed, NULL if the module has no installation.
+	 * @return mixed `true` if the module is installed, `false` if the module
+	 * (or parts of) is not installed, `null` if the module has no installation.
 	 */
 	public function is_installed(Errors $errors)
 	{
@@ -370,7 +344,7 @@ class Module extends Object
 	 *
 	 * If the module has models they are installed.
 	 *
-	 * @param Errors $errors An object use to collect errors.
+	 * @param Errors $errors Error collection.
 	 *
 	 * @return boolean|null true if the module has successfully been installed, false if the
 	 * module (or parts of the module) fails to install or null if the module has
@@ -410,8 +384,8 @@ class Module extends Object
 	 *
 	 * Basically it uninstall the models installed by the module.
 	 *
-	 * @return mixed TRUE is the module has successfully been uninstalled. FALSE if the module
-	 * (or parts of the module) failed to uninstall. NULL if there is no uninstall process.
+	 * @return boolean|null `true` if the module was successfully uninstalled. `false` if the module
+	 * (or parts of the module) failed to uninstall. `null` if there is no uninstall process.
 	 */
 	public function uninstall()
 	{
@@ -438,18 +412,6 @@ class Module extends Object
 		}
 
 		return $rc;
-	}
-
-	/**
-	 * Run the module.
-	 *
-	 * This method is invoked when the module is loaded for the first time.
-	 *
-	 * @return boolean
-	 */
-	public function run()
-	{
-		return true;
 	}
 
 	/**
@@ -586,9 +548,6 @@ class Module extends Object
 
 		$tags += array
 		(
-			Model::T_CLASS => $has_model_class ? $modules->resolve_model_class_name($this->descriptor[self::T_NAMESPACE], $which) : null,
-			Model::T_ACTIVERECORD_CLASS => $has_ar_class ? $modules->resolve_activerecord_class_name($this->id, $which) : null,
-			Model::T_NAME => $table_name,
 			Model::T_CONNECTION => 'primary',
 			Model::T_ID => $which == 'primary' ? $this->id : $this->id . '/' . $which
 		);

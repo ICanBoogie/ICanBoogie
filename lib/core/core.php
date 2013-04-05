@@ -256,7 +256,7 @@ class Core extends Object
 	 */
 	protected function volatile_get_request()
 	{
-		return HTTP\Request::get_current_request();
+		return HTTP\Request::get_current_request() ?: $this->initial_request;
 	}
 
 	/**
@@ -400,8 +400,6 @@ class Core extends Object
 
 		self::$is_running = true;
 
-		$this->modules->autorun = true;
-
 		$this->run_modules();
 
 // 		new Core\BeforeRunEvent($this); TODO-20121127: if we fire an event now, module events won't be taken into account because the events have already been collected
@@ -490,8 +488,6 @@ class Core extends Object
 		{
 			$this->configs->constructors += $index['config constructors'];
 		}
-
-		$this->modules->run();
 	}
 
 	/**
