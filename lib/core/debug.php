@@ -315,7 +315,7 @@ class Debug
 
 		$previous = null;
 
-		if (self::$config_exception_chain && $alert instanceof \Exception)
+		if (/*self::$config_exception_chain &&*/ $alert instanceof \Exception)
 		{
 			$previous = $alert->getPrevious();
 

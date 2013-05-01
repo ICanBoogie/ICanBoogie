@@ -87,7 +87,7 @@ Helpers::patch('get_dispatcher', function() {
 	{
 		$dispatchers = array
 		(
-			'operation' => 'ICanBoogie\OperationDispatcher',
+			'operation' => 'ICanBoogie\Operation\Dispatcher',
 			'route' => 'ICanBoogie\Routing\Dispatcher'
 		);
 

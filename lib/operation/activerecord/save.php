@@ -26,6 +26,7 @@ class SaveOperation extends Operation
 	 * CONTROL_FORM => true
 	 *
 	 * @param ICanBoogie.Operation $operation
+	 *
 	 * @return array The controls of the operation.
 	 */
 	protected function get_controls()
@@ -43,8 +44,6 @@ class SaveOperation extends Operation
 
 	/**
 	 * Overrides the getter to prevent exceptions when the operation key is empty.
-	 *
-	 * @see ICanBoogie.Operation::get_record()
 	 */
 	protected function get_record()
 	{
@@ -54,8 +53,6 @@ class SaveOperation extends Operation
 	/**
 	 * Overrides the method in order for the control to pass if the operation key is empty, which
 	 * is the case when creating a new record.
-	 *
-	 * @see ICanBoogie.Operation::control_record()
 	 */
 	protected function control_record()
 	{
@@ -79,14 +76,14 @@ class SaveOperation extends Operation
 	 * If the property is not empty in the operation params, the property value is trimed using the
 	 * trim() function, ensuring that there is no leading or trailing white spaces.
 	 *
-	 * @see ICanBoogie.Operation::get_properties()
 	 * @return array The properties of the operation.
 	 */
 	protected function get_properties()
 	{
 		$schema = $this->module->model->extended_schema;
 		$fields = $schema['fields'];
-		$properties = array_intersect_key($this->request->params, $fields);
+		$request = $this->request;
+		$properties = array_intersect_key($request->params, $fields);
 
 		foreach ($fields as $identifier => $definition)
 		{
@@ -94,7 +91,7 @@ class SaveOperation extends Operation
 
 			if ($type == 'boolean')
 			{
-				if (!empty($definition['null']) && ($this->request[$identifier] === null || $this->request[$identifier] === ''))
+				if (!empty($definition['null']) && ($request[$identifier] === null || $request[$identifier] === ''))
 				{
 					$properties[$identifier] = null;
 				}
@@ -126,8 +123,6 @@ class SaveOperation extends Operation
 
 	/**
 	 * The method simply returns true.
-	 *
-	 * @see ICanBoogie.Operation::validate()
 	 */
 	protected function validate(Errors $errors)
 	{
@@ -158,6 +153,7 @@ class SaveOperation extends Operation
 			throw new Exception($key ? 'Unable to update record %key in %module.' : 'Unable to create record in %module.', $log_params);
 		}
 
+		$this->record = $this->module->model[$record_key];
 		$this->response->location = $this->request->uri;
 		$this->response->message = new FormattedString($key ? 'The record %key in %module has been saved.' : 'A new record has been saved in %module.', $log_params);
 
