@@ -274,6 +274,9 @@ function excerpt($str, $limit=55)
 /**
  * Removes the `DOCUMENT_ROOT` from the provided path.
  *
+ * Note: Because this function is usually used to create URL path from server path, the directory
+ * separator '\' is replaced by '/'.
+ *
  * @param string $pathname
  *
  * @return string
@@ -281,11 +284,20 @@ function excerpt($str, $limit=55)
 function strip_root($pathname)
 {
 	$root = rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR);
+	$root = strtr($root, DIRECTORY_SEPARATOR == '/' ? '\\' : '/', DIRECTORY_SEPARATOR);
+	$pathname = strtr($pathname, DIRECTORY_SEPARATOR == '/' ? '\\' : '/', DIRECTORY_SEPARATOR);
 
 	if (strpos($pathname, $root) === 0)
 	{
-		return substr($pathname, strlen($root));
+		$pathname = substr($pathname, strlen($root));
 	}
+
+	if (DIRECTORY_SEPARATOR != '/')
+	{
+		$pathname = strtr($pathname, DIRECTORY_SEPARATOR, '/');
+	}
+
+	return $pathname;
 }
 
 /**
