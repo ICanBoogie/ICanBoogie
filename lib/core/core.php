@@ -352,59 +352,9 @@ class Core extends Object
 		return new Session($options);
 	}
 
-	/**
-	 * Returns the event collection.
-	 *
-	 * @return \ICanBoogie\Events
-	 */
-	protected function volatile_get_events()
+	protected function get_events()
 	{
-		return Events::get();
-	}
-
-	/**
-	 * @throws PropertyNotWritable in attempt to write {@link $events}.
-	 */
-	protected function volatile_set_events()
-	{
-		throw new PropertyNotWritable(array('events', $this));
-	}
-
-	/**
-	 * Returns the route collection.
-	 *
-	 * @return \ICanBoogie\Routes
-	 */
-	protected function volatile_get_routes()
-	{
-		return Routes::get();
-	}
-
-	/**
-	 * @throws PropertyNotWritable in attempt to write {@link $routes}.
-	 */
-	protected function volatile_set_routes()
-	{
-		throw new PropertyNotWritable(array('routes', $this));
-	}
-
-	/**
-	 * Run the core object.
-	 *
-	 * Running the core object implies running startup modules, decoding operation, dispatching
-	 * operation.
-	 */
-	public function run()
-	{
-		Debug::get_config(); // configure debug :(
-
-		self::$is_running = true;
-
-		$this->run_modules();
-
-// 		new Core\BeforeRunEvent($this); TODO-20121127: if we fire an event now, module events won't be taken into account because the events have already been collected
-
-		$events = $this->configs->synthesize('events', function(array $fragments) {
+		$hooks = $this->configs->synthesize('events', function(array $fragments) {
 
 			$events = array();
 
@@ -443,16 +393,71 @@ class Core extends Object
 
 		}, 'hooks');
 
-		Events::get()->batch_attach($events);
+		return new Events($hooks);
+	}
 
+	/**
+	 * Returns the route collection.
+	 *
+	 * @return \ICanBoogie\Routes
+	 */
+	protected function volatile_get_routes()
+	{
+		return Routes::get();
+	}
+
+	/**
+	 * @throws PropertyNotWritable in attempt to write {@link $routes}.
+	 */
+	protected function volatile_set_routes()
+	{
+		throw new PropertyNotWritable(array('routes', $this));
+	}
+
+	/**
+	 * Run the core object.
+	 *
+	 * Running the core object implies running startup modules, decoding operation, dispatching
+	 * operation.
+	 */
+	public function run()
+	{
+		self::$is_running = true;
+
+		#
+		# bootstrap debug
+		#
+
+		Debug::get_config(); // configure debug :(
+
+		#
+		# boostrap modules
+		#
+
+		$this->run_modules();
+
+		#
+		# bootstrap prototype
 		#
 
 		Prototype::configure($this->configs['prototypes']);
 
+		#
+		# bootstrap events
+		#
+
+		$self = $this;
+
+		Events::patch('get', function() use($self) {
+
+			return $self->events;
+
+		});
+
 		new Core\RunEvent($this, $this->initial_request);
 
 		#
-		# Register the time it took to run the core.
+		# Register the time at which the core was running.
 		#
 
 		$_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
