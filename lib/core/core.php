@@ -352,6 +352,13 @@ class Core extends Object
 		return new Session($options);
 	}
 
+	/**
+	 * Returns the event collection.
+	 *
+	 * Event hooks are gathered from the `events` config.
+	 *
+	 * @throws \InvalidArgumentException if the event hooks is not a callable.
+	 */
 	protected function get_events()
 	{
 		$hooks = $this->configs->synthesize('events', function(array $fragments) {
@@ -367,11 +374,11 @@ class Core extends Object
 
 				foreach ($fragment['events'] as $type => $callback)
 				{
-					if (!is_string($callback))
+					if (!is_callable($callback, true))
 					{
 						throw new \InvalidArgumentException(format
 						(
-							'Event callback must be a string, %type given: :callback in %path', array
+							'Event callback must be a string, %type given: :callback in %path.', array
 							(
 								'type' => gettype($callback),
 								'callback' => $callback,
@@ -415,12 +422,9 @@ class Core extends Object
 	}
 
 	/**
-	 * Run the core object.
-	 *
-	 * Running the core object implies running startup modules, decoding operation, dispatching
-	 * operation.
+	 * Launch the application.
 	 */
-	public function run()
+	public function __invoke()
 	{
 		self::$is_running = true;
 
@@ -493,14 +497,6 @@ class Core extends Object
 		{
 			$this->configs->constructors += $index['config constructors'];
 		}
-	}
-
-	/**
-	 * One can override this method to provide a context for the application.
-	 */
-	protected function run_context()
-	{
-
 	}
 }
 

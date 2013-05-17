@@ -1,4 +1,4 @@
-# ICanBoogie
+# ICanBoogie [![Build Status](https://travis-ci.org/ICanBoogie/ICanBoogie.png?branch=master)](https://travis-ci.org/ICanBoogie/ICanBoogie)
 
 __ICanBoogie__ is a high-performance framework for PHP 5.3+. It is written with speed, flexibility
 and lightness in mind. ICanBoogie doesn't try to be an all-in-one do-it-all solution but provides
@@ -25,52 +25,140 @@ projects too.
 
 
 
-## Requirements
+## Working with ICanBoogie
 
-The minimum requirement is PHP5.3. ICanBoogie has been tested with Apache HTTP server on Linux,
-MacOS and Windows operating systems. The Apache server must support URL rewriting.
+ICanBoogie tries to leverage the magic features of PHP as much as possible. For instance, magic
+setters and getters, invokable objects, collections are arrays, objects as strings.
+
+Applications created with ICanBoogie often have a very simple and fluid code flow.
 
 
 
 
 
-## Installation
+### Magic getters and setters
 
-The recommended way to install this package is through [composer](http://getcomposer.org/).
-Create a `composer.json` file and run `php composer.phar install` command to install it:
+Magic properties are used in favour of getter and setter methods (e.g. `getXxx()` or `setXxx()`).
+For example, `DateTime` instances provide a `minute` magic property in favour of `getMinute()` and
+`setMinute()` methods:
 
-```json
-{
-	"minimum-stability": "dev",
-	"require":
-	{
-		"icanboogie/icanboogie": "*"
-	}
-}
+```php
+<?php
+
+$time = new ICanBoogie\DateTime('2013-05-17 12:30:45', 'utc');
+echo $time;         // 2013-05-17T12:30:45Z
+echo $time->minute; // 30
+
+$time->minute += 120;
+
+echo $time;         // 2013-05-17T14:30:45Z
+```
+
+
+
+
+### Invokable objects
+
+Objects performing a main action are invoked to perform that action. For instance, a prepared
+database statement whose main purpose is to query the database don't have an `execute()` method.
+It is invoked to perform its purpose:
+
+```php
+<?php
+
+# DB statements
+
+$statement = $core->models['nodes']->prepare('UPDATE {self} SET title = ? WHERE nid = ?');
+$statement("Title 1", 1);
+$statement("Title 2", 2);
+$statement("Title 3", 3);
+```
+
+This applies to database connections, models, requests, responses, translators… and many more.
+
+```php
+<?php
+
+$pages = $core->models['pages'];
+$pages('SELECT * FROM {self_and_related} WHERE YEAR(created_on) = 2013')->all;
+
+# HTTP
+
+use ICanBoogie\HTTP\Request;
+
+$request = Request::from($_SERVER);
+$response = $request();
+$response();
+
+# I18n translator
+
+use ICanBoogie\I18n\Locale;
+
+$translator = Locale::get('fr')->translator;
+echo $translator('I can Boogie'); // Je sais danser le Boogie 
 ```
 
 
 
 
 
-### Cloning the repository
+### Collections as arrays
 
-The package is [available on GitHub](https://github.com/ICanBoogie/ICanBoogie), its repository can be
-cloned with the following command line:
+Collections of objects are always managed as arrays, wheter they are records in the database,
+models, modules, database connections… 
 
-	$ git clone git://github.com/ICanBoogie/ICanBoogie.git
+```php
+<?php
+
+$core->models['nodes'][123];   // fetch record with key 123 in nodes
+$core->modules['nodes'];       // obtain the Nodes module
+$core->connections['primary']; // obtain the primary database connection
+
+$request['param1'];            // fetch param of the request named `param1`, returns `null` if it doesn't exists
+
+$response->headers['Cache-Control'] = 'no-cache';
+$response->headers['Content-Type'] = 'text/html; charset=utf-8'; 
+```
 
 
 
 
+### Objects as strings
 
-## Documentation
+A lot of objects in ICanBoogie can be used as strings:
 
-The documentation for the package and its dependencies can be generated with the `make doc`
-command. The documentation is generated in the `docs` directory using [ApiGen](http://apigen.org/).
-The package directory can later by cleaned with the `make clean` command.
+```php
+<?php
 
-The documentation for the complete framework is also available online: <http://icanboogie.org/docs/> 
+$time = new DateTime('2013-05-17 12:30:45', 'Europe/Paris');
+
+echo $time;                           // 2013-05-17T12:30:45+0200
+echo $time->minute;                   // 30
+echo $time->zone;                     // Europe/Paris
+echo $time->zone->offset;             // 7200
+echo $time->zone->location;           // FR,48.86667,2.3333348.86667
+echo $time->zone->location->latitude; // 48.86667
+
+use ICanBoogie\HTTP\Headers;
+
+$headers = new Headers;
+$headers['Cache-Control'] = 'no-cache';
+echo $headers['Cache-Control'];       // no-cache
+
+$headers['Cache-Control']->cacheable = 'public';
+$headers['Cache-Control']->no_transform = true;
+$headers['Cache-Control']->must_revalidate = false;
+$headers['Cache-Control']->max_age = 3600;
+echo $headers['Cache-Control'];       // public, max-age=3600, no-transform
+
+use ICanBoogie\HTTP\Response;
+
+$response = new Response('ok', 200);
+echo $response;                       // HTTP/1.0 200 OK\r\nDate: Fri, 17 May 2013 15:08:21 GMT\r\n\r\nok
+
+echo $core->models['pages']->own->visible->filter_by_nid(12)->order('created_on DESC')->limit(5);
+// SELECT * FROM `pages` `page` INNER JOIN `nodes` `node` USING(`nid`)  WHERE (`constructor` = ?) AND (`is_online` = ?) AND (siteid = 0 OR siteid = ?) AND (language = "" OR language = ?) AND (`nid` = ?) ORDER BY created_on DESC LIMIT 5
+```
 
 
 
@@ -144,7 +232,7 @@ Finally we can execute the HTTP request and return a response.
 ```php
 <?php
 
-$core->run();
+$core();
 
 # here we could add routes or attach events
 
@@ -241,6 +329,71 @@ $core->events->attach(function(Dispatcher\CollectEvent $event, Dispatcher $targe
 
 });
 ```
+
+
+
+
+
+## Requirements
+
+The minimum requirement is PHP5.3. ICanBoogie has been tested with Apache HTTP server on Linux,
+MacOS and Windows operating systems. The Apache server must support URL rewriting.
+
+
+
+
+
+## Installation
+
+The recommended way to install this package is through [composer](http://getcomposer.org/).
+Create a `composer.json` file and run `php composer.phar install` command to install it:
+
+```json
+{
+	"minimum-stability": "dev",
+	"require":
+	{
+		"icanboogie/icanboogie": "*"
+	}
+}
+```
+
+
+
+
+
+### Cloning the repository
+
+The package is [available on GitHub](https://github.com/ICanBoogie/ICanBoogie), its repository can be
+cloned with the following command line:
+
+	$ git clone git://github.com/ICanBoogie/ICanBoogie.git
+
+
+
+
+
+## Documentation
+
+The documentation for the package and its dependencies can be generated with the `make doc`
+command. The documentation is generated in the `docs` directory using [ApiGen](http://apigen.org/).
+The package directory can later by cleaned with the `make clean` command.
+
+The documentation for the complete framework is also available online: <http://icanboogie.org/docs/> 
+
+
+
+
+
+## Testing
+
+The test suite is ran with the `make test` command. [Composer](http://getcomposer.org/) is
+automatically installed as well as all dependencies required to run the suite. You can later
+clean the directory with the `make clean` command.
+
+The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
+
+[![Build Status](https://travis-ci.org/ICanBoogie/ICanBoogie.png?branch=master)](https://travis-ci.org/ICanBoogie/ICanBoogie)
 
 
 
