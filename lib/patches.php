@@ -85,15 +85,16 @@ Helpers::patch('get_dispatcher', function() {
 
 	if (!$dispatcher)
 	{
-		$dispatchers = array
+		$dispatcher = new Dispatcher
 		(
-			'operation' => 'ICanBoogie\Operation\Dispatcher',
-			'route' => 'ICanBoogie\Routing\Dispatcher'
+			array
+			(
+				'operation' => 'ICanBoogie\Operation\Dispatcher',
+				'route' => 'ICanBoogie\Routing\Dispatcher'
+			)
 		);
 
-		new Dispatcher\CollectEvent(new Dispatcher(), $dispatchers);
-
-		$dispatcher = new Dispatcher($dispatchers);
+		new Dispatcher\AlterEvent($dispatcher);
 	}
 
 	return $dispatcher;
@@ -105,29 +106,19 @@ namespace ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Dispatcher;
 
 /**
- * Event class for the `ICanBoogie\HTTP\Dispatcher::collect` event.
+ * Event class for the `ICanBoogie\HTTP\Dispatcher::alter` event.
  *
  * Third parties may use this event to register additionnal dispatchers.
  */
-class CollectEvent extends \ICanBoogie\Event
+class AlterEvent extends \ICanBoogie\Event
 {
 	/**
-	 * Reference to the dispatchers array.
-	 *
-	 * @var array[string]callable
-	 */
-	public $dispatchers;
-
-	/**
-	 * The event is constructed with the type `collect`.
+	 * The event is constructed with the type `alter`.
 	 *
 	 * @param Dispatcher $target
-	 * @param array $payload
 	 */
-	public function __construct(Dispatcher $target, array &$dispatchers)
+	public function __construct(Dispatcher $target)
 	{
-		$this->dispatchers = &$dispatchers;
-
-		parent::__construct($target, 'collect');
+		parent::__construct($target, 'alter');
 	}
 }
