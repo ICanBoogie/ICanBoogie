@@ -22,6 +22,13 @@ var ICanBoogie = {
 		{
 			window.fireEvent('icanboogie.xhr.hidenotice', arguments)
 		}
+	},
+
+	Operation: {
+
+		NAME: '_operation_name',
+		DESTINATION: '_operation_destination',
+		KEY: '_operation_key'
 	}
 }
 
@@ -132,16 +139,12 @@ var ICanBoogie = {
 !function() {
 
 	var html = $(document.html)
-	, apiBase = html.get('data-api-base')
+	, apiBase = (html.get('data-api-base') || '') + '/api/'
 	, methods = {}
 
-	if (!apiBase)
-	{
-		apiBase = ''
-	}
-
-	apiBase += '/api/'
-
+	/*
+	 * Adds PATCH support to MooTools Request.
+	 */
 	;['patch', 'PATCH'].each(function(method) {
 
 		methods[method] = function(data) {
@@ -156,8 +159,8 @@ var ICanBoogie = {
 
 	Request.implement(methods)
 
-	/**
-	 * Extends Request.JSON adding specific support to the ICanBoogie API.
+	/*
+	 * Extends Request.JSON with specific support for ICanBoogie API.
 	 */
 	Request.API = new Class({
 
@@ -229,7 +232,7 @@ Element.Properties.dataset = {
 
 		for (i = 0, y = attributes.length ; i < y ; i++)
 		{
-			attr = attributes[i];
+			attr = attributes[i]
 
 			if (!attr.name.match(/^data-/))
 			{
