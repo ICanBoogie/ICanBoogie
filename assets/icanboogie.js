@@ -29,6 +29,10 @@ var ICanBoogie = {
 		NAME: '_operation_name',
 		DESTINATION: '_operation_destination',
 		KEY: '_operation_key'
+	},
+
+	Modules: {
+
 	}
 }
 
