@@ -30,7 +30,8 @@
 		"icanboogie/routing": "*",
 		"icanboogie/operation": "*",
 		"icanboogie/i18n": "*",
-		"icanboogie/errors": "*"
+		"icanboogie/errors": "*",
+		"icanboogie/module": "*"
 	},
 	"autoload": {
 		"classmap": [ "lib/" ],

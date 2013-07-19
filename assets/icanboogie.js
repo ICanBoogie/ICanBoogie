@@ -142,7 +142,7 @@ var ICanBoogie = {
 
 !function() {
 
-	var html = $(document.html)
+	var html = document.id(document.html)
 	, apiBase = (html.get('data-api-base') || '') + '/api/'
 	, methods = {}
 
@@ -177,7 +177,7 @@ var ICanBoogie = {
 
 		initialize: function(options)
 		{
-			var apiLanguage = html.get('data-user-lang') || html.get('lang')
+			var locale = html.get('data-user-lang') || html.get('lang')
 
 			if (options.url.match(/^\/api\//))
 			{
@@ -186,12 +186,17 @@ var ICanBoogie = {
 
 			options.url = apiBase + options.url
 
-			if (apiLanguage)
+			if (locale)
 			{
-				options.url += (options.url.indexOf('?') == -1 ? '?' : '&') + 'hl=' + apiLanguage
+				options.url += (options.url.indexOf('?') == -1 ? '?' : '&') + 'hl=' + locale
 			}
 
 			this.parent(options)
+
+			if (locale)
+			{
+				this.setHeader('X-Locale', locale)
+			}
 		},
 
 		onFailure: function()
