@@ -241,13 +241,13 @@ class Uploaded
 		{
 			case UPLOAD_ERR_INI_SIZE:
 			{
-				$this->er_message = new I18n\FormattedString('Maximum file size is :sizeMo', array(':size' => (int) ini_get('upload_max_filesize')));
+				$this->er_message = new I18n\FormattedString('Maximum file size is :size Mb', array(':size' => (int) ini_get('upload_max_filesize')));
 			}
 			break;
 
 			case UPLOAD_ERR_FORM_SIZE:
 			{
-				$this->er_message = new I18n\FormattedString('Maximum file size is :sizeMo', array(':size' => round(MAX_FILE_SIZE / 1024 / 1024, 2)));
+				$this->er_message = new I18n\FormattedString('Maximum file size is :size Mb', array(':size' => round(MAX_FILE_SIZE / 1024 / 1024, 2)));
 			}
 			break;
 
