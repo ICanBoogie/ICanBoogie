@@ -149,7 +149,7 @@ var ICanBoogie = {
 	/*
 	 * Adds PATCH support to MooTools Request.
 	 */
-	;['patch', 'PATCH'].each(function(method) {
+	Array.each(['patch', 'PATCH'], function(method) {
 
 		methods[method] = function(data) {
 
