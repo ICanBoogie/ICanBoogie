@@ -287,7 +287,7 @@ function strip_root($pathname)
 	$root = strtr($root, DIRECTORY_SEPARATOR == '/' ? '\\' : '/', DIRECTORY_SEPARATOR);
 	$pathname = strtr($pathname, DIRECTORY_SEPARATOR == '/' ? '\\' : '/', DIRECTORY_SEPARATOR);
 
-	if (strpos($pathname, $root) === 0)
+	if ($root && strpos($pathname, $root) === 0)
 	{
 		$pathname = substr($pathname, strlen($root));
 	}
