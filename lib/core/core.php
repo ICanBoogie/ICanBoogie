@@ -68,6 +68,13 @@ class Core extends Object
 	}
 
 	/**
+	 * Mailer service.
+	 *
+	 * @var mixed
+	 */
+	public $mailer;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param array $options Initial options to create the core object.
@@ -143,6 +150,16 @@ class Core extends Object
 		{
 			$configs->cache_repository = $config['repository.cache'] . '/core';
 		}
+
+		# default mailer
+
+		$this->mailer = function(array $options) {
+
+			$mailer = new Mailer($options);
+
+			return $mailer();
+
+		};
 	}
 
 	/**
