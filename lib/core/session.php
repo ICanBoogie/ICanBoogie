@@ -107,7 +107,7 @@ class Session
 		# The following line are meant to circumvent session fixation.
 		#
 
-		$remote_ip = $_SERVER['REMOTE_ADDR'];
+		$remote_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
 		$remote_agent_hash = isset($_SERVER['HTTP_USER_AGENT']) ? md5($_SERVER['HTTP_USER_AGENT']) : null;
 
 		if (empty($this->remote_ip))
