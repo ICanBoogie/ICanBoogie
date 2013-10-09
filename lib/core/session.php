@@ -34,6 +34,24 @@ class Session
 	}
 
 	/**
+	 * Returns a Session instance.
+	 *
+	 * The session is initialized when the session object is created.
+	 *
+	 * Once the session is created the `start` event is fired with the session as sender.
+	 *
+	 * @return Session.
+	 */
+	static function get_session(Core $core)
+	{
+		$options = $core->config['session'];
+
+		unset($options['id']);
+
+		return new static($options);
+	}
+
+	/**
 	 * Constructor.
 	 *
 	 * In order to circumvent session fixation and session hijacking, the remote IP and the user

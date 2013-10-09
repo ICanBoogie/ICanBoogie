@@ -352,24 +352,6 @@ class Core extends Object
 	}
 
 	/**
-	 * Returns a session.
-	 *
-	 * The session is initialized when the session object is created.
-	 *
-	 * Once the session is created the `start` event is fired with the session as sender.
-	 *
-	 * @return Session.
-	 */
-	protected function get_session()
-	{
-		$options = $this->config['session'];
-
-		unset($options['id']);
-
-		return new Session($options);
-	}
-
-	/**
 	 * Returns the event collection.
 	 *
 	 * Event hooks are gathered from the `events` config.
