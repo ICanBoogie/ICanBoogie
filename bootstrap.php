@@ -12,18 +12,12 @@
 namespace ICanBoogie;
 
 /**
- * Version string of the ICanBoogie framework.
- *
- * @var string
- */
-const VERSION = '0.32.0-dev (2012-10-03)';
-
-/**
  * The ROOT directory of the ICanBoogie framework.
  *
  * @var string
  */
-defined('ICanBoogie\ROOT') or define('ICanBoogie\ROOT', rtrim(__DIR__, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
+defined('ICanBoogie\ROOT')
+or define('ICanBoogie\ROOT', rtrim(__DIR__, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
 
 /**
  * Path to the ICanBoogie's assets directory.
@@ -41,7 +35,8 @@ define('ICanBoogie\ASSETS', ROOT . 'assets' . DIRECTORY_SEPARATOR);
  *
  * @var string
  */
-defined('ICanBoogie\DOCUMENT_ROOT') or define('ICanBoogie\DOCUMENT_ROOT', rtrim(strtr($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR == '/' ? '\\' : '/', DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
+defined('ICanBoogie\DOCUMENT_ROOT')
+or define('ICanBoogie\DOCUMENT_ROOT', rtrim(strtr($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR == '/' ? '\\' : '/', DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
 
 /**
  * Repository root. The repository is the directory where all files are stored. It's the only
@@ -50,21 +45,24 @@ defined('ICanBoogie\DOCUMENT_ROOT') or define('ICanBoogie\DOCUMENT_ROOT', rtrim(
  * @var string
  */
 
-defined('ICanBoogie\REPOSITORY') or define('ICanBoogie\REPOSITORY', DOCUMENT_ROOT . 'repository' . DIRECTORY_SEPARATOR);
+defined('ICanBoogie\REPOSITORY')
+or define('ICanBoogie\REPOSITORY', DOCUMENT_ROOT . 'repository' . DIRECTORY_SEPARATOR);
 
 /**
  * Enables bootstrap caching.
  *
  * @var bool
  */
-defined('ICanBoogie\CACHE_BOOTSTRAP') or define('ICanBoogie\CACHE_BOOTSTRAP', false);
+defined('ICanBoogie\CACHE_BOOTSTRAP')
+or define('ICanBoogie\CACHE_BOOTSTRAP', false);
 
 /**
  * Bootstrap cache pathname.
  *
  * @var string
  */
-defined('ICanBoogie\BOOTSTRAP_CACHE_PATHNAME') or define('ICanBoogie\BOOTSTRAP_CACHE_PATHNAME', REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'icanboogie_bootstrap');
+defined('ICanBoogie\BOOTSTRAP_CACHE_PATHNAME')
+or define('ICanBoogie\BOOTSTRAP_CACHE_PATHNAME', REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'icanboogie_bootstrap');
 
 /*
  * Define PHP5.4 `$_SERVER['REQUEST_TIME_FLOAT']` if empty.
@@ -79,4 +77,4 @@ register_shutdown_function('ICanBoogie\Debug::shutdown_handler');
 /*
  * Patches
  */
-require_once ROOT . 'lib/patches.php';
+require_once ROOT . 'patches.php';
