@@ -178,7 +178,7 @@ of it, you can provide the path or paths to your own configuration files.
 
 For instance, defining the primary database connection:
 
-1. Edit your _core_ configuration file e.g. `/protected/all/config/core.php` with the following
+\1. Edit your _core_ configuration file e.g. `/protected/all/config/core.php` with the following
 lines:
 
 ```php
@@ -198,19 +198,17 @@ return array
 );
 ```
 
-2. Then specify your config path while creating the _core_ object:
+\2. Then specify your config path while creating the _core_ object:
 
 ```php
 <?php
 
-namespace ICanBoogie;
-
-$core = new Core
+$core = new \ICanBoogie\Core
 (
 	array
 	(
-		'config paths' => array(DOCUMENT_ROOT . 'protected/all/'),
-		'locale paths' => array(DOCUMENT_ROOT . 'protected/all/')
+		'config paths' => array(__DIR__ . 'protected/all/'),
+		'locale paths' => array(__DIR__ . 'protected/all/')
 	)
 );
 ```
@@ -257,8 +255,12 @@ The `ICanBoogie\Core::run` event of class [ICanBoogie\Core\RunEvent](http://ican
 is fired when the core is running.
 
 Third parties may use this event to alter various states of the application, starting with the
-initial request. 
+initial request.
 
+The following code illustrate how the event can be used to retrieve the website corresponding to
+the request and select the locale and time zone that should be used by the framework. Also, the
+code patches the `contextualize()` and `decontextualize()` routing helpers to alter the paths
+according to the website's path.
 
 ```php
 <?php
@@ -303,12 +305,15 @@ $core->events->attach(function(\ICanBoogie\Core\RunEvent $event, \ICanBoogie\Cor
 
 
 
-### The main dispatcher is instantiated
+### Request dispatchers are collected
 
 The `ICanBoogie\HTTP\Dispatcher::collect` event of class [ICanBoogie\HTTP\Dispatcher\CollectEvent](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.CollectEvent.html)
-is fired when the dispatcher is instantiated.
+is fired when dispatchers are collected, just before the main dispatcher is instantiated.
 
 Third parties may use this event to register dispatchers or alter dispatchers.
+
+The following code illustrate how a `hello` dispatcher, that returns
+"Hello world!" when the request matches the path "/hello", can be registered.
 
 ```php
 <?php
@@ -320,7 +325,7 @@ use ICanBoogie\HTTP\Response;
 $core->events->attach(function(Dispatcher\CollectEvent $event, Dispatcher $target) {
 
 	$event->dispatchers['hello'] = function(Request $request) {
-	
+
 		if ($request->path === '/hello')
 		{
 			return new Response('Hello world!');
@@ -357,6 +362,21 @@ Create a `composer.json` file and run `php composer.phar install` command to ins
 	}
 }
 ```
+
+ICanBoogie depends on the following packages, you might want to check them out:
+
+- [icanboogie/common](https://github.com/ICanBoogie/Common)
+- [icanboogie/inflector](https://github.com/ICanBoogie/Inflector)
+- [icanboogie/datetime](https://github.com/ICanBoogie/DateTime)
+- [icanboogie/prototype](https://github.com/ICanBoogie/Prototype)
+- [icanboogie/activerecord](https://github.com/ICanBoogie/ActiveRecord)
+- [icanboogie/event](https://github.com/ICanBoogie/Event)
+- [icanboogie/http](https://github.com/ICanBoogie/HTTP)
+- [icanboogie/routing](https://github.com/ICanBoogie/Routing)
+- [icanboogie/operation](https://github.com/ICanBoogie/Operation)
+- [icanboogie/i18n](https://github.com/ICanBoogie/I18n)
+- [icanboogie/errors](https://github.com/ICanBoogie/Errors)
+- [icanboogie/module](https://github.com/ICanBoogie/Module)
 
 
 
