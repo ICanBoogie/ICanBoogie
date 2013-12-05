@@ -23,15 +23,15 @@
 		"icanboogie/common": "*",
 		"icanboogie/inflector": "*",
 		"icanboogie/datetime": "*",
-		"icanboogie/prototype": "*",
-		"icanboogie/activerecord": "*",
+		"icanboogie/prototype": "2.x",
+		"icanboogie/activerecord": "2.x",
 		"icanboogie/event": "*",
-		"icanboogie/http": "*",
-		"icanboogie/routing": "*",
-		"icanboogie/operation": "*",
+		"icanboogie/http": "2.x",
+		"icanboogie/routing": "2.x",
+		"icanboogie/operation": "2.x",
 		"icanboogie/i18n": "*",
 		"icanboogie/errors": "*",
-		"icanboogie/module": "*"
+		"icanboogie/module": "2.x"
 	},
 	"autoload": {
 		"classmap": [ "lib/" ],

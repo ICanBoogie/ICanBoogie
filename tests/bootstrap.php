@@ -9,4 +9,18 @@
  * file that was distributed with this source code.
  */
 
+namespace ICanBoogie;
+
+define('ICanBoogie\REPOSITORY', __DIR__ . DIRECTORY_SEPARATOR . 'repository' . DIRECTORY_SEPARATOR);
+
+if (!file_exists(REPOSITORY))
+{
+	mkdir(REPOSITORY);
+}
+
+if (!file_exists(REPOSITORY . 'vars'))
+{
+	mkdir(REPOSITORY . 'vars');
+}
+
 require __DIR__ . '/../vendor/autoload.php';

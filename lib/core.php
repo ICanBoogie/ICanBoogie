@@ -167,7 +167,7 @@ class Core extends Object
 	 *
 	 * @return Modules The modules accessor.
 	 */
-	protected function get_modules()
+	protected function lazy_get_modules()
 	{
 		$config = $this->config;
 
@@ -179,7 +179,7 @@ class Core extends Object
 	 *
 	 * @return Models The models accessor.
 	 */
-	protected function get_models()
+	protected function lazy_get_models()
 	{
 		return new Models($this->connections, array(), $this->modules);
 	}
@@ -189,7 +189,7 @@ class Core extends Object
 	 *
 	 * @return Vars The non-volatile variables accessor.
 	 */
-	protected function get_vars()
+	protected function lazy_get_vars()
 	{
 		return new Vars(REPOSITORY . 'vars' . DIRECTORY_SEPARATOR);
 	}
@@ -199,7 +199,7 @@ class Core extends Object
 	 *
 	 * @return ActiveRecord\Connections
 	 */
-	protected function get_connections()
+	protected function lazy_get_connections()
 	{
 		return new ActiveRecord\Connections($this->config['connections']);
 	}
@@ -209,7 +209,7 @@ class Core extends Object
 	 *
 	 * @return Database
 	 */
-	protected function get_db()
+	protected function lazy_get_db()
 	{
 		return $this->connections['primary'];
 	}
@@ -219,7 +219,7 @@ class Core extends Object
 	 *
 	 * @return Configs
 	 */
-	protected function get_configs()
+	protected function lazy_get_configs()
 	{
 		return new Configs();
 	}
@@ -229,7 +229,7 @@ class Core extends Object
 	 *
 	 * @return array
 	 */
-	protected function get_config()
+	protected function lazy_get_config()
 	{
 		$config = $this->configs['core'];
 
@@ -243,7 +243,7 @@ class Core extends Object
 	 *
 	 * @return HTTP\Dispatcher
 	 */
-	protected function volatile_get_dispatcher()
+	protected function get_dispatcher()
 	{
 		return HTTP\get_dispatcher();
 	}
@@ -253,17 +253,9 @@ class Core extends Object
 	 *
 	 * @return HTTP\Request
 	 */
-	protected function get_initial_request()
+	protected function lazy_get_initial_request()
 	{
 		return HTTP\Request::from($_SERVER);
-	}
-
-	/**
-	 * @throws PropertyNotWritable in attempt to write {@link $request}.
-	 */
-	protected function volatile_set_request()
-	{
-		throw new PropertyNotWritable(array('request', $this));
 	}
 
 	/**
@@ -271,19 +263,9 @@ class Core extends Object
 	 *
 	 * @return HTTP\Request
 	 */
-	protected function volatile_get_request()
+	protected function get_request()
 	{
 		return HTTP\Request::get_current_request() ?: $this->initial_request;
-	}
-
-	/**
-	 * Sets the locale language to use by the framework.
-	 *
-	 * @param string $id
-	 */
-	protected function volatile_set_language($id)
-	{
-		throw new PropertyNotWritable(array('language', $this));
 	}
 
 	/**
@@ -291,7 +273,7 @@ class Core extends Object
 	 *
 	 * @return string
 	 */
-	protected function volatile_get_language()
+	protected function get_language()
 	{
 		return I18n\get_language();
 	}
@@ -301,7 +283,7 @@ class Core extends Object
 	 *
 	 * @param string $id Locale identifier.
 	 */
-	protected function volatile_set_locale($id)
+	protected function set_locale($id)
 	{
 		I18n\set_locale($id);
 	}
@@ -311,7 +293,7 @@ class Core extends Object
 	 *
 	 * @return I18n\Locale
 	 */
-	protected function volatile_get_locale()
+	protected function get_locale()
 	{
 		return I18n\get_locale();
 	}
@@ -326,7 +308,7 @@ class Core extends Object
 	 *
 	 * @param string|int $timezone Name of the timezone, or numeric equivalent e.g. 3600.
 	 */
-	protected function volatile_set_timezone($timezone)
+	protected function set_timezone($timezone)
 	{
 		if (is_numeric($timezone))
 		{
@@ -346,7 +328,7 @@ class Core extends Object
 	 * @todo should retrun an instance of http://php.net/manual/en/class.datetimezone.php,
 	 * __toString() should return its name.
 	 */
-	protected function volatile_get_timezone()
+	protected function get_timezone()
 	{
 		return $this->timezone;
 	}
@@ -358,7 +340,7 @@ class Core extends Object
 	 *
 	 * @throws \InvalidArgumentException if the event hooks is not a callable.
 	 */
-	protected function get_events()
+	protected function lazy_get_events()
 	{
 		$hooks = $this->configs->synthesize('events', function(array $fragments) {
 
@@ -407,17 +389,9 @@ class Core extends Object
 	 *
 	 * @return \ICanBoogie\Routes
 	 */
-	protected function volatile_get_routes()
+	protected function get_routes()
 	{
 		return Routes::get();
-	}
-
-	/**
-	 * @throws PropertyNotWritable in attempt to write {@link $routes}.
-	 */
-	protected function volatile_set_routes()
-	{
-		throw new PropertyNotWritable(array('routes', $this));
 	}
 
 	/**
