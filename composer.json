@@ -29,7 +29,7 @@
 		"icanboogie/http": "2.x",
 		"icanboogie/routing": "2.x",
 		"icanboogie/operation": "2.x",
-		"icanboogie/i18n": "*",
+		"icanboogie/i18n": "2.x",
 		"icanboogie/errors": "*",
 		"icanboogie/module": "2.x"
 	},
