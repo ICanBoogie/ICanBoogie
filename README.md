@@ -5,8 +5,8 @@ and lightness in mind. ICanBoogie doesn't try to be an all-in-one do-it-all solu
 the essential classes and logic to build web applications.
 
 ICanBoogie packages offers the following features: Prototypes, ActiveRecords, Internationalization,
-Modules, a RESTful API, Request/Dispatch/Response/Rescue, Operations, Events, Hooks, Sessions,
-Routes, Caching and more.
+Modules, a RESTful API, Request/Dispatch/Rescue/Response, Operations, Events, Sessions, Routing,
+Caching and more.
 
 Together with [Brickrouge](http://brickrouge.org) and Patron, ICanBoogie is one of the
 components that make the CMS [Icybee](http://icybee.org). You might want to check these
@@ -27,41 +27,70 @@ projects too.
 
 ## Working with ICanBoogie
 
-ICanBoogie tries to leverage the magic features of PHP as much as possible. For instance, magic
-setters and getters, invokable objects, collections are arrays, objects as strings.
+ICanBoogie tries to leverage the magic features of PHP as much as possible: getters/setters,
+invokable objects, array access, stringifiable objects, closures… with the goal of creating a
+coherent framework which requires less typing and most of all less guessing.
 
-Applications created with ICanBoogie often have a very simple and fluid code flow.
-
-
-
+Applications created with ICanBoogie often have a very concise code, and a fluid flow.
 
 
-### Magic getters and setters
+
+
+
+### Getters and setters
 
 Magic properties are used in favour of getter and setter methods (e.g. `getXxx()` or `setXxx()`).
-For example, `DateTime` instances provide a `minute` magic property in favour of `getMinute()` and
-`setMinute()` methods:
+For instance,  [DateTime][] instances provide a `minute` magic property instead of `getMinute()`
+and `setMinute()` methods:
 
 ```php
 <?php
 
-$time = new ICanBoogie\DateTime('2013-05-17 12:30:45', 'utc');
+use ICanBoogie\DateTime;
+
+$time = new DateTime('2013-05-17 12:30:45', 'utc');
 echo $time;         // 2013-05-17T12:30:45Z
 echo $time->minute; // 30
 
 $time->minute += 120;
-
 echo $time;         // 2013-05-17T14:30:45Z
 ```
+
+The getter/setter feature provided by the [Prototype package][] allows you to create read-only or
+write-only properties, type control, properties façades, fallbacks to generate default values,
+forwarding properties, lazy loading…
+
+
+
+
+
+#### Type control
+
+Getters and setters are often used to control a property type. For instance, the `timezone`
+property of the [Core][] instance always returns a [TimeZone][] instance no matter what it is
+set to:
+
+```php
+<?php
+
+$core->timezone = 3600;
+echo get_class($core->timezone); // ICanBoogie\TimeZone
+echo $core->timezone;            // Europe/Paris
+
+$core->timezone = 'Europe/Madrid';
+echo get_class($core->timezone); // ICanBoogie\TimeZone
+echo $core->timezone;            // Europe/Madrid
+```
+
 
 
 
 
 ### Invokable objects
 
-Objects performing a main action are invoked to perform that action. For instance, a prepared
-database statement whose main purpose is to query the database don't have an `execute()` method.
-It is invoked to perform its purpose:
+Objects performing a main action are simply invoked to perform that action. For instance, a
+prepared database statement whose main purpose is to query the database doesn't have an
+`execute()` method, it is invoked to perform its purpose:
 
 ```php
 <?php
@@ -104,7 +133,7 @@ echo $translator('I can Boogie'); // Je sais danser le Boogie
 
 ### Collections as arrays
 
-Collections of objects are always managed as arrays, wheter they are records in the database,
+Collections of objects are always managed as arrays, whether they are records in the database,
 models, modules, database connections… 
 
 ```php
@@ -164,6 +193,60 @@ echo $core->models['pages']->own->visible->filter_by_nid(12)->order('created_on 
 
 
 
+### Creating an instance from data
+
+Most classes provide a `from()` static method that can be used to create an instance of that class
+from various data type. This is especially true for sub-classes of the [Object][] class, which
+can create instances from arrays of properties. ActiveRecords are a perfect example of this
+feature:
+
+```php
+<?php
+
+use Icybee\Modules\Nodes\Node;
+
+$node = new Node;
+$node->uid = 1;
+$node->title = "Title";
+
+#or
+
+$node = Node::from(array('uid' => 1, 'title' => "Title"));
+```
+
+Some classes don't even provide a public constructor and rely solely on the `from()` method. For
+instance, [Request][] instances can only by created using the `from()` method:
+
+```php
+<?php
+
+use ICanBoogie\HTTP\Request;
+
+# Creating the initial request from the $_SERVER array
+
+$initial_request = Request::from($_SERVER);
+
+# Creating a local XHR post request with some parameters
+
+$custom_request = Request::from(array
+(
+	'path' => '/path/to/controller',
+	'is_post' => true,
+	'is_local' => true,
+	'is_xhr' => true,
+
+	'request_params' => array
+	(
+		'param1' => 'value1',
+		'param2' => 'value2'
+	)
+));
+```
+
+
+
+
+
 ## Getting started
 
 
@@ -178,7 +261,7 @@ of it, you can provide the path or paths to your own configuration files.
 
 For instance, defining the primary database connection:
 
-\1. Edit your _core_ configuration file e.g. `/protected/all/config/core.php` with the following
+1\. Edit your _core_ configuration file e.g. `/protected/all/config/core.php` with the following
 lines:
 
 ```php
@@ -198,7 +281,7 @@ return array
 );
 ```
 
-\2. Then specify your config path while creating the _core_ object:
+2\. Then specify your config path while creating the _core_ object:
 
 ```php
 <?php
@@ -341,8 +424,10 @@ $core->events->attach(function(Dispatcher\CollectEvent $event, Dispatcher $targe
 
 ## Requirements
 
-The minimum requirement is PHP5.3. ICanBoogie has been tested with Apache HTTP server on Linux,
-MacOS and Windows operating systems. The Apache server must support URL rewriting.
+The minimum requirement is PHP5.3.
+
+ICanBoogie has been tested with Apache HTTP server on Linux, MacOS and Windows operating systems.
+The Apache server must support URL rewriting.
 
 
 
@@ -350,7 +435,7 @@ MacOS and Windows operating systems. The Apache server must support URL rewritin
 
 ## Installation
 
-The recommended way to install this package is through [composer](http://getcomposer.org/).
+The recommended way to install this package is through [Composer](http://getcomposer.org/).
 Create a `composer.json` file and run `php composer.phar install` command to install it:
 
 ```json
@@ -374,9 +459,17 @@ ICanBoogie depends on the following packages, you might want to check them out:
 - [icanboogie/http](https://github.com/ICanBoogie/HTTP)
 - [icanboogie/routing](https://github.com/ICanBoogie/Routing)
 - [icanboogie/operation](https://github.com/ICanBoogie/Operation)
-- [icanboogie/i18n](https://github.com/ICanBoogie/I18n)
 - [icanboogie/errors](https://github.com/ICanBoogie/Errors)
 - [icanboogie/module](https://github.com/ICanBoogie/Module)
+
+The following packages can also be installed for additionnal features:
+
+- [icanboogie/cldr](https://github.com/ICanBoogie/CLDR): Provides internationalization for
+your application
+- [icanboogie/i18n](https://github.com/ICanBoogie/I18n): Provides localization for your application
+and nice internationalization helpers.
+- [icanboogie/image](https://github.com/ICanBoogie/Image): Provides image resizing, filling,
+and color resolving.
 
 
 
@@ -422,3 +515,14 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 ## License
 
 ICanBoogie is licensed under the New BSD License - See the LICENSE file for details.
+
+
+
+
+
+[Core]: http://icanboogie.org/docs/class-ICanBoogie.Core.html
+[DateTime]: http://icanboogie.org/docs/class-ICanBoogie.DateTime.html
+[TimeZone]: http://icanboogie.org/docs/class-ICanBoogie.TimeZone.html
+[Object]: http://icanboogie.org/docs/class-ICanBoogie.Object.html
+[Prototype package]: https://github.com/ICanBoogie/Prototype
+[Request]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Request.html

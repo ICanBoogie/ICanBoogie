@@ -44,8 +44,9 @@
 	},
 
 	"suggest": {
-		"icanboogie/i18n": "Allows internationalization and localization of your application",
-		"icanboogie/image": "Allows image resizing, provides color resolving."
+		"icanboogie/cldr": "Provides internationalization for your application",
+		"icanboogie/i18n": "Provides localization for your application and nice internationalization helpers.",
+		"icanboogie/image": "Provides image resizing, filling, and color resolving."
 	},
 
 	"autoload": {
