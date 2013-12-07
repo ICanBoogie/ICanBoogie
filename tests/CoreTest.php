@@ -74,7 +74,19 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 			array('request',         'ICanBoogie\HTTP\Request'),
 			array('locale',          'ICanBoogie\I18n\Locale'),
 			array('events',          'ICanBoogie\Events'),
-			array('routes',          'ICanBoogie\Routes')
+			array('routes',          'ICanBoogie\Routes'),
+			array('timezone',        'ICanBoogie\TimeZone')
 		);
+	}
+
+	public function test_set_timezone()
+	{
+		self::$core->timezone = 3600;
+		$this->assertInstanceOf('ICanBoogie\TimeZone', self::$core->timezone);
+		$this->assertEquals('Europe/Paris', (string) self::$core->timezone);
+
+		self::$core->timezone = 'Europe/Madrid';
+		$this->assertInstanceOf('ICanBoogie\TimeZone', self::$core->timezone);
+		$this->assertEquals('Europe/Madrid', (string) self::$core->timezone);
 	}
 }

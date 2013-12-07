@@ -302,14 +302,18 @@ class Core extends Object
 	}
 
 	/**
-	 * @var string The working timezone.
+	 * @var string The working time zone.
 	 */
 	private $timezone;
 
 	/**
-	 * Sets the working timezone.
+	 * Sets the working time zone.
 	 *
-	 * @param string|int $timezone Name of the timezone, or numeric equivalent e.g. 3600.
+	 * When the time zone is set the default time zone is also set with
+	 * {@link date_default_timezone_set()}.
+	 *
+	 * @param \ICanBoogie\Timezone|string|int $timezone An instance of {@link TimeZone},
+	 * the name of a timezone, or numeric equivalent e.g. 3600.
 	 */
 	protected function set_timezone($timezone)
 	{
@@ -320,19 +324,24 @@ class Core extends Object
 
 		date_default_timezone_set($timezone);
 
-		$this->timezone = $timezone;
+		$this->timezone = TimeZone::from($timezone);
 	}
 
 	/**
-	 * Returns the working timezone.
+	 * Returns the working time zone.
+	 *
+	 * If the time zone is not defined yet it defaults to the value of
+	 * {@link date_default_timezone_get()} or "UTC".
 	 *
 	 * @return string
-	 *
-	 * @todo should retrun an instance of http://php.net/manual/en/class.datetimezone.php,
-	 * __toString() should return its name.
 	 */
 	protected function get_timezone()
 	{
+		if (!$this->timezone)
+		{
+			$this->timezone = TimeZone::from(date_default_timezone_get() ?: 'UTC');
+		}
+
 		return $this->timezone;
 	}
 
