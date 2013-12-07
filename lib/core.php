@@ -140,7 +140,10 @@ class Core extends Object
 
 		#
 
-		I18n::$load_paths = array_merge(I18n::$load_paths, $config['locale paths']);
+		if (class_exists('ICanBoogie\I18n', true))
+		{
+			I18n::$load_paths = array_merge(I18n::$load_paths, $config['locale paths']);
+		}
 
 		#
 		# Setting the cache repository to enable config caching.
@@ -451,7 +454,10 @@ class Core extends Object
 		$modules = $this->modules;
 		$index = $modules->index;
 
-		I18n::$load_paths = array_merge(I18n::$load_paths, $modules->locale_paths);
+		if (class_exists('ICanBoogie\I18n', true))
+		{
+			I18n::$load_paths = array_merge(I18n::$load_paths, $modules->locale_paths);
+		}
 
 		#
 		# add modules config paths to the configs path

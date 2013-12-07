@@ -2,9 +2,10 @@
 	"name": "icanboogie/icanboogie",
 	"type": "library",
 	"description": "High-performance object-oriented micro-framework for PHP5.3+",
-	"keywords": ["framework"],
+	"keywords": [ "framework" ],
 	"homepage": "http://icanboogie.org/",
 	"license": "BSD-3-Clause",
+
 	"authors": [
 		{
 			"name": "Olivier Laviale",
@@ -13,26 +14,40 @@
 			"role" : "Developer"
 		}
 	],
+
 	"support": {
 		"issues": "https://github.com/ICanBoogie/ICanBoogie/issues",
 		"source": "https://github.com/ICanBoogie/ICanBoogie"
 	},
+
 	"minimum-stability": "dev",
+
 	"require": {
 		"php": ">=5.3.0",
+
 		"icanboogie/common": "*",
-		"icanboogie/inflector": "*",
 		"icanboogie/datetime": "*",
-		"icanboogie/prototype": "2.x",
-		"icanboogie/activerecord": "2.x",
-		"icanboogie/event": "*",
-		"icanboogie/http": "2.x",
-		"icanboogie/routing": "2.x",
-		"icanboogie/operation": "2.x",
-		"icanboogie/i18n": "2.x",
+		"icanboogie/inflector": "*",
 		"icanboogie/errors": "*",
-		"icanboogie/module": "2.x"
+		"icanboogie/event": "*",
+
+		"icanboogie/activerecord": "2.x",
+		"icanboogie/http": "2.x",
+		"icanboogie/module": "2.x",
+		"icanboogie/operation": "2.x",
+		"icanboogie/prototype": "2.x",
+		"icanboogie/routing": "2.x"
 	},
+
+	"require-dev": {
+		"icanboogie/i18n": "2.x"
+	},
+
+	"suggest": {
+		"icanboogie/i18n": "Allows internationalization and localization of your application",
+		"icanboogie/image": "Allows image resizing, provides color resolving."
+	},
+
 	"autoload": {
 		"classmap": [ "lib/" ],
 		"files": [ "bootstrap.php", "lib/helpers.php" ]

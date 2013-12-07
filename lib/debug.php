@@ -565,7 +565,14 @@ EOT;
 
 		foreach (self::$logs[$type] as $message)
 		{
-			$rc[] = I18n\t($message[0], $message[1]);
+			list($message, $args) = $message;
+
+			if ($args)
+			{
+				$message = format($message, $args);
+			}
+
+			$rc[] = (string) $message;
 		}
 
 		return $rc;
