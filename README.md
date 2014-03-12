@@ -256,51 +256,8 @@ the low-level components available. Currently, it defines configuration construc
 component configurations; paths to locale message catalogs; and paths to modules.
 
 To participate in the _auto-config_ process, packages define a "icanboogie.json" file matching
-the following schema:
-
-```json
-{
-	"name": "AutoConfig",
-	"type": "object",
-	"additionnalProperties": false,
-	"properties": {
-
-		"config-constructor": {
-
-			"type": "object",
-			"description": "A hash of config name (keys) and a callback (values) that is used to create the config. If the config is created from another config, append that config name after the callback separated with a '#' sign."
-
-		},
-
-		"config-path": {
-
-			"type": "string",
-			"description": "A path to add to the config locations.",
-			"required": false
-
-		},
-
-		"locale-path": {
-
-			"type": "string",
-			"description": "A path to add to the locale messages locations.",
-			"required": false
-
-		},
-
-		"module-path": {
-
-			"type": "string",
-			"description": "A path to a module or a collection of modules.",
-			"required": false
-
-		}
-	}
-}
-```
-
-Note: A "icanboogie.json" file can also be defined at the root of the application, beside the
-"composer.json" file.
+the [icanboogie-schema.json](auto-config/icanboogie-schema.json) schema. A "icanboogie.json" file
+can also be defined at the root of the application, beside the "composer.json" file.
 
 The _auto-config_ file is generated after the autoloader is dumped, during the
 [`post-autoload-dump`](https://getcomposer.org/doc/articles/scripts.md) emitted by [Composer][].
