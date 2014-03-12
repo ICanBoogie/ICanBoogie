@@ -1,0 +1,38 @@
+{
+	"name": "AutoConfig",
+	"type": "object",
+	"additionnalProperties": false,
+	"properties": {
+
+		"config-constructor": {
+
+			"type": "object",
+			"description": "A hash of config name (keys) and a callback (values) that is used to create the config. If the config is created from another config, append that config name after the callback separated with a '#' sign."
+
+		},
+
+		"config-path": {
+
+			"type": [ "string", "array" ],
+			"description": "A path to add to the config locations.",
+			"required": false
+
+		},
+
+		"locale-path": {
+
+			"type": [ "string", "array" ],
+			"description": "A path to add to the locale messages locations.",
+			"required": false
+
+		},
+
+		"module-path": {
+
+			"type": [ "string", "array" ],
+			"description": "A path to a module or a collection of modules.",
+			"required": false
+
+		}
+	}
+}

@@ -1,16 +1,11 @@
 <?php
 
-return array
-(
-	'api:core/aloha' => array
-	(
-		'pattern' => '/api/core/aloha',
-		'controller' => 'ICanBoogie\AlohaOperation'
-	),
+return [
 
-	'api:core/ping' => array
-	(
+	'api:core/ping' => [
+
 		'pattern' => '/api/core/ping',
 		'controller' => 'ICanBoogie\PingOperation'
-	)
-);
+
+	]
+];

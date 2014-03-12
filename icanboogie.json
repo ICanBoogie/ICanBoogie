@@ -1,0 +1,11 @@
+{
+	"config-path": "config/",
+	"locale-path": "locale/",
+
+	"config-constructor": {
+
+		"core": "recursive merge",
+		"debug": "ICanBoogie\\Debug::synthesize_config"
+
+	}
+}

@@ -1,16 +1,16 @@
-# ICanBoogie [![Build Status](https://travis-ci.org/ICanBoogie/ICanBoogie.png?branch=master)](https://travis-ci.org/ICanBoogie/ICanBoogie)
+# ICanBoogie [![Build Status](https://travis-ci.org/ICanBoogie/ICanBoogie.png?branch=2.0)](https://travis-ci.org/ICanBoogie/ICanBoogie)
 
-__ICanBoogie__ is a high-performance framework for PHP 5.3+. It is written with speed, flexibility
-and lightness in mind. ICanBoogie doesn't try to be an all-in-one do-it-all solution but provides
-the essential classes and logic to build web applications.
+__ICanBoogie__ is a high-performance micro framework for PHP 5.4+. It is written with speed,
+flexibility and lightness in mind. ICanBoogie doesn't try to be an all-in-one do-it-all solution
+but provides the essential features to quickly and easily build web applications.
 
 ICanBoogie packages offers the following features: Prototypes, ActiveRecords, Internationalization,
 Modules, a RESTful API, Request/Dispatch/Rescue/Response, Operations, Events, Sessions, Routing,
 Caching and more.
 
-Together with [Brickrouge](http://brickrouge.org) and Patron, ICanBoogie is one of the
-components that make the CMS [Icybee](http://icybee.org). You might want to check these
-projects too.
+Together with [Brickrouge](http://brickrouge.org) and [Patron](https://github.com/Icybee/Patron),
+ICanBoogie is one of the components that make the CMS [Icybee](http://icybee.org). You might want
+to check these projects too.
 
 
 
@@ -211,7 +211,7 @@ $node->title = "Title";
 
 #or
 
-$node = Node::from(array('uid' => 1, 'title' => "Title"));
+$node = Node::from([ 'uid' => 1, 'title' => "Title" ]);
 ```
 
 Some classes don't even provide a public constructor and rely solely on the `from()` method. For
@@ -228,98 +228,105 @@ $initial_request = Request::from($_SERVER);
 
 # Creating a local XHR post request with some parameters
 
-$custom_request = Request::from(array
-(
+$custom_request = Request::from([
+
 	'path' => '/path/to/controller',
 	'is_post' => true,
 	'is_local' => true,
 	'is_xhr' => true,
 
-	'request_params' => array
-	(
+	'request_params' => [
+
 		'param1' => 'value1',
 		'param2' => 'value2'
-	)
-));
+
+	]
+
+]);
 ```
 
 
 
 
 
-## Getting started
+## Auto-config
 
+_Auto-config_ is a feature of ICanBoogie that automatically generate a configuration file from
+the low-level components available. Currently, it defines configuration constructors; paths to
+component configurations; paths to locale message catalogs; and paths to modules.
 
+To participate in the _auto-config_ process, packages define a "icanboogie.json" file matching
+the following schema:
 
+```json
+{
+	"name": "AutoConfig",
+	"type": "object",
+	"additionnalProperties": false,
+	"properties": {
 
+		"config-constructor": {
 
-### Configuring
+			"type": "object",
+			"description": "A hash of config name (keys) and a callback (values) that is used to create the config. If the config is created from another config, append that config name after the callback separated with a '#' sign."
 
-Low-level components of the framework are configured using configuration files. The default
-configuration files are available in the `/config/` folder. To override the configuration or part
-of it, you can provide the path or paths to your own configuration files.
+		},
 
-For instance, defining the primary database connection:
+		"config-path": {
 
-1\. Edit your _core_ configuration file e.g. `/protected/all/config/core.php` with the following
-lines:
+			"type": "string",
+			"description": "A path to add to the config locations.",
+			"required": false
 
-```php
-<?php
+		},
 
-return array
-(
-	'connections' => array
-	(
-		'primary' => array
-		(
-			'dsn' => 'mysql:dbname=<databasename>;host=<hostname>',
-			'username' => '<username>',
-			'password' => '<password>'
-		)
-	)
-);
+		"locale-path": {
+
+			"type": "string",
+			"description": "A path to add to the locale messages locations.",
+			"required": false
+
+		},
+
+		"module-path": {
+
+			"type": "string",
+			"description": "A path to a module or a collection of modules.",
+			"required": false
+
+		}
+	}
+}
 ```
 
-2\. Then specify your config path while creating the _core_ object:
+Note: A "icanboogie.json" file can also be defined at the root of the application, beside the
+"composer.json" file.
 
-```php
-<?php
+The _auto-config_ file is generated after the autoloader is dumped, during the
+[`post-autoload-dump`](https://getcomposer.org/doc/articles/scripts.md) emitted by [Composer][].
+Thus, in order for the _auto-config_ feature to work, a script for the event
+is required in the _root_ package of the application:
 
-$core = new \ICanBoogie\Core
-(
-	array
-	(
-		'config paths' => array(__DIR__ . 'protected/all/'),
-		'locale paths' => array(__DIR__ . 'protected/all/')
-	)
-);
+```json
+{
+	"scripts": {
+		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Generator::on_autoload_dump"
+	}
+}
 ```
 
 
 
 
 
-### Running
+### Using the _auto-config_ to instantiate the Core
 
-Before we can process requests we need to run the framework. Running the framework indexes
-modules and select the context of the application.
-
-When the framework is running we can add routes or attach events, although they are usually
-defined in configuration fragments.
-
-Finally we can execute the HTTP request and return a response.
+Using the _auto-config_ feature, the [Core][] instance can be created very easily:
 
 ```php
 <?php
 
-$core();
-
-# here we could add routes or attach events
-
-$request = $core->initial_request;
-$response = $request();
-$response();
+$core = new ICanBoogie\Core(require ICanBoogie\AUTOCONFIG_PATHNAME);
 ```
 
 
@@ -422,9 +429,103 @@ $core->events->attach(function(Dispatcher\CollectEvent $event, Dispatcher $targe
 
 
 
+## Getting started
+
+
+
+
+
+### Configuring
+
+Low-level components of the framework are configured using configuration files. The default
+configuration files are available in the `/config/` folder. To override the configuration or part
+of it, you can provide the path or paths to your own configuration files.
+
+For instance, defining the primary database connection:
+
+1\. Edit your _core_ configuration file e.g. `/protected/all/config/core.php` with the following
+lines:
+
+```php
+<?php
+
+// protected/all/config/core.php
+
+return [
+
+	'connections' => [
+
+		'primary' => [
+
+			'dsn' => 'mysql:dbname=<databasename>;host=<hostname>',
+			'username' => '<username>',
+			'password' => '<password>'
+
+		]
+	]
+
+];
+```
+
+2\. Define the config folder of your application in the `icanboogie.json` file:
+
+```json
+{
+	"config-path": "protected/all/config/"
+}
+```
+
+3\. Create the _core_ object:
+
+```php
+<?php
+
+$core = new ICanBoogie\Core(require ICanBoogie\AUTOCONFIG_PATHNAME);
+```
+
+
+
+
+### Running
+
+Before we can process requests we need to run the framework. Running the framework indexes
+modules and select the context of the application.
+
+When the framework is running we can add routes or attach events, although they are usually
+defined in configuration fragments.
+
+Finally we can execute the HTTP request and return a response.
+
+```php
+<?php
+
+// index.php
+
+# Run the core.
+
+$core();
+
+# Here we could add routes or attach events but we'll just get the
+# initial request, obtain a response from it and return that response.
+
+$request = $core->initial_request;
+$response = $request();
+$response();
+```
+
+
+
+
+
+----------
+
+
+
+
+
 ## Requirements
 
-The minimum requirement is PHP5.3.
+The minimum requirement is PHP 5.4.
 
 ICanBoogie has been tested with Apache HTTP server on Linux, MacOS and Windows operating systems.
 The Apache server must support URL rewriting.
@@ -441,14 +542,21 @@ Create a `composer.json` file and run `php composer.phar install` command to ins
 ```json
 {
 	"minimum-stability": "dev",
+
 	"require":
 	{
-		"icanboogie/icanboogie": "*"
+		"icanboogie/icanboogie": "2.x"
+	},
+
+	"scripts": {
+		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Generator::on_autoload_dump"
 	}
 }
 ```
 
-ICanBoogie depends on the following packages, you might want to check them out:
+The _script_ section is required in the _root_ package to enable the _auto-config_ feature.
+
+The following packages are required, you might want to check them out:
 
 - [icanboogie/common](https://github.com/ICanBoogie/Common)
 - [icanboogie/inflector](https://github.com/ICanBoogie/Inflector)
@@ -506,7 +614,7 @@ clean the directory with the `make clean` command.
 
 The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
-[![Build Status](https://travis-ci.org/ICanBoogie/ICanBoogie.png?branch=master)](https://travis-ci.org/ICanBoogie/ICanBoogie)
+[![Build Status](https://travis-ci.org/ICanBoogie/ICanBoogie.png?branch=2.0)](https://travis-ci.org/ICanBoogie/ICanBoogie)
 
 
 
@@ -514,12 +622,13 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 ## License
 
-ICanBoogie is licensed under the New BSD License - See the LICENSE file for details.
+ICanBoogie is licensed under the New BSD License - See the [LICENSE](LICENSE) file for details.
 
 
 
 
 
+[Composer]: http://getcomposer.org/
 [Core]: http://icanboogie.org/docs/class-ICanBoogie.Core.html
 [DateTime]: http://icanboogie.org/docs/class-ICanBoogie.DateTime.html
 [TimeZone]: http://icanboogie.org/docs/class-ICanBoogie.TimeZone.html

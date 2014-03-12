@@ -20,10 +20,10 @@ class Exception extends \Exception
 	protected $code;
 	public $title = 'Exception';
 
-	public function __construct($message, array $params=array(), $code=500, $previous=null)
+	public function __construct($message, array $params=[], $code=500, $previous=null)
 	{
-		static $codes = array
-		(
+		static $codes = [
+
 			400 => 'Bad Request',
 			401 => 'Unauthorized',
 			402 => 'Payment Required',
@@ -49,7 +49,8 @@ class Exception extends \Exception
 			503 => 'Service Unavailable',
 			504 => 'Gateway Timeout',
 			505 => 'HTTP Version Not Supported'
-		);
+
+		];
 
 		$this->code = $code;
 
@@ -89,7 +90,7 @@ class Exception extends \Exception
 			case 'code': return $this->code;
 		}
 
-		throw new PropertyNotReadable(array($property, $this));
+		throw new PropertyNotReadable([ $property, $this ]);
 	}
 
 	public function __toString()

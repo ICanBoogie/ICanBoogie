@@ -1,9 +1,9 @@
 <?php
 
-return array
-(
-	'label' => array
-	(
+return [
+
+	'label' => [
+
 		'cancel' => 'Cancel',
 		'continue' => 'Continue',
 		'edit' => 'Edit',
@@ -14,17 +14,19 @@ return array
 		'save' => 'Save',
 		'send' => 'Send',
 		'use' => 'Use'
-	),
 
-	'permission' => array
-	(
+	],
+
+	'permission' => [
+
 		'none' => 'None',
 		'access' => 'Access',
 		'create' => 'Create',
 		'maintain' => 'Maintain',
 		'manage' => 'Manage',
 		'administer' => 'Administer'
-	),
+
+	],
 
 	#
 	# Upload
@@ -34,10 +36,11 @@ return array
 
 	'label.salutation' => 'Salutation',
 
-	'salutation' => array
-  	(
+	'salutation' => [
+
 		'misses' => 'Misses',
 		'miss' => 'Miss',
 		'mister' => 'Mister'
-	)
-);
+
+	]
+];

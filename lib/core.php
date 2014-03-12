@@ -26,8 +26,8 @@ namespace ICanBoogie;
  * @property-read \ICanBoogie\I18n\Locale $locale Locale object matching the locale language.
  * @property array $config The "core" configuration.
  * @property-read \ICanBoogie\HTTP\Request $request The request being processed.
- * @property-read \ICanBoogie\Events $events Events collection.
- * @property-read \ICanBoogie\Routes $routes Routes collection.
+ * @property-read \ICanBoogie\Events $events Event collection.
+ * @property-read \ICanBoogie\Routes $routes Route collection.
  */
 class Core extends Object
 {
@@ -60,20 +60,6 @@ class Core extends Object
 		Debug::exception_handler($exception);
 	}
 
-	static protected $paths = array();
-
-	static public function add_path($path)
-	{
-		self::$paths[] = $path;
-	}
-
-	/**
-	 * Mailer service.
-	 *
-	 * @var mixed
-	 */
-	public $mailer;
-
 	/**
 	 * Constructor.
 	 *
@@ -81,7 +67,7 @@ class Core extends Object
 	 *
 	 * @throws \Exception when one tries to create a second instance.
 	 */
-	public function __construct(array $options=array())
+	public function __construct(array $options=[])
 	{
 		if (self::$instance)
 		{
@@ -90,59 +76,31 @@ class Core extends Object
 
 		self::$instance = $this;
 
-		#
+		if (php_sapi_name() !== 'cli')
+		{
+			$class = get_class($this);
 
-		$options = array_merge_recursive
-		(
-			array
-			(
-				'config paths' => array_merge(array(ROOT), self::$paths),
-				'locale paths' => array_merge(array(ROOT), self::$paths)
-			),
-
-			$options
-		);
-
-		$class = get_class($this);
-
-		set_exception_handler($class . '::exception_handler');
-		set_error_handler('ICanBoogie\Debug::error_handler');
+			set_exception_handler($class . '::exception_handler');
+			set_error_handler('ICanBoogie\Debug::error_handler');
+		}
 
 		if (!date_default_timezone_get())
 		{
 			date_default_timezone_set('UTC');
 		}
 
-		if (get_magic_quotes_gpc())
-		{
-			$kill_magic_quotes = function()
-			{
-				$strip_slashes_recursive = function ($value) use(&$strip_slashes_recursive)
-				{
-					return is_array($value) ? array_map($strip_slashes_recursive, $value) : stripslashes($value);
-				};
+		$this->configs = $configs = $this->create_config_manager($options['config-path'], $options['config-constructor']);
 
-				$_GET = array_map($strip_slashes_recursive, $_GET);
-				$_POST = array_map($strip_slashes_recursive, $_POST);
-				$_COOKIE = array_map($strip_slashes_recursive, $_COOKIE);
-				$_REQUEST = array_map($strip_slashes_recursive, $_REQUEST);
-			};
+		$config = $this->config;
 
-			$kill_magic_quotes();
-		}
-
-		# the order is important, there's magic involved.
-
-		$configs = $this->configs;
-		$configs->add($options['config paths']);
-
-		$this->config = $config = array_merge_recursive($options, $this->config);
+		$this->config['locale-path'] = $options['locale-path'];
+		$this->config['module-path'] = $options['module-path'];
 
 		#
 
 		if (class_exists('ICanBoogie\I18n', true))
 		{
-			I18n::$load_paths = array_merge(I18n::$load_paths, $config['locale paths']);
+			I18n::$load_paths = array_merge(I18n::$load_paths, $options['locale-path']);
 		}
 
 		#
@@ -153,16 +111,11 @@ class Core extends Object
 		{
 			$configs->cache_repository = $config['repository.cache'] . '/core';
 		}
+	}
 
-		# default mailer
-
-		$this->mailer = function(array $options) {
-
-			$mailer = new Mailer($options);
-
-			return $mailer();
-
-		};
+	protected function create_config_manager($path_list, $constructors)
+	{
+		return new Configs($path_list, $constructors);
 	}
 
 	/**
@@ -174,7 +127,7 @@ class Core extends Object
 	{
 		$config = $this->config;
 
-		return new Modules($config['modules paths'], $config['cache modules'] ? $this->vars : null);
+		return new Modules($config['module-path'], $config['cache modules'] ? $this->vars : null);
 	}
 
 	/**
@@ -184,7 +137,7 @@ class Core extends Object
 	 */
 	protected function lazy_get_models()
 	{
-		return new Models($this->connections, array(), $this->modules);
+		return new Models($this->connections, [], $this->modules);
 	}
 
 	/**
@@ -218,16 +171,6 @@ class Core extends Object
 	}
 
 	/**
-	 * Returns the configs accessor.
-	 *
-	 * @return Configs
-	 */
-	protected function lazy_get_configs()
-	{
-		return new Configs();
-	}
-
-	/**
 	 * Returns the _core_ configuration.
 	 *
 	 * @return array
@@ -235,8 +178,6 @@ class Core extends Object
 	protected function lazy_get_config()
 	{
 		$config = $this->configs['core'];
-
-		$this->configs->constructors += $config['config constructors'];
 
 		return $config;
 	}
@@ -346,57 +287,6 @@ class Core extends Object
 	}
 
 	/**
-	 * Returns the event collection.
-	 *
-	 * Event hooks are gathered from the `events` config.
-	 *
-	 * @throws \InvalidArgumentException if the event hooks is not a callable.
-	 */
-	protected function lazy_get_events()
-	{
-		$hooks = $this->configs->synthesize('events', function(array $fragments) {
-
-			$events = array();
-
-			foreach ($fragments as $pathname => $fragment)
-			{
-				if (empty($fragment['events']))
-				{
-					continue;
-				}
-
-				foreach ($fragment['events'] as $type => $callback)
-				{
-					if (!is_callable($callback, true))
-					{
-						throw new \InvalidArgumentException(format
-						(
-							'Event callback must be a string, %type given: :callback in %path.', array
-							(
-								'type' => gettype($callback),
-								'callback' => $callback,
-								'path' => $pathname
-							)
-						));
-					}
-
-					#
-					# because modules are ordered by weight (most important are first), we can
-					# push callbacks instead of unshifting them.
-					#
-
-					$events[$type][] = $callback;
-				}
-			}
-
-			return $events;
-
-		}, 'hooks');
-
-		return new Events($hooks);
-	}
-
-	/**
 	 * Returns the route collection.
 	 *
 	 * @return \ICanBoogie\Routes
@@ -435,11 +325,9 @@ class Core extends Object
 		# bootstrap events
 		#
 
-		$self = $this;
+		Events::patch('get', function() { // TODO-20140310: deprecate
 
-		Events::patch('get', function() use($self) {
-
-			return $self->events;
+			return $this->events;
 
 		});
 
@@ -478,13 +366,43 @@ class Core extends Object
 		{
 			$this->configs->add($modules->config_paths, -10);
 		}
+	}
 
-		#
-
-		if ($index['config constructors'])
+	/**
+	 * Genreates a path with the specified parameters.
+	 *
+	 * @param strign|Route $pattern_or_route_id_or_route A pattern, a route identifier or a
+	 * {@link Route} instance.
+	 * @param string $params
+	 * @param array $options
+	 *
+	 * @return string
+	 */
+	public function generate_path($pattern_or_route_id_or_route, $params=null, array $options=[])
+	{
+		if ($pattern_or_route_id_or_route instanceof Route)
 		{
-			$this->configs->constructors += $index['config constructors'];
+			$path = $pattern_or_route_id_or_route->format($params);
 		}
+		else if (isset($this->routes[$pattern_or_route_id_or_route]))
+		{
+			$path = $this->routes[$pattern_or_route_id_or_route]->format($params);
+		}
+		else if (Route::is_pattern($pattern_or_route_id_or_route))
+		{
+			$path = Routing\Pattern::from($pattern_or_route_id_or_route)->format($params);
+		}
+		else
+		{
+			throw new \InvalidArgumentException("Invalid \$pattern_or_route_id_or_route.");
+		}
+
+		return Routing\contextualize($path);
+	}
+
+	public function generate_url($pattern_or_route_id_or_route, $params=null, array $options=[])
+	{
+		return $this->site->url . $this->generate_path($pattern_or_route_id_or_route, $params, $options);
 	}
 }
 
@@ -504,7 +422,7 @@ class BeforeRunEvent extends \ICanBoogie\Event
 	 */
 	public function __construct(\ICanBoogie\Core $target)
 	{
-		parent::__construct($target, 'run:before', array());
+		parent::__construct($target, 'run:before');
 	}
 }
 

@@ -48,13 +48,14 @@ class Uploaded
 	{
 		if ($accepted_types == 'image')
 		{
-			$accepted_types = array
-			(
+			$accepted_types = [
+
 				'.gif' => 'image/gif',
 				'.jpg' => 'image/jpeg',
 				'.jpeg' => 'image/jpeg',
 				'.png' => 'image/png'
-			);
+
+			];
 		}
 
 		$this->accepted_types = $accepted_types;
@@ -99,7 +100,7 @@ class Uploaded
 
 		if (is_array($name))
 		{
-			$consolidated = array();
+			$consolidated = [];
 
 			foreach ($data as $key => $nodes)
 			{
@@ -129,7 +130,7 @@ class Uploaded
 		$this->size = $data['size'];
 		$this->mime = self::getMIME($name, $this->extension);
 
-		if ($data['type'] && !in_array($data['type'], array('application/octet-stream', 'application/force-download')))
+		if ($data['type'] && !in_array($data['type'], [ 'application/octet-stream', 'application/force-download' ]))
 		{
 			$this->mime = $data['type'];
 		}
@@ -241,13 +242,13 @@ class Uploaded
 		{
 			case UPLOAD_ERR_INI_SIZE:
 			{
-				$this->er_message = new I18n\FormattedString('Maximum file size is :size Mb', array(':size' => (int) ini_get('upload_max_filesize')));
+				$this->er_message = new I18n\FormattedString('Maximum file size is :size Mb', [ ':size' => (int) ini_get('upload_max_filesize') ]);
 			}
 			break;
 
 			case UPLOAD_ERR_FORM_SIZE:
 			{
-				$this->er_message = new I18n\FormattedString('Maximum file size is :size Mb', array(':size' => round(MAX_FILE_SIZE / 1024 / 1024, 2)));
+				$this->er_message = new I18n\FormattedString('Maximum file size is :size Mb', [ ':size' => round(MAX_FILE_SIZE / 1024 / 1024, 2) ]);
 			}
 			break;
 
@@ -259,13 +260,13 @@ class Uploaded
 
 			case self::ERR_TYPE:
 			{
-				$this->er_message = new I18n\FormattedString('error.message.upload.mime', array('%accepted' => implode(', ', array_keys($this->accepted_types))));
+				$this->er_message = new I18n\FormattedString('error.message.upload.mime', [ '%accepted' => implode(', ', array_keys($this->accepted_types)) ]);
 			}
 			break;
 
 			default:
 			{
-				$this->er_message = new I18n\FormattedString('Error code: :code', array(':code' => $error));
+				$this->er_message = new I18n\FormattedString('Error code: :code', [ ':code' => $error ]);
 			}
 			break;
 		}
@@ -298,11 +299,12 @@ class Uploaded
 			{
 				throw new Exception
 				(
-					'Unable to move file %source to %destination, destination file already exists', array
-					(
+					'Unable to move file %source to %destination, destination file already exists', [
+
 						'%source' => $this->location,
 						'%destination' => $destination
-					)
+
+					]
 				);
 			}
 		}
@@ -327,11 +329,12 @@ class Uploaded
 		{
 			throw new Exception
 			(
-				'Unable to move file %source to %destination', array
-				(
+				'Unable to move file %source to %destination', [
+
 					'%source' => $this->location,
 					'%destination' => $destination
-				)
+
+				]
 			);
 		}
 
@@ -340,8 +343,8 @@ class Uploaded
 		return true;
 	}
 
-	static public $mimes_by_extension = array
-	(
+	static public $mimes_by_extension = [
+
 		'.doc' => 'application/msword',
 		'.docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 		'.flv' => 'video/x-flv',
@@ -358,7 +361,8 @@ class Uploaded
 		'.zip' => 'application/zip',
 		'.xls' => 'application/vnd.ms-excel',
 		'.xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-	);
+
+	];
 
 	static public function getMIME($filename, &$extension=null)
 	{

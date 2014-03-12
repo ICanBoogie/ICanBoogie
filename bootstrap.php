@@ -44,37 +44,17 @@ or define('ICanBoogie\DOCUMENT_ROOT', rtrim(strtr($_SERVER['DOCUMENT_ROOT'], DIR
  *
  * @var string
  */
-
 defined('ICanBoogie\REPOSITORY')
 or define('ICanBoogie\REPOSITORY', DOCUMENT_ROOT . 'repository' . DIRECTORY_SEPARATOR);
 
 /**
- * Enables bootstrap caching.
+ * Pathname to the auto-config file.
  *
- * @var bool
+ *  @var string
  */
-defined('ICanBoogie\CACHE_BOOTSTRAP')
-or define('ICanBoogie\CACHE_BOOTSTRAP', false);
-
-/**
- * Bootstrap cache pathname.
- *
- * @var string
- */
-defined('ICanBoogie\BOOTSTRAP_CACHE_PATHNAME')
-or define('ICanBoogie\BOOTSTRAP_CACHE_PATHNAME', REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'icanboogie_bootstrap');
-
-/*
- * Define PHP5.4 `$_SERVER['REQUEST_TIME_FLOAT']` if empty.
- */
-if (empty($_SERVER['REQUEST_TIME_FLOAT']))
-{
-	$_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
-}
+defined('ICanBoogie\AUTOCONFIG_PATHNAME')
+or define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'auto-config.php');
 
 register_shutdown_function('ICanBoogie\Debug::shutdown_handler');
 
-/*
- * Patches
- */
 require_once ROOT . 'patches.php';

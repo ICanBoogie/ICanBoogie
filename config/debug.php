@@ -1,7 +1,7 @@
 <?php
 
-return array
-(
+return [
+
 	'code_sample' => true,
 	'line_number' => true,
 	'mode' => 'dev',
@@ -11,28 +11,28 @@ return array
 	'exception_chain' => true,
 	'verbose' => true,
 
-	'modes' => array
-	(
-		'dev' => array
-		(
-			'report' => false
-		),
+	'modes' => [
 
-		'test' => array
-		(
+		'dev' => [
+
+			'report' => false
+		],
+
+		'test' => [
+
 			'code_sample' => false,
 			'line_number' => false,
 			'report' => true
-		),
+		],
 
-		'production' => array
-		(
+		'production' => [
+
 			'code_sample' => false,
 			'line_number' => false,
 			'report' => true,
 			'stack_trace' => false,
 			'exception_chain' => false,
 			'verbose' => false
-		)
-	)
-);
+		]
+	]
+];

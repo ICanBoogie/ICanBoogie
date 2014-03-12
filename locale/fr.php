@@ -1,9 +1,9 @@
 <?php
 
-return array
-(
-	'label' => array
-	(
+return [
+
+	'label' => [
+
 		'cancel' => 'Annuler',
 		'continue' => 'Continuer',
 		'edit' => 'Éditer',
@@ -14,10 +14,11 @@ return array
 		'save' => 'Enregistrer',
 		'send' => 'Envoyer',
 		'use' => 'Utiliser'
-	),
 
-	'permission' => array
-	(
+	],
+
+	'permission' => [
+
 		'none' => 'Néant',
 		'access' => 'Accéder',
 		'create' => 'Créer',
@@ -26,7 +27,8 @@ return array
 		'maintain' => 'Maintenir',
 		'manage' => 'Gérer',
 		'administer' => 'Administrer'
-	),
+
+	],
 
 	#
 	# Upload
@@ -40,4 +42,5 @@ return array
 	":size\xC2\xA0Gb" => ":size Go",
 
 	"Maximum file size is :size Mb" => "La taille maximale des fichiers est limitée à :size Mo"
-);
+
+];

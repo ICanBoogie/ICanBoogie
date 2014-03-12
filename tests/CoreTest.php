@@ -17,17 +17,18 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 
 	static public function setupBeforeClass()
 	{
-		self::$core = new Core(array(
+		self::$core = new Core([
 
-			'connections' => array
-			(
-				'primary' => array
-				(
+			'connections' => [
+
+				'primary' => [
+
 					'dsn' => 'sqlite::memory:'
-				)
-			)
 
-		));
+				]
+			]
+
+		]);
 	}
 
 	/**
@@ -61,22 +62,23 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_property_type()
 	{
-		return array
-		(
-			array('modules',         'ICanBoogie\Modules'),
-			array('models',          'ICanBoogie\ActiveRecord\Models'),
-			array('vars',            'ICanBoogie\Vars'),
-			array('connections',     'ICanBoogie\ActiveRecord\Connections'),
-			array('db',              'ICanBoogie\ActiveRecord\Connection'),
-			array('configs',         'ICanBoogie\Configs'),
-			array('dispatcher',      'ICanBoogie\HTTP\Dispatcher'),
-			array('initial_request', 'ICanBoogie\HTTP\Request'),
-			array('request',         'ICanBoogie\HTTP\Request'),
-			array('locale',          'ICanBoogie\I18n\Locale'),
-			array('events',          'ICanBoogie\Events'),
-			array('routes',          'ICanBoogie\Routes'),
-			array('timezone',        'ICanBoogie\TimeZone')
-		);
+		return [
+
+			[ 'modules',         'ICanBoogie\Modules' ],
+			[ 'models',          'ICanBoogie\ActiveRecord\Models' ],
+			[ 'vars',            'ICanBoogie\Vars' ],
+			[ 'connections',     'ICanBoogie\ActiveRecord\Connections' ],
+			[ 'db',              'ICanBoogie\ActiveRecord\Connection' ],
+			[ 'configs',         'ICanBoogie\Configs' ],
+			[ 'dispatcher',      'ICanBoogie\HTTP\Dispatcher' ],
+			[ 'initial_request', 'ICanBoogie\HTTP\Request' ],
+			[ 'request',         'ICanBoogie\HTTP\Request' ],
+			[ 'locale',          'ICanBoogie\I18n\Locale' ],
+			[ 'events',          'ICanBoogie\Events' ],
+			[ 'routes',          'ICanBoogie\Routes' ],
+			[ 'timezone',        'ICanBoogie\TimeZone' ]
+
+		];
 	}
 
 	public function test_set_timezone()

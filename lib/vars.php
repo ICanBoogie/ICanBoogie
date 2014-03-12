@@ -57,7 +57,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 
 		if (!is_writable($this->path))
 		{
-			throw new Exception('The directory %directory is not writable.', array('directory' => $this->path));
+			throw new Exception('The directory %directory is not writable.', [ 'directory' => $this->path ]);
 		}
 	}
 
@@ -186,12 +186,12 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 
 			if (!$fh)
 			{
-				throw new Exception('Unable to open %pathname: :message', array('pathname' => $pathname, 'message' => Debug::$last_error_message));
+				throw new Exception('Unable to open %pathname: :message', [ 'pathname' => $pathname, 'message' => Debug::$last_error_message ]);
 			}
 
 			if (self::$release_after && !flock($fh, LOCK_EX))
 			{
-				throw new Exception('Unable to get to exclusive lock on %pathname: :message', array('pathname' => $pathname, 'message' => Debug::$last_error_message));
+				throw new Exception('Unable to get to exclusive lock on %pathname: :message', [ 'pathname' => $pathname, 'message' => Debug::$last_error_message ]);
 			}
 
 			file_put_contents($tmp_pathname, $value);
@@ -206,17 +206,17 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 
 			if (!rename($pathname, $garbage_pathname))
 			{
-				throw new Exception('Unable to rename %old as %new.', array('old' => $pathname, 'new' => $garbage_pathname));
+				throw new Exception('Unable to rename %old as %new.', [ 'old' => $pathname, 'new' => $garbage_pathname ]);
 			}
 
 			if (!rename($tmp_pathname, $pathname))
 			{
-				throw new Exception('Unable to rename %old as %new.', array('old' => $tmp_pathname, 'new' => $pathname));
+				throw new Exception('Unable to rename %old as %new.', [ 'old' => $tmp_pathname, 'new' => $pathname ]);
 			}
 
 			if (!unlink($garbage_pathname))
 			{
-				throw new Exception('Unable to delete %pathname: :message', array('pathname' => $garbage_pathname, 'message' => Debug::$last_error_message));
+				throw new Exception('Unable to delete %pathname: :message', [ 'pathname' => $garbage_pathname, 'message' => Debug::$last_error_message ]);
 			}
 
 			if (self::$release_after)

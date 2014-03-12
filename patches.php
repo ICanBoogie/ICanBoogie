@@ -47,7 +47,7 @@ Prototype\Helpers::patch('last_chance_get', function (Object $target, $property,
 		return;
 	}
 
-	$event = new Object\PropertyEvent($target, array('property' => $property));
+	$event = new Object\PropertyEvent($target, [ 'property' => $property ]);
 
 	#
 	# The operation is considered a success if the `value` property exists in the event
@@ -85,14 +85,12 @@ Helpers::patch('get_dispatcher', function() {
 
 	if (!$dispatcher)
 	{
-		$dispatcher = new Dispatcher
-		(
-			array
-			(
-				'operation' => 'ICanBoogie\Operation\Dispatcher',
-				'route' => 'ICanBoogie\Routing\Dispatcher'
-			)
-		);
+		$dispatcher = new Dispatcher([
+
+			'operation' => 'ICanBoogie\Operation\Dispatcher',
+			'route' => 'ICanBoogie\Routing\Dispatcher'
+
+		]);
 
 		new Dispatcher\AlterEvent($dispatcher);
 	}

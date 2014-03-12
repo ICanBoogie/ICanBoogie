@@ -11,15 +11,6 @@
 
 namespace ICanBoogie;
 
-// @TODO implement time rules
-
-define('WDCACHE_USE_APC', false);
-
-if (!defined('WDCACHE_USE_APC'))
-{
-	define('WDCACHE_USE_APC', version_compare(phpversion('apc'), '3.0.17') > -1);
-}
-
 class FileCache
 {
 	const T_COMPRESS = 'compress';
@@ -42,7 +33,7 @@ class FileCache
 	{
 		if (empty($tags[self::T_REPOSITORY]))
 		{
-			throw new Exception('The %tag tag is required', array('%tag' => 'T_REPOSITORY'));
+			throw new Exception('The %tag tag is required', [ '%tag' => 'T_REPOSITORY' ]);
 		}
 
 		foreach ($tags as $tag => $value)
@@ -79,7 +70,7 @@ class FileCache
 	{
 		if (!is_dir($this->root))
 		{
-			throw new Exception('The repository %repository does not exists.', array('%repository' => $this->repository), 404);
+			throw new Exception('The repository %repository does not exists.', [ '%repository' => $this->repository ], 404);
 		}
 
 		$location = getcwd();
@@ -98,18 +89,6 @@ class FileCache
 
 	public function exists($key)
 	{
-		if (WDCACHE_USE_APC)
-		{
-			if(function_exists('apc_exists'))
-			{
-				return apc_exists($key);
-			}
-
-			apc_fetch($key, $success);
-
-			return $success;
-		}
-
 		$location = getcwd();
 
 		chdir($this->root);
@@ -137,21 +116,6 @@ class FileCache
 	 */
 	public function load($key, $constructor, $userdata=null)
 	{
-		if (WDCACHE_USE_APC)
-		{
-			$contents = apc_fetch($this->root . '/' . $key, $success);
-
-			if (!$success)
-			{
-				$contents = call_user_func($constructor, $userdata, $this, $key);
-
-				$this->save($key, $contents);
-			}
-
-			return $contents;
-		}
-
-
 		#
 		# if the repository does not exists we simply return the contents
 		# created by the constructor.
@@ -159,7 +123,7 @@ class FileCache
 
 		if (!is_dir($this->root))
 		{
-			throw new Exception('The repository %repository does not exists.', array('%repository' => $this->repository), 404);
+			throw new Exception('The repository %repository does not exists.', [ '%repository' => $this->repository ], 404);
 
 			return call_user_func($contructor, $userdata, $this, $key);
 		}
@@ -211,14 +175,9 @@ class FileCache
 	 */
 	protected function save($file, $contents)
 	{
-		if (WDCACHE_USE_APC)
-		{
-			return apc_store($this->root . '/' . $file, $contents);
-		}
-
 		if (!is_writable($this->root))
 		{
-			throw new Exception('The repository %repository is not writable.', array('%repository' => $this->repository));
+			throw new Exception('The repository %repository is not writable.', [ '%repository' => $this->repository ]);
 		}
 
 		$location = getcwd();
@@ -249,18 +208,6 @@ class FileCache
 
 	public function retrieve($key)
 	{
-		if (WDCACHE_USE_APC)
-		{
-			if (function_exists('apc_exists'))
-			{
-				return apc_exists($key);
-			}
-
-			$rc = apc_fetch($key, $success);
-
-			return $success ? $rc : null;
-		}
-
 		$location = getcwd();
 
 		chdir($this->root);
@@ -274,12 +221,7 @@ class FileCache
 
 	public function delete($file)
 	{
-		if (WDCACHE_USE_APC)
-		{
-			return apc_delete($this->root . '/' . $file);
-		}
-
-		return $this->unlink(array($file => true));
+		return $this->unlink([ $file => true ]);
 	}
 
 	/**
@@ -297,7 +239,7 @@ class FileCache
 
 		if (!is_dir($root))
 		{
-			//Debug::trigger('%repository is not a directory', array('%repository' => $this->repository));
+			//Debug::trigger('%repository is not a directory', [ '%repository' => $this->repository ]);
 
 			return false;
 		}
@@ -308,13 +250,7 @@ class FileCache
 		}
 		catch (\UnexpectedValueException $e)
 		{
-			throw new Exception
-			(
-				'Unable to open directory %root', array
-				(
-					'%root' => $root
-				)
-			);
+			throw new Exception('Unable to open directory %root', [ '%root' => $root ]);
 		}
 
 		#
@@ -322,13 +258,13 @@ class FileCache
 		# we set the ctime first to be able to sort the file by ctime when necessary.
 		#
 
-		$files = array();
+		$files = [];
 
 		foreach ($dir as $file)
 		{
 			if (!$file->isDot())
 			{
-				$files[$file->getFilename()] = array($file->getCTime(), $file->getSize());
+				$files[$file->getFilename()] = [ $file->getCTime(), $file->getSize() ];
 			}
 		}
 
@@ -358,7 +294,7 @@ class FileCache
 
 		if (!$lh)
 		{
-			Debug::trigger('Unable to lock %repository', array('%repository' => $this->repository));
+			Debug::trigger('Unable to lock %repository', [ '%repository' => $this->repository ]);
 
 			chdir($location);
 
@@ -431,11 +367,6 @@ class FileCache
 	public function clear()
 	{
 		$files = $this->read();
-
-		if (WDCACHE_USE_APC)
-		{
-			return apc_clear_cache('user');
-		}
 
 		return $this->unlink($files);
 	}

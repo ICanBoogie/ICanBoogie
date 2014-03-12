@@ -1,7 +1,7 @@
 {
 	"name": "icanboogie/icanboogie",
 	"type": "library",
-	"description": "High-performance object-oriented micro-framework for PHP5.3+",
+	"description": "High-performance object-oriented micro-framework for PHP5.4+",
 	"keywords": [ "framework" ],
 	"homepage": "http://icanboogie.org/",
 	"license": "BSD-3-Clause",
@@ -23,13 +23,13 @@
 	"minimum-stability": "dev",
 
 	"require": {
-		"php": ">=5.3.0",
+		"php": ">=5.4.0",
 
-		"icanboogie/common": "*",
+		"icanboogie/common": ">=1.2",
 		"icanboogie/datetime": "*",
 		"icanboogie/inflector": "*",
 		"icanboogie/errors": "*",
-		"icanboogie/event": "*",
+		"icanboogie/event": ">=1.2",
 
 		"icanboogie/activerecord": "2.x",
 		"icanboogie/http": "2.x",
@@ -50,6 +50,10 @@
 	},
 
 	"autoload": {
+		"psr-4": {
+			"ICanBoogie\\AutoConfig\\": "auto-config/"
+		},
+		
 		"classmap": [ "lib/" ],
 		"files": [ "bootstrap.php", "lib/helpers.php" ]
 	}

@@ -38,7 +38,7 @@ class PingOperation extends Operation
 
 		if ($this->request['timer'] !== null)
 		{
-			$rc .= ', in ' . number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3, '.', '') . ' secs.';
+			$rc .= ', in ' . number_format((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) * 1000, 3, '.', '') . ' ms.';
 		}
 
 		return $rc;

@@ -67,15 +67,15 @@ class Session
 	 *
 	 * @param array $options
 	 */
-	public function __construct(array $options=array())
+	public function __construct(array $options=[])
 	{
 		if (session_id())
 		{
 			return;
 		}
 
-		$options += array
-		(
+		$options += [
+
 			'id' => null,
 			'name' => 'ICanBoogie',
 			'use_cookies' => true,
@@ -83,9 +83,8 @@ class Session
 			'use_trans_sid' => false,
 			'cache_limiter' => null,
 			'module_name' => 'files'
-		)
 
-		+ session_get_cookie_params();
+		] + session_get_cookie_params();
 
 		$id = $options['id'];
 
@@ -148,7 +147,7 @@ class Session
 			exit;
 		}
 
-		new Session\StartEvent($this, array());
+		new Session\StartEvent($this);
 	}
 
 	/**
@@ -208,7 +207,7 @@ class StartEvent extends \ICanBoogie\Event
 	 * @param \ICanBoogie\Session $target
 	 * @param array $payload
 	 */
-	public function __construct(\ICanBoogie\Session $target, array $payload)
+	public function __construct(\ICanBoogie\Session $target, array $payload=[])
 	{
 		parent::__construct($target, 'start', $payload);
 	}

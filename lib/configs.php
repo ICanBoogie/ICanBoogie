@@ -16,19 +16,21 @@ namespace ICanBoogie;
  */
 class Configs implements \ArrayAccess
 {
-	protected $paths = array();
-	protected $configs = array();
+	protected $paths = [];
+	protected $constructors = [];
+	protected $configs = [];
 
 	public $cache_repository;
 
-	public $constructors = array
-	(
-		'core' => array('recursive merge', 'core')
-	);
+	public function __construct($paths, $constructors)
+	{
+		$this->paths = array_combine($paths, array_fill(0, count($paths), 0));
+		$this->constructors = $constructors;
+	}
 
 	public function offsetSet($offset, $value)
 	{
-		throw new OffsetNotWritable(array($offset, $this));
+		throw new OffsetNotWritable([ $offset, $this ]);
 	}
 
 	/**
@@ -46,7 +48,7 @@ class Configs implements \ArrayAccess
 	 */
 	public function offsetUnset($offset)
 	{
-		throw new OffsetNotWritable(array($offset, $this));
+		throw new OffsetNotWritable([ $offset, $this ]);
 	}
 
 	/**
@@ -63,10 +65,10 @@ class Configs implements \ArrayAccess
 
 		if (empty($this->constructors[$id]))
 		{
-			throw new Exception('There is no constructor defined to build the %id config.', array('%id' => $id));
+			throw new Exception('There is no constructor defined to build the %id config.', [ '%id' => $id ]);
 		}
 
-		list($constructor, $from) = $this->constructors[$id] + array(1 => $id);
+		list($constructor, $from) = $this->constructors[$id] + [ 1 => $id ];
 
 		return $this->synthesize($id, $constructor, $from);
 	}
@@ -78,7 +80,7 @@ class Configs implements \ArrayAccess
 	 */
 	protected function revoke_configs()
 	{
-		$this->configs = array();
+		$this->configs = [];
 	}
 
 	/**
@@ -109,7 +111,7 @@ class Configs implements \ArrayAccess
 			{
 				if (!file_exists($path))
 				{
-					trigger_error(format('Config path %path does not exists', array('path' => $path)));
+					trigger_error(format('Config path %path does not exists', [ 'path' => $path ]));
 				}
 			}
 
@@ -123,7 +125,7 @@ class Configs implements \ArrayAccess
 		stable_sort($this->paths);
 	}
 
-	static private $require_cache = array();
+	static private $require_cache = [];
 
 	static private function isolated_require($__file__, $path)
 	{
@@ -145,20 +147,20 @@ class Configs implements \ArrayAccess
 	 */
 	public function get_fragments($name)
 	{
-		$fragments = array();
-		$config_path = 'config' . DIRECTORY_SEPARATOR . $name . '.php';
+		$fragments = [];
+		$filename = $name . '.php';
 
 		foreach ($this->paths as $path => $weight)
 		{
 			$path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-			$pathname = $path . $config_path;
+			$pathname = $path . $filename;
 
 			if (!file_exists($pathname))
 			{
 				continue;
 			}
 
-			$fragments[$path . $config_path] = self::isolated_require($pathname, $path);
+			$fragments[$path . $filename] = self::isolated_require($pathname, $path);
 		}
 
 		return $fragments;
@@ -188,20 +190,19 @@ class Configs implements \ArrayAccess
 			$from = $name;
 		}
 
-		$args = array($from, $constructor);
+		$args = [ $from, $constructor ];
 
 		if ($this->cache_repository)
 		{
-			$cache = self::$syntheses_cache ? self::$syntheses_cache : self::$syntheses_cache = new FileCache
-			(
-				array
-				(
-					FileCache::T_REPOSITORY => $this->cache_repository,
-					FileCache::T_SERIALIZE => true
-				)
-			);
+			$cache = self::$syntheses_cache
+			? self::$syntheses_cache
+			: self::$syntheses_cache = new FileCache
+			([
+				FileCache::T_REPOSITORY => $this->cache_repository,
+				FileCache::T_SERIALIZE => true
+			]);
 
-			$rc = $cache->load('config_' . normalize($name, '_'), array($this, 'synthesize_constructor'), $args);
+			$rc = $cache->load('config_' . normalize($name, '_'), [ $this, 'synthesize_constructor' ], $args);
 		}
 		else
 		{

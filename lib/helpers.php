@@ -74,11 +74,12 @@ function pbkdf2($p, $s, $c=1000, $kl=32, $a='sha256')
  */
 class Helpers
 {
-	static private $jumptable = array
-	(
-		'generate_token' => array(__CLASS__, 'generate_token'),
-		'pbkdf2' => array(__CLASS__, 'pbkdf2')
-	);
+	static private $jumptable = [
+
+		'generate_token' => [ __CLASS__, 'generate_token' ],
+		'pbkdf2' => [ __CLASS__, 'pbkdf2' ]
+
+	];
 
 	/**
 	 * Calls the callback of a patchable function.
@@ -191,10 +192,11 @@ function normalize_namespace_part($part)
  */
 function excerpt($str, $limit=55)
 {
-	static $allowed_tags = array
-	(
+	static $allowed_tags = [
+
 		'a', 'p', 'code', 'del', 'em', 'ins', 'strong'
-	);
+
+	];
 
 	$str = strip_tags(trim($str), '<' . implode('><', $allowed_tags) . '>');
 	$str = preg_replace('#(<p>|<p\s+[^\>]+>)\s*</p>#', '', $str);
@@ -206,7 +208,7 @@ function excerpt($str, $limit=55)
 	# i+2: markup attributes
 
 	$rc = '';
-	$opened = array();
+	$opened = [];
 
 	foreach ($parts as $i => $part)
 	{
@@ -309,7 +311,7 @@ function strip_root($pathname)
  * @param string $type Message type, one of "success", "error", "info" and "debug". Defaults to
  * "debug".
  */
-function log($message, array $params=array(), $message_id=null, $type='debug')
+function log($message, array $params=[], $message_id=null, $type='debug')
 {
 	Debug::log($type, $message, $params, $message_id);
 }
@@ -321,7 +323,7 @@ function log($message, array $params=array(), $message_id=null, $type='debug')
  * @param array $params The parameters used to format the message.
  * @param string $message_id Message identifier.
  */
-function log_success($message, array $params=array(), $message_id=null)
+function log_success($message, array $params=[], $message_id=null)
 {
 	Debug::log('success', $message, $params, $message_id);
 }
@@ -333,7 +335,7 @@ function log_success($message, array $params=array(), $message_id=null)
  * @param array $params The parameters used to format the message.
  * @param string $message_id Message identifier.
  */
-function log_error($message, array $params=array(), $message_id=null)
+function log_error($message, array $params=[], $message_id=null)
 {
 	Debug::log('error', $message, $params, $message_id);
 }
@@ -345,7 +347,7 @@ function log_error($message, array $params=array(), $message_id=null)
  * @param array $params The parameters used to format the message.
  * @param string $message_id Message identifier.
  */
-function log_info($message, array $params=array(), $message_id=null)
+function log_info($message, array $params=[], $message_id=null)
 {
 	Debug::log('info', $message, $params, $message_id);
 }
@@ -356,7 +358,7 @@ function log_info($message, array $params=array(), $message_id=null)
  * @param string $message Message pattern.
  * @param array $params The parameters used to format the message.
  */
-function log_time($message, array $params=array())
+function log_time($message, array $params=[])
 {
 	static $last;
 

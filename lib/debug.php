@@ -82,7 +82,7 @@ class Debug
 		$config = (isset($core) ? $core->configs['debug'] : require ROOT . 'config/debug.php');
 
 		$mode = self::$mode;
-		$modes = array();
+		$modes = [];
 
 		foreach ($config as $directive => $value)
 		{
@@ -156,7 +156,7 @@ class Debug
 			self::$logs = array_merge($session->alerts, self::$logs);
 		}
 
-		$session->alerts = array();
+		$session->alerts = [];
 	}
 
 	/*
@@ -191,15 +191,16 @@ class Debug
 
 		array_shift($trace); // remove the trace of our function
 
-		$error = array
-		(
+		$error = [
+
 			'type' => $no,
 			'message' => $str,
 			'file' => $file,
 			'line' => $line,
 			'context' => $context,
 			'trace' => $trace
-		);
+
+		];
 
 		self::$last_error = $error;
 		self::$last_error_message = $str;
@@ -231,7 +232,7 @@ class Debug
 
 			$message = $exception->getMessage();
 			$message = strip_tags($message);
-			$message = str_replace(array("\r\n", "\n"), '', $message);
+			$message = str_replace([ "\r\n", "\n" ], '', $message);
 
 			header("HTTP/1.0 $code $message");
 		}
@@ -245,13 +246,14 @@ class Debug
 
 	const MAX_STRING_LEN = 16;
 
-	static private $error_names = array
-	(
+	static private $error_names = [
+
 		E_ERROR => 'Error',
 		E_WARNING => 'Warning',
 		E_PARSE => 'Parse error',
 		E_NOTICE => 'Notice'
-	);
+
+	];
 
 	/**
 	 * Formats an alert into a HTML element.
@@ -367,7 +369,7 @@ EOT;
 				$trace_file = str_replace($root, '', $trace_file);
 			}
 
-			$params = array();
+			$params = [];
 
 			if ($trace_args)
 			{
@@ -500,11 +502,12 @@ EOT;
 		$host = $_SERVER['SERVER_NAME'];
 		$host = str_replace('www.', '', $host);
 
-		$parts = array
-		(
+		$parts = [
+
 			'From' => 'icanboogie@' . $host,
 			'Content-Type' => 'text/html; charset=' . CHARSET
-		);
+
+		];
 
 		$headers = '';
 
@@ -516,13 +519,13 @@ EOT;
 		mail($report_address, __CLASS__ . ': Report from ' . $host, $message, $headers);
 	}
 
-	static public $logs = array();
+	static public $logs = [];
 
-	static public function log($type, $message, array $params=array(), $message_id=null)
+	static public function log($type, $message, array $params=[], $message_id=null)
 	{
 		if (empty(self::$logs[$type]))
 		{
-			self::$logs[$type] = array();
+			self::$logs[$type] = [];
 		}
 
 		#
@@ -540,11 +543,11 @@ EOT;
 			{
 				$messages = array_splice($messages, $count - $max);
 
-				array_unshift($messages, array('*** SLICED', array()));
+				array_unshift($messages, [ '*** SLICED', [] ]);
 			}
 		}
 
-		$message_id ? $messages[$message_id] = array($message, $params) : $messages[] = array($message, $params);
+		$message_id ? $messages[$message_id] = [ $message, $params ] : $messages[] = [ $message, $params ];
 	}
 
 	/**
@@ -558,10 +561,10 @@ EOT;
 	{
 		if (empty(self::$logs[$type]))
 		{
-			return array();
+			return [];
 		}
 
-		$rc = array();
+		$rc = [];
 
 		foreach (self::$logs[$type] as $message)
 		{
@@ -590,7 +593,7 @@ EOT;
 	{
 		$rc = self::get_messages($type);
 
-		self::$logs[$type] = array();
+		self::$logs[$type] = [];
 
 		return $rc;
 	}
