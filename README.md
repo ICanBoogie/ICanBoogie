@@ -437,19 +437,19 @@ return [
 ```php
 <?php
 
-$core = new ICanBoogie\Core(require ICanBoogie\AUTOCONFIG_PATHNAME);
+$core = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
 ```
 
 
 
 
-### Running
+### Running the Core and returning a response
 
 Before we can process requests we need to run the framework, which indexes modules and select
 the context for the application.
 
-When the framework is running we can add routes or attach events, although they are usually
-defined in configuration fragments.
+Although they are usually defined in configuration fragments, once the framework is running we
+can just as easily add routes or attach events.
 
 Finally we can execute the initial HTTP request and return its response.
 

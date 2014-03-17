@@ -55,6 +55,16 @@ or define('ICanBoogie\REPOSITORY', DOCUMENT_ROOT . 'repository' . DIRECTORY_SEPA
 defined('ICanBoogie\AUTOCONFIG_PATHNAME')
 or define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'auto-config.php');
 
+/**
+ * Returns the auto-config.
+ *
+ * The path of the auto-config is defined by the {@link AUTOCONFIG_PATHNAME} constant.
+ */
+function get_autoconfig()
+{
+	return require AUTOCONFIG_PATHNAME;
+}
+
 register_shutdown_function('ICanBoogie\Debug::shutdown_handler');
 
 require_once ROOT . 'patches.php';
