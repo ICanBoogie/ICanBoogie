@@ -27,7 +27,7 @@ class PropertyEvent extends \ICanBoogie\Event
 	 * @param \ICanBoogie\Object $target
 	 * @param array $payload
 	 */
-	public function __construct(\ICanBoogie\Object $target, array $payload)
+	public function __construct($target, array $payload)
 	{
 		parent::__construct($target, 'property', $payload);
 	}
@@ -38,7 +38,7 @@ namespace ICanBoogie;
 /*
  * Patch Prototype helpers
  */
-Prototype\Helpers::patch('last_chance_get', function (Object $target, $property, &$success)
+Prototype\Helpers::patch('last_chance_get', function ($target, $property, &$success)
 {
 	global $core;
 
