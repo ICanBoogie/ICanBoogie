@@ -338,6 +338,8 @@ class Core extends Object
 		#
 
 		$_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
+
+		return $this->initial_request;
 	}
 
 	/**
