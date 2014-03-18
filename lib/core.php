@@ -263,9 +263,9 @@ class Core extends Object
 			$timezone = timezone_name_from_abbr(null, $timezone, 0);
 		}
 
-		date_default_timezone_set($timezone);
-
 		$this->timezone = TimeZone::from($timezone);
+
+		date_default_timezone_set((string) $this->timezone);
 	}
 
 	/**
