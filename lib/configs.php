@@ -24,7 +24,19 @@ class Configs implements \ArrayAccess
 
 	public function __construct($paths, $constructors)
 	{
-		$this->paths = array_combine($paths, array_fill(0, count($paths), 0));
+		foreach ($paths as $path)
+		{
+			$weight = 0;
+
+			if (is_array($path))
+			{
+				$weight = isset($path['weight']) ? $path['weight'] : 0;
+				$path = $path[0];
+			}
+
+			$this->add($path, $weight);
+		}
+
 		$this->constructors = $constructors;
 	}
 

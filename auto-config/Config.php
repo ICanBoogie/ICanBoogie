@@ -19,6 +19,7 @@ class Config implements \IteratorAggregate
 	protected $pathname;
 	protected $filesystem;
 	protected $fragments = [];
+	protected $weights = [];
 	protected $validator;
 
 	public function __construct($pathname)
@@ -28,7 +29,7 @@ class Config implements \IteratorAggregate
 		$this->validator = new ConfigValidator;
 	}
 
-	public function add_fragment($path)
+	public function add_fragment($path, $weight)
 	{
 		$pathname = $path . DIRECTORY_SEPARATOR . 'icanboogie.json';
 		$json = new JsonFile($pathname);
@@ -41,6 +42,7 @@ class Config implements \IteratorAggregate
 		$this->validator->validate($pathname);
 
 		$this->fragments[$path] = $json->read();
+		$this->weights[$path] = $weight;
 	}
 
 	public function synthesize(Filesystem $filesystem=null)
@@ -71,6 +73,19 @@ class Config implements \IteratorAggregate
 						break;
 
 					case 'config-path':
+
+						foreach ((array) $value as $v)
+						{
+							$config[$key][] = [
+
+								$filesystem->findShortestPathCode($this->pathname, "$path/$v"),
+								$this->weights[$path]
+
+							];
+						}
+
+						break;
+
 					case 'locale-path':
 					case 'module-path':
 
@@ -102,8 +117,9 @@ class Config implements \IteratorAggregate
 		$class = __CLASS__;
 
 		$config_constructor = $this->render_config_constructor($synthesized_config['config-constructor']);
+		$config_path = $this->render_config_path($synthesized_config['config-path']);
 
-		$config_path = implode(",\n\t\t", $synthesized_config['config-path']);
+// 		$config_path = implode(",\n\t\t", $synthesized_config['config-path']);
 		$locale_path = implode(",\n\t\t", $synthesized_config['locale-path']);
 		$module_path = implode(",\n\t\t", $synthesized_config['module-path']);
 
@@ -157,8 +173,31 @@ EOT;
 		return implode(",\n\t\t", $lines);
 	}
 
+	protected function render_config_path($synthesized)
+	{
+		$lines = array();
+
+		foreach ($synthesized as $data)
+		{
+			list($pathcode, $weight) = $data;
+
+			$lines[] = "[ {$pathcode}, 'weight' => {$weight} ]";
+		}
+
+		return implode(",\n\t\t", $lines);
+	}
+
 	public function write()
 	{
-		file_put_contents($this->pathname, $this->render());
+		try
+		{
+			file_put_contents($this->pathname, $this->render());
+		}
+		catch (\Exception $e)
+		{
+			echo $e;
+
+			throw $e;
+		}
 	}
 }
