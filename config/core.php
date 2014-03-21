@@ -7,8 +7,6 @@ return [
 	'cache configs' => false,
 	'cache modules' => false,
 
-	'connections' => [],
-
 	'repository' => '/repository',
 	'repository.temp' => '/repository/tmp',
 	'repository.cache' => '/repository/cache',

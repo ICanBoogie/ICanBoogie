@@ -31,7 +31,6 @@
 		"icanboogie/errors": "*",
 		"icanboogie/event": ">=1.2",
 
-		"icanboogie/activerecord": "2.x",
 		"icanboogie/http": "2.x",
 		"icanboogie/module": "2.x",
 		"icanboogie/operation": "2.x",
@@ -40,11 +39,13 @@
 	},
 
 	"require-dev": {
+		"icanboogie/activerecord": "2.x",
 		"icanboogie/i18n": "2.x"
 	},
 
 	"suggest": {
-		"icanboogie/cldr": "Provides internationalization for your application",
+		"icanboogie/activerecord": "ActiveRecord Object-relational mapping.",
+		"icanboogie/cldr": "Provides internationalization for your application.",
 		"icanboogie/i18n": "Provides localization for your application and nice internationalization helpers.",
 		"icanboogie/image": "Provides image resizing, filling, and color resolving."
 	},
@@ -53,8 +54,12 @@
 		"psr-4": {
 			"ICanBoogie\\AutoConfig\\": "auto-config/"
 		},
-		
+
 		"classmap": [ "lib/" ],
 		"files": [ "bootstrap.php", "lib/helpers.php" ]
+	},
+
+	"scripts": {
+		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Generator::on_autoload_dump"
 	}
 }

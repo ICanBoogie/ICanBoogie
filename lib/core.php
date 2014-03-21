@@ -15,7 +15,7 @@ namespace ICanBoogie;
  * Core of the framework.
  *
  * @property \ICanBoogie\Configs $configs Configurations accessor.
- * @property \ICanBoogie\Connections $connections Database connections accessor.
+ * @property \ICanBoogie\ActiveRecord\Connections $connections Database connections accessor.
  * @property \ICanBoogie\Models $models Models accessor.
  * @property \ICanBoogie\Modules $modules Modules accessor.
  * @property \ICanBoogie\Vars $vars Persistent variables accessor.
@@ -148,26 +148,6 @@ class Core extends Object
 	protected function lazy_get_vars()
 	{
 		return new Vars(REPOSITORY . 'vars' . DIRECTORY_SEPARATOR);
-	}
-
-	/**
-	 * Returns the connections accessor.
-	 *
-	 * @return ActiveRecord\Connections
-	 */
-	protected function lazy_get_connections()
-	{
-		return new ActiveRecord\Connections($this->config['connections']);
-	}
-
-	/**
-	 * Getter for the "primary" database connection.
-	 *
-	 * @return Database
-	 */
-	protected function lazy_get_db()
-	{
-		return $this->connections['primary'];
 	}
 
 	/**

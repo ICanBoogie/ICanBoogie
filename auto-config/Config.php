@@ -192,6 +192,8 @@ EOT;
 		try
 		{
 			file_put_contents($this->pathname, $this->render());
+
+			echo "Created auto-config in {$this->pathname}\n";
 		}
 		catch (\Exception $e)
 		{

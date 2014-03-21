@@ -528,6 +528,7 @@ The following packages are required, you might want to check them out:
 
 The following packages can also be installed for additionnal features:
 
+- [icanboogie/activerecord](https://github.com/ICanBoogie/ActiveRecord): ActiveRecord Object-relational mapping.,
 - [icanboogie/cldr](https://github.com/ICanBoogie/CLDR): Provides internationalization for
 your application
 - [icanboogie/i18n](https://github.com/ICanBoogie/I18n): Provides localization for your application

@@ -17,18 +17,13 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 
 	static public function setupBeforeClass()
 	{
-		self::$core = new Core([
+		$autoconfig = get_autoconfig();
+		$autoconfig['config-path'][] = __DIR__ . DIRECTORY_SEPARATOR . "config";
 
-			'connections' => [
+		$core = new Core($autoconfig);
+		$core();
 
-				'primary' => [
-
-					'dsn' => 'sqlite::memory:'
-
-				]
-			]
-
-		]);
+		self::$core = $core;
 	}
 
 	/**
