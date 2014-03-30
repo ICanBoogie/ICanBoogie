@@ -39,10 +39,10 @@ class Generator
 		{
 			list($package, $path) = $package_info;
 
-			$config->add_fragment($path, 10);
+			$config->add_fragment($path, -10);
 		}
 
-		$config->add_fragment(getcwd(), -10);
+		$config->add_fragment(getcwd(), 10);
 		$config->write();
 	}
 }
