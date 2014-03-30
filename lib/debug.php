@@ -68,19 +68,13 @@ class Debug
 		return self::$mode == self::MODE_PRODUCTION;
 	}
 
-	static public function get_config()
+	/**
+	 * Configures the class.
+	 *
+	 * @param array $config A config such as one returned by `$core->configs['debug']`.
+	 */
+	static public function configure(array $config)
 	{
-		global $core;
-
-		if (self::$config)
-		{
-			return self::$config;
-		}
-
-		self::$config = ROOT . 'config/debug.php'; // initial debug config
-
-		$config = (isset($core) ? $core->configs['debug'] : require ROOT . 'config/debug.php');
-
 		$mode = self::$mode;
 		$modes = [];
 
@@ -115,11 +109,6 @@ class Debug
 				self::$$directive = $value;
 			}
 		}
-
-// 		self::$mode = $config['mode'];
-// 		self::$report_address = $config['report_address'];
-
-		return self::$config = $config;
 	}
 
 	/**
@@ -209,9 +198,7 @@ class Debug
 
 		self::report($message);
 
-		$config = self::get_config();
-
-		if ($config['verbose'])
+		if (self::$config_verbose)
 		{
 			echo $message;
 
@@ -452,7 +439,6 @@ EOT;
 	 */
 	static public function report($message)
 	{
-		$config = self::get_config();
 		$report_address = self::$config_report_address;
 
 		if (!$report_address)

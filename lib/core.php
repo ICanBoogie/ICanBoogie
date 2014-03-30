@@ -283,27 +283,11 @@ class Core extends Object
 	{
 		self::$is_running = true;
 
-		#
-		# bootstrap debug
-		#
-
-		Debug::get_config(); // configure debug :(
-
-		#
-		# boostrap modules
-		#
+		Debug::configure($this->configs['debug']);
 
 		$this->run_modules();
 
-		#
-		# bootstrap prototype
-		#
-
 		Prototype::configure($this->configs['prototypes']);
-
-		#
-		# bootstrap events
-		#
 
 		Events::patch('get', function() { // TODO-20140310: deprecate
 
