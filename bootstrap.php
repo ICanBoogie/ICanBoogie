@@ -36,7 +36,7 @@ define('ICanBoogie\ASSETS', ROOT . 'assets' . DIRECTORY_SEPARATOR);
  * @var string
  */
 defined('ICanBoogie\DOCUMENT_ROOT')
-or define('ICanBoogie\DOCUMENT_ROOT', rtrim(strtr($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR == '/' ? '\\' : '/', DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
+or define('ICanBoogie\DOCUMENT_ROOT', rtrim(strtr($_SERVER['DOCUMENT_ROOT'] ?: getcwd(), DIRECTORY_SEPARATOR == '/' ? '\\' : '/', DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
 
 /**
  * Repository root. The repository is the directory where all files are stored. It's the only

@@ -118,7 +118,10 @@ class Session
 			output_reset_rewrite_vars();
 		}
 
-		session_start();
+		if (PHP_SAPI != 'cli')
+		{
+			session_start();
+		}
 
 		#
 		# The following line are meant to circumvent session fixation.
@@ -155,6 +158,11 @@ class Session
 	 */
 	public function regenerate_id($delete_old_session=false)
 	{
+		if (PHP_SAPI == 'cli')
+		{
+			return;
+		}
+
 		return session_regenerate_id($delete_old_session);
 	}
 
