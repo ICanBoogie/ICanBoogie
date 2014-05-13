@@ -256,8 +256,9 @@ the low-level components available. Currently, it defines configuration construc
 component configurations; paths to locale message catalogs; and paths to modules.
 
 To participate in the _auto-config_ process, packages define a "icanboogie.json" file matching
-the [icanboogie-schema.json](auto-config/icanboogie-schema.json) schema. A "icanboogie.json" file
-can also be defined at the root of the application, beside the "composer.json" file.
+the [icanboogie-schema.json](auto-config/icanboogie-schema.json) schema. This file
+can also be defined at the root of the application, beside the "composer.json" file, if the
+application provides its own configuration, locale messages or modules.
 
 The _auto-config_ file is generated after the autoloader is dumped, during the
 [`post-autoload-dump`](https://getcomposer.org/doc/articles/scripts.md) emitted by [Composer][].
@@ -284,6 +285,8 @@ Using the _auto-config_ feature, the [Core][] instance can be created very easil
 <?php
 
 $core = new ICanBoogie\Core(require ICanBoogie\AUTOCONFIG_PATHNAME);
+# or
+$core = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
 ```
 
 
