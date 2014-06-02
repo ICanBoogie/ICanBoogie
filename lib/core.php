@@ -267,16 +267,6 @@ class Core extends Object
 	}
 
 	/**
-	 * Returns the route collection.
-	 *
-	 * @return \ICanBoogie\Routes
-	 */
-	protected function get_routes()
-	{
-		return Routes::get();
-	}
-
-	/**
 	 * Launch the application.
 	 */
 	public function __invoke()
