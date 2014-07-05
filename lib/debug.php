@@ -116,18 +116,6 @@ class Debug
 	 */
 	static public function shutdown_handler()
 	{
-		global $core;
-
-		if (self::$logs)
-		{
-			if (!headers_sent() && isset($core))
-			{
-				$core->session;
-			}
-
-			$_SESSION['alerts'] = self::$logs;
-		}
-
 		$error = error_get_last();
 
 		if ($error && $error['type'] == E_ERROR)
@@ -509,6 +497,15 @@ EOT;
 
 	static public function log($type, $message, array $params=[], $message_id=null)
 	{
+		global $core;
+
+		if (!self::$logs)
+		{
+			$core->session;
+
+			self::$logs = &$_SESSION['alerts'];
+		}
+
 		if (empty(self::$logs[$type]))
 		{
 			self::$logs[$type] = [];
