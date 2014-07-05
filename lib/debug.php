@@ -17,8 +17,6 @@ class Debug
 	const MODE_TEST = 'test';
 	const MODE_PRODUCTION = 'production';
 
-	const MAX_MESSAGES = 100;
-
 	static public $mode = 'dev';
 
 	/**
@@ -124,16 +122,6 @@ class Debug
 
 			self::report($message);
 		}
-	}
-
-	static public function restore_logs(Event $event, Session $session)
-	{
-		if ($session->alerts)
-		{
-			self::$logs = array_merge($session->alerts, self::$logs);
-		}
-
-		$session->alerts = [];
 	}
 
 	/*
@@ -493,92 +481,29 @@ EOT;
 		mail($report_address, __CLASS__ . ': Report from ' . $host, $message, $headers);
 	}
 
-	static public $logs = [];
-
-	static public function log($type, $message, array $params=[], $message_id=null)
+	static private function get_logger()
 	{
-		global $core;
-
-		if (!self::$logs)
-		{
-			$core->session;
-
-			self::$logs = &$_SESSION['alerts'];
-		}
-
-		if (empty(self::$logs[$type]))
-		{
-			self::$logs[$type] = [];
-		}
-
-		#
-		# limit the number of messages
-		#
-
-		$messages = &self::$logs[$type];
-
-		if ($messages)
-		{
-			$max = self::MAX_MESSAGES;
-			$count = count($messages);
-
-			if ($count > $max)
-			{
-				$messages = array_splice($messages, $count - $max);
-
-				array_unshift($messages, [ '*** SLICED', [] ]);
-			}
-		}
-
-		$message_id ? $messages[$message_id] = [ $message, $params ] : $messages[] = [ $message, $params ];
+		return Core::get()->logger;
 	}
 
 	/**
-	 * Returns the messages available in a given log.
+	 * The method is forwarded to the core's logger `get_messages()` method.
 	 *
-	 * @param string $type The log type.
-	 *
-	 * @return array The messages available in the given log.
+	 * @return string[]
 	 */
 	static public function get_messages($type)
 	{
-		if (empty(self::$logs[$type]))
-		{
-			return [];
-		}
-
-		$rc = [];
-
-		foreach (self::$logs[$type] as $message)
-		{
-			list($message, $args) = $message;
-
-			if ($args)
-			{
-				$message = format($message, $args);
-			}
-
-			$rc[] = (string) $message;
-		}
-
-		return $rc;
+		return self::get_logger()->get_messages($level);
 	}
 
 	/**
-	 * Similar to the {@link get_message()} method, the method returns the messages available in a
-	 * given log, but clear the log after the messages have been extracted.
+	 * The method is forwarded to the core's logger `fetch_messages()` method.
 	 *
-	 * @param string $type
-	 *
-	 * @return array The messages fetched from the given log.
+	 * @return string[]
 	 */
-	static public function fetch_messages($type)
+	static public function fetch_messages($level)
 	{
-		$rc = self::get_messages($type);
-
-		self::$logs[$type] = [];
-
-		return $rc;
+		return self::get_logger()->fetch_messages($level);
 	}
 
 	/**

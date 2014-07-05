@@ -28,6 +28,7 @@ namespace ICanBoogie;
  * @property-read \ICanBoogie\HTTP\Request $request The request being processed.
  * @property-read \ICanBoogie\Events $events Event collection.
  * @property-read \ICanBoogie\Routes $routes Route collection.
+ * @property-read \ICanBoogie\LoggerInterface $logger The message logger.
  */
 class Core extends Object
 {
