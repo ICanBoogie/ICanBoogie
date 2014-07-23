@@ -14,7 +14,8 @@ return [
 
 	'session' => [
 
-		'name' => 'ICanBoogie'
+		'name' => 'ICanBoogie',
+		'domain' => null
 
 	]
 ];

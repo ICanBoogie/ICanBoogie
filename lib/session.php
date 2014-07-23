@@ -78,6 +78,7 @@ class Session
 
 			'id' => null,
 			'name' => 'ICanBoogie',
+			'domain' => null,
 			'use_cookies' => true,
 			'use_only_cookies' => true,
 			'use_trans_sid' => false,
