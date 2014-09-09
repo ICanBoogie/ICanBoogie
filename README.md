@@ -401,7 +401,7 @@ Low-level components of the framework are configured using configuration files. 
 configuration files are available in the `/config/` folder. To override the configuration or part
 of it, you can provide the path or paths to your own configuration files.
 
-For instance, defining the primary database connection:
+For instance, configuring the _core_ instance:
 
 1\. Edit your _core_ configuration file e.g. `/protected/all/config/core.php` with the following
 lines:
@@ -413,13 +413,12 @@ lines:
 
 return [
 
-	'connections' => [
+	'cache configs' => true,
 
-		'primary' => [
+	'session' => [
 
-			'dsn' => 'mysql:dbname=<databasename>;host=<hostname>',
-			'username' => '<username>',
-			'password' => '<password>'
+			'name' => "ICanBoogie",
+			'domain' => ".example.org"
 
 		]
 	]
