@@ -86,6 +86,56 @@ echo $core->timezone;            // Europe/Madrid
 
 
 
+#### Using getters to fallback to default values
+
+Because getters are invoked when their corresponding property is innacessible, and because
+an unset property is innacessible, it is possible to define getters that return default values.
+The following example demonstrates how a `slug` getter can be defined to generate a default
+slug from the `title` property when the `slug` property is inaccessible:
+
+```php
+<?php
+
+class Node
+{
+	public $title;
+	public $slug;
+
+	public function __construct($title, $slug=null)
+	{
+		$this->title = $title;
+
+		if ($slug)
+		{
+			$this->slug = $slug;
+		}
+		else
+		{
+			unset($this->slug);
+		}
+	}
+
+	public function get_slug()
+	{
+		return \ICanBoogie\normalize($this->title);
+	}
+}
+
+$node = new Node('A nice title');
+echo $node->slug;           // a-nice-title
+
+$node->slug = "nice-title"
+echo $node->slug;           // nice-title
+
+unset($node->slug);
+echo $node->slug;           // a-nice-title
+```
+
+
+
+
+
+
 ### Invokable objects
 
 Objects performing a main action are simply invoked to perform that action. For instance, a
@@ -124,7 +174,7 @@ $response();
 use ICanBoogie\I18n\Locale;
 
 $translator = Locale::get('fr')->translator;
-echo $translator('I can Boogie'); // Je sais danser le Boogie 
+echo $translator('I can Boogie'); // Je sais danser le Boogie
 ```
 
 
@@ -134,7 +184,7 @@ echo $translator('I can Boogie'); // Je sais danser le Boogie
 ### Collections as arrays
 
 Collections of objects are always managed as arrays, whether they are records in the database,
-models, modules, database connections… 
+models, modules, database connections…
 
 ```php
 <?php
@@ -146,7 +196,7 @@ $core->connections['primary']; // obtain the primary database connection
 $request['param1'];            // fetch param of the request named `param1`, returns `null` if it doesn't exists
 
 $response->headers['Cache-Control'] = 'no-cache';
-$response->headers['Content-Type'] = 'text/html; charset=utf-8'; 
+$response->headers['Content-Type'] = 'text/html; charset=utf-8';
 ```
 
 
@@ -158,6 +208,8 @@ A lot of objects in ICanBoogie can be used as strings:
 
 ```php
 <?php
+
+use ICanBoogie\DateTime;
 
 $time = new DateTime('2013-05-17 12:30:45', 'Europe/Paris');
 
@@ -186,7 +238,7 @@ $response = new Response('ok', 200);
 echo $response;                       // HTTP/1.0 200 OK\r\nDate: Fri, 17 May 2013 15:08:21 GMT\r\n\r\nok
 
 echo $core->models['pages']->own->visible->filter_by_nid(12)->order('created_on DESC')->limit(5);
-// SELECT * FROM `pages` `page` INNER JOIN `nodes` `node` USING(`nid`)  WHERE (`constructor` = ?) AND (`is_online` = ?) AND (siteid = 0 OR siteid = ?) AND (language = "" OR language = ?) AND (`nid` = ?) ORDER BY created_on DESC LIMIT 5
+// SELECT * FROM `pages` `page` INNER JOIN `nodes` `node` USING(`nid`) WHERE (`constructor` = ?) AND (`is_online` = ?) AND (siteid = 0 OR siteid = ?) AND (language = "" OR language = ?) AND (`nid` = ?) ORDER BY created_on DESC LIMIT 5
 ```
 
 
@@ -559,7 +611,7 @@ The documentation for the package and its dependencies can be generated with the
 command. The documentation is generated in the `docs` directory using [ApiGen](http://apigen.org/).
 The package directory can later by cleaned with the `make clean` command.
 
-The documentation for the complete framework is also available online: <http://icanboogie.org/docs/> 
+The documentation for the complete framework is also available online: <http://icanboogie.org/docs/>
 
 
 
