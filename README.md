@@ -173,7 +173,7 @@ $response();
 
 use ICanBoogie\I18n\Locale;
 
-$translator = Locale::get('fr')->translator;
+$translator = Locale::from('fr')->translator;
 echo $translator('I can Boogie'); // Je sais danser le Boogie
 ```
 
@@ -572,7 +572,6 @@ The following packages are required, you might want to check them out:
 - [icanboogie/inflector](https://github.com/ICanBoogie/Inflector)
 - [icanboogie/datetime](https://github.com/ICanBoogie/DateTime)
 - [icanboogie/prototype](https://github.com/ICanBoogie/Prototype)
-- [icanboogie/activerecord](https://github.com/ICanBoogie/ActiveRecord)
 - [icanboogie/event](https://github.com/ICanBoogie/Event)
 - [icanboogie/http](https://github.com/ICanBoogie/HTTP)
 - [icanboogie/routing](https://github.com/ICanBoogie/Routing)
@@ -582,11 +581,11 @@ The following packages are required, you might want to check them out:
 
 The following packages can also be installed for additionnal features:
 
-- [icanboogie/activerecord](https://github.com/ICanBoogie/ActiveRecord): ActiveRecord Object-relational mapping.,
+- [icanboogie/activerecord](https://github.com/ICanBoogie/ActiveRecord): ActiveRecord Object-relational mapping.
 - [icanboogie/cldr](https://github.com/ICanBoogie/CLDR): Provides internationalization for
-your application
+your application.
 - [icanboogie/i18n](https://github.com/ICanBoogie/I18n): Provides localization for your application
-and nice internationalization helpers.
+and additional internationalization helpers.
 - [icanboogie/image](https://github.com/ICanBoogie/Image): Provides image resizing, filling,
 and color resolving.
 
@@ -599,7 +598,7 @@ and color resolving.
 The package is [available on GitHub](https://github.com/ICanBoogie/ICanBoogie), its repository can be
 cloned with the following command line:
 
-	$ git clone git://github.com/ICanBoogie/ICanBoogie.git
+	$ git clone https://github.com/ICanBoogie/ICanBoogie.git
 
 
 
