@@ -1,16 +1,37 @@
 # ICanBoogie [![Build Status](https://travis-ci.org/ICanBoogie/ICanBoogie.svg?branch=2.0)](https://travis-ci.org/ICanBoogie/ICanBoogie)
 
-__ICanBoogie__ is a high-performance micro framework for PHP 5.4+. It is written with speed,
+__ICanBoogie__ is a high-performance micro-framework for PHP 5.4+. It is written with speed,
 flexibility and lightness in mind. ICanBoogie doesn't try to be an all-in-one do-it-all solution
-but provides the essential features to quickly and easily build web applications.
-
-ICanBoogie packages offers the following features: Prototypes, ActiveRecords, Internationalization,
-Modules, a RESTful API, Request/Dispatch/Rescue/Response, Operations, Events, Sessions, Routing,
-Caching and more.
+but provides the essential features to quickly and easily build web applications. It is easily
+extensible, and a variety of packages are available to complement its features with
+internationalization, translation, ORM, facets, mailer, and many more.
 
 Together with [Brickrouge](http://brickrouge.org) and [Patron](https://github.com/Icybee/Patron),
 ICanBoogie is one of the components that make the CMS [Icybee](http://icybee.org). You might want
 to check these projects too.
+
+
+
+
+### What does _micro_ mean?
+
+_micro_ mean that the core features of ICanBoogie are kept to the essential, the core is simple
+but greatly extensible. For instance, ICanBoogie won't force an ORM on you, although its
+[ActiveRecord](https://github.com/ICanBoogie/ActiveRecord) implementation is pretty nice. In this
+same fashion, its routing mechanisms are quite agnostic and let you write your very own
+dispatchers if you want to.
+
+
+
+
+
+### Configuration and conventions
+
+ICanBoogie and its components are usually very configurable and come with sensible defaults, and a
+few conventions. Configurations are usually located in "config" folders, while locale messages are
+usually located in "locale" folders. Components configure themselves thanks to ICanBoogie's
+_auto-config_ feature, and won't require much of you other than a line in your
+`composer.json` file.
 
 
 
