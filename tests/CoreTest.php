@@ -70,7 +70,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 			[ 'request',         'ICanBoogie\HTTP\Request' ],
 			[ 'locale',          'ICanBoogie\I18n\Locale' ],
 			[ 'events',          'ICanBoogie\Events' ],
-			[ 'routes',          'ICanBoogie\Routes' ],
+			[ 'routes',          'ICanBoogie\Routing\Routes' ],
 			[ 'timezone',        'ICanBoogie\TimeZone' ]
 
 		];
