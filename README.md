@@ -15,7 +15,7 @@ to check these projects too.
 
 ### What does _micro_ mean?
 
-_micro_ mean that the core features of ICanBoogie are kept to the essential, the core is simple
+_micro_ means that the core features of ICanBoogie are kept to the essential, the core is simple
 but greatly extensible. For instance, ICanBoogie won't force an ORM on you, although its
 [ActiveRecord](https://github.com/ICanBoogie/ActiveRecord) implementation is pretty nice. In this
 same fashion, its routing mechanisms are quite agnostic and let you write your very own
