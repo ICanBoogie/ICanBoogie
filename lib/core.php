@@ -198,8 +198,13 @@ class Core extends Object
 	 *
 	 * @return string
 	 */
-	protected function get_language()
+	protected function get_language() // TODO-20140915: this method should be a prototype method
 	{
+		if (!class_exists('ICanBoogie\I18n', true))
+		{
+			return 'en';
+		}
+
 		return I18n\get_language();
 	}
 
@@ -208,8 +213,13 @@ class Core extends Object
 	 *
 	 * @param string $id Locale identifier.
 	 */
-	protected function set_locale($id)
+	protected function set_locale($id) // TODO-20140915: this method should be a prototype method
 	{
+		if (!class_exists('ICanBoogie\I18n', true))
+		{
+			return;
+		}
+
 		I18n\set_locale($id);
 	}
 
@@ -218,7 +228,7 @@ class Core extends Object
 	 *
 	 * @return I18n\Locale
 	 */
-	protected function get_locale()
+	protected function get_locale() // TODO-20140915: this method should be a prototype method
 	{
 		return I18n\get_locale();
 	}
