@@ -12,6 +12,23 @@
 namespace ICanBoogie;
 
 /*
+ * Core
+ */
+
+/**
+ * Instantiates a {@link Core} instance with the auto-config and boots it.
+ *
+ * @return \ICanBoogie\Core
+ */
+function boot()
+{
+	$core = new Core( get_autoconfig() );
+	$core->boot();
+
+	return $core;
+}
+
+/*
  * Logger
  */
 

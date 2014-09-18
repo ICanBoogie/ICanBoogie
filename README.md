@@ -572,6 +572,8 @@ the core yourself once your setup is done.
 
 $core = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
 $core->boot();
+# or
+$core = ICanBoogie\boot();
 
 // Additional setup …
 
