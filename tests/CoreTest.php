@@ -27,6 +27,14 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * @expectedException ICanBoogie\CoreAlreadyBooted
+	 */
+	public function test_second_boot()
+	{
+		self::$core->boot();
+	}
+
+	/**
 	 * @dataProvider provide_test_write_readonly_properties
 	 * @expectedException ICanBoogie\PropertyNotWritable
 	 *

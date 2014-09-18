@@ -372,6 +372,18 @@ $core = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
 
 
 
+### The core has booted
+
+The `ICanBoogie\Core::boot` event of class [ICanBoogie\Core\BootEvent](http://icanboogie.org/docs/class-ICanBoogie.Core.BootEvent.html)
+is fired once the core has booted.
+
+Third parties may use this event to alter the configuration or the components before the
+core is run.
+
+
+
+
+
 ### The core is running
 
 The `ICanBoogie\Core::run` event of class [ICanBoogie\Core\RunEvent](http://icanboogie.org/docs/class-ICanBoogie.Core.RunEvent.html)
@@ -543,6 +555,31 @@ $request = $core();
 $response = $request();
 $response();
 ```
+
+
+
+
+
+#### Only booting the core
+
+The core and its services can also be only booted using the `boot()` method, you'll need to run
+the core yourself once your setup is done.
+
+```php
+<?php
+
+// index.php
+
+$core = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
+$core->boot();
+
+// Additional setup …
+
+$request = $core();
+$response = $request();
+$response();
+```
+
 
 
 

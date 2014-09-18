@@ -277,16 +277,40 @@ class Core extends Object
 		return $this->timezone;
 	}
 
-	/**
-	 * Launch the application.
-	 */
-	public function __invoke()
+	static private $is_booted;
+
+	protected function get_is_booted()
 	{
-		self::$is_running = true;
+		return self::$is_booted === true;
+	}
+
+	protected function get_is_booting()
+	{
+		return self::$is_booted === false;
+	}
+
+	/**
+	 * Boot the modules and configure Debug, Prototype and Events.
+	 *
+	 * The `boot` event of class {@link Core\BootEvent} is fired after the boot is finished.
+	 *
+	 * The `ICANBOOGIE_READY_TIME_FLOAT` key is added to the `$_SERVER` super global with the
+	 * micro time at which the boot finished.
+	 *
+	 * @throws CoreAlreadyBooted in attempt to boot the core twice.
+	 */
+	public function boot()
+	{
+		if (self::$is_booted !== null)
+		{
+			throw new CoreAlreadyBooted;
+		}
+
+		self::$is_booted = false;
 
 		Debug::configure($this->configs['debug']);
 
-		$this->run_modules();
+		$this->boot_modules();
 
 		Prototype::configure($this->configs['prototypes']);
 
@@ -296,24 +320,37 @@ class Core extends Object
 
 		});
 
-		new Core\RunEvent($this, $this->initial_request);
-
-		#
-		# Register the time at which the core was running.
-		#
+		new Core\BootEvent($this);
 
 		$_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
+
+		self::$is_booted = true;
+	}
+
+	/**
+	 * Launch the application.
+	 */
+	public function __invoke()
+	{
+		if (self::$is_booted === null)
+		{
+			$this->boot();
+		}
+
+		self::$is_running = true;
+
+		new Core\RunEvent($this, $this->initial_request);
 
 		return $this->initial_request;
 	}
 
 	/**
-	 * Run the enabled modules.
+	 * Boot enabled modules.
 	 *
-	 * Before the modules are actually ran, their index is used to alter the I18n load paths, the
-	 * config paths and the core's `classes aliases` config properties.
+	 * Before the modules are actually booted up, their index is used to alter the I18n load
+	 * paths and the config paths.
 	 */
-	protected function run_modules()
+	protected function boot_modules()
 	{
 		$modules = $this->modules;
 		$index = $modules->index;
@@ -390,6 +427,24 @@ class BeforeRunEvent extends \ICanBoogie\Event
 	public function __construct(\ICanBoogie\Core $target)
 	{
 		parent::__construct($target, 'run:before');
+	}
+}
+
+/**
+ * Event class for the `ICanBoogie\Core::boot` event.
+ *
+ * The event is fired after the core has booted.
+ */
+class BootEvent extends \ICanBoogie\Event
+{
+	/**
+	 * The event is constructed with the type `boot`.
+	 *
+	 * @param \ICanBoogie\Core $target
+	 */
+	public function __construct(\ICanBoogie\Core $target)
+	{
+		parent::__construct($target, 'boot');
 	}
 }
 

@@ -167,3 +167,14 @@ class PermissionRequired extends SecurityException
 		parent::__construct($message, $code, $previous);
 	}
 }
+
+/**
+ * Exception thrown in attempt to run the code twice.
+ */
+class CoreAlreadyBooted extends \Exception
+{
+	public function __construct($message="The core has already booted.", $code=500, \Exception $previous=null)
+	{
+		parent::__construct($message, $code, $previous);
+	}
+}
