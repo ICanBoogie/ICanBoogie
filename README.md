@@ -350,17 +350,90 @@ is required in the _root_ package of the application:
 
 
 
-### Using the _auto-config_ to instantiate the Core
+### Configuring the _core_
 
-Using the _auto-config_ feature, the [Core][] instance can be created very easily:
+The [Core][] instance is configured with _core_ configuration fragments. The fragment use by your
+application is usually located in `/protected/all/config/core.php`. The following example
+demonstrates how to enable configs caching and how to specify the name of the session and its
+scope.
 
 ```php
 <?php
 
-$core = new ICanBoogie\Core(require ICanBoogie\AUTOCONFIG_PATHNAME);
-# or
+// protected/all/config/core.php
+
+return [
+
+	'cache configs' => true,
+
+	'session' => [
+
+			'name' => "ICanBoogie",
+			'domain' => ".example.org"
+
+		]
+	]
+
+];
+```
+
+
+
+
+
+
+### Obtaining the _auto-config_
+
+The `ICanBoogie\get_autoconfig()` function returns the _auto-config_. It can be used to
+instantiante the [Core][] instance.
+
+```php
+<?php
+
 $core = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
 ```
+
+Additionnaly, the `ICanBoogie\AUTOCONFIG_PATHNAME` constant define the absolute pathname to the
+_auto-config_ file.
+
+
+
+
+
+## The life and death of your application
+
+With ICanBoogie, you only need three lines to create, run, and terminate your application:
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$core = ICanBoogie\boot();
+$core();
+```
+
+1\. The first line is pretty common for applications using [Composer][], it creates and runs
+its autoloader.
+
+2\. On the second line the [Core][] instance is created with the _auto-config_ and its `boot()`
+method is invoked. At this point ICanBoogie and some low-level components are configured and
+booted. Your application is ready to take orders.
+
+3\. On the third line the application is run. This implies the following:
+
+3.1\. The HTTP response code is set to 500, so that if a fatal error occurs the error message
+won't be sent with the HTTP code 200 (Ok).
+
+3.2\. The initial request is obtained and the `ICanBoogie\Core::run` event is fired with it.
+
+3.3\. The request is executed to obtain a response.
+
+3.4\. The response is executed to respond to the request. It should set the HTTP code to the
+appropriate value.
+
+3.5\. The `ICanboogie\Core::terminate` event is fired at which point the application should be
+terminated.
 
 
 
@@ -372,27 +445,23 @@ $core = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
 
 
 
-### The core has booted
+### The application has booted
 
-The `ICanBoogie\Core::boot` event of class [ICanBoogie\Core\BootEvent](http://icanboogie.org/docs/class-ICanBoogie.Core.BootEvent.html)
-is fired once the core has booted.
-
+The `ICanBoogie\Core::boot` event of class [BootEvent][] is fired once the application has booted.
 Third parties may use this event to alter the configuration or the components before the
-core is run.
+application is ran.
 
 
 
 
 
-### The core is running
+### The application is running
 
-The `ICanBoogie\Core::run` event of class [ICanBoogie\Core\RunEvent](http://icanboogie.org/docs/class-ICanBoogie.Core.RunEvent.html)
-is fired when the core is running.
-
+The `ICanBoogie\Core::run` event of class [RunEvent][] is fired when the application is running.
 Third parties may use this event to alter various states of the application, starting with the
 initial request.
 
-The following code illustrate how the event can be used to retrieve the website corresponding to
+The following code demonstrates how the event can be used to retrieve the website corresponding to
 the request and select the locale and time zone that should be used by the framework. Also, the
 code patches the `contextualize()` and `decontextualize()` routing helpers to alter the paths
 according to the website's path.
@@ -402,9 +471,10 @@ according to the website's path.
 
 namespace Icybee\Modules\Sites;
 
+use ICanBoogie\Core;
 use ICanBoogie\Routing;
 
-$core->events->attach(function(\ICanBoogie\Core\RunEvent $event, \ICanBoogie\Core $target) {
+$core->events->attach(function(Core\RunEvent $event, Core $target) {
 
 	$target->site = $site = Model::find_by_request($event->request);
 	$target->locale = $site->language;
@@ -440,12 +510,21 @@ $core->events->attach(function(\ICanBoogie\Core\RunEvent $event, \ICanBoogie\Cor
 
 
 
+### The application is terminated
+
+The `ICanboogie\Core::terminate` event of class [TerminateEvent][] is fired after the response to
+the initial request was sent and the application is about to be terminated. Third parties may
+use this event to cleanup loose ends.
+
+
+
+
+
 ### Request dispatchers are collected
 
 The `ICanBoogie\HTTP\Dispatcher::collect` event of class [ICanBoogie\HTTP\Dispatcher\CollectEvent](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.CollectEvent.html)
-is fired when dispatchers are collected, just before the main dispatcher is instantiated.
-
-Third parties may use this event to register dispatchers or alter dispatchers.
+is fired when dispatchers are collected, just before the main dispatcher is instantiated. Third
+parties may use this event to register dispatchers or alter dispatchers.
 
 The following code illustrate how a `hello` dispatcher, that returns
 "Hello world!" when the request matches the path "/hello", can be registered.
@@ -468,118 +547,6 @@ $core->events->attach(function(Dispatcher\CollectEvent $event, Dispatcher $targe
 	}
 
 });
-```
-
-
-
-
-
-## Getting started
-
-
-
-
-
-### Configuring
-
-Low-level components of the framework are configured using configuration files. The default
-configuration files are available in the `/config/` folder. To override the configuration or part
-of it, you can provide the path or paths to your own configuration files.
-
-For instance, configuring the _core_ instance:
-
-1\. Edit your _core_ configuration file e.g. `/protected/all/config/core.php` with the following
-lines:
-
-```php
-<?php
-
-// protected/all/config/core.php
-
-return [
-
-	'cache configs' => true,
-
-	'session' => [
-
-			'name' => "ICanBoogie",
-			'domain' => ".example.org"
-
-		]
-	]
-
-];
-```
-
-2\. Define the config folder of your application in the `icanboogie.json` file:
-
-```json
-{
-	"config-path": "protected/all/config/"
-}
-```
-
-3\. Create the _core_ object:
-
-```php
-<?php
-
-$core = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
-```
-
-
-
-
-### Running the Core and returning a response
-
-Before we can process requests we need to run the framework, which indexes modules and select
-the context for the application.
-
-Although they are usually defined in configuration fragments, once the framework is running we
-can just as easily add routes or attach events.
-
-Finally we can execute the initial HTTP request and return its response.
-
-```php
-<?php
-
-// index.php
-
-# Running the core returns the initial request.
-
-$request = $core();
-
-# Here we could add routes or attach events but we'll just execute the
-# initial request, obtain a response from it and return that response.
-
-$response = $request();
-$response();
-```
-
-
-
-
-
-#### Only booting the core
-
-The core and its services can also be only booted using the `boot()` method, you'll need to run
-the core yourself once your setup is done.
-
-```php
-<?php
-
-// index.php
-
-$core = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
-$core->boot();
-# or
-$core = ICanBoogie\boot();
-
-// Additional setup …
-
-$request = $core();
-$response = $request();
-$response();
 ```
 
 
@@ -698,6 +665,7 @@ ICanBoogie is licensed under the New BSD License - See the [LICENSE](LICENSE) fi
 
 
 
+[BootEvent]: http://icanboogie.org/docs/class-ICanBoogie.BootEvent.html
 [Composer]: http://getcomposer.org/
 [Core]: http://icanboogie.org/docs/class-ICanBoogie.Core.html
 [DateTime]: http://icanboogie.org/docs/class-ICanBoogie.DateTime.html
@@ -705,3 +673,5 @@ ICanBoogie is licensed under the New BSD License - See the [LICENSE](LICENSE) fi
 [Object]: http://icanboogie.org/docs/class-ICanBoogie.Object.html
 [Prototype package]: https://github.com/ICanBoogie/Prototype
 [Request]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Request.html
+[RunEvent]: http://icanboogie.org/docs/class-ICanBoogie.RunEvent.html
+[TerminateEvent]: http://icanboogie.org/docs/class-ICanBoogie.TerminateEvent.html

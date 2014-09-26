@@ -21,7 +21,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 		$autoconfig['config-path'][] = __DIR__ . DIRECTORY_SEPARATOR . "config";
 
 		$core = new Core($autoconfig);
-		$core();
+		$core->boot();
 
 		self::$core = $core;
 	}

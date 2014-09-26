@@ -11,6 +11,8 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Response;
 /**
  * Core of the framework.
  *
@@ -328,10 +330,18 @@ class Core extends Object
 	}
 
 	/**
-	 * Launch the application.
+	 * Run the application.
+	 *
+	 * In order to avoir error messages triggered by PHP fatal errors to be send with a 200 (Ok)
+	 * HTTP code, the HTTP code is changed to 500 before the core is run (and booted). When the
+	 * process runs properly the HTTP code is changed to the appropriate value by the response.
+	 *
+	 * The {@link boot()} method is invoked if the core has not booted yet.
 	 */
 	public function __invoke()
 	{
+		http_response_code(500);
+
 		if (self::$is_booted === null)
 		{
 			$this->boot();
@@ -339,9 +349,28 @@ class Core extends Object
 
 		self::$is_running = true;
 
-		new Core\RunEvent($this, $this->initial_request);
+		$request = $this->initial_request;
 
-		return $this->initial_request;
+		new Core\RunEvent($this, $request);
+
+		$response = $request();
+		$response();
+
+		$this->terminate($request, $response);
+	}
+
+	/**
+	 * Terminate the application.
+	 *
+	 * The method throws the `ICanBoogie\Core::run` event of class
+	 * {@link \ICanboogie\Core\RunEvent}.
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 */
+	protected function terminate(Request $request, Response $response)
+	{
+		new Core\Terminate($this, $request, $response);
 	}
 
 	/**
@@ -413,6 +442,7 @@ class Core extends Object
 namespace ICanBoogie\Core;
 
 use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Response;
 
 /**
  * Event class for the `ICanBoogie\Core::run:before` event.
@@ -470,6 +500,27 @@ class RunEvent extends \ICanBoogie\Event
 		$this->request = $request;
 
 		parent::__construct($target, 'run');
+	}
+}
+
+/**
+ * Event class for the `ICanBoogie\Core::terminate` event
+ *
+ * The event is fired after the response to the initial request was sent and that the core
+ * is ready to be terminated.
+ */
+class TerminateEvent extends \ICanBoogie\Event
+{
+	public $request;
+
+	public $response;
+
+	public function __construct(\ICanBoogie\Core $target, Request $request, Response $response)
+	{
+		$this->request = $request;
+		$this->response = $response;
+
+		parent::__construct($target, 'terminate');
 	}
 }
 
