@@ -30,12 +30,6 @@ return [
 
 	],
 
-	#
-	# Upload
-	#
-
-	'error.message.upload.mime' => "Seuls les types de fichier suivant sont acceptés : %accepted.",
-
 	":size\xC2\xA0b" => ":size o",
 	":size\xC2\xA0Kb" => ":size Ko",
 	":size\xC2\xA0Mb" => ":size Mo",
