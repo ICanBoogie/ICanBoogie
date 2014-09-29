@@ -122,28 +122,6 @@ class Core extends Object
 	}
 
 	/**
-	 * Returns modules accessor.
-	 *
-	 * @return Modules The modules accessor.
-	 */
-	protected function lazy_get_modules()
-	{
-		$config = $this->config;
-
-		return new Modules($config['module-path'], $config['cache modules'] ? $this->vars : null);
-	}
-
-	/**
-	 * Returns models accessor.
-	 *
-	 * @return Models The models accessor.
-	 */
-	protected function lazy_get_models()
-	{
-		return new Models($this->connections, [], $this->modules);
-	}
-
-	/**
 	 * Returns the non-volatile variables accessor.
 	 *
 	 * @return Vars The non-volatile variables accessor.
@@ -311,12 +289,8 @@ class Core extends Object
 		self::$is_booted = false;
 
 		Debug::configure($this->configs['debug']);
-
-		$this->boot_modules();
-
 		Prototype::configure($this->configs['prototypes']);
-
-		Events::patch('get', function() { // TODO-20140310: deprecate
+		Events::patch('get', function() {
 
 			return $this->events;
 
@@ -371,34 +345,6 @@ class Core extends Object
 	protected function terminate(Request $request, Response $response)
 	{
 		new Core\Terminate($this, $request, $response);
-	}
-
-	/**
-	 * Boot enabled modules.
-	 *
-	 * Before the modules are actually booted up, their index is used to alter the I18n load
-	 * paths and the config paths.
-	 */
-	protected function boot_modules()
-	{
-		$modules = $this->modules;
-		$index = $modules->index;
-
-		if (class_exists('ICanBoogie\I18n', true))
-		{
-			I18n::$load_paths = array_merge(I18n::$load_paths, $modules->locale_paths);
-		}
-
-		#
-		# add modules config paths to the configs path
-		#
-
-		$modules_config_paths = $modules->config_paths;
-
-		if ($modules_config_paths)
-		{
-			$this->configs->add($modules->config_paths, -10);
-		}
 	}
 
 	/**

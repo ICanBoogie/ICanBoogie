@@ -32,7 +32,6 @@
 		"icanboogie/event": ">=1.2",
 
 		"icanboogie/http": "2.x",
-		"icanboogie/module": "2.x",
 		"icanboogie/operation": "2.x",
 		"icanboogie/prototype": "2.x",
 		"icanboogie/routing": "2.x",

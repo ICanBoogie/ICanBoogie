@@ -604,7 +604,6 @@ The following packages are required, you might want to check them out:
 - [icanboogie/routing](https://github.com/ICanBoogie/Routing)
 - [icanboogie/operation](https://github.com/ICanBoogie/Operation)
 - [icanboogie/errors](https://github.com/ICanBoogie/Errors)
-- [icanboogie/module](https://github.com/ICanBoogie/Module)
 
 The following packages can also be installed for additionnal features:
 
@@ -615,6 +614,7 @@ your application.
 and additional internationalization helpers.
 - [icanboogie/image](https://github.com/ICanBoogie/Image): Provides image resizing, filling,
 and color resolving.
+- [icanboogie/module](https://github.com/ICanBoogie/Module): Provides framework extensibility using modules.
 
 
 
