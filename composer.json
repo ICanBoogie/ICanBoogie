@@ -48,7 +48,8 @@
 		"icanboogie/activerecord": "ActiveRecord Object-relational mapping.",
 		"icanboogie/cldr": "Provides internationalization for your application.",
 		"icanboogie/i18n": "Provides localization for your application and nice internationalization helpers.",
-		"icanboogie/image": "Provides image resizing, filling, and color resolving."
+		"icanboogie/image": "Provides image resizing, filling, and color resolving.",
+		"icanboogie/module": "Provides support to extend ICanBoogie using modules."
 	},
 
 	"autoload": {

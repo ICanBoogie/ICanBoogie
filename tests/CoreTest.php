@@ -67,8 +67,6 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	{
 		return [
 
-			[ 'modules',         'ICanBoogie\Modules' ],
-			[ 'models',          'ICanBoogie\ActiveRecord\Models' ],
 			[ 'vars',            'ICanBoogie\Vars' ],
 			[ 'connections',     'ICanBoogie\ActiveRecord\Connections' ],
 			[ 'db',              'ICanBoogie\ActiveRecord\Connection' ],
