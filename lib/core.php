@@ -19,8 +19,8 @@ use ICanBoogie\HTTP\Response;
  *
  * @property \ICanBoogie\Configs $configs Configurations accessor.
  * @property \ICanBoogie\ActiveRecord\Connections $connections Database connections accessor.
- * @property \ICanBoogie\Models $models Models accessor.
- * @property \ICanBoogie\Modules $modules Modules accessor.
+ * @property \ICanBoogie\Module\Models $models Models accessor.
+ * @property \ICanBoogie\Module\Modules $modules Modules accessor.
  * @property \ICanBoogie\Vars $vars Persistent variables accessor.
  * @property \ICanBoogie\Database $db Primary database connection.
  * @property \ICanBoogie\Session $session User's session.
