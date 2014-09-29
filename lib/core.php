@@ -13,6 +13,7 @@ namespace ICanBoogie;
 
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
+
 /**
  * Core of the framework.
  *
