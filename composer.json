@@ -63,5 +63,21 @@
 
 	"scripts": {
 		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Generator::on_autoload_dump"
+	},
+	
+	"extra": {
+
+		"icanboogie": {
+
+			"config-path": "config/",
+			"locale-path": "locale/",
+
+			"config-constructor": {
+
+				"core": "recursive merge",
+				"debug": "ICanBoogie\\Debug::synthesize_config"
+
+			}
+		}
 	}
 }

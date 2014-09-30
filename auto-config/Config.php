@@ -13,38 +13,131 @@ namespace ICanBoogie\AutoConfig;
 
 use Composer\Util\Filesystem;
 use Composer\Json\JsonFile;
+use Composer\Package\Package;
+use Composer\Package\RootPackage;
 
-class Config implements \IteratorAggregate
+class Config
 {
-	protected $pathname;
+	protected $packages;
+	protected $destination;
 	protected $filesystem;
+	protected $validator;
 	protected $fragments = [];
 	protected $weights = [];
-	protected $validator;
 
-	public function __construct($pathname)
+	public function __construct(array $packages, $destination)
 	{
-		$this->pathname = $pathname;
+		$this->packages = $packages;
+		$this->destination = $destination;
+
+		$this->composer_schema = new Schema(__DIR__ . '/composer-schema.json');
+		$this->icanboogie_schema = new Schema(__DIR__ . '/icanboogie-schema.json');
 		$this->filesystem = new Filesystem;
-		$this->validator = new ConfigValidator;
 	}
 
-	public function add_fragment($path, $weight)
+	/**
+	 * Search for auto-config fragments defined by the packages and create the auto-config file.
+	 */
+	public function __invoke()
 	{
-		$pathname = $path . DIRECTORY_SEPARATOR . 'icanboogie.json';
-		$json = new JsonFile($pathname);
+		list($fragments, $weights) = $this->resolve_fragments($this->packages);
 
-		if (!$json->exists())
+		$this->fragments = $fragments;
+		$this->weights = $weights;
+
+		$this->write();
+	}
+
+	/**
+	 * Resolve the auto-config fragments defined by the packages.
+	 *
+	 * @return array An array with the resolved fragments and their weights.
+	 */
+	protected function resolve_fragments(array $packages)
+	{
+		$fragments = [];
+		$weights = [];
+
+		foreach ($packages as $pi)
+		{
+			list($package, $pathname) = $pi;
+
+			$pathname = realpath($pathname);
+			$weight = -10;
+
+			if ($package instanceof RootPackage)
+			{
+				$weight = 10;
+			}
+
+			$fragment = $this->resolve_fragment($package, $pathname);
+
+			if (!$fragment)
+			{
+				continue;
+			}
+
+			$fragments[$pathname] = $fragment;
+			$weights[$pathname] = $weight;
+		}
+
+		return [ $fragments, $weights ];
+	}
+
+	/**
+	 * Resolve the auto-config fragment of a package.
+	 *
+	 * @param Package $package Package.
+	 * @param string $pathname The pathname to the package.
+	 *
+	 * @return mixed|null The auto-config fragment, or `null` if the package doesn't define one.
+	 */
+	protected function resolve_fragment(Package $package, $pathname)
+	{
+		#
+		# Trying "extra/icanboogie" in "composer.json".
+		#
+		# We read the JSON file ourselves because $package->getExtra() can't be trusted for some
+		# reason.
+		#
+
+		$composer_pathname = $pathname . DIRECTORY_SEPARATOR . 'composer.json';
+
+		$this->composer_schema->validate_file($composer_pathname);
+
+		$json = new JsonFile($composer_pathname);
+		$data = $json->read();
+
+		if (!empty($data['extra']['icanboogie']))
+		{
+			return $data['extra']['icanboogie'];
+		}
+
+		#
+		# Trying "icanboogie.json"
+		#
+
+		$icanboogie_pathname = $pathname . DIRECTORY_SEPARATOR . 'icanboogie.json';
+
+		if (!file_exists($icanboogie_pathname))
 		{
 			return;
 		}
 
-		$this->validator->validate($pathname);
+		$this->icanboogie_schema->validate_file($icanboogie_pathname);
 
-		$this->fragments[$path] = $json->read();
-		$this->weights[$path] = $weight;
+		$json = new JsonFile($icanboogie_pathname);
+
+		return $json->read();
 	}
 
+	/**
+	 * Synthesize the auto-config fragments into a single array.
+	 *
+	 * @param Filesystem $filesystem
+	 *
+	 * @return array
+	 */
 	public function synthesize(Filesystem $filesystem=null)
 	{
 		if (!$filesystem)
@@ -58,9 +151,10 @@ class Config implements \IteratorAggregate
 			'config-path' => [],
 			'locale-path' => [],
 			'module-path' => []
+
 		];
 
-		foreach ($this as $path => $fragment)
+		foreach ($this->fragments as $path => $fragment)
 		{
 			foreach ($fragment as $key => $value)
 			{
@@ -78,7 +172,7 @@ class Config implements \IteratorAggregate
 						{
 							$config[$key][] = [
 
-								$filesystem->findShortestPathCode($this->pathname, "$path/$v"),
+								$filesystem->findShortestPathCode($this->destination, "$path/$v"),
 								$this->weights[$path]
 
 							];
@@ -91,7 +185,7 @@ class Config implements \IteratorAggregate
 
 						foreach ((array) $value as $v)
 						{
-							$config[$key][] = $filesystem->findShortestPathCode($this->pathname, "$path/$v");
+							$config[$key][] = $filesystem->findShortestPathCode($this->destination, "$path/$v");
 						}
 
 						break;
@@ -102,11 +196,13 @@ class Config implements \IteratorAggregate
 		return $config;
 	}
 
-	public function getIterator()
-	{
-		return new \ArrayIterator($this->fragments);
-	}
-
+	/**
+	 * Render the synthesized auto-config into a string.
+	 *
+	 * @param string $synthesized_config
+	 *
+	 * @return string
+	 */
 	public function render($synthesized_config=null)
 	{
 		if (!$synthesized_config)
@@ -118,8 +214,6 @@ class Config implements \IteratorAggregate
 
 		$config_constructor = $this->render_config_constructor($synthesized_config['config-constructor']);
 		$config_path = $this->render_config_path($synthesized_config['config-path']);
-
-// 		$config_path = implode(",\n\t\t", $synthesized_config['config-path']);
 		$locale_path = implode(",\n\t\t", $synthesized_config['locale-path']);
 		$module_path = implode(",\n\t\t", $synthesized_config['module-path']);
 
@@ -157,9 +251,16 @@ return [
 EOT;
 	}
 
+	/**
+	 * Render the `config-constructor` part of the auto-config.
+	 *
+	 * @param array $synthesized
+	 *
+	 * @return string
+	 */
 	protected function render_config_constructor($synthesized)
 	{
-		$lines = array();
+		$lines = [];
 
 		ksort($synthesized);
 
@@ -173,9 +274,16 @@ EOT;
 		return implode(",\n\t\t", $lines);
 	}
 
+	/**
+	 * Render the `config-path` part of the auto-config.
+	 *
+	 * @param array $synthesized
+	 *
+	 * @return string
+	 */
 	protected function render_config_path($synthesized)
 	{
-		$lines = array();
+		$lines = [];
 
 		foreach ($synthesized as $data)
 		{
@@ -187,13 +295,16 @@ EOT;
 		return implode(",\n\t\t", $lines);
 	}
 
+	/**
+	 * Write the auto-config file.
+	 */
 	public function write()
 	{
 		try
 		{
-			file_put_contents($this->pathname, $this->render());
+			file_put_contents($this->destination, $this->render());
 
-			echo "Created auto-config in {$this->pathname}\n";
+			echo "Created auto-config in {$this->destination}\n";
 		}
 		catch (\Exception $e)
 		{

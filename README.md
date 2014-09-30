@@ -322,84 +322,6 @@ $custom_request = Request::from([
 
 
 
-## Auto-config
-
-_Auto-config_ is a feature of ICanBoogie that automatically generate a configuration file from
-the low-level components available. Currently, it defines configuration constructors; paths to
-component configurations; paths to locale message catalogs; and paths to modules.
-
-To participate in the _auto-config_ process, packages define a "icanboogie.json" file matching
-the [icanboogie-schema.json](auto-config/icanboogie-schema.json) schema. This file
-can also be defined at the root of the application, beside the "composer.json" file, if the
-application provides its own configuration, locale messages or modules.
-
-The _auto-config_ file is generated after the autoloader is dumped, during the
-[`post-autoload-dump`](https://getcomposer.org/doc/articles/scripts.md) emitted by [Composer][].
-Thus, in order for the _auto-config_ feature to work, a script for the event
-is required in the _root_ package of the application:
-
-```json
-{
-	"scripts": {
-		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Generator::on_autoload_dump"
-	}
-}
-```
-
-
-
-
-
-### Configuring the _core_
-
-The [Core][] instance is configured with _core_ configuration fragments. The fragment use by your
-application is usually located in `/protected/all/config/core.php`. The following example
-demonstrates how to enable configs caching and how to specify the name of the session and its
-scope.
-
-```php
-<?php
-
-// protected/all/config/core.php
-
-return [
-
-	'cache configs' => true,
-
-	'session' => [
-
-			'name' => "ICanBoogie",
-			'domain' => ".example.org"
-
-		]
-	]
-
-];
-```
-
-
-
-
-
-
-### Obtaining the _auto-config_
-
-The `ICanBoogie\get_autoconfig()` function returns the _auto-config_. It can be used to
-instantiante the [Core][] instance.
-
-```php
-<?php
-
-$core = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
-```
-
-Additionnaly, the `ICanBoogie\AUTOCONFIG_PATHNAME` constant define the absolute pathname to the
-_auto-config_ file.
-
-
-
-
-
 ## The life and death of your application
 
 With ICanBoogie, you only need three lines to create, run, and terminate your application:
@@ -434,6 +356,114 @@ appropriate value.
 
 3.5\. The `ICanboogie\Core::terminate` event is fired at which point the application should be
 terminated.
+
+
+
+
+
+## Auto-config
+
+_Auto-config_ is a feature of ICanBoogie that automatically generates a configuration file from
+the available low-level components. Currently, it is used to define configuration constructors,
+paths to component configurations, paths to locale message catalogs, and paths to modules.
+
+
+
+
+
+### Participating in the _auto-config_ process
+
+To participate in the _auto-config_ process, packages need to define their _auto-config_ fragment
+in the `extra/icanboogie` section of their "composer.json" file. The file must match the
+[composer-schema.json](auto-config/composer-schema.json) schema. The following example
+demonstrates how an application can specify the path to its configuration and locale messages.
+
+```json
+{
+	"extra": {
+
+		"icanboogie": {
+
+			"config-path": "protected/all/config",
+			"locale-path": "protected/all/locale"
+
+		}
+	}
+}
+```
+
+Note: Packages can also define their _auto-config_ fragment in a stand-alone "icanboogie.json" file,
+beside their "composer.json" file, but using the "composer.json" file is recommended. The
+file must match the [icanboogie-schema.json](auto-config/icanboogie-schema.json) schema.
+
+
+
+
+
+### Generating the _auto-config_ file
+
+The _auto-config_ file is generated after the autoloader is dumped, during the
+[`post-autoload-dump`](https://getcomposer.org/doc/articles/scripts.md) event emitted by [Composer][].
+Thus, in order for the _auto-config_ feature to work, a script for the event
+is required in the _root_ package of the application:
+
+```json
+{
+	"scripts": {
+		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Generator::on_autoload_dump"
+	}
+}
+```
+
+
+
+
+
+### Obtaining the _auto-config_
+
+The _auto-config_ can be obtained using the `ICanBoogie\get_autoconfig()` function, and can be
+used as is to instantiante the [Core][] instance.
+
+```php
+<?php
+
+$core = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
+```
+
+Additionnaly, the `ICanBoogie\AUTOCONFIG_PATHNAME` constant defines the absolute pathname to the
+_auto-config_ file.
+
+
+
+
+
+## Configuring the _core_
+
+The [Core][] instance is configured with _core_ configuration fragments. The fragment use by your
+application is usually located in the `/protected/all/config/core.php` file. The following example
+demonstrates how to enable configs caching and how to specify the name of the session and its
+scope.
+
+```php
+<?php
+
+// protected/all/config/core.php
+
+return [
+
+	'cache configs' => true,
+
+	'session' => [
+
+			'name' => "ICanBoogie",
+			'domain' => ".example.org"
+
+		]
+	]
+
+];
+```
+
 
 
 

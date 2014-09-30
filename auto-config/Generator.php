@@ -33,16 +33,8 @@ class Generator
 		$sorted = FakeAutoloadGenerator::sort_package_map($generator, $packageMap);
 
 		$vendor_dir = $composer->getConfig()->get('vendor-dir');
-		$config = new Config(realpath($vendor_dir) . "/icanboogie/auto-config.php");
-
-		foreach ($sorted as $package_info)
-		{
-			list($package, $path) = $package_info;
-
-			$config->add_fragment(realpath($path), -10);
-		}
-
-		$config->add_fragment(getcwd(), 10);
-		$config->write();
+		$destination = realpath($vendor_dir) . "/icanboogie/auto-config.php";
+		$config = new Config($sorted, $destination);
+		$config();
 	}
 }
