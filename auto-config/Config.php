@@ -289,7 +289,7 @@ EOT;
 		{
 			list($pathcode, $weight) = $data;
 
-			$lines[] = "[ {$pathcode}, 'weight' => {$weight} ]";
+			$lines[] = "{$pathcode} => {$weight}";
 		}
 
 		return implode(",\n\t\t", $lines);

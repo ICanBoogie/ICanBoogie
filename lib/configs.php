@@ -56,7 +56,8 @@ class Configs implements \ArrayAccess
 	 * Initialize the {@link $paths}, {@link $paths_hash}, {@link $constructors},
 	 * and {@link $cache} properties.
 	 *
-	 * @param array $paths
+	 * @param array $paths An array of key/value pairs where _key_ is the path to a config
+	 * directory and _value_ is the weight of that path.
 	 * @param array $constructors
 	 * @param StorageInterface $cache
 	 */
@@ -65,18 +66,7 @@ class Configs implements \ArrayAccess
 		$this->constructors = $constructors;
 		$this->cache = $cache;
 
-		foreach ($paths as $path)
-		{
-			$weight = 0;
-
-			if (is_array($path))
-			{
-				$weight = isset($path['weight']) ? $path['weight'] : 0;
-				$path = $path[0];
-			}
-
-			$this->add($path, $weight);
-		}
+		$this->add($paths);
 	}
 
 	public function offsetSet($offset, $value)
@@ -136,6 +126,19 @@ class Configs implements \ArrayAccess
 	 * Paths are sorted according to their weight. The order in which they were defined is
 	 * preserved for paths with the same weight.
 	 *
+	 * <pre>
+	 * <?php
+	 *
+	 * $config->add('/path/to/config', 10);
+	 * $config->add([
+	 *
+	 *     '/path1/to/config' => 10,
+	 *     '/path2/to/config' => 10,
+	 *     '/path2/to/config' => -10
+	 *
+	 * ]);
+	 * </pre>
+	 *
 	 * @param string|array $path
 	 * @param int $weight Weight of the path. The argument is discarted if `$path` is an array.
 	 *
@@ -153,17 +156,7 @@ class Configs implements \ArrayAccess
 
 		if (is_array($path))
 		{
-			$combined = array_combine($path, array_fill(0, count($path), $weight));
-
-			foreach ($combined as $path => $weight)
-			{
-				if (!file_exists($path))
-				{
-					trigger_error(format('Config path %path does not exists', [ 'path' => $path ]));
-				}
-			}
-
-			$paths += $combined;
+			$paths = array_merge($paths, $path);
 		}
 		else
 		{
