@@ -253,8 +253,6 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 			return;
 		}
 
-		echo "unlink $pathname<br>";
-
 		unlink($pathname);
 	}
 
