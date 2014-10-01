@@ -16,14 +16,55 @@ namespace ICanBoogie;
  */
 class Configs implements \ArrayAccess
 {
+	/**
+	 * An array of key/value where _key_ is a path to a config directory and _value_ is its weight.
+	 * The array is sorted according to the weight of the paths.
+	 *
+	 * @var array
+	 */
 	protected $paths = [];
+
+	/**
+	 * Short hash of the current paths.
+	 *
+	 * @var string
+	 */
+	protected $paths_hash;
+
+	/**
+	 * Callbacks to synthesize the configurations.
+	 *
+	 * @var array
+	 */
 	protected $constructors = [];
-	protected $configs = [];
 
-	public $cache_repository;
+	/**
+	 * Synthesized configurations.
+	 *
+	 * @var array
+	 */
+	protected $synthesized = [];
 
-	public function __construct($paths, $constructors)
+	/**
+	 * A cache to store and retrieve the synthesized configurations.
+	 *
+	 * @var StorageInterface
+	 */
+	public $cache;
+
+	/**
+	 * Initialize the {@link $paths}, {@link $paths_hash}, {@link $constructors},
+	 * and {@link $cache} properties.
+	 *
+	 * @param array $paths
+	 * @param array $constructors
+	 * @param StorageInterface $cache
+	 */
+	public function __construct(array $paths, array $constructors, StorageInterface $cache=null)
 	{
+		$this->constructors = $constructors;
+		$this->cache = $cache;
+
 		foreach ($paths as $path)
 		{
 			$weight = 0;
@@ -36,8 +77,6 @@ class Configs implements \ArrayAccess
 
 			$this->add($path, $weight);
 		}
-
-		$this->constructors = $constructors;
 	}
 
 	public function offsetSet($offset, $value)
@@ -47,12 +86,10 @@ class Configs implements \ArrayAccess
 
 	/**
 	 * Checks if a config has been synthesized.
-	 *
-	 * @see ArrayAccess::offsetExists()
 	 */
-	public function offsetExists($offset)
+	public function offsetExists($id)
 	{
-		isset($this->configs[$offsets]);
+		return isset($this->synthesized[$id]);
 	}
 
 	/**
@@ -65,14 +102,12 @@ class Configs implements \ArrayAccess
 
 	/**
 	 * Returns the specified synthesized configuration.
-	 *
-	 * @see ArrayAccess::offsetGet()
 	 */
 	public function offsetGet($id)
 	{
-		if (isset($this->configs[$id]))
+		if ($this->offsetExists($id))
 		{
-			return $this->configs[$id];
+			return $this->synthesized[$id];
 		}
 
 		if (empty($this->constructors[$id]))
@@ -90,9 +125,9 @@ class Configs implements \ArrayAccess
 	 *
 	 * The method is usually called after the config paths have been modified.
 	 */
-	protected function revoke_configs()
+	protected function revoke_synthesized()
 	{
-		$this->configs = [];
+		$this->synthesized = [];
 	}
 
 	/**
@@ -113,7 +148,8 @@ class Configs implements \ArrayAccess
 			throw new \InvalidArgumentException('$path is empty.');
 		}
 
-		$this->revoke_configs();
+		$this->revoke_synthesized();
+		$paths = $this->paths;
 
 		if (is_array($path))
 		{
@@ -127,14 +163,17 @@ class Configs implements \ArrayAccess
 				}
 			}
 
-			$this->paths += $combined;
+			$paths += $combined;
 		}
 		else
 		{
-			$this->paths[$path] = $weight;
+			$paths[$path] = $weight;
 		}
 
-		stable_sort($this->paths);
+		stable_sort($paths);
+
+		$this->paths = $paths;
+		$this->paths_hash = substr(sha1(implode('|', array_keys($paths))), 0, 8);
 	}
 
 	static private $require_cache = [];
@@ -192,9 +231,9 @@ class Configs implements \ArrayAccess
 	 */
 	public function synthesize($name, $constructor, $from=null)
 	{
-		if (isset($this->configs[$name]))
+		if (isset($this->synthesized[$name]))
 		{
-			return $this->configs[$name];
+			return $this->synthesized[$name];
 		}
 
 		if (!$from)
@@ -203,33 +242,32 @@ class Configs implements \ArrayAccess
 		}
 
 		$args = [ $from, $constructor ];
+		$cache = $this->cache;
+		$cache_key = $this->build_cache_key($name);
 
-		if ($this->cache_repository)
+		if ($cache)
 		{
-			$cache = self::$syntheses_cache
-			? self::$syntheses_cache
-			: self::$syntheses_cache = new FileCache
-			([
-				FileCache::T_REPOSITORY => $this->cache_repository,
-				FileCache::T_SERIALIZE => true
-			]);
+			$config = $cache->retrieve($cache_key);
 
-			$rc = $cache->load('config_' . normalize($name, '_'), [ $this, 'synthesize_constructor' ], $args);
+			if ($config === null)
+			{
+				$config = $this->synthesize_constructor($from, $constructor);
+
+				$cache->store($cache_key, $config);
+			}
 		}
 		else
 		{
-			$rc = $this->synthesize_constructor($args);
+			$config = $this->synthesize_constructor($from, $constructor);
 		}
 
-		$this->configs[$name] = $rc;
+		$this->synthesized[$name] = $config;
 
-		return $rc;
+		return $config;
 	}
 
-	public function synthesize_constructor(array $userdata)
+	private function synthesize_constructor($name, $constructor)
 	{
-		list($name, $constructor) = $userdata;
-
 		$fragments = $this->get_fragments($name);
 
 		if (!$fragments)
@@ -251,5 +289,17 @@ class Configs implements \ArrayAccess
 		}
 
 		return $rc;
+	}
+
+	/**
+	 * Build a cache key according to the current paths and the config name.
+	 *
+	 * @param string $name
+	 *
+	 * @return string
+	 */
+	private function build_cache_key($name)
+	{
+		return $this->paths_hash . '_' . $name;
 	}
 }

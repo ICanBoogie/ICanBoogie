@@ -93,9 +93,18 @@ class Core extends Object
 			date_default_timezone_set('UTC');
 		}
 
+		#
+		# config
+		#
+
 		$this->configs = $configs = $this->create_config_manager($options['config-path'], $options['config-constructor']);
 
 		$config = $this->config;
+
+		if ($config['cache configs'])
+		{
+			$configs->cache = new Vars(REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'configs');
+		}
 
 		$this->config['locale-path'] = $options['locale-path'];
 		$this->config['module-path'] = $options['module-path'];
@@ -105,15 +114,6 @@ class Core extends Object
 		if (class_exists('ICanBoogie\I18n', true))
 		{
 			I18n::$load_paths = array_merge(I18n::$load_paths, $options['locale-path']);
-		}
-
-		#
-		# Setting the cache repository to enable config caching.
-		#
-
-		if ($config['cache configs'])
-		{
-			$configs->cache_repository = $config['repository.cache'] . '/core';
 		}
 	}
 
