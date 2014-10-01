@@ -54,11 +54,6 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 		{
 			self::$release_after = strpos(PHP_OS, 'WIN') === 0 ? false : true;
 		}
-
-		if (!is_writable($this->path))
-		{
-			throw new Exception('The directory %directory is not writable.', [ 'directory' => $this->path ]);
-		}
 	}
 
 	/**
@@ -94,14 +89,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function offsetUnset($name)
 	{
-		$pathname = $this->path . $name;
-
-		if (!file_exists($pathname))
-		{
-			return;
-		}
-
-		unlink($pathname);
+		$this->eliminate($name);
 	}
 
 	/**
@@ -132,6 +120,8 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function store($key, $value, $ttl=0)
 	{
+		$this->check_writable();
+
 		$pathname = $this->path . $key;
 		$ttl_mark = $pathname . '.ttl';
 
@@ -147,11 +137,6 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 		}
 
 		$dir = dirname($pathname);
-
-		if (!file_exists($dir))
-		{
-			mkdir($dir, 0705, true);
-		}
 
 		$uniq_id = uniqid(mt_rand(), true);
 		$tmp_pathname = $dir . '/var-' . $uniq_id;
@@ -239,6 +224,8 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function retrieve($name, $default=null)
 	{
+		$this->check_writable();
+
 		$pathname = $this->path . $name;
 		$ttl_mark = $pathname . '.ttl';
 
@@ -255,6 +242,20 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 		}
 
 		return $value;
+	}
+
+	public function eliminate($name)
+	{
+		$pathname = $this->path . $name;
+
+		if (!file_exists($pathname))
+		{
+			return;
+		}
+
+		echo "unlink $pathname<br>";
+
+		unlink($pathname);
 	}
 
 	/**
@@ -284,6 +285,32 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 		$filter = new \RegexIterator($dir, $regex);
 
 		return new VarsIterator($filter);
+	}
+
+	private $is_writable;
+
+	public function check_writable()
+	{
+		if ($this->is_writable)
+		{
+			return true;
+		}
+
+		$path = $this->path;
+
+		if (!file_exists($path))
+		{
+			set_error_handler(function() {});
+			mkdir($path, 0705, true);
+			restore_error_handler();
+		}
+
+		if (!is_writable($path))
+		{
+			throw new Exception('The directory %directory is not writable.', [ 'directory' => $path ]);
+		}
+
+		$this->is_writable = true;
 	}
 }
 
