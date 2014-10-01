@@ -14,7 +14,7 @@ namespace ICanBoogie;
 /**
  * Accessor for the variables stored as files in the "/repository/var" directory.
  */
-class Vars implements \ArrayAccess, \IteratorAggregate
+class Vars implements \ArrayAccess, \IteratorAggregate, StorageInterface
 {
 	/**
 	 * Magic pattern used to recognized automatically serialized values.
@@ -72,20 +72,14 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 	 * @param string $name Name of the variable.
 	 *
 	 * @return bool true if the var exists, false otherwise.
-	 *
-	 * @see \ArrayAccess::offsetExists()
 	 */
 	public function offsetExists($name)
 	{
-		$pathname = $this->path . $name;
-
-		return file_exists($pathname);
+		return $this->exists($name);
 	}
 
 	/**
 	 * Deletes a var.
-	 *
-	 * @see \ArrayAccess::offsetUnset()
 	 */
 	public function offsetUnset($name)
 	{
@@ -94,8 +88,6 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 
 	/**
 	 * Returns the value of the var using the {@link retrieve()} method.
-	 *
-	 * @see \ArrayAccess::offsetGet()
 	 */
 	public function offsetGet($name)
 	{
@@ -254,6 +246,18 @@ class Vars implements \ArrayAccess, \IteratorAggregate
 		}
 
 		unlink($pathname);
+	}
+
+	public function clear()
+	{
+		throw new \Exception("The method clear() is not implemented");
+	}
+
+	public function exists($name)
+	{
+		$pathname = $this->path . $name;
+
+		return file_exists($pathname);
 	}
 
 	/**
