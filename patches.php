@@ -67,11 +67,14 @@ Prototype\Helpers::patch('last_chance_get', function ($target, $property, &$succ
 /*
  * Patch Active Record helpers
  */
-ActiveRecord\Helpers::patch('get_model', function($id) {
+if (class_exists('ICanBoogie\ActiveRecord\Helpers'))
+{
+	ActiveRecord\Helpers::patch('get_model', function($id) {
 
-	return Core::get()->models[$id];
+		return Core::get()->models[$id];
 
-});
+	});
+}
 
 namespace ICanBoogie\HTTP;
 
