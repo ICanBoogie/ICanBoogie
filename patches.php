@@ -40,9 +40,7 @@ namespace ICanBoogie;
  */
 Prototype\Helpers::patch('last_chance_get', function ($target, $property, &$success)
 {
-	global $core;
-
-	if (empty($core))
+	if (!app())
 	{
 		return;
 	}
@@ -71,7 +69,7 @@ if (class_exists('ICanBoogie\ActiveRecord\Helpers'))
 {
 	ActiveRecord\Helpers::patch('get_model', function($id) {
 
-		return Core::get()->models[$id];
+		return app()->models[$id];
 
 	});
 }

@@ -28,9 +28,7 @@ class Session
 	 */
 	static public function exists()
 	{
-		global $core;
-
-		return !empty($_COOKIE[$core->config['session']['name']]);
+		return !empty($_COOKIE[app()->config['session']['name']]);
 	}
 
 	/**

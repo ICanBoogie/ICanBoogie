@@ -18,7 +18,7 @@ namespace ICanBoogie;
 /**
  * Instantiates a {@link Core} instance with the auto-config and boots it.
  *
- * @return \ICanBoogie\Core
+ * @return Core
  */
 function boot()
 {
@@ -26,6 +26,16 @@ function boot()
 	$core->boot();
 
 	return $core;
+}
+
+/**
+ * Returns the {@link Core} instance.
+ *
+ * @return Core|null The {@link Core} instance, or `null` if it hasn't been instantiated yet.
+ */
+function app()
+{
+	return Core::get();
 }
 
 /*
@@ -44,7 +54,7 @@ function log($message, array $params=[], $level=LogLevel::DEBUG)
 
 	if (!$logger)
 	{
-		$logger = Core::get()->logger;
+		$logger = app()->logger;
 	}
 
 	$logger->{ $level }($message, $params);

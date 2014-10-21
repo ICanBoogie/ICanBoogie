@@ -198,6 +198,7 @@ class Debug
 			$message = str_replace([ "\r\n", "\n" ], '', $message);
 
 			header("HTTP/1.0 $code $message");
+			header("Content-Type: text/html; charset=utf-8");
 		}
 
 		$message = self::format_alert($exception);
@@ -483,7 +484,7 @@ EOT;
 
 	static private function get_logger()
 	{
-		return Core::get()->logger;
+		return app()->logger;
 	}
 
 	/**

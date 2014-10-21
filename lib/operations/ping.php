@@ -25,13 +25,11 @@ class PingOperation extends Operation
 
 	protected function process()
 	{
-		global $core;
-
 		$this->response->content_type = 'text/plain';
 
 		if (Session::exists())
 		{
-			$core->session;
+			app()->session;
 		}
 
 		$rc = 'pong';
