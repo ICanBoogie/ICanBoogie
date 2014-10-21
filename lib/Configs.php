@@ -12,7 +12,7 @@
 namespace ICanBoogie;
 
 /**
- * This class provides an accessor to synthesized low level configurations.
+ * Provides synthesized low-level configurations.
  */
 class Configs implements \ArrayAccess
 {
@@ -111,7 +111,7 @@ class Configs implements \ArrayAccess
 	}
 
 	/**
-	 * Revokes the synthsized configs.
+	 * Revokes the synthesized configs.
 	 *
 	 * The method is usually called after the config paths have been modified.
 	 */
@@ -140,7 +140,7 @@ class Configs implements \ArrayAccess
 	 * </pre>
 	 *
 	 * @param string|array $path
-	 * @param int $weight Weight of the path. The argument is discarted if `$path` is an array.
+	 * @param int $weight Weight of the path. The argument is discarded if `$path` is an array.
 	 *
 	 * @throws \InvalidArgumentException if the path is empty.
 	 */

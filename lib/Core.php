@@ -17,11 +17,11 @@ use ICanBoogie\HTTP\Response;
 /**
  * Core of the framework.
  *
- * @property \ICanBoogie\Configs $configs Configurations accessor.
- * @property \ICanBoogie\ActiveRecord\Connections $connections Database connections accessor.
- * @property \ICanBoogie\Module\Models $models Models accessor.
- * @property \ICanBoogie\Module\Modules $modules Modules accessor.
- * @property \ICanBoogie\Vars $vars Persistent variables accessor.
+ * @property \ICanBoogie\Configs $configs Configurations manager.
+ * @property \ICanBoogie\ActiveRecord\Connections $connections Database connections provider.
+ * @property \ICanBoogie\Module\Models $models Models provider.
+ * @property \ICanBoogie\Module\Modules $modules Modules provider.
+ * @property \ICanBoogie\Vars $vars Persistent variables registry.
  * @property \ICanBoogie\Database $db Primary database connection.
  * @property \ICanBoogie\Session $session User's session.
  * @property string $language Locale language.
@@ -123,9 +123,9 @@ class Core extends Object
 	}
 
 	/**
-	 * Returns the non-volatile variables accessor.
+	 * Returns the non-volatile variables registry.
 	 *
-	 * @return Vars The non-volatile variables accessor.
+	 * @return Vars
 	 */
 	protected function lazy_get_vars()
 	{
@@ -307,7 +307,7 @@ class Core extends Object
 	/**
 	 * Run the application.
 	 *
-	 * In order to avoir error messages triggered by PHP fatal errors to be send with a 200 (Ok)
+	 * In order to avoid error messages triggered by PHP fatal errors to be send with a 200 (Ok)
 	 * HTTP code, the HTTP code is changed to 500 before the core is run (and booted). When the
 	 * process runs properly the HTTP code is changed to the appropriate value by the response.
 	 *
@@ -345,11 +345,11 @@ class Core extends Object
 	 */
 	protected function terminate(Request $request, Response $response)
 	{
-		new Core\Terminate($this, $request, $response);
+		new Core\TerminateEvent($this, $request, $response);
 	}
 
 	/**
-	 * Genreates a path with the specified parameters.
+	 * Generates a path with the specified parameters.
 	 *
 	 * @param strign|Route $pattern_or_route_id_or_route A pattern, a route identifier or a
 	 * {@link Route} instance.

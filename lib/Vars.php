@@ -12,7 +12,7 @@
 namespace ICanBoogie;
 
 /**
- * Accessor for the variables stored as files in the "/repository/var" directory.
+ * File system storage for variables.
  */
 class Vars implements \ArrayAccess, \IteratorAggregate, StorageInterface
 {
@@ -58,8 +58,6 @@ class Vars implements \ArrayAccess, \IteratorAggregate, StorageInterface
 
 	/**
 	 * Stores the value of a var using the {@link store()} method.
-	 *
-	 * @see \ArrayAccess::offsetSet()
 	 */
 	public function offsetSet($name, $value)
 	{
@@ -72,7 +70,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate, StorageInterface
 	 * @param string $name Name of the variable.
 	 *
 	 * @return bool true if the var exists, false otherwise.
-	 */
+2	 */
 	public function offsetExists($name)
 	{
 		return $this->exists($name);
@@ -264,8 +262,6 @@ class Vars implements \ArrayAccess, \IteratorAggregate, StorageInterface
 	 * Returns a directory iterator for the variables.
 	 *
 	 * @return VarsIterator
-	 *
-	 * @see IteratorAggregate::getIterator()
 	 */
 	public function getIterator()
 	{
@@ -319,7 +315,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate, StorageInterface
 /**
  * Iterates through variables.
  *
- * The iterator is usually created using the Vars::matching() method.
+ * The iterator is usually created using the {@link Vars::matching()} method.
  *
  * The iterator can also be used to delete matching variables.
  */
