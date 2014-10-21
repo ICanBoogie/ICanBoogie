@@ -188,5 +188,5 @@ function generate_token_wide()
  */
 function pbkdf2($p, $s, $c=1000, $kl=32, $a='sha256')
 {
-	return Helpers::pbkdf2($p, $s, $c=1000, $kl=32, $a='sha256');
+	return Helpers::pbkdf2($p, $s, $c, $kl, $a);
 }

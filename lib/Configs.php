@@ -102,7 +102,7 @@ class Configs implements \ArrayAccess
 
 		if (empty($this->constructors[$id]))
 		{
-			throw new Exception('There is no constructor defined to build the %id config.', [ '%id' => $id ]);
+			throw new \Exception(\ICanboogie\format('There is no constructor defined to build the %id config.', [ '%id' => $id ]));
 		}
 
 		list($constructor, $from) = $this->constructors[$id] + [ 1 => $id ];
@@ -210,8 +210,6 @@ class Configs implements \ArrayAccess
 		return $fragments;
 	}
 
-	static private $syntheses_cache;
-
 	/**
 	 * Synthesize a configuration.
 	 *
@@ -234,7 +232,6 @@ class Configs implements \ArrayAccess
 			$from = $name;
 		}
 
-		$args = [ $from, $constructor ];
 		$cache = $this->cache;
 		$cache_key = $this->build_cache_key($name);
 

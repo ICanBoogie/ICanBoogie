@@ -33,7 +33,7 @@ class FileCache
 	{
 		if (empty($tags[self::T_REPOSITORY]))
 		{
-			throw new Exception('The %tag tag is required', [ '%tag' => 'T_REPOSITORY' ]);
+			throw new \Exception(format('The %tag tag is required', [ '%tag' => 'T_REPOSITORY' ]));
 		}
 
 		foreach ($tags as $tag => $value)
@@ -70,7 +70,7 @@ class FileCache
 	{
 		if (!is_dir($this->root))
 		{
-			throw new Exception('The repository %repository does not exists.', [ '%repository' => $this->repository ], 404);
+			throw new \Exception(format('The repository %repository does not exists.', [ '%repository' => $this->repository ], 404));
 		}
 
 		$location = getcwd();
@@ -123,7 +123,7 @@ class FileCache
 
 		if (!is_dir($this->root))
 		{
-			throw new Exception('The repository %repository does not exists.', [ '%repository' => $this->repository ], 404);
+			throw new \Exception(format('The repository %repository does not exists.', [ '%repository' => $this->repository ], 404));
 
 			return call_user_func($contructor, $userdata, $this, $key);
 		}
@@ -177,7 +177,7 @@ class FileCache
 	{
 		if (!is_writable($this->root))
 		{
-			throw new Exception('The repository %repository is not writable.', [ '%repository' => $this->repository ]);
+			throw new \Exception(format('The repository %repository is not writable.', [ '%repository' => $this->repository ]));
 		}
 
 		$location = getcwd();
@@ -239,8 +239,6 @@ class FileCache
 
 		if (!is_dir($root))
 		{
-			//Debug::trigger('%repository is not a directory', [ '%repository' => $this->repository ]);
-
 			return false;
 		}
 
@@ -250,7 +248,7 @@ class FileCache
 		}
 		catch (\UnexpectedValueException $e)
 		{
-			throw new Exception('Unable to open directory %root', [ '%root' => $root ]);
+			throw new \Exception(format('Unable to open directory %root', [ '%root' => $root ]));
 		}
 
 		#

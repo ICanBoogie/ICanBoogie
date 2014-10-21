@@ -161,12 +161,12 @@ class Vars implements \ArrayAccess, \IteratorAggregate, StorageInterface
 
 			if (!$fh)
 			{
-				throw new Exception('Unable to open %pathname: :message', [ 'pathname' => $pathname, 'message' => Debug::$last_error_message ]);
+				throw new \Exception(format('Unable to open %pathname: :message', [ 'pathname' => $pathname, 'message' => Debug::$last_error_message ]));
 			}
 
 			if (self::$release_after && !flock($fh, LOCK_EX))
 			{
-				throw new Exception('Unable to get to exclusive lock on %pathname: :message', [ 'pathname' => $pathname, 'message' => Debug::$last_error_message ]);
+				throw new \Exception(format('Unable to get to exclusive lock on %pathname: :message', [ 'pathname' => $pathname, 'message' => Debug::$last_error_message ]));
 			}
 
 			file_put_contents($tmp_pathname, $value);
@@ -181,17 +181,17 @@ class Vars implements \ArrayAccess, \IteratorAggregate, StorageInterface
 
 			if (!rename($pathname, $garbage_pathname))
 			{
-				throw new Exception('Unable to rename %old as %new.', [ 'old' => $pathname, 'new' => $garbage_pathname ]);
+				throw new \Exception(format('Unable to rename %old as %new.', [ 'old' => $pathname, 'new' => $garbage_pathname ]));
 			}
 
 			if (!rename($tmp_pathname, $pathname))
 			{
-				throw new Exception('Unable to rename %old as %new.', [ 'old' => $tmp_pathname, 'new' => $pathname ]);
+				throw new \Exception(format('Unable to rename %old as %new.', [ 'old' => $tmp_pathname, 'new' => $pathname ]));
 			}
 
 			if (!unlink($garbage_pathname))
 			{
-				throw new Exception('Unable to delete %pathname: :message', [ 'pathname' => $garbage_pathname, 'message' => Debug::$last_error_message ]);
+				throw new \Exception(format('Unable to delete %pathname: :message', [ 'pathname' => $garbage_pathname, 'message' => Debug::$last_error_message ]));
 			}
 
 			if (self::$release_after)
@@ -305,7 +305,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate, StorageInterface
 
 		if (!is_writable($path))
 		{
-			throw new Exception('The directory %directory is not writable.', [ 'directory' => $path ]);
+			throw new \Exception(\format('The directory %directory is not writable.', [ 'directory' => $path ]));
 		}
 
 		$this->is_writable = true;
