@@ -583,6 +583,21 @@ $core->events->attach(function(Dispatcher\CollectEvent $event, Dispatcher $targe
 
 
 
+## Helpers
+
+The following helper functions are defined:
+
+- `app()`: Returns the [Core][] instance, or throws [CoreNotInstantiated][] if it hasn't been instantiated yet.
+- `boot()`: Instantiates a [Core][] instance with the auto-config and boots it.
+- `log()`: Logs a debug message.
+- `log_success()`: Logs a success message.
+- `log_error()`: Logs an error message.
+- `log_info()`: Logs an info message.
+- `log_time()`: Logs a debug message associated with a timing information.
+
+
+
+
 
 ----------
 
@@ -594,7 +609,7 @@ $core->events->attach(function(Dispatcher\CollectEvent $event, Dispatcher $targe
 
 The minimum requirement is PHP 5.4.
 
-ICanBoogie has been tested with Apache HTTP server on Linux, MacOS and Windows operating systems.
+ICanBoogie has been tested with Apache HTTP server on Linux, MacOS, and Windows operating systems.
 The Apache server must support URL rewriting.
 
 
@@ -698,6 +713,7 @@ ICanBoogie is licensed under the New BSD License - See the [LICENSE](LICENSE) fi
 [BootEvent]: http://icanboogie.org/docs/class-ICanBoogie.BootEvent.html
 [Composer]: http://getcomposer.org/
 [Core]: http://icanboogie.org/docs/class-ICanBoogie.Core.html
+[CoreNotInstantiated]: http://icanboogie.org/docs/class-ICanBoogie.CoreNotInstantiated.html
 [DateTime]: http://icanboogie.org/docs/class-ICanBoogie.DateTime.html
 [TimeZone]: http://icanboogie.org/docs/class-ICanBoogie.TimeZone.html
 [Object]: http://icanboogie.org/docs/class-ICanBoogie.Object.html
