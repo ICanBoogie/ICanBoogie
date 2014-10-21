@@ -38,12 +38,13 @@ namespace ICanBoogie;
 /*
  * Patch Prototype helpers
  */
-Prototype\Helpers::patch('last_chance_get', function ($target, $property, &$success)
+Prototype\Helpers::patch('last_chance_get', function($target, $property, &$success)
 {
-	if (!app())
+	try
 	{
-		return;
+		app();
 	}
+	catch (CoreNotInstantiated $e) {}
 
 	$event = new Object\PropertyEvent($target, [ 'property' => $property ]);
 

@@ -178,3 +178,11 @@ class CoreAlreadyBooted extends \Exception
 		parent::__construct($message, $code, $previous);
 	}
 }
+
+class CoreNotInstantiated extends \Exception
+{
+	public function __construct($message="The core has not been instantiated yet", $code=500, \Exception $previous=null)
+	{
+		parent::__construct($message, $code, $previous);
+	}
+}

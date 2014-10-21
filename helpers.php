@@ -31,11 +31,20 @@ function boot()
 /**
  * Returns the {@link Core} instance.
  *
- * @return Core|null The {@link Core} instance, or `null` if it hasn't been instantiated yet.
+ * @return Core The {@link Core} instance.
+ *
+ * @throws CoreNotInstantiated if the core has not been instantiated yet.
  */
 function app()
 {
-	return Core::get();
+	$core = Core::get();
+
+	if (!$core)
+	{
+		throw new CoreNotInstantiated;
+	}
+
+	return $core;
 }
 
 /*
