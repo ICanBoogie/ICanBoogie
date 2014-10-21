@@ -11,8 +11,10 @@
 
 namespace ICanBoogie;
 
-$_SERVER['DOCUMENT_ROOT'] = __DIR__;
-
-define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'icanboogie' . DIRECTORY_SEPARATOR . 'auto-config.php');
-
-require __DIR__ . '/../vendor/autoload.php';
+class CoreNotInstantiated extends \LogicException
+{
+	public function __construct($message="The core has not been instantiated yet", $code=500, \Exception $previous=null)
+	{
+		parent::__construct($message, $code, $previous);
+	}
+}

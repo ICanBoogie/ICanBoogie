@@ -11,8 +11,10 @@
 
 namespace ICanBoogie;
 
-$_SERVER['DOCUMENT_ROOT'] = __DIR__;
-
-define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'icanboogie' . DIRECTORY_SEPARATOR . 'auto-config.php');
-
-require __DIR__ . '/../vendor/autoload.php';
+/**
+ * Adds the `SUCCESS` level to the PSR.
+ */
+class LogLevel extends \Psr\Log\LogLevel
+{
+	const SUCCESS = 'success';
+}

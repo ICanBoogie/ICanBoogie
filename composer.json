@@ -54,11 +54,11 @@
 
 	"autoload": {
 		"psr-4": {
+			"ICanBoogie\\": "lib",
 			"ICanBoogie\\AutoConfig\\": "auto-config/"
 		},
 
-		"classmap": [ "lib/" ],
-		"files": [ "bootstrap.php", "helpers.php", "lib/helpers.php" ]
+		"files": [ "bootstrap.php", "helpers.php" ]
 	},
 
 	"scripts": {

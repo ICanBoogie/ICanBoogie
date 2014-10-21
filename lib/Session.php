@@ -200,22 +200,3 @@ class Session
 		unset($_SESSION[$property]);
 	}
 }
-
-namespace ICanBoogie\Session;
-
-/**
- * Event class for the `ICanBoogie\Session::start` event.
- */
-class StartEvent extends \ICanBoogie\Event
-{
-	/**
-	 * The event is constructed with the type `start`.
-	 *
-	 * @param \ICanBoogie\Session $target
-	 * @param array $payload
-	 */
-	public function __construct(\ICanBoogie\Session $target, array $payload=[])
-	{
-		parent::__construct($target, 'start', $payload);
-	}
-}

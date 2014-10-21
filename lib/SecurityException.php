@@ -11,8 +11,13 @@
 
 namespace ICanBoogie;
 
-$_SERVER['DOCUMENT_ROOT'] = __DIR__;
+/**
+ * Exception thrown when a security error occurs.
+ *
+ * This is a base class for security exceptions, one should rather use the
+ * {@link AuthenticationRequired} and {@link PermissionRequired} exceptions.
+ */
+class SecurityException extends \Exception
+{
 
-define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'icanboogie' . DIRECTORY_SEPARATOR . 'auto-config.php');
-
-require __DIR__ . '/../vendor/autoload.php';
+}

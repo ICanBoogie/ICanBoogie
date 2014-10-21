@@ -12,63 +12,6 @@
 namespace ICanBoogie;
 
 /**
- * Extends the PSR interface with the following methods:
- *
- * - `get_messages()`: Return the messages of a specified level.
- * - `fetch_messages()`: Return and clear the messages of a specified level.
- */
-interface LoggerInterface extends \Psr\Log\LoggerInterface
-{
-	/**
-	 * Return the messages of a specified level
-	 *
-	 * @param string $level
-	 *
-	 * @return string[]
-	 */
-	public function get_messages($level);
-
-	/**
-	 * Return and clear the messages of a specified level
-	 *
-	 * @param string $level
-	 *
-	 * @return string[]
-	 */
-	public function fetch_messages($level);
-}
-
-/**
- * Adds the `success()` method to the PSR.
- */
-trait LoggerTrait
-{
-	use \Psr\Log\LoggerTrait;
-
-	/**
-	 * A successful event.
-	 *
-	 * Example: An operation was successfully performed.
-	 *
-	 * @param string $message
-	 * @param array $context
-	 * @return null
-	 */
-	public function success($message, array $context=[])
-	{
-		$this->log(LogLevel::SUCCESS, $message, $context);
-	}
-}
-
-/**
- * Adds the `SUCCESS` level to the PSR.
- */
-class LogLevel extends \Psr\Log\LogLevel
-{
-	const SUCCESS = 'success';
-}
-
-/**
  * A message logger using the core's session to store the messages.
  */
 class Logger implements LoggerInterface

@@ -157,21 +157,21 @@ class Core extends Object
 	/**
 	 * Returns the initial request object.
 	 *
-	 * @return HTTP\Request
+	 * @return Request
 	 */
 	protected function lazy_get_initial_request()
 	{
-		return HTTP\Request::from($_SERVER);
+		return Request::from($_SERVER);
 	}
 
 	/**
 	 * Returns the current request.
 	 *
-	 * @return HTTP\Request
+	 * @return Request
 	 */
 	protected function get_request()
 	{
-		return HTTP\Request::get_current_request() ?: $this->initial_request;
+		return Request::get_current_request() ?: $this->initial_request;
 	}
 
 	/**
@@ -383,91 +383,6 @@ class Core extends Object
 	public function generate_url($pattern_or_route_id_or_route, $params=null, array $options=[])
 	{
 		return $this->site->url . $this->generate_path($pattern_or_route_id_or_route, $params, $options);
-	}
-}
-
-namespace ICanBoogie\Core;
-
-use ICanBoogie\HTTP\Request;
-use ICanBoogie\HTTP\Response;
-
-/**
- * Event class for the `ICanBoogie\Core::run:before` event.
- */
-class BeforeRunEvent extends \ICanBoogie\Event
-{
-	/**
-	 * The event is constructed with the type `run:before`.
-	 *
-	 * @param \ICanBoogie\Core $target
-	 */
-	public function __construct(\ICanBoogie\Core $target)
-	{
-		parent::__construct($target, 'run:before');
-	}
-}
-
-/**
- * Event class for the `ICanBoogie\Core::boot` event.
- *
- * The event is fired after the core has booted.
- */
-class BootEvent extends \ICanBoogie\Event
-{
-	/**
-	 * The event is constructed with the type `boot`.
-	 *
-	 * @param \ICanBoogie\Core $target
-	 */
-	public function __construct(\ICanBoogie\Core $target)
-	{
-		parent::__construct($target, 'boot');
-	}
-}
-
-/**
- * Event class for the `ICanBoogie\Core::run` event.
- */
-class RunEvent extends \ICanBoogie\Event
-{
-	/**
-	 * Initial request.
-	 *
-	 * @var Request
-	 */
-	public $request;
-
-	/**
-	 * The event is constructed with the type `run`.
-	 *
-	 * @param \ICanBoogie\Core $target
-	 */
-	public function __construct(\ICanBoogie\Core $target, Request $request)
-	{
-		$this->request = $request;
-
-		parent::__construct($target, 'run');
-	}
-}
-
-/**
- * Event class for the `ICanBoogie\Core::terminate` event
- *
- * The event is fired after the response to the initial request was sent and that the core
- * is ready to be terminated.
- */
-class TerminateEvent extends \ICanBoogie\Event
-{
-	public $request;
-
-	public $response;
-
-	public function __construct(\ICanBoogie\Core $target, Request $request, Response $response)
-	{
-		$this->request = $request;
-		$this->response = $response;
-
-		parent::__construct($target, 'terminate');
 	}
 }
 
