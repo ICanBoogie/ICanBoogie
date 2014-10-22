@@ -124,8 +124,6 @@ class FileCache
 		if (!is_dir($this->root))
 		{
 			throw new \Exception(format('The repository %repository does not exists.', [ '%repository' => $this->repository ], 404));
-
-			return call_user_func($contructor, $userdata, $this, $key);
 		}
 
 		#
