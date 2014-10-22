@@ -54,17 +54,16 @@
 
 	"autoload": {
 		"psr-4": {
-			"ICanBoogie\\": "lib",
-			"ICanBoogie\\AutoConfig\\": "auto-config/"
+			"ICanBoogie\\": "lib"
 		},
 
 		"files": [ "bootstrap.php", "helpers.php" ]
 	},
 
 	"scripts": {
-		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Generator::on_autoload_dump"
+		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Hooks::on_autoload_dump"
 	},
-	
+
 	"extra": {
 
 		"icanboogie": {
@@ -77,7 +76,9 @@
 				"core": "recursive merge",
 				"debug": "ICanBoogie\\Debug::synthesize_config"
 
-			}
+			},
+
+			"filters": [ "ICanBoogie\\AutoConfig\\Hooks::filter_autoconfig" ]
 		}
 	}
 }

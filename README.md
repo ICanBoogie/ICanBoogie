@@ -37,6 +37,25 @@ _auto-config_ feature, and won't require much of you other than a line in your
 
 
 
+### Multi-site support
+
+ICanBoogie has built-in multi-site support and can be configured for the different domains. Even
+if you are dealing with only one domain, this feature can be used to provide different
+configuration for the "dev", "stage", and "production" version of a same application.
+
+The intended location for your custom application code is in a separate "/protected" directory.
+ICanBoogie will search for the "config", "locale" and "modules" directories in the following
+locations:
+
+- protected/all: Used by all applications.
+- protected/cli: Used when the application is running from CLI.
+- protected/default: Used when there is no directory for the current domain.
+- protected/{domain}: The directory corresponding to the current domain.
+
+
+
+
+
 ### Acknowledgement
 
 [MooTools](http://mootools.net/), [Ruby on Rails](http://rubyonrails.org),
@@ -60,7 +79,7 @@ Applications created with ICanBoogie often have a very concise code, and a fluid
 
 ### Getters and setters
 
-Magic properties are used in favour of getter and setter methods (e.g. `getXxx()` or `setXxx()`).
+Magic properties are used in favor of getter and setter methods (e.g. `getXxx()` or `setXxx()`).
 For instance,  [DateTime][] instances provide a `minute` magic property instead of `getMinute()`
 and `setMinute()` methods:
 
@@ -410,7 +429,7 @@ is required in the _root_ package of the application:
 ```json
 {
 	"scripts": {
-		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Generator::on_autoload_dump"
+		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Hooks::on_autoload_dump"
 	}
 }
 ```
@@ -422,7 +441,7 @@ is required in the _root_ package of the application:
 ### Obtaining the _auto-config_
 
 The _auto-config_ can be obtained using the `ICanBoogie\get_autoconfig()` function, and can be
-used as is to instantiante the [Core][] instance.
+used as is to instantiate the [Core][] instance.
 
 ```php
 <?php
@@ -430,7 +449,10 @@ used as is to instantiante the [Core][] instance.
 $core = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
 ```
 
-Additionnaly, the `ICanBoogie\AUTOCONFIG_PATHNAME` constant defines the absolute pathname to the
+Filters defined with the `filters` key are invoked to alter the _auto-config_ before the function
+returns it. For instance, ICanBoogie use this feature to provide multi-site support.
+
+Additionally, the `ICanBoogie\AUTOCONFIG_PATHNAME` constant defines the absolute pathname to the
 _auto-config_ file.
 
 

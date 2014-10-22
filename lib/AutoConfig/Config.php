@@ -150,7 +150,8 @@ class Config
 			'config-constructor' => [],
 			'config-path' => [],
 			'locale-path' => [],
-			'module-path' => []
+			'module-path' => [],
+			'filters' => []
 
 		];
 
@@ -189,6 +190,12 @@ class Config
 						}
 
 						break;
+
+					case 'filters':
+
+						$config[$key] = array_merge($config[$key], (array) $value);
+
+						break;
 				}
 			}
 		}
@@ -216,6 +223,7 @@ class Config
 		$config_path = $this->render_config_path($synthesized_config['config-path']);
 		$locale_path = implode(",\n\t\t", $synthesized_config['locale-path']);
 		$module_path = implode(",\n\t\t", $synthesized_config['module-path']);
+		$filters = $this->render_filters($synthesized_config['filters']);
 
 		return <<<EOT
 <?php
@@ -246,7 +254,15 @@ return [
 
 		$module_path
 
-	]
+	],
+
+	'filters' => [
+
+		$filters
+
+	],
+
+	'root' => dirname(dirname(__DIR__))
 ];
 EOT;
 	}
@@ -290,6 +306,25 @@ EOT;
 			list($pathcode, $weight) = $data;
 
 			$lines[] = "{$pathcode} => {$weight}";
+		}
+
+		return implode(",\n\t\t", $lines);
+	}
+
+	/**
+	 * Render the `filters` part of the auto-config.
+	 *
+	 * @param array $synthesized
+	 *
+	 * @return string
+	 */
+	protected function render_filters($synthesized)
+	{
+		$lines = [];
+
+		foreach ($synthesized as $callable)
+		{
+			$lines[] = "'$callable'";
 		}
 
 		return implode(",\n\t\t", $lines);

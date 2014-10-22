@@ -62,7 +62,19 @@ or define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARAT
  */
 function get_autoconfig()
 {
-	return require AUTOCONFIG_PATHNAME;
+	static $autoconfig;
+
+	if ($autoconfig === null)
+	{
+		$autoconfig = require AUTOCONFIG_PATHNAME;
+
+		foreach ($autoconfig['filters'] as $filter)
+		{
+			call_user_func_array($filter, [ &$autoconfig ]);
+		}
+	}
+
+	return $autoconfig;
 }
 
 register_shutdown_function('ICanBoogie\Debug::shutdown_handler');

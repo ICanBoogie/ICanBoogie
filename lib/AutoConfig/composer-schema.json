@@ -49,6 +49,13 @@
 							"description": "A path to a module or a collection of modules.",
 							"required": false
 
+						},
+
+						"filters": {
+
+							"type": [ "string", "array" ],
+							"description": "A callback to alter the auto-config during get_autoconfig()."
+
 						}
 					}
 				}
