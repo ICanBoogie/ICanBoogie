@@ -203,9 +203,9 @@ class Debug
 
 		$message = self::format_alert($exception);
 
-		self::report($message);
+		echo $message;
 
-		exit($message);
+		self::report($message);
 	}
 
 	const MAX_STRING_LEN = 16;

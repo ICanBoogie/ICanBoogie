@@ -56,16 +56,6 @@ class Core extends Object
 	static public $is_running = false;
 
 	/**
-	 * Echos the exception and kills PHP.
-	 *
-	 * @param \Exception $exception
-	 */
-	static public function exception_handler(\Exception $exception)
-	{
-		Debug::exception_handler($exception);
-	}
-
-	/**
 	 * Constructor.
 	 *
 	 * @param array $options Initial options to create the core object.
@@ -81,14 +71,6 @@ class Core extends Object
 
 		self::$instance = $this;
 
-		if (php_sapi_name() !== 'cli')
-		{
-			$class = get_class($this);
-
-			set_exception_handler($class . '::exception_handler');
-			set_error_handler('ICanBoogie\Debug::error_handler');
-		}
-
 		if (!date_default_timezone_get())
 		{
 			date_default_timezone_set('UTC');
@@ -99,8 +81,17 @@ class Core extends Object
 		#
 
 		$this->configs = $configs = $this->create_config_manager($options['config-path'], $options['config-constructor']);
-
 		$config = $this->config;
+
+		if ($config['error_handler'])
+		{
+			set_error_handler($config['error_handler']);
+		}
+
+		if ($config['exception_handler'])
+		{
+			set_exception_handler($config['exception_handler']);
+		}
 
 		if ($config['cache configs'])
 		{
