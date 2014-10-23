@@ -26,9 +26,8 @@
 		"php": ">=5.4.0",
 
 		"icanboogie/common": ">=1.2",
-		"icanboogie/datetime": "~1.0",
-		"icanboogie/inflector": "~1.3",
-		"icanboogie/errors": "~1.0",
+		"icanboogie/inflector": ">=1.3",
+		"icanboogie/errors": ">=1.0",
 		"icanboogie/event": ">=1.2",
 
 		"icanboogie/http": "2.x",
