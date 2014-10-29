@@ -28,4 +28,3 @@ $core = new Core(array_merge_recursive(get_autoconfig(), [
 ]));
 
 $core->boot();
-

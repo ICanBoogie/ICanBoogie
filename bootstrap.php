@@ -55,33 +55,6 @@ or define('ICanBoogie\REPOSITORY', DOCUMENT_ROOT . 'repository' . DIRECTORY_SEPA
 defined('ICanBoogie\AUTOCONFIG_PATHNAME')
 or define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'auto-config.php');
 
-/**
- * Returns the auto-config.
- *
- * The path of the auto-config is defined by the {@link AUTOCONFIG_PATHNAME} constant.
- */
-function get_autoconfig()
-{
-	static $autoconfig;
-
-	if ($autoconfig === null)
-	{
-		if (!file_exists(AUTOCONFIG_PATHNAME))
-		{
-			trigger_error("The auto-config file has not been generated. Check the `script` section of your composer.json file. https://github.com/ICanBoogie/ICanBoogie#generating-the-auto-config-file", E_USER_ERROR);
-		}
-
-		$autoconfig = require AUTOCONFIG_PATHNAME;
-
-		foreach ($autoconfig['filters'] as $filter)
-		{
-			call_user_func_array($filter, [ &$autoconfig ]);
-		}
-	}
-
-	return $autoconfig;
-}
-
 register_shutdown_function('ICanBoogie\Debug::shutdown_handler');
 
 require_once ROOT . 'patches.php';

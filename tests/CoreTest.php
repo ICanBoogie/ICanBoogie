@@ -87,4 +87,3 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('Europe/Madrid', (string) self::$core->timezone);
 	}
 }
-
