@@ -66,6 +66,11 @@ function get_autoconfig()
 
 	if ($autoconfig === null)
 	{
+		if (!file_exists(AUTOCONFIG_PATHNAME))
+		{
+			trigger_error("The auto-config file has not been generated. Check the `script` section of your composer.json file. https://github.com/ICanBoogie/ICanBoogie#generating-the-auto-config-file", E_USER_ERROR);
+		}
+
 		$autoconfig = require AUTOCONFIG_PATHNAME;
 
 		foreach ($autoconfig['filters'] as $filter)
