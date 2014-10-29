@@ -455,6 +455,9 @@ returns it. For instance, ICanBoogie use this feature to provide multi-site supp
 Additionally, the `ICanBoogie\AUTOCONFIG_PATHNAME` constant defines the absolute pathname to the
 _auto-config_ file.
 
+**Note:** A fatal error is triggered if the _auto-config_ file does not exists, which might
+happen if the user forgot to add the `post-autoload-dump` hook in its "composer.json" file.
+
 
 
 
@@ -640,25 +643,22 @@ The Apache server must support URL rewriting.
 
 ## Installation
 
-The recommended way to install this package is through [Composer](http://getcomposer.org/).
-Create a `composer.json` file and run `php composer.phar install` command to install it:
+The recommended way to install this package is through [Composer](http://getcomposer.org/):
+
+```
+$ composer require icanboogie/icanboogie
+```
+
+Don't forget to modify the _script_ section of your "composer.json" file if you want to benefit
+from the _auto-config_ feature:
 
 ```json
 {
-	"minimum-stability": "dev",
-
-	"require":
-	{
-		"icanboogie/icanboogie": "2.x"
-	},
-
 	"scripts": {
-		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Generator::on_autoload_dump"
+		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Hooks::on_autoload_dump"
 	}
 }
 ```
-
-The _script_ section is required in the _root_ package to enable the _auto-config_ feature.
 
 The following packages are required, you might want to check them out:
 
