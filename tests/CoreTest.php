@@ -17,13 +17,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 
 	static public function setupBeforeClass()
 	{
-		$autoconfig = get_autoconfig();
-		$autoconfig['config-path'][] = __DIR__ . DIRECTORY_SEPARATOR . "config";
-
-		$core = new Core($autoconfig);
-		$core->boot();
-
-		self::$core = $core;
+		self::$core = app();
 	}
 
 	/**
@@ -75,7 +69,9 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 			[ 'locale',          'ICanBoogie\I18n\Locale' ],
 			[ 'events',          'ICanBoogie\Events' ],
 			[ 'routes',          'ICanBoogie\Routing\Routes' ],
-			[ 'timezone',        'ICanBoogie\TimeZone' ]
+			[ 'timezone',        'ICanBoogie\TimeZone' ],
+			[ 'connections',     'ICanBoogie\ActiveRecord\Connections' ],
+			[ 'db',              'ICanBoogie\ActiveRecord\Connection' ]
 
 		];
 	}
@@ -91,3 +87,4 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('Europe/Madrid', (string) self::$core->timezone);
 	}
 }
+
