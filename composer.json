@@ -20,27 +20,25 @@
 		"source": "https://github.com/ICanBoogie/ICanBoogie"
 	},
 
-	"minimum-stability": "dev",
-
 	"require": {
 		"php": ">=5.4.0",
 
-		"icanboogie/common": ">=1.2",
-		"icanboogie/inflector": ">=1.3",
-		"icanboogie/errors": ">=1.0",
-		"icanboogie/event": ">=1.2",
+		"icanboogie/common": "~1.2",
+		"icanboogie/inflector": "~1.3",
+		"icanboogie/errors": "~1.0",
+		"icanboogie/event": "~1.2",
 
-		"icanboogie/http": "2.x",
-		"icanboogie/operation": "2.x",
-		"icanboogie/prototype": "2.x",
-		"icanboogie/routing": "2.x",
+		"icanboogie/http": "~2.2",
+		"icanboogie/operation": "~2.0",
+		"icanboogie/prototype": "~2.0",
+		"icanboogie/routing": "~2.0",
 
 		"psr/log": "~1.0"
 	},
 
 	"require-dev": {
-		"icanboogie/activerecord": "2.x",
-		"icanboogie/i18n": "2.x"
+		"icanboogie/activerecord": "~2.1",
+		"icanboogie/i18n": "~2.0"
 	},
 
 	"suggest": {
