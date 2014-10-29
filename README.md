@@ -464,7 +464,7 @@ happen if the user forgot to add the `post-autoload-dump` hook in its "composer.
 
 ## Configuring the _core_
 
-The [Core][] instance is configured with _core_ configuration fragments. The fragment use by your
+The [Core][] instance is configured with _core_ configuration fragments. The fragment used by your
 application is usually located in the `/protected/all/config/core.php` file. The following example
 demonstrates how to enable configs caching and how to specify the name of the session and its
 scope.
@@ -485,7 +485,6 @@ return [
 
 		]
 	]
-
 ];
 ```
 
