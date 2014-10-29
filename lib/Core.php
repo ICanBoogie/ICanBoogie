@@ -64,12 +64,24 @@ class Core extends Object
 	 */
 	public function __construct(array $options=[])
 	{
+		#
+		# instance
+		#
+
 		if (self::$instance)
 		{
 			throw new \Exception('Only one instance of the Core object can be created');
 		}
 
 		self::$instance = $this;
+
+		Prototype::from('ICanBoogie\Object')['get_app'] = function() {
+
+			return $this;
+
+		};
+
+		#
 
 		if (!date_default_timezone_get())
 		{

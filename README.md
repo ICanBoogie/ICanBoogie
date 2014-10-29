@@ -608,6 +608,32 @@ $core->events->attach(function(Dispatcher\CollectEvent $event, Dispatcher $targe
 
 
 
+## Prototype methods
+
+### `ICanBoogie\Object::get_app`
+
+The `app` magic property of [Object][] instances returns the [Core][] instance of the
+application. The property is read-only and is only available after the [Core][] instance
+has been created.
+
+```php
+<?php
+
+use ICanBoogie\Object;
+
+$o = new Object;
+$o->app;
+// throw ICanBoogie\PropertyNotDefined;
+
+$core = ICanBoogie\boot();
+$core === $o->app;
+// true
+```
+
+
+
+
+
 ## Helpers
 
 The following helper functions are defined:
