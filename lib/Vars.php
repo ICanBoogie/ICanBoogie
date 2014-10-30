@@ -305,7 +305,7 @@ class Vars implements \ArrayAccess, \IteratorAggregate, StorageInterface
 
 		if (!is_writable($path))
 		{
-			throw new \Exception(\format('The directory %directory is not writable.', [ 'directory' => $path ]));
+			throw new \Exception(format('The directory %directory is not writable.', [ 'directory' => $path ]));
 		}
 
 		$this->is_writable = true;
