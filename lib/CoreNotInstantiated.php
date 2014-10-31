@@ -11,6 +11,9 @@
 
 namespace ICanBoogie;
 
+/**
+ * Exception thrown in attempt to obtain the core before is has been instantiated.
+ */
 class CoreNotInstantiated extends \LogicException
 {
 	public function __construct($message="The core has not been instantiated yet", $code=500, \Exception $previous=null)

@@ -108,7 +108,7 @@ use ICanBoogie\HTTP\Dispatcher;
 /**
  * Event class for the `ICanBoogie\HTTP\Dispatcher::alter` event.
  *
- * Third parties may use this event to register additionnal dispatchers.
+ * Third parties may use this event to register additional dispatchers.
  */
 class AlterEvent extends \ICanBoogie\Event
 {

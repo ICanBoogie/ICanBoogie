@@ -26,7 +26,7 @@ use ICanBoogie\Routing\Route;
  * @property \ICanBoogie\Database $db Primary database connection.
  * @property \ICanBoogie\Session $session User's session.
  * @property string $language Locale language.
- * @property string|int $timezone Date and time timezone.
+ * @property string|int $timezone Time zone.
  * @property-read \ICanBoogie\I18n\Locale $locale Locale object matching the locale language.
  * @property array $config The "core" configuration.
  * @property-read \ICanBoogie\HTTP\Request $request The request being processed.
@@ -230,7 +230,7 @@ class Core extends Object
 	 * {@link date_default_timezone_set()}.
 	 *
 	 * @param \ICanBoogie\Timezone|string|int $timezone An instance of {@link TimeZone},
-	 * the name of a timezone, or numeric equivalent e.g. 3600.
+	 * the name of a time zone, or numeric equivalent e.g. 3600.
 	 */
 	protected function set_timezone($timezone)
 	{
@@ -280,7 +280,7 @@ class Core extends Object
 	 * The `boot` event of class {@link Core\BootEvent} is fired after the boot is finished.
 	 *
 	 * The `ICANBOOGIE_READY_TIME_FLOAT` key is added to the `$_SERVER` super global with the
-	 * micro time at which the boot finished.
+	 * micro-time at which the boot finished.
 	 *
 	 * @throws CoreAlreadyBooted in attempt to boot the core twice.
 	 */
