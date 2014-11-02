@@ -23,5 +23,4 @@ return [
 		'domain' => null
 
 	]
-
 ];

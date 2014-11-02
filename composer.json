@@ -75,7 +75,7 @@
 
 			},
 
-			"filters": [ "ICanBoogie\\AutoConfig\\Hooks::filter_autoconfig" ]
+			"autoconfig-filters": [ "ICanBoogie\\AutoConfig\\Hooks::filter_autoconfig" ]
 		}
 	}
 }

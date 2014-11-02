@@ -11,6 +11,7 @@
 
 namespace ICanBoogie\AutoConfig;
 
+use ICanBoogie\resolve_app_paths;
 class Hooks
 {
 	/**
@@ -34,60 +35,19 @@ class Hooks
 	}
 
 	/**
-	 * Alters the autoconfig according to the directories found in "<root>/protected".
+	 * Adds the "config" directories found in the app paths to `config-path`.
 	 *
 	 * @param array $autoconfig
 	 */
-	static public function filter_autoconfig(array &$autoconfig)
+	static public function filter_autoconfig(array &$autoconfig, $root)
 	{
-		$protected_root = $autoconfig['root'] . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR;
-		$tries = [ $protected_root . 'all' ];
+		$directories = \ICanBoogie\resolve_app_paths($root);
 
-		if (PHP_SAPI == 'cli')
+		foreach ($directories as $directory)
 		{
-			$tries[] = $protected_root . 'cli';
-		}
-		else
-		{
-			$server_name = empty($_SERVER['SERVER_NAME']) ? null : $_SERVER['SERVER_NAME'];
-
-			if (strpos($server_name, 'www.') === 0)
+			if (file_exists($directory . 'config'))
 			{
-				$server_name = substr($server_name, 4);
-			}
-
-			if ($server_name && file_exists($protected_root . $server_name))
-			{
-				$tries[] = $protected_root . $server_name;
-			}
-			else
-			{
-				$tries[] = $protected_root . 'default';
-			}
-		}
-
-		foreach ($tries as $try)
-		{
-			if (!file_exists($try))
-			{
-				continue;
-			}
-
-			$root = $try . DIRECTORY_SEPARATOR;
-
-			if (file_exists($root . 'config'))
-			{
-				$autoconfig['config-path'][$root . 'config'] = 20;
-			}
-
-			if (file_exists($root . 'locale'))
-			{
-				$autoconfig['locale-path'][] = $root . 'locale';
-			}
-
-			if (file_exists($root . 'modules'))
-			{
-				$autoconfig['module-path'][] = $root . 'modules';
+				$autoconfig['config-path'][$directory . 'config'] = 20;
 			}
 		}
 	}

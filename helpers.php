@@ -16,6 +16,91 @@ namespace ICanBoogie;
  */
 
 /**
+ * Resolves the paths where the application can look for config, locale, modules, and more.
+ *
+ * Consider a "protected" directory with the following directories:
+ *
+ * <pre>
+ * all
+ * cli
+ * default
+ * fr
+ * icanboogie.fr
+ * localhost
+ * org
+ * </pre>
+ *
+ * The directory "all" contains resources that are shared between all the sites. It is always
+ * added if it is present. The directory "default" is only used if a directory matching
+ * `$server_name` cannot be found. The directory "cli" is used when the application is ran
+ * from the CLI.
+ *
+ * To resolve the matching directory, `$server_name` is first broken into parts and the most
+ * specific ones are removed until a corresponding directory is found. For instance, given
+ * the server name "www.icanboogie.localhost", the following directories are tried:
+ * "www.icanboogie.localhost", "icanboogie.localhost", and finally "localhost".
+ *
+ * @param string $root The absolute path of a root directory.
+ * @param string|null $server_name A server name. If `$server_name` is `null`, it is resolved from
+ * `PHP_SAPI` and `$_SERVER['SERVER_NAME']`. If `PHP_SAPI` equals "cli", then "cli" is used,
+ * otherwise `$_SERVER['SERVER_NAME']` is used.
+ *
+ * @return string[] An array of absolute paths, ordered from the less specific to
+ * the most specific.
+ */
+function resolve_app_paths($root, $server_name=null)
+{
+	static $cache = [];
+
+	if ($server_name === null)
+	{
+		$server_name = PHP_SAPI == 'cli' ? 'cli' : (empty($_SERVER['SERVER_NAME']) ? null : $_SERVER['SERVER_NAME']);
+	}
+
+	$cache_key = $root . '#' . $server_name;
+
+	if (isset($cache[$cache_key]))
+	{
+		return $cache[$cache_key];
+	}
+
+	$root = rtrim($root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+	$parts = explode('.', $server_name);
+	$paths = [];
+
+	while ($parts)
+	{
+		$try = $root . implode('.', $parts);
+
+		if (!file_exists($try))
+		{
+			array_shift($parts);
+
+
+			continue;
+		}
+
+		$paths[] = $try . DIRECTORY_SEPARATOR;
+
+		break;
+	}
+
+	if (!$paths && file_exists($root . 'default'))
+	{
+		$paths[] = $root . 'default' . DIRECTORY_SEPARATOR;
+	}
+
+	if (file_exists($root . 'all'))
+	{
+		array_unshift($paths, $root . 'all' . DIRECTORY_SEPARATOR);
+	}
+
+	$cache[$cache_key] = $paths;
+
+	return $paths;
+}
+
+/**
  * Returns the auto-config.
  *
  * The path of the auto-config is defined by the {@link AUTOCONFIG_PATHNAME} constant.
@@ -32,10 +117,11 @@ function get_autoconfig()
 		}
 
 		$autoconfig = require AUTOCONFIG_PATHNAME;
+		$root = $autoconfig['root'] . DIRECTORY_SEPARATOR . 'protected';
 
 		foreach ($autoconfig['filters'] as $filter)
 		{
-			call_user_func_array($filter, [ &$autoconfig ]);
+			call_user_func_array($filter, [ &$autoconfig, $root ]);
 		}
 	}
 

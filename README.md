@@ -37,25 +37,6 @@ _auto-config_ feature, and won't require much of you other than a line in your
 
 
 
-### Multi-site support
-
-ICanBoogie has built-in multi-site support and can be configured for the different domains. Even
-if you are dealing with only one domain, this feature can be used to provide different
-configuration for the "dev", "stage", and "production" version of a same application.
-
-The intended location for your custom application code is in a separate "/protected" directory.
-ICanBoogie will search for the "config", "locale" and "modules" directories in the following
-locations:
-
-- protected/all: Used by all applications.
-- protected/cli: Used when the application is running from CLI.
-- protected/default: Used when there is no directory for the current domain.
-- protected/{domain}: The directory corresponding to the current domain.
-
-
-
-
-
 ### Acknowledgement
 
 [MooTools](http://mootools.net/), [Ruby on Rails](http://rubyonrails.org),
@@ -380,6 +361,48 @@ terminated.
 
 
 
+## Multi-site support
+
+ICanBoogie has built-in multi-site support and can be configured for different domains. Even
+if you are dealing with only one domain, this feature can be used to provide different
+configuration for the "dev", "stage", and "production" version of a same application.
+
+The intended location for your custom application code is in a separate "/protected" directory.
+ICanBoogie will search for "config" directories to add to the _auto-config_. Just like ICanBoogie,
+packages may use this feature to alter the _auto-config_. For instance, [icanboogie/module][]
+searches for "modules" directories.
+
+### Resolving applications paths
+
+The server's name is used to resolve the application paths.
+
+Consider a "protected" directory with the following directories:
+
+```
+all
+cli
+default
+icanboogie.org
+localhost
+org
+```
+
+The directory "all" contains resources that are common to all the sites. It is always added when
+present.
+
+To resolve the matching directory, the server's name is first broken into parts and the most
+specific ones are removed until a corresponding directory is found. For instance, given the
+server name `www.icanboogie.localhost`, the following directories are tried:
+`www.icanboogie.localhost`, `icanboogie.localhost`, and finally `localhost`.
+
+If the server's name cannot be resolved into a directory, "default" is used instead.
+
+**Note:** "cli" is used as server name when the application is ran from the CLI.
+
+
+
+
+
 ## Auto-config
 
 _Auto-config_ is a feature of ICanBoogie that automatically generates a configuration file from
@@ -400,12 +423,9 @@ demonstrates how an application can specify the path to its configuration and lo
 ```json
 {
 	"extra": {
-
 		"icanboogie": {
-
 			"config-path": "protected/all/config",
 			"locale-path": "protected/all/locale"
-
 		}
 	}
 }
@@ -449,9 +469,6 @@ used as is to instantiate the [Core][] instance.
 $core = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
 ```
 
-Filters defined with the `filters` key are invoked to alter the _auto-config_ before the function
-returns it. For instance, ICanBoogie use this feature to provide multi-site support.
-
 Additionally, the `ICanBoogie\AUTOCONFIG_PATHNAME` constant defines the absolute pathname to the
 _auto-config_ file.
 
@@ -462,12 +479,34 @@ happen if the user forgot to add the `post-autoload-dump` hook in its "composer.
 
 
 
+### Altering the _auto-config_ at runtime
+
+Filters defined with the `autoconfig-filters` key are invoked to alter the _auto-config_ before
+the `get_autoconfig()` function returns it. For instance, ICanBoogie uses this feature to add
+"config" directories found in the application paths (using the multi-site support).
+
+```json
+{
+	"extra": {
+		"icanboogie": {
+			"autoconfig-filters": [ "ICanBoogie\\AutoConfig\\Hooks::filter_autoconfig" ]
+		}
+	}
+}
+```
+
+
+
+
+
+
 ## Configuring the _core_
 
 The [Core][] instance is configured with _core_ configuration fragments. The fragment used by your
-application is usually located in the `/protected/all/config/core.php` file. The following example
-demonstrates how to enable configs caching and how to specify the name of the session and its
-scope.
+application is usually located in the `/protected/all/config/core.php` file.
+
+The following example demonstrates how to enable configs caching and how to specify the name
+of the session and its scope.
 
 ```php
 <?php
@@ -488,6 +527,7 @@ return [
 ];
 ```
 
+Check ICanBoogie's "config/core.php" for a list of the available options and their default values.
 
 
 
@@ -706,7 +746,7 @@ your application.
 and additional internationalization helpers.
 - [icanboogie/image](https://github.com/ICanBoogie/Image): Provides image resizing, filling,
 and color resolving.
-- [icanboogie/module](https://github.com/ICanBoogie/Module): Provides framework extensibility using modules.
+- [icanboogie/module][]: Provides framework extensibility using modules.
 
 
 
@@ -757,6 +797,7 @@ ICanBoogie is licensed under the New BSD License - See the [LICENSE](LICENSE) fi
 
 
 
+[icanboogie/module]: https://github.com/ICanBoogie/Module
 [BootEvent]: http://icanboogie.org/docs/class-ICanBoogie.BootEvent.html
 [Composer]: http://getcomposer.org/
 [Core]: http://icanboogie.org/docs/class-ICanBoogie.Core.html

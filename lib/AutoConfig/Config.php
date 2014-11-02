@@ -151,7 +151,7 @@ class Config
 			'config-path' => [],
 			'locale-path' => [],
 			'module-path' => [],
-			'filters' => []
+			'autoconfig-filters' => []
 
 		];
 
@@ -191,7 +191,7 @@ class Config
 
 						break;
 
-					case 'filters':
+					case 'autoconfig-filters':
 
 						$config[$key] = array_merge($config[$key], (array) $value);
 
@@ -223,7 +223,7 @@ class Config
 		$config_path = $this->render_config_path($synthesized_config['config-path']);
 		$locale_path = implode(",\n\t\t", $synthesized_config['locale-path']);
 		$module_path = implode(",\n\t\t", $synthesized_config['module-path']);
-		$filters = $this->render_filters($synthesized_config['filters']);
+		$filters = $this->render_filters($synthesized_config['autoconfig-filters']);
 
 		return <<<EOT
 <?php
