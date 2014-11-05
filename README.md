@@ -17,9 +17,9 @@ to check these projects too.
 
 _micro_ means that the core features of ICanBoogie are kept to the essential, the core is simple
 but greatly extensible. For instance, ICanBoogie won't force an ORM on you, although its
-[ActiveRecord](https://github.com/ICanBoogie/ActiveRecord) implementation is pretty nice. In this
-same fashion, its routing mechanisms are quite agnostic and let you write your very own
-dispatchers if you want to.
+[ActiveRecord](https://github.com/ICanBoogie/ActiveRecord) implementation is pretty nice. In the
+same fashion, its routing mechanisms are quite agnostic and let you use your very own
+dispatcher if you want to.
 
 
 
@@ -27,7 +27,7 @@ dispatchers if you want to.
 
 ### Configuration and conventions
 
-ICanBoogie and its components are usually very configurable and come with sensible defaults, and a
+ICanBoogie and its components are usually very configurable and come with sensible defaults and a
 few conventions. Configurations are usually located in "config" folders, while locale messages are
 usually located in "locale" folders. Components configure themselves thanks to ICanBoogie's
 _auto-config_ feature, and won't require much of you other than a line in your
@@ -87,7 +87,7 @@ forwarding properties, lazy loading…
 
 #### Type control
 
-Getters and setters are often used to control a property type. For instance, the `timezone`
+Getters and setters can be used to control a property type. For instance, the `timezone`
 property of the [Core][] instance always returns a [TimeZone][] instance no matter what it is
 set to:
 
@@ -107,11 +107,11 @@ echo $core->timezone;            // Europe/Madrid
 
 
 
-#### Using getters to fallback to default values
+#### Using getters to provide default values
 
-Because getters are invoked when their corresponding property is innacessible, and because
-an unset property is innacessible, it is possible to define getters that return default values.
-The following example demonstrates how a `slug` getter can be defined to generate a default
+Because getters are invoked when their corresponding property is inaccessible, and because
+an unset property is inaccessible, it is possible to define getters to provide default values.
+The following example demonstrates how a `slug` getter can be defined to provide a default
 slug from the `title` property when the `slug` property is inaccessible:
 
 ```php
@@ -160,7 +160,7 @@ echo $node->slug;           // a-nice-title
 ### Invokable objects
 
 Objects performing a main action are simply invoked to perform that action. For instance, a
-prepared database statement whose main purpose is to query the database doesn't have an
+prepared database statement which main purpose is to query a database doesn't have an
 `execute()` method, it is invoked to perform its purpose:
 
 ```php
@@ -205,7 +205,7 @@ echo $translator('I can Boogie'); // Je sais danser le Boogie
 ### Collections as arrays
 
 Collections of objects are always managed as arrays, whether they are records in the database,
-models, modules, database connections…
+database connections, models, modules, header fields…
 
 ```php
 <?php
@@ -225,7 +225,7 @@ $response->headers['Content-Type'] = 'text/html; charset=utf-8';
 
 ### Objects as strings
 
-A lot of objects in ICanBoogie can be used as strings:
+A lot of objects in ICanBoogie are usable as strings:
 
 ```php
 <?php
@@ -238,7 +238,7 @@ echo $time;                           // 2013-05-17T12:30:45+0200
 echo $time->minute;                   // 30
 echo $time->zone;                     // Europe/Paris
 echo $time->zone->offset;             // 7200
-echo $time->zone->location;           // FR,48.86667,2.3333348.86667
+echo $time->zone->location;           // FR,48.86667,2.3333348
 echo $time->zone->location->latitude; // 48.86667
 
 use ICanBoogie\HTTP\Headers;
@@ -268,10 +268,9 @@ echo $core->models['pages']->own->visible->filter_by_nid(12)->order('created_on 
 
 ### Creating an instance from data
 
-Most classes provide a `from()` static method that can be used to create an instance of that class
-from various data type. This is especially true for sub-classes of the [Object][] class, which
-can create instances from arrays of properties. ActiveRecords are a perfect example of this
-feature:
+Most classes provide a `from()` static method that create instances from various data type.
+This is especially true for sub-classes of the [Object][] class, which can create instances
+from arrays of properties. ActiveRecords are a perfect example of this feature:
 
 ```php
 <?php
@@ -340,9 +339,9 @@ its autoloader.
 
 2\. On the second line the [Core][] instance is created with the _auto-config_ and its `boot()`
 method is invoked. At this point ICanBoogie and some low-level components are configured and
-booted. Your application is ready to take orders.
+booted. Your application is ready to process requests.
 
-3\. On the third line the application is run. This implies the following:
+3\. On the third line the application is run, which implies the following:
 
 3.1\. The HTTP response code is set to 500, so that if a fatal error occurs the error message
 won't be sent with the HTTP code 200 (Ok).
