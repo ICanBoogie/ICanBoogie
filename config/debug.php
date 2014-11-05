@@ -18,7 +18,7 @@ return [
 			'report' => false
 		],
 
-		'test' => [
+		'stage' => [
 
 			'code_sample' => false,
 			'line_number' => false,

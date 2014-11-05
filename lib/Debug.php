@@ -14,7 +14,7 @@ namespace ICanBoogie;
 class Debug
 {
 	const MODE_DEV = 'dev';
-	const MODE_TEST = 'test';
+	const MODE_STAGE = 'stage';
 	const MODE_PRODUCTION = 'production';
 
 	static public $mode = 'dev';
@@ -56,9 +56,9 @@ class Debug
 		return self::$mode == self::MODE_DEV;
 	}
 
-	static public function is_test()
+	static public function is_stage()
 	{
-		return self::$mode == self::MODE_TEST;
+		return self::$mode == self::MODE_STAGE;
 	}
 
 	static public function is_production()
