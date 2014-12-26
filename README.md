@@ -327,7 +327,7 @@ won't be sent with the HTTP code 200 (Ok).
 3.4\. The response is executed to respond to the request. It should set the HTTP code to the
 appropriate value.
 
-3.5\. The `ICanboogie\Core::terminate` event is fired at which point the application should be
+3.5\. The `ICanBoogie\Core::terminate` event is fired at which point the application should be
 terminated.
 
 
@@ -571,7 +571,7 @@ $app->events->attach(function(Core\RunEvent $event, Core $target) {
 
 ### The application is terminated
 
-The `ICanboogie\Core::terminate` event of class [TerminateEvent][] is fired after the response to
+The `ICanBoogie\Core::terminate` event of class [TerminateEvent][] is fired after the response to
 the initial request was sent and the application is about to be terminated. Third parties may
 use this event to cleanup loose ends.
 
