@@ -13,6 +13,7 @@ to check these projects too.
 
 
 
+
 ### What does _micro_ mean?
 
 _micro_ means that the core features of ICanBoogie are kept to the essential, the core is simple
@@ -85,147 +86,55 @@ forwarding properties, lazy loading…
 
 
 
-#### Type control
+### Dependency injection
 
-Getters and setters can be used to control a property type. For instance, the `timezone`
-property of the [Core][] instance always returns a [TimeZone][] instance no matter what it is
-set to:
+The [Prototype package][] allows methods to be defined at runtime, and since getters and setters
+are methods as well, this feature in often used as a mean to inject dependencies. What's great
+about it is that dependencies are only _injected_ when they are required, not when to instance
+is created.
 
-```php
-<?php
-
-$core->timezone = 3600;
-echo get_class($core->timezone); // ICanBoogie\TimeZone
-echo $core->timezone;            // Europe/Paris
-
-$core->timezone = 'Europe/Madrid';
-echo get_class($core->timezone); // ICanBoogie\TimeZone
-echo $core->timezone;            // Europe/Madrid
-```
-
-
-
-
-
-#### Using getters to provide default values
-
-Because getters are invoked when their corresponding property is inaccessible, and because
-an unset property is inaccessible, it is possible to define getters to provide default values.
-The following example demonstrates how a `slug` getter can be defined to provide a default
-slug from the `title` property when the `slug` property is inaccessible:
+The following example demonstrates how a database connection to be created when required and
+shared among instances of a class:
 
 ```php
 <?php
 
-class Node
+use ICanBoogie\ActiveRecord\Connection;
+use ICanBoogie\Prototype;
+use ICanBoogie\PrototypeTrait;
+
+/**
+ * @property-read Connection $db
+ */
+class A
 {
-	public $title;
-	public $slug;
-
-	public function __construct($title, $slug=null)
+	use PrototypeTrait;
+	
+	public function truncate()
 	{
-		$this->title = $title;
-
-		if ($slug)
-		{
-			$this->slug = $slug;
-		}
-		else
-		{
-			unset($this->slug);
-		}
-	}
-
-	public function get_slug()
-	{
-		return \ICanBoogie\normalize($this->title);
+		$this->db("TRUNCATE my_table");
 	}
 }
 
-$node = new Node('A nice title');
-echo $node->slug;           // a-nice-title
+Prototype::from("A")['get_db'] = function(A $a) {
 
-$node->slug = "nice-title"
-echo $node->slug;           // nice-title
+	static $db;
+	
+	return $db ?: $db = new Connection("sqlite::memory:");
 
-unset($node->slug);
-echo $node->slug;           // a-nice-title
+};
 ```
 
-
-
-
-
-
-### Invokable objects
-
-Objects performing a main action are simply invoked to perform that action. For instance, a
-prepared database statement which main purpose is to query a database doesn't have an
-`execute()` method, it is invoked to perform its purpose:
-
-```php
-<?php
-
-# DB statements
-
-$statement = $core->models['nodes']->prepare('UPDATE {self} SET title = ? WHERE nid = ?');
-$statement("Title 1", 1);
-$statement("Title 2", 2);
-$statement("Title 3", 3);
-```
-
-This applies to database connections, models, requests, responses, translators… and many more.
-
-```php
-<?php
-
-$pages = $core->models['pages'];
-$pages('SELECT * FROM {self_and_related} WHERE YEAR(created_on) = 2013')->all;
-
-# HTTP
-
-use ICanBoogie\HTTP\Request;
-
-$request = Request::from($_SERVER);
-$response = $request();
-$response();
-
-# I18n translator
-
-use ICanBoogie\I18n\Locale;
-
-$translator = Locale::from('fr')->translator;
-echo $translator('I can Boogie'); // Je sais danser le Boogie
-```
-
-
-
-
-
-### Collections as arrays
-
-Collections of objects are always managed as arrays, whether they are records in the database,
-database connections, models, modules, header fields…
-
-```php
-<?php
-
-$core->models['nodes'][123];   // fetch record with key 123 in nodes
-$core->modules['nodes'];       // obtain the Nodes module
-$core->connections['primary']; // obtain the primary database connection
-
-$request['param1'];            // fetch param of the request named `param1`, returns `null` if it doesn't exists
-
-$response->headers['Cache-Control'] = 'no-cache';
-$response->headers['Content-Type'] = 'text/html; charset=utf-8';
-```
 
 
 
 
 ### Objects as strings
 
-A lot of objects in ICanBoogie are usable as strings:
+If a string represents a serialized set of data ICanBoogie usually provides a class to make its
+manipulation easy. Instances can be created from strings, and in turn they can be used as strings.
+This apply to dates and times, time zones, time zone locations, HTTP headers, HTTP responses,
+database queries, and many more.
 
 ```php
 <?php
@@ -258,10 +167,75 @@ use ICanBoogie\HTTP\Response;
 $response = new Response('ok', 200);
 echo $response;                       // HTTP/1.0 200 OK\r\nDate: Fri, 17 May 2013 15:08:21 GMT\r\n\r\nok
 
-echo $core->models['pages']->own->visible->filter_by_nid(12)->order('created_on DESC')->limit(5);
+echo $app->models['pages']->own->visible->filter_by_nid(12)->order('created_on DESC')->limit(5);
 // SELECT * FROM `pages` `page` INNER JOIN `nodes` `node` USING(`nid`) WHERE (`constructor` = ?) AND (`is_online` = ?) AND (siteid = 0 OR siteid = ?) AND (language = "" OR language = ?) AND (`nid` = ?) ORDER BY created_on DESC LIMIT 5
 ```
 
+
+
+
+
+### Invokable objects 
+
+Objects performing a main action are simply invoked to perform that action. For instance, a
+prepared database statement is invoked to perform a command:
+
+```php
+<?php
+
+# DB statements
+
+$statement = $app->models['nodes']->prepare('UPDATE {self} SET title = ? WHERE nid = ?');
+$statement("Title 1", 1);
+$statement("Title 2", 2);
+$statement("Title 3", 3);
+```
+
+This applies to database connections, models, requests, responses, translators… and many more.
+
+```php
+<?php
+
+$pages = $app->models['pages'];
+$pages('SELECT * FROM {self_and_related} WHERE YEAR(created_on) = 2013')->all;
+
+# HTTP
+
+use ICanBoogie\HTTP\Request;
+
+$request = Request::from($_SERVER);
+$response = $request();
+$response();
+
+# I18n translator
+
+use ICanBoogie\I18n\Locale;
+
+$translator = Locale::from('fr')->translator;
+echo $translator('I can Boogie'); // Je sais danser le Boogie
+```
+
+
+
+
+
+### Collections as arrays
+
+Collections of objects are always managed as arrays, whether they are records in the database,
+database connections, models, modules, header fields…
+
+```php
+<?php
+
+$app->models['nodes'][123];   // fetch record with key 123 in nodes
+$app->modules['nodes'];       // obtain the Nodes module
+$app->connections['primary']; // obtain the primary database connection
+
+$request['param1'];            // fetch param of the request named `param1`, returns `null` if it doesn't exists
+
+$response->headers['Cache-Control'] = 'no-cache';
+$response->headers['Content-Type'] = 'text/html; charset=utf-8';
+```
 
 
 
@@ -330,8 +304,8 @@ With ICanBoogie, you only need three lines to create, run, and terminate your ap
 
 require 'vendor/autoload.php';
 
-$core = ICanBoogie\boot();
-$core();
+$app = ICanBoogie\boot();
+$app();
 ```
 
 1\. The first line is pretty common for applications using [Composer][], it creates and runs
@@ -465,7 +439,7 @@ used as is to instantiate the [Core][] instance.
 ```php
 <?php
 
-$core = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
+$app = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
 ```
 
 Additionally, the `ICanBoogie\AUTOCONFIG_PATHNAME` constant defines the absolute pathname to the
@@ -493,7 +467,6 @@ the `get_autoconfig()` function returns it. For instance, ICanBoogie uses this f
 	}
 }
 ```
-
 
 
 
@@ -567,16 +540,9 @@ namespace Icybee\Modules\Sites;
 use ICanBoogie\Core;
 use ICanBoogie\Routing;
 
-$core->events->attach(function(Core\RunEvent $event, Core $target) {
+$app->events->attach(function(Core\RunEvent $event, Core $target) {
 
-	$target->site = $site = Model::find_by_request($event->request);
-	$target->locale = $site->language;
-
-	if ($site->timezone)
-	{
-		$target->timezone = $site->timezone;
-	}
-
+	$site = Model::find_by_request($event->request);
 	$path = $site->path;
 
 	if ($path)
@@ -629,7 +595,7 @@ use ICanBoogie\HTTP\Dispatcher;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 
-$core->events->attach(function(Dispatcher\CollectEvent $event, Dispatcher $target) {
+$app->events->attach(function(Dispatcher\CollectEvent $event, Dispatcher $target) {
 
 	$event->dispatchers['hello'] = function(Request $request) {
 
@@ -663,8 +629,8 @@ $o = new Object;
 $o->app;
 // throw ICanBoogie\PropertyNotDefined;
 
-$core = ICanBoogie\boot();
-$core === $o->app;
+$app = ICanBoogie\boot();
+$app === $o->app;
 // true
 ```
 
