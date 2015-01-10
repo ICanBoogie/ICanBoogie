@@ -21,7 +21,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException ICanBoogie\CoreAlreadyBooted
+	 * @expectedException \ICanBoogie\CoreAlreadyBooted
 	 */
 	public function test_second_boot()
 	{
@@ -30,7 +30,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @dataProvider provide_test_write_readonly_properties
-	 * @expectedException ICanBoogie\PropertyNotWritable
+	 * @expectedException \ICanBoogie\PropertyNotWritable
 	 *
 	 * @param string $property Property name.
 	 */
@@ -66,7 +66,6 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 			[ 'dispatcher',      'ICanBoogie\HTTP\Dispatcher' ],
 			[ 'initial_request', 'ICanBoogie\HTTP\Request' ],
 			[ 'request',         'ICanBoogie\HTTP\Request' ],
-			[ 'locale',          'ICanBoogie\I18n\Locale' ],
 			[ 'events',          'ICanBoogie\Events' ],
 			[ 'routes',          'ICanBoogie\Routing\Routes' ],
 			[ 'timezone',        'ICanBoogie\TimeZone' ],

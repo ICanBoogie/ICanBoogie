@@ -30,6 +30,7 @@ use ICanBoogie\Routing\Route;
  * @property-read \ICanBoogie\I18n\Locale $locale Locale object matching the locale language.
  * @property array $config The "core" configuration.
  * @property-read \ICanBoogie\HTTP\Request $request The request being processed.
+ * @property \ICanBoogie\HTTP\Request $initial_request The initial request.
  * @property-read \ICanBoogie\Events $events Event collection.
  * @property-read \ICanBoogie\Routing\Routes $routes Route collection.
  * @property-read \ICanBoogie\LoggerInterface $logger The message logger.
@@ -194,31 +195,6 @@ class Core extends Object
 	}
 
 	/**
-	 * Sets the working locate.
-	 *
-	 * @param string $id Locale identifier.
-	 */
-	protected function set_locale($id) // TODO-20140915: this method should be a prototype method
-	{
-		if (!class_exists('ICanBoogie\I18n', true))
-		{
-			return;
-		}
-
-		I18n\set_locale($id);
-	}
-
-	/**
-	 * Returns the working locale object.
-	 *
-	 * @return I18n\Locale
-	 */
-	protected function get_locale() // TODO-20140915: this method should be a prototype method
-	{
-		return I18n\get_locale();
-	}
-
-	/**
 	 * @var string The working time zone.
 	 */
 	private $timezone;
@@ -355,7 +331,7 @@ class Core extends Object
 	/**
 	 * Generates a path with the specified parameters.
 	 *
-	 * @param strign|Route $pattern_or_route_id_or_route A pattern, a route identifier or a
+	 * @param string|Route $pattern_or_route_id_or_route A pattern, a route identifier or a
 	 * {@link Route} instance.
 	 * @param string $params
 	 * @param array $options
