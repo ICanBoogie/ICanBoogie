@@ -28,6 +28,7 @@
 		"icanboogie/errors": "~1.0",
 		"icanboogie/event": "~1.2",
 		"icanboogie/storage": "~1.0",
+		"icanboogie/config": "~1.0",
 
 		"icanboogie/http": "~2.2",
 		"icanboogie/operation": "~2.0",

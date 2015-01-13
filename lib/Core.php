@@ -20,7 +20,7 @@ use ICanBoogie\Storage\FileStorage;
 /**
  * Core of the framework.
  *
- * @property \ICanBoogie\Configs $configs Configurations manager.
+ * @property \ICanBoogie\Config $configs Configurations manager.
  * @property \ICanBoogie\ActiveRecord\Connections $connections Database connections provider.
  * @property \ICanBoogie\Module\Models $models Models provider.
  * @property \ICanBoogie\Module\Modules $modules Modules provider.
@@ -126,7 +126,7 @@ class Core extends Object
 
 	protected function create_config_manager($path_list, $constructors)
 	{
-		return new Configs($path_list, $constructors);
+		return new Config($path_list, $constructors);
 	}
 
 	/**
