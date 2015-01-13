@@ -11,6 +11,8 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\Storage\StorageInterface;
+
 /**
  * Provides synthesized low-level configurations.
  */

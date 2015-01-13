@@ -14,6 +14,7 @@ namespace ICanBoogie;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\Routing\Route;
+use ICanBoogie\Storage\FileStorage;
 
 /**
  * Core of the framework.
@@ -22,7 +23,7 @@ use ICanBoogie\Routing\Route;
  * @property \ICanBoogie\ActiveRecord\Connections $connections Database connections provider.
  * @property \ICanBoogie\Module\Models $models Models provider.
  * @property \ICanBoogie\Module\Modules $modules Modules provider.
- * @property \ICanBoogie\Vars $vars Persistent variables registry.
+ * @property FileStorage $vars Persistent variables registry.
  * @property \ICanBoogie\Database $db Primary database connection.
  * @property \ICanBoogie\Session $session User's session.
  * @property string $language Locale language.
@@ -130,11 +131,11 @@ class Core extends Object
 	/**
 	 * Returns the non-volatile variables registry.
 	 *
-	 * @return Vars
+	 * @return FileStorage
 	 */
 	protected function lazy_get_vars()
 	{
-		return new Vars(REPOSITORY . 'vars' . DIRECTORY_SEPARATOR);
+		return new FileStorage(REPOSITORY . 'vars');
 	}
 
 	/**

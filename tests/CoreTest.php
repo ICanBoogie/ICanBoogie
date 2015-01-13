@@ -61,7 +61,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	{
 		return [
 
-			[ 'vars',            'ICanBoogie\Vars' ],
+			[ 'vars',            'ICanBoogie\Storage\FileStorage' ],
 			[ 'configs',         'ICanBoogie\Configs' ],
 			[ 'dispatcher',      'ICanBoogie\HTTP\Dispatcher' ],
 			[ 'initial_request', 'ICanBoogie\HTTP\Request' ],
