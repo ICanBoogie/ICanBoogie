@@ -324,6 +324,7 @@ EOT;
 			$trace_class = null;
 			$trace_type = null;
 			$trace_args = null;
+			$trace_function = null;
 
 			extract($node, EXTR_PREFIX_ALL, 'trace');
 
@@ -427,7 +428,7 @@ EOT;
 
 		if (!empty($_SERVER['HTTP_REFERER']))
 		{
-			$more .= "\n\n<strong>Referer:</strong>\n\n" . escape($_SERVER['HTTP_REFERER']);
+			$more .= "\n\n<strong>Referrer:</strong>\n\n" . escape($_SERVER['HTTP_REFERER']);
 		}
 
 		if (!empty($_SERVER['HTTP_USER_AGENT']))
@@ -476,7 +477,7 @@ EOT;
 
 		foreach ($parts as $key => $value)
 		{
-			$headers .= $key .= ': ' . $value . "\r\n";
+			$headers .= "$key: $value\r\n";
 		}
 
 		mail($report_address, __CLASS__ . ': Report from ' . $host, $message, $headers);
@@ -490,9 +491,11 @@ EOT;
 	/**
 	 * The method is forwarded to the core's logger `get_messages()` method.
 	 *
-	 * @return string[]
+	 * @param $level
+	 *
+	 * @return \string[]
 	 */
-	static public function get_messages($type)
+	static public function get_messages($level)
 	{
 		return self::get_logger()->get_messages($level);
 	}
@@ -500,29 +503,12 @@ EOT;
 	/**
 	 * The method is forwarded to the core's logger `fetch_messages()` method.
 	 *
-	 * @return string[]
+	 * @param $level
+	 *
+	 * @return \string[]
 	 */
 	static public function fetch_messages($level)
 	{
 		return self::get_logger()->fetch_messages($level);
-	}
-
-	/**
-	 * Removes the DOCUMENT_ROOT part from the provided path.
-	 *
-	 * @param string $path
-	 *
-	 * @return string
-	 */
-	static private function strip_root($path)
-	{
-		$root = DOCUMENT_ROOT;
-
-		if (strpos($path, $root) === 0)
-		{
-			return substr($path, strlen($root) - 1);
-		}
-
-		return $path;
 	}
 }

@@ -92,6 +92,8 @@ class Schema
 	 * @param string $pathname The pathname to the JSON file to validate.
 	 *
 	 * @see validate()
+	 *
+	 * @return bool
 	 */
 	public function validate_file($pathname)
 	{

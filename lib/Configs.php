@@ -78,6 +78,8 @@ class Configs implements \ArrayAccess
 
 	/**
 	 * Checks if a config has been synthesized.
+	 *
+	 * @inheritdoc
 	 */
 	public function offsetExists($id)
 	{
@@ -86,6 +88,8 @@ class Configs implements \ArrayAccess
 
 	/**
 	 * @throws OffsetNotWritable in attempt to unset an offset.
+	 *
+	 * @inheritdoc
 	 */
 	public function offsetUnset($offset)
 	{
@@ -94,6 +98,8 @@ class Configs implements \ArrayAccess
 
 	/**
 	 * Returns the specified synthesized configuration.
+	 *
+	 * @inheritdoc
 	 */
 	public function offsetGet($id)
 	{

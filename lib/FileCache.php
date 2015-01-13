@@ -46,7 +46,7 @@ class FileCache
 			$this->repository = substr($this->repository, strlen(DOCUMENT_ROOT) - 1);
 		}
 
-		$this->root = realpath(\ICanBoogie\DOCUMENT_ROOT . $this->repository);
+		$this->root = realpath(DOCUMENT_ROOT . $this->repository);
 	}
 
 	/**
@@ -64,8 +64,9 @@ class FileCache
 	 * @param mixed $userdata Userdata that will be passed to the constructor.
 	 *
 	 * @return mixed The URL of the file. FALSE is the file failed to be created.
+	 *
+	 * @throws \Exception when the repository does not exists.
 	 */
-
 	public function get($file, $constructor, $userdata=null)
 	{
 		if (!is_dir($this->root))
@@ -113,6 +114,8 @@ class FileCache
 	 * @param mixed $userdata User data that is passed as is to the constructor.
 	 *
 	 * @return mixed The contents of the file
+	 *
+	 * @throws \Exception when the repository does not exists.
 	 */
 	public function load($key, $constructor, $userdata=null)
 	{
@@ -125,10 +128,6 @@ class FileCache
 		{
 			throw new \Exception(format('The repository %repository does not exists.', [ '%repository' => $this->repository ], 404));
 		}
-
-		#
-		#
-		#
 
 		$location = getcwd();
 
@@ -170,6 +169,8 @@ class FileCache
 	 * @param $contents mixed The contents to write.
 	 *
 	 * @return int Return value from @file_put_contents()
+	 *
+	 * @throws \Exception when the repository is not writable.
 	 */
 	protected function save($file, $contents)
 	{
@@ -228,9 +229,10 @@ class FileCache
 	 * Each entry in the array is made up using the _ctime_ and _size_ of the file. The
 	 * key of the entry is the file name.
 	 *
-	 * @return unknown_type
+	 * @return mixed
+	 *
+	 * @throws \Exception when the directory cannot be opened.
 	 */
-
 	protected function read()
 	{
 		$root = $this->root;
@@ -355,11 +357,8 @@ class FileCache
 	}
 
 	/**
-	 *
 	 * Clear all the files in the repository.
-	 *
 	 */
-
 	public function clear()
 	{
 		$files = $this->read();
@@ -368,11 +367,8 @@ class FileCache
 	}
 
 	/**
-	 *
 	 * Clean the repository according to the size and time rules.
-	 *
 	 */
-
 	public function clean()
 	{
 		$files = $this->read();

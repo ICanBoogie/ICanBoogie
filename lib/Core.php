@@ -13,6 +13,7 @@ namespace ICanBoogie;
 
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
+use ICanBoogie\Routing\Pattern;
 use ICanBoogie\Routing\Route;
 use ICanBoogie\Storage\FileStorage;
 
@@ -109,7 +110,7 @@ class Core extends Object
 
 		if ($config['cache configs'])
 		{
-			$configs->cache = new Vars(REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'configs');
+			$configs->cache = new FileStorage(REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'configs');
 		}
 
 		$this->config['locale-path'] = $options['locale-path'];
@@ -349,9 +350,9 @@ class Core extends Object
 		{
 			$path = $this->routes[$pattern_or_route_id_or_route]->format($params);
 		}
-		else if (Route::is_pattern($pattern_or_route_id_or_route))
+		else if (Pattern::is_pattern($pattern_or_route_id_or_route))
 		{
-			$path = Routing\Pattern::from($pattern_or_route_id_or_route)->format($params);
+			$path = Pattern::from($pattern_or_route_id_or_route)->format($params);
 		}
 		else
 		{

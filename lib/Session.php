@@ -38,7 +38,9 @@ class Session
 	 *
 	 * Once the session is created the `start` event is fired with the session as sender.
 	 *
-	 * @return Session.
+	 * @param Core $core
+	 *
+	 * @return Session
 	 */
 	static function get_session(Core $core)
 	{
