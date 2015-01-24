@@ -13,6 +13,9 @@ namespace ICanBoogie;
 
 class CoreTest extends \PHPUnit_Framework_TestCase
 {
+	/**
+	 * @var Core
+	 */
 	static private $core;
 
 	static public function setupBeforeClass()
@@ -61,16 +64,19 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	{
 		return [
 
-			[ 'vars',            'ICanBoogie\Storage\FileStorage' ],
-			[ 'configs',         'ICanBoogie\Config' ],
-			[ 'dispatcher',      'ICanBoogie\HTTP\Dispatcher' ],
-			[ 'initial_request', 'ICanBoogie\HTTP\Request' ],
-			[ 'request',         'ICanBoogie\HTTP\Request' ],
-			[ 'events',          'ICanBoogie\Events' ],
-			[ 'routes',          'ICanBoogie\Routing\Routes' ],
-			[ 'timezone',        'ICanBoogie\TimeZone' ],
-			[ 'connections',     'ICanBoogie\ActiveRecord\Connections' ],
-			[ 'db',              'ICanBoogie\ActiveRecord\Connection' ]
+			[ 'vars',              'ICanBoogie\Storage\FileStorage' ],
+			[ 'configs',           'ICanBoogie\Config' ],
+			[ 'dispatcher',        'ICanBoogie\HTTP\Dispatcher' ],
+			[ 'initial_request',   'ICanBoogie\HTTP\Request' ],
+			[ 'request',           'ICanBoogie\HTTP\Request' ],
+			[ 'events',            'ICanBoogie\Events' ],
+			[ 'routes',            'ICanBoogie\Routing\Routes' ],
+			[ 'timezone',          'ICanBoogie\TimeZone' ],
+			[ 'connections',       'ICanBoogie\ActiveRecord\Connections' ],
+			[ 'db',                'ICanBoogie\ActiveRecord\Connection' ],
+			[ 'template_engines',  'ICanBoogie\Render\EngineCollectionInterface' ],
+			[ 'template_resolver', 'ICanBoogie\Render\TemplateResolverInterface' ],
+			[ 'template_resolver', 'ICanBoogie\ApplicationTemplateResolver' ]
 
 		];
 	}

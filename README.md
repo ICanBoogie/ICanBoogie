@@ -385,9 +385,10 @@ If the server's name cannot be resolved into a directory, "default" is used inst
 
 ## Render and view support
 
-ICanBoogie extends the template resolver used by Render and View to search templates in the
-application paths (see Multi-site support). Also, the "//" prefix can be used to search for
-templates from these paths .e.g. "//my/special/templates/_form".
+ICanBoogie extends the template resolver used by [icanboogie/render][] and [icanboogie/view][]
+to search templates in the application paths (see [Multi-site support](#multi-site-support)).
+Also, the "//" prefix can be used to search for templates from these paths .e.g.
+"//my/special/templates/_form".
 
 
 
@@ -720,8 +721,10 @@ The following packages are required, you might want to check them out:
 - [icanboogie/routing](https://github.com/ICanBoogie/Routing)
 - [icanboogie/operation](https://github.com/ICanBoogie/Operation)
 - [icanboogie/errors](https://github.com/ICanBoogie/Errors)
+- [icanboogie/render][]
+- [icanboogie/view][]
 
-The following packages can also be installed for additionnal features:
+The following packages can also be installed for additional features:
 
 - [icanboogie/activerecord](https://github.com/ICanBoogie/ActiveRecord): ActiveRecord Object-relational mapping.
 - [icanboogie/cldr](https://github.com/ICanBoogie/CLDR): Provides internationalization for
@@ -782,6 +785,8 @@ ICanBoogie is licensed under the New BSD License - See the [LICENSE](LICENSE) fi
 
 
 [icanboogie/module]: https://github.com/ICanBoogie/Module
+[icanboogie/render]: https://github.com/ICanBoogie/Render
+[icanboogie/view]: https://github.com/ICanBoogie/View
 [BootEvent]: http://icanboogie.org/docs/class-ICanBoogie.BootEvent.html
 [Composer]: http://getcomposer.org/
 [Core]: http://icanboogie.org/docs/class-ICanBoogie.Core.html

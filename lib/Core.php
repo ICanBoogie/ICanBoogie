@@ -20,22 +20,25 @@ use ICanBoogie\Storage\FileStorage;
 /**
  * Core of the framework.
  *
- * @property \ICanBoogie\Config $configs Configurations manager.
- * @property \ICanBoogie\ActiveRecord\Connections $connections Database connections provider.
- * @property \ICanBoogie\Module\Models $models Models provider.
- * @property \ICanBoogie\Module\Modules $modules Modules provider.
+ * @property Config $configs Configurations manager.
+ * @property ActiveRecord\Connections $connections Database connections provider.
+ * @property Module\Models $models Models provider.
+ * @property Module\Modules $modules Modules provider.
  * @property FileStorage $vars Persistent variables registry.
- * @property \ICanBoogie\Database $db Primary database connection.
- * @property \ICanBoogie\Session $session User's session.
+ * @property ActiveRecord\Connection $db Primary database connection.
+ * @property Session $session User's session.
  * @property string $language Locale language.
  * @property string|int $timezone Time zone.
- * @property-read \ICanBoogie\I18n\Locale $locale Locale object matching the locale language.
+ * @property-read CLDR\Locale $locale Locale object matching the locale language.
  * @property array $config The "core" configuration.
- * @property-read \ICanBoogie\HTTP\Request $request The request being processed.
- * @property \ICanBoogie\HTTP\Request $initial_request The initial request.
- * @property-read \ICanBoogie\Events $events Event collection.
- * @property-read \ICanBoogie\Routing\Routes $routes Route collection.
- * @property-read \ICanBoogie\LoggerInterface $logger The message logger.
+ * @property-read Request $request The request being processed.
+ * @property Request $initial_request The initial request.
+ * @property-read Events $events Event collection.
+ * @property-read Routing\Routes $routes Route collection.
+ * @property-read LoggerInterface $logger The message logger.
+ * @property Render\TemplateResolverInterface $template_resolver
+ * @property Render\EngineCollection $template_engines
+ * @property Render\Renderer $renderer
  */
 class Core extends Object
 {
@@ -273,6 +276,7 @@ class Core extends Object
 
 		Debug::configure($this->configs['debug']);
 		Prototype::configure($this->configs['prototypes']);
+
 		Events::patch('get', function() {
 
 			return $this->events;
@@ -320,7 +324,7 @@ class Core extends Object
 	 * Terminate the application.
 	 *
 	 * The method throws the `ICanBoogie\Core::run` event of class
-	 * {@link \ICanboogie\Core\RunEvent}.
+	 * {@link \ICanBoogie\Core\RunEvent}.
 	 *
 	 * @param Request $request
 	 * @param Response $response
@@ -328,6 +332,19 @@ class Core extends Object
 	protected function terminate(Request $request, Response $response)
 	{
 		new Core\TerminateEvent($this, $request, $response);
+	}
+
+	/**
+	 * Renders a template.
+	 *
+	 * @param mixed $target_or_options
+	 * @param array $additional_options
+	 *
+	 * @return mixed
+	 */
+	public function render($target_or_options, array $additional_options=[])
+	{
+		return $this->renderer->render($target_or_options, $additional_options);
 	}
 
 	/**

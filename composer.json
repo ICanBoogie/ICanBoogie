@@ -34,6 +34,7 @@
 		"icanboogie/operation": "~2.0",
 		"icanboogie/prototype": "~2.0",
 		"icanboogie/routing": "~2.0",
+		"icanboogie/view": "~0.1",
 
 		"psr/log": "~1.0"
 	},
