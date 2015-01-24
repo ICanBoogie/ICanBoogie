@@ -151,7 +151,9 @@ class Config
 			'config-path' => [],
 			'locale-path' => [],
 			'module-path' => [],
-			'autoconfig-filters' => []
+			'autoconfig-filters' => [],
+			'app-root' => 'protected',
+			'app-paths' => []
 
 		];
 
@@ -196,6 +198,18 @@ class Config
 						$config[$key] = array_merge($config[$key], (array) $value);
 
 						break;
+
+					case 'app-root':
+
+						$config[$key] = $value;
+
+						break;
+
+					case 'app-paths':
+
+						$config[$key] = array_merge($config[$key], (array) $value);
+
+						break;
 				}
 			}
 		}
@@ -224,6 +238,8 @@ class Config
 		$locale_path = implode(",\n\t\t", $synthesized_config['locale-path']);
 		$module_path = implode(",\n\t\t", $synthesized_config['module-path']);
 		$filters = $this->render_filters($synthesized_config['autoconfig-filters']);
+		$app_root = $synthesized_config['app-root'];
+		$app_paths = implode(",\n\t\t", $synthesized_config['app-paths']);
 
 		return <<<EOT
 <?php
@@ -262,7 +278,15 @@ return [
 
 	],
 
-	'root' => dirname(dirname(__DIR__))
+	'root' => dirname(dirname(__DIR__)),
+
+	'app-root' => "$app_root",
+
+	'app-paths' => [
+
+		$app_paths
+
+	]
 ];
 EOT;
 	}

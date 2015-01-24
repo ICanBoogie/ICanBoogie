@@ -67,6 +67,7 @@
 
 		"icanboogie": {
 
+			"app-root": "protected",
 			"config-path": "config/",
 			"locale-path": "locale/",
 

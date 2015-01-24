@@ -40,6 +40,20 @@
 			"type": [ "string", "array" ],
 			"description": "A callback to alter the auto-config during get_autoconfig()."
 
+		},
+
+		"app-root": {
+
+			"type": "string",
+			"description": "The root directory of the application paths."
+
+		},
+
+		"app-paths": {
+
+			"type": "array",
+			"description": "Hierarchical paths of the application."
+
 		}
 	}
 }

@@ -18,7 +18,7 @@ namespace ICanBoogie;
 /**
  * Resolves the paths where the application can look for config, locale, modules, and more.
  *
- * Consider a "protected" directory with the following directories:
+ * Consider an application root directory  with the following directories:
  *
  * <pre>
  * all
@@ -104,6 +104,14 @@ function resolve_app_paths($root, $server_name=null)
  * Returns the auto-config.
  *
  * The path of the auto-config is defined by the {@link AUTOCONFIG_PATHNAME} constant.
+ *
+ * The `app-root` and `app-paths` values are updated. `app-root` is resolved from `root`, which may
+ * gives `false` if the application root is not defined. The value `app-paths` is returned by
+ * the {@link resolve_app_paths()} function with `app-root` as parameter.
+ *
+ * The filters defined in `filters` are invoked to alter the autoconfig.
+ *
+ * @return array
  */
 function get_autoconfig()
 {
@@ -116,12 +124,19 @@ function get_autoconfig()
 			trigger_error("The auto-config file has not been generated. Check the `script` section of your composer.json file. https://github.com/ICanBoogie/ICanBoogie#generating-the-auto-config-file", E_USER_ERROR);
 		}
 
-		$autoconfig = require AUTOCONFIG_PATHNAME;
-		$root = $autoconfig['root'] . DIRECTORY_SEPARATOR . 'protected';
+		$autoconfig = (require AUTOCONFIG_PATHNAME) + [
+
+			'app-root' => 'protected'
+
+		];
+
+		$root = $autoconfig['root'];
+		$autoconfig['app-root'] = realpath($root . DIRECTORY_SEPARATOR . $autoconfig['app-root']);
+		$autoconfig['app-paths'] = array_merge($autoconfig['app-paths'], resolve_app_paths($autoconfig['app-root']));
 
 		foreach ($autoconfig['filters'] as $filter)
 		{
-			call_user_func_array($filter, [ &$autoconfig, $root ]);
+			call_user_func_array($filter, [ &$autoconfig ]);
 		}
 	}
 
@@ -169,6 +184,7 @@ function app()
  *
  * @param string $message Message pattern.
  * @param array $params The parameters used to format the message.
+ * @param string $level
  */
 function log($message, array $params=[], $level=LogLevel::DEBUG)
 {

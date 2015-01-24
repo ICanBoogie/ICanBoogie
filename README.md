@@ -340,16 +340,23 @@ ICanBoogie has built-in multi-site support and can be configured for different d
 if you are dealing with only one domain, this feature can be used to provide different
 configuration for the "dev", "stage", and "production" version of a same application.
 
-The intended location for your custom application code is in a separate "/protected" directory.
+The intended location for your custom application code is in a separate "protected" directory, but
+another directory can be defined with the `app-root` _autoconfig_ directive. The directory is
+relative to the `root` directive.
+
 ICanBoogie will search for "config" directories to add to the _auto-config_. Just like ICanBoogie,
 packages may use this feature to alter the _auto-config_. For instance, [icanboogie/module][]
 searches for "modules" directories.
+
+
+
+
 
 ### Resolving applications paths
 
 The server's name is used to resolve the application paths.
 
-Consider a "protected" directory with the following directories:
+Consider an application root directory with the following directories:
 
 ```
 all
@@ -371,6 +378,16 @@ server name `www.icanboogie.localhost`, the following directories are tried:
 If the server's name cannot be resolved into a directory, "default" is used instead.
 
 **Note:** "cli" is used as server name when the application is ran from the CLI.
+
+
+
+
+
+## Render and view support
+
+ICanBoogie extends the template resolver used by Render and View to search templates in the
+application paths (see Multi-site support). Also, the "//" prefix can be used to search for
+templates from these paths .e.g. "//my/special/templates/_form".
 
 
 
@@ -434,7 +451,9 @@ is required in the _root_ package of the application:
 ### Obtaining the _auto-config_
 
 The _auto-config_ can be obtained using the `ICanBoogie\get_autoconfig()` function, and can be
-used as is to instantiate the [Core][] instance.
+used as is to instantiate the [Core][] instance. The function also updates the `app-root` and
+`app-paths` values with the resolved application root and and resolved application paths
+respectively.
 
 ```php
 <?php
