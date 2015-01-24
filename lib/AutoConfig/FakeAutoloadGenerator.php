@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\AutoConfig;
+namespace ICanBoogie\Autoconfig;
 
 class FakeAutoloadGenerator extends \Composer\Autoload\AutoloadGenerator
 {

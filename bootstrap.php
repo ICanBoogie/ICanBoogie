@@ -48,12 +48,12 @@ defined('ICanBoogie\REPOSITORY')
 or define('ICanBoogie\REPOSITORY', DOCUMENT_ROOT . 'repository' . DIRECTORY_SEPARATOR);
 
 /**
- * Pathname to the auto-config file.
+ * Pathname to the autoconfig file.
  *
  *  @var string
  */
 defined('ICanBoogie\AUTOCONFIG_PATHNAME')
-or define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'auto-config.php');
+or define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'autoconfig.php');
 
 register_shutdown_function('ICanBoogie\Debug::shutdown_handler');
 

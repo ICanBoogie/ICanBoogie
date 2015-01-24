@@ -31,7 +31,7 @@ dispatcher if you want to.
 ICanBoogie and its components are usually very configurable and come with sensible defaults and a
 few conventions. Configurations are usually located in "config" folders, while locale messages are
 usually located in "locale" folders. Components configure themselves thanks to ICanBoogie's
-_auto-config_ feature, and won't require much of you other than a line in your
+_autoconfig_ feature, and won't require much of you other than a line in your
 `composer.json` file.
 
 
@@ -311,7 +311,7 @@ $app();
 1\. The first line is pretty common for applications using [Composer][], it creates and runs
 its autoloader.
 
-2\. On the second line the [Core][] instance is created with the _auto-config_ and its `boot()`
+2\. On the second line the [Core][] instance is created with the _autoconfig_ and its `boot()`
 method is invoked. At this point ICanBoogie and some low-level components are configured and
 booted. Your application is ready to process requests.
 
@@ -344,8 +344,8 @@ The intended location for your custom application code is in a separate "protect
 another directory can be defined with the `app-root` _autoconfig_ directive. The directory is
 relative to the `root` directive.
 
-ICanBoogie will search for "config" directories to add to the _auto-config_. Just like ICanBoogie,
-packages may use this feature to alter the _auto-config_. For instance, [icanboogie/module][]
+ICanBoogie will search for "config" directories to add to the _autoconfig_. Just like ICanBoogie,
+packages may use this feature to alter the _autoconfig_. For instance, [icanboogie/module][]
 searches for "modules" directories.
 
 
@@ -394,9 +394,9 @@ Also, the "//" prefix can be used to search for templates from these paths .e.g.
 
 
 
-## Auto-config
+## Autoconfig
 
-_Auto-config_ is a feature of ICanBoogie that automatically generates a configuration file from
+_Autoconfig_ is a feature of ICanBoogie that automatically generates a configuration file from
 the available low-level components. Currently, it is used to define configuration constructors,
 paths to component configurations, paths to locale message catalogs, and paths to modules.
 
@@ -404,11 +404,11 @@ paths to component configurations, paths to locale message catalogs, and paths t
 
 
 
-### Participating in the _auto-config_ process
+### Participating in the _autoconfig_ process
 
-To participate in the _auto-config_ process, packages need to define their _auto-config_ fragment
+To participate in the _autoconfig_ process, packages need to define their _autoconfig_ fragment
 in the `extra/icanboogie` section of their "composer.json" file. The file must match the
-[composer-schema.json](auto-config/composer-schema.json) schema. The following example
+[composer-schema.json](lib/Autoconfig/composer-schema.json) schema. The following example
 demonstrates how an application can specify the path to its configuration and locale messages.
 
 ```json
@@ -422,25 +422,25 @@ demonstrates how an application can specify the path to its configuration and lo
 }
 ```
 
-Note: Packages can also define their _auto-config_ fragment in a stand-alone "icanboogie.json" file,
+Note: Packages can also define their _autoconfig_ fragment in a stand-alone "icanboogie.json" file,
 beside their "composer.json" file, but using the "composer.json" file is recommended. The
-file must match the [icanboogie-schema.json](auto-config/icanboogie-schema.json) schema.
+file must match the [icanboogie-schema.json](lib/Autoconfig/icanboogie-schema.json) schema.
 
 
 
 
 
-### Generating the _auto-config_ file
+### Generating the _autoconfig_ file
 
-The _auto-config_ file is generated after the autoloader is dumped, during the
+The _autoconfig_ file is generated after the autoloader is dumped, during the
 [`post-autoload-dump`](https://getcomposer.org/doc/articles/scripts.md) event emitted by [Composer][].
-Thus, in order for the _auto-config_ feature to work, a script for the event
+Thus, in order for the _autoconfig_ feature to work, a script for the event
 is required in the _root_ package of the application:
 
 ```json
 {
 	"scripts": {
-		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Hooks::on_autoload_dump"
+		"post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"
 	}
 }
 ```
@@ -449,9 +449,9 @@ is required in the _root_ package of the application:
 
 
 
-### Obtaining the _auto-config_
+### Obtaining the _autoconfig_
 
-The _auto-config_ can be obtained using the `ICanBoogie\get_autoconfig()` function, and can be
+The _autoconfig_ can be obtained using the `ICanBoogie\get_autoconfig()` function, and can be
 used as is to instantiate the [Core][] instance. The function also updates the `app-root` and
 `app-paths` values with the resolved application root and and resolved application paths
 respectively.
@@ -463,18 +463,18 @@ $app = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
 ```
 
 Additionally, the `ICanBoogie\AUTOCONFIG_PATHNAME` constant defines the absolute pathname to the
-_auto-config_ file.
+_autoconfig_ file.
 
-**Note:** A fatal error is triggered if the _auto-config_ file does not exists, which might
+**Note:** A fatal error is triggered if the _autoconfig_ file does not exists, which might
 happen if the user forgot to add the `post-autoload-dump` hook in its "composer.json" file.
 
 
 
 
 
-### Altering the _auto-config_ at runtime
+### Altering the _autoconfig_ at runtime
 
-Filters defined with the `autoconfig-filters` key are invoked to alter the _auto-config_ before
+Filters defined with the `autoconfig-filters` key are invoked to alter the _autoconfig_ before
 the `get_autoconfig()` function returns it. For instance, ICanBoogie uses this feature to add
 "config" directories found in the application paths (using the multi-site support).
 
@@ -482,7 +482,7 @@ the `get_autoconfig()` function returns it. For instance, ICanBoogie uses this f
 {
 	"extra": {
 		"icanboogie": {
-			"autoconfig-filters": [ "ICanBoogie\\AutoConfig\\Hooks::filter_autoconfig" ]
+			"autoconfig-filters": [ "ICanBoogie\\Autoconfig\\Hooks::filter_autoconfig" ]
 		}
 	}
 }
@@ -663,7 +663,7 @@ $app === $o->app;
 The following helper functions are defined:
 
 - `app()`: Returns the [Core][] instance, or throws [CoreNotInstantiated][] if it hasn't been instantiated yet.
-- `boot()`: Instantiates a [Core][] instance with the auto-config and boots it.
+- `boot()`: Instantiates a [Core][] instance with the _autoconfig_ and boots it.
 - `log()`: Logs a debug message.
 - `log_success()`: Logs a success message.
 - `log_error()`: Logs an error message.
@@ -700,12 +700,12 @@ $ composer require icanboogie/icanboogie
 ```
 
 Don't forget to modify the _script_ section of your "composer.json" file if you want to benefit
-from the _auto-config_ feature:
+from the _autoconfig_ feature:
 
 ```json
 {
 	"scripts": {
-		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Hooks::on_autoload_dump"
+		"post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"
 	}
 }
 ```

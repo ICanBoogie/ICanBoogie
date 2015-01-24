@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\AutoConfig;
+namespace ICanBoogie\Autoconfig;
 
 use ICanBoogie\resolve_app_paths;
 class Hooks
 {
 	/**
-	 * Generate the _auto-config_ file on 'autoload_dump' Composer event.
+	 * Generate the _autoconfig_ file on 'autoload_dump' Composer event.
 	 *
 	 * @param \Composer\Script\Event $event
 	 */
@@ -29,7 +29,7 @@ class Hooks
 		$sorted = FakeAutoloadGenerator::sort_package_map($generator, $packageMap);
 
 		$vendor_dir = $composer->getConfig()->get('vendor-dir');
-		$destination = realpath($vendor_dir) . "/icanboogie/auto-config.php";
+		$destination = realpath($vendor_dir) . "/icanboogie/autoconfig.php";
 		$config = new Config($sorted, $destination);
 		$config();
 	}

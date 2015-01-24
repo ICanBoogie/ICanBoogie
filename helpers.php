@@ -101,9 +101,9 @@ function resolve_app_paths($root, $server_name=null)
 }
 
 /**
- * Returns the auto-config.
+ * Returns the autoconfig.
  *
- * The path of the auto-config is defined by the {@link AUTOCONFIG_PATHNAME} constant.
+ * The path of the autoconfig is defined by the {@link AUTOCONFIG_PATHNAME} constant.
  *
  * The `app-root` and `app-paths` values are updated. `app-root` is resolved from `root`, which may
  * gives `false` if the application root is not defined. The value `app-paths` is returned by
@@ -121,7 +121,7 @@ function get_autoconfig()
 	{
 		if (!file_exists(AUTOCONFIG_PATHNAME))
 		{
-			trigger_error("The auto-config file has not been generated. Check the `script` section of your composer.json file. https://github.com/ICanBoogie/ICanBoogie#generating-the-auto-config-file", E_USER_ERROR);
+			trigger_error("The autoconfig file has not been generated. Check the `script` section of your composer.json file. https://github.com/ICanBoogie/ICanBoogie#generating-the-autoconfig-file", E_USER_ERROR);
 		}
 
 		$autoconfig = (require AUTOCONFIG_PATHNAME) + [
@@ -144,7 +144,7 @@ function get_autoconfig()
 }
 
 /**
- * Instantiates a {@link Core} instance with the auto-config and boots it.
+ * Instantiates a {@link Core} instance with the autoconfig and boots it.
  *
  * @return Core
  */

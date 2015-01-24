@@ -1,5 +1,5 @@
 {
-	"name": "AutoConfig",
+	"name": "Autoconfig",
 	"type": "object",
 	"additionnalProperties": true,
 	"properties": {
@@ -15,7 +15,7 @@
 				"icanboogie": {
 
 					"type": "object",
-					"description": "ICanBoogie auto-config definition.",
+					"description": "ICanBoogie autoconfig definition.",
 					"required": false,
 					"additionnalProperties": false,
 					"properties": {
@@ -54,7 +54,7 @@
 						"autoconfig-filters": {
 
 							"type": [ "string", "array" ],
-							"description": "A callback to alter the auto-config during get_autoconfig()."
+							"description": "A callback to alter the autoconfig during get_autoconfig()."
 
 						},
 

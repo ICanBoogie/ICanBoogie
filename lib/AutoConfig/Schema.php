@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\AutoConfig;
+namespace ICanBoogie\Autoconfig;
 
 use Composer\Json\JsonFile;
 use JsonSchema\Validator;

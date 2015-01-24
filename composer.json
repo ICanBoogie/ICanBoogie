@@ -61,7 +61,7 @@
 	},
 
 	"scripts": {
-		"post-autoload-dump": "ICanBoogie\\AutoConfig\\Hooks::on_autoload_dump"
+		"post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"
 	},
 
 	"extra": {
@@ -79,7 +79,7 @@
 
 			},
 
-			"autoconfig-filters": [ "ICanBoogie\\AutoConfig\\Hooks::filter_autoconfig" ]
+			"autoconfig-filters": [ "ICanBoogie\\Autoconfig\\Hooks::filter_autoconfig" ]
 		}
 	}
 }

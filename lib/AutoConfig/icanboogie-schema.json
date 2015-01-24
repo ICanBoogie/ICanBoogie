@@ -1,5 +1,5 @@
 {
-	"name": "AutoConfig",
+	"name": "Autoconfig",
 	"type": "object",
 	"additionnalProperties": false,
 	"properties": {
@@ -38,7 +38,7 @@
 		"autoconfig-filters": {
 
 			"type": [ "string", "array" ],
-			"description": "A callback to alter the auto-config during get_autoconfig()."
+			"description": "A callback to alter the autoconfig during get_autoconfig()."
 
 		},
 
