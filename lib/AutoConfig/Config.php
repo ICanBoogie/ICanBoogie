@@ -51,6 +51,8 @@ class Config
 	/**
 	 * Resolve the autoconfig fragments defined by the packages.
 	 *
+	 * @param array $packages
+	 *
 	 * @return array An array with the resolved fragments and their weights.
 	 */
 	protected function resolve_fragments(array $packages)
@@ -121,7 +123,7 @@ class Config
 
 		if (!file_exists($icanboogie_pathname))
 		{
-			return;
+			return null;
 		}
 
 		$this->icanboogie_schema->validate_file($icanboogie_pathname);

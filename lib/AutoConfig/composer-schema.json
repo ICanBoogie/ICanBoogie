@@ -1,7 +1,7 @@
 {
 	"name": "Autoconfig",
 	"type": "object",
-	"additionnalProperties": true,
+	"additionalProperties": true,
 	"properties": {
 
 		"extra": {
@@ -9,7 +9,7 @@
 			"type": "object",
 			"description": "Composer extra section.",
 			"required": false,
-			"additionnalProperties": true,
+			"additionalProperties": true,
 			"properties": {
 
 				"icanboogie": {
@@ -17,7 +17,7 @@
 					"type": "object",
 					"description": "ICanBoogie autoconfig definition.",
 					"required": false,
-					"additionnalProperties": false,
+					"additionalProperties": false,
 					"properties": {
 
 						"config-constructor": {

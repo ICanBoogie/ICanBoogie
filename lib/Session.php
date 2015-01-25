@@ -156,12 +156,16 @@ class Session
 
 	/**
 	 * Regenerates the id of the session.
+	 *
+	 * @param bool $delete_old_session
+	 *
+	 * @return bool
 	 */
 	public function regenerate_id($delete_old_session=false)
 	{
 		if (PHP_SAPI == 'cli')
 		{
-			return;
+			return null;
 		}
 
 		return session_regenerate_id($delete_old_session);

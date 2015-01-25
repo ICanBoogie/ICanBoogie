@@ -29,6 +29,7 @@ class RunEvent extends \ICanBoogie\Event
 	 * The event is constructed with the type `run`.
 	 *
 	 * @param \ICanBoogie\Core $target
+	 * @param Request $request
 	 */
 	public function __construct(\ICanBoogie\Core $target, Request $request)
 	{

@@ -422,6 +422,6 @@ class FileCache
 
 		$files = array_slice($files, 0, $i);
 
-		return $this->unlink($files);
+		$this->unlink($files);
 	}
 }

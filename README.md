@@ -1,4 +1,4 @@
-# ICanBoogie [![Build Status](https://travis-ci.org/ICanBoogie/ICanBoogie.svg?branch=2.0)](https://travis-ci.org/ICanBoogie/ICanBoogie)
+# ICanBoogie [![Build Status](https://travis-ci.org/ICanBoogie/ICanBoogie.svg?branch=master)](https://travis-ci.org/ICanBoogie/ICanBoogie)
 
 __ICanBoogie__ is a high-performance micro-framework for PHP 5.4+. It is written with speed,
 flexibility and lightness in mind. ICanBoogie doesn't try to be an all-in-one do-it-all solution
@@ -770,7 +770,7 @@ clean the directory with the `make clean` command.
 
 The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
-[![Build Status](https://travis-ci.org/ICanBoogie/ICanBoogie.svg?branch=2.0)](https://travis-ci.org/ICanBoogie/ICanBoogie)
+[![Build Status](https://travis-ci.org/ICanBoogie/ICanBoogie.svg?branch=master)](https://travis-ci.org/ICanBoogie/ICanBoogie)
 
 
 
