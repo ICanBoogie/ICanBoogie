@@ -21,24 +21,37 @@ use ICanBoogie\Storage\FileStorage;
  * Core of the framework.
  *
  * @property Config $configs Configurations manager.
- * @property ActiveRecord\Connections $connections Database connections provider.
- * @property Module\Models $models Models provider.
- * @property Module\Modules $modules Modules provider.
  * @property FileStorage $vars Persistent variables registry.
- * @property ActiveRecord\Connection $db Primary database connection.
  * @property Session $session User's session.
  * @property string $language Locale language.
  * @property string|int $timezone Time zone.
- * @property-read CLDR\Locale $locale Locale object matching the locale language.
  * @property array $config The "core" configuration.
  * @property-read Request $request The request being processed.
  * @property Request $initial_request The initial request.
  * @property-read Events $events Event collection.
  * @property-read Routing\Routes $routes Route collection.
  * @property-read LoggerInterface $logger The message logger.
+ *
+ * The following properties are provider by icanboogie/module:
+ *
+ * @property Module\Models $models
+ * @property Module\Modules $modules
+ *
+ * The following properties are provider by icanboogie/bind-activerecord:
+ *
+ * @property ActiveRecord\ConnectionCollection $connections
+ * @property ActiveRecord\Connection $db
+ *
+ * The following properties are provider by icanboogie/bind-render:
+ *
  * @property Render\TemplateResolverInterface $template_resolver
  * @property Render\EngineCollection $template_engines
  * @property Render\Renderer $renderer
+ *
+ * The following properties are provider by icanboogie/bind-cldr:
+ *
+ * @property-read CLDR\Locale $locale
+ * @property-read CLDR\Repository $cldr
  */
 class Core extends Object
 {
@@ -66,9 +79,9 @@ class Core extends Object
 	 *
 	 * @param array $options Initial options to create the core object.
 	 *
-	 * @throws \Exception when one tries to create a second instance.
+	 * @throws CoreAlreadyInstantiated in attempt to create a second instance.
 	 */
-	public function __construct(array $options=[])
+	public function __construct(array $options = [])
 	{
 		#
 		# instance
@@ -76,7 +89,7 @@ class Core extends Object
 
 		if (self::$instance)
 		{
-			throw new \Exception('Only one instance of the Core object can be created');
+			throw new CoreAlreadyInstantiated;
 		}
 
 		self::$instance = $this;
@@ -149,9 +162,7 @@ class Core extends Object
 	 */
 	protected function lazy_get_config()
 	{
-		$config = $this->configs['core'];
-
-		return $config;
+		return $this->configs['core'];
 	}
 
 	/**
@@ -210,7 +221,7 @@ class Core extends Object
 	 * When the time zone is set the default time zone is also set with
 	 * {@link date_default_timezone_set()}.
 	 *
-	 * @param \ICanBoogie\Timezone|string|int $timezone An instance of {@link TimeZone},
+	 * @param TimeZone|string|int $timezone An instance of {@link TimeZone},
 	 * the name of a time zone, or numeric equivalent e.g. 3600.
 	 */
 	protected function set_timezone($timezone)
@@ -231,7 +242,7 @@ class Core extends Object
 	 * If the time zone is not defined yet it defaults to the value of
 	 * {@link date_default_timezone_get()} or "UTC".
 	 *
-	 * @return string
+	 * @return TimeZone
 	 */
 	protected function get_timezone()
 	{
@@ -276,12 +287,7 @@ class Core extends Object
 
 		Debug::configure($this->configs['debug']);
 		Prototype::configure($this->configs['prototypes']);
-
-		Events::patch('get', function() {
-
-			return $this->events;
-
-		});
+		Events::patch('get', function() { return $this->events; });
 
 		new Core\BootEvent($this);
 
@@ -323,8 +329,8 @@ class Core extends Object
 	/**
 	 * Terminate the application.
 	 *
-	 * The method throws the `ICanBoogie\Core::run` event of class
-	 * {@link \ICanBoogie\Core\RunEvent}.
+	 * The method throws the `ICanBoogie\Core::terminate` event of class
+	 * {@link Core\TerminateEvent}.
 	 *
 	 * @param Request $request
 	 * @param Response $response
@@ -335,29 +341,15 @@ class Core extends Object
 	}
 
 	/**
-	 * Renders a template.
-	 *
-	 * @param mixed $target_or_options
-	 * @param array $additional_options
-	 *
-	 * @return mixed
-	 */
-	public function render($target_or_options, array $additional_options=[])
-	{
-		return $this->renderer->render($target_or_options, $additional_options);
-	}
-
-	/**
 	 * Generates a path with the specified parameters.
 	 *
 	 * @param string|Route $pattern_or_route_id_or_route A pattern, a route identifier or a
 	 * {@link Route} instance.
-	 * @param string $params
-	 * @param array $options
+	 * @param array $params
 	 *
 	 * @return string
 	 */
-	public function generate_path($pattern_or_route_id_or_route, $params=null, array $options=[])
+	public function generate_path($pattern_or_route_id_or_route, $params=null)
 	{
 		if ($pattern_or_route_id_or_route instanceof Route)
 		{
@@ -379,9 +371,9 @@ class Core extends Object
 		return Routing\contextualize($path);
 	}
 
-	public function generate_url($pattern_or_route_id_or_route, $params=null, array $options=[])
+	public function generate_url($pattern_or_route_id_or_route, $params=null)
 	{
-		return $this->site->url . $this->generate_path($pattern_or_route_id_or_route, $params, $options);
+		return $this->site->url . $this->generate_path($pattern_or_route_id_or_route, $params);
 	}
 }
 

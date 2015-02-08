@@ -11,17 +11,20 @@
 
 namespace ICanBoogie\Core;
 
+use ICanBoogie\Core;
+use ICanBoogie\Event;
+
 /**
  * Event class for the `ICanBoogie\Core::run:before` event.
  */
-class BeforeRunEvent extends \ICanBoogie\Event
+class BeforeRunEvent extends Event
 {
 	/**
 	 * The event is constructed with the type `run:before`.
 	 *
-	 * @param \ICanBoogie\Core $target
+	 * @param Core $target
 	 */
-	public function __construct(\ICanBoogie\Core $target)
+	public function __construct(Core $target)
 	{
 		parent::__construct($target, 'run:before');
 	}

@@ -13,9 +13,6 @@ namespace ICanBoogie;
 
 /**
  * Patchable helpers of the ICanBoogie package.
- *
- * @method string generate_token() generate_token($length=8, $possible=TOKEN_WIDE)
- * @method string pbkdf2() pbkdf2($p, $s, $c=1000, $kl=32, $a='sha256')
  */
 class Helpers
 {
@@ -43,7 +40,7 @@ class Helpers
 	 * Patches a patchable function.
 	 *
 	 * @param string $name Name of the function.
-	 * @param collable $callback Callback.
+	 * @param callable $callback Callback.
 	 *
 	 * @throws \RuntimeException is attempt to patch an undefined function.
 	 */

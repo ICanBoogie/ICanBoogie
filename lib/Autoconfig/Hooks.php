@@ -11,15 +11,16 @@
 
 namespace ICanBoogie\Autoconfig;
 
-use ICanBoogie\resolve_app_paths;
+use Composer\Script\Event;
+
 class Hooks
 {
 	/**
 	 * Generate the _autoconfig_ file on 'autoload_dump' Composer event.
 	 *
-	 * @param \Composer\Script\Event $event
+	 * @param Event $event
 	 */
-	static public function on_autoload_dump(\Composer\Script\Event $event)
+	static public function on_autoload_dump(Event $event)
 	{
 		$composer = $event->getComposer();
 		$package = $composer->getPackage();

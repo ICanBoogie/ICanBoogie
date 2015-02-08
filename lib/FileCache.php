@@ -49,6 +49,14 @@ class FileCache
 		$this->root = realpath(DOCUMENT_ROOT . $this->repository);
 	}
 
+	private function assert_root()
+	{
+		if (!is_dir($this->root))
+		{
+			throw new \Exception(format('The repository %repository does not exists.', [ '%repository' => $this->repository ], 404));
+		}
+	}
+
 	/**
 	 * Check if a file exists in the repository.
 	 *
@@ -67,12 +75,9 @@ class FileCache
 	 *
 	 * @throws \Exception when the repository does not exists.
 	 */
-	public function get($file, $constructor, $userdata=null)
+	public function get($file, $constructor, $userdata = null)
 	{
-		if (!is_dir($this->root))
-		{
-			throw new \Exception(format('The repository %repository does not exists.', [ '%repository' => $this->repository ], 404));
-		}
+		$this->assert_root();
 
 		$location = getcwd();
 
@@ -117,17 +122,9 @@ class FileCache
 	 *
 	 * @throws \Exception when the repository does not exists.
 	 */
-	public function load($key, $constructor, $userdata=null)
+	public function load($key, $constructor, $userdata = null)
 	{
-		#
-		# if the repository does not exists we simply return the contents
-		# created by the constructor.
-		#
-
-		if (!is_dir($this->root))
-		{
-			throw new \Exception(format('The repository %repository does not exists.', [ '%repository' => $this->repository ], 404));
-		}
+		$this->assert_root();
 
 		$location = getcwd();
 
@@ -269,11 +266,18 @@ class FileCache
 		return $files;
 	}
 
+	/**
+	 * Unlink files.
+	 *
+	 * @param array $files
+	 *
+	 * @return int The number of files unlinked.
+	 */
 	protected function unlink($files)
 	{
 		if (!$files)
 		{
-			return;
+			return 0;
 		}
 
 		#
@@ -292,11 +296,11 @@ class FileCache
 
 		if (!$lh)
 		{
-			Debug::trigger('Unable to lock %repository', [ '%repository' => $this->repository ]);
+			trigger_error(format('Unable to lock %repository', [ '%repository' => $this->repository ]), E_USER_ERROR);
 
 			chdir($location);
 
-			return;
+			return 0;
 		}
 
 		#
@@ -324,13 +328,15 @@ class FileCache
 
 				chdir($location);
 
-				return;
+				return 0;
 			}
 		}
 
 		#
 		# The lock was obtained, we can now delete the files
 		#
+
+		$n = 0;
 
 		foreach ($files as $file => $dummy)
 		{
@@ -344,6 +350,7 @@ class FileCache
 				continue;
 			}
 
+			$n++;
 			unlink($file);
 		}
 
@@ -354,14 +361,23 @@ class FileCache
 		#
 
 		fclose($lh);
+
+		return $n;
 	}
 
 	/**
 	 * Clear all the files in the repository.
+	 *
+	 * @return int The number of files unlinked.
 	 */
 	public function clear()
 	{
 		$files = $this->read();
+
+		if (!$files)
+		{
+			return 0;
+		}
 
 		return $this->unlink($files);
 	}
@@ -422,6 +438,6 @@ class FileCache
 
 		$files = array_slice($files, 0, $i);
 
-		return $this->unlink($files);
+		$this->unlink($files);
 	}
 }

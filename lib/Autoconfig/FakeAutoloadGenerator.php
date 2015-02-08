@@ -11,9 +11,11 @@
 
 namespace ICanBoogie\Autoconfig;
 
-class FakeAutoloadGenerator extends \Composer\Autoload\AutoloadGenerator
+use Composer\Autoload\AutoloadGenerator;
+
+class FakeAutoloadGenerator extends AutoloadGenerator
 {
-	static public function sort_package_map(\Composer\Autoload\AutoloadGenerator $generator, $packageMap)
+	static public function sort_package_map(AutoloadGenerator $generator, $packageMap)
 	{
 		return $generator->sortPackageMap($packageMap);
 	}

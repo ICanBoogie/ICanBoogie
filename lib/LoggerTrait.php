@@ -27,7 +27,7 @@ trait LoggerTrait
 	 * @param array $context
 	 * @return null
 	 */
-	public function success($message, array $context=[])
+	public function success($message, array $context = [])
 	{
 		$this->log(LogLevel::SUCCESS, $message, $context);
 	}

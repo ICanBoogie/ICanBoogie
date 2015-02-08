@@ -11,18 +11,21 @@
 
 namespace ICanBoogie\Session;
 
+use ICanBoogie\Event;
+use ICanBoogie\Session;
+
 /**
  * Event class for the `ICanBoogie\Session::start` event.
  */
-class StartEvent extends \ICanBoogie\Event
+class StartEvent extends Event
 {
 	/**
 	 * The event is constructed with the type `start`.
 	 *
-	 * @param \ICanBoogie\Session $target
+	 * @param Session $target
 	 * @param array $payload
 	 */
-	public function __construct(\ICanBoogie\Session $target, array $payload=[])
+	public function __construct(Session $target, array $payload = [])
 	{
 		parent::__construct($target, 'start', $payload);
 	}

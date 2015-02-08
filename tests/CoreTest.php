@@ -71,12 +71,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 			[ 'request',           'ICanBoogie\HTTP\Request' ],
 			[ 'events',            'ICanBoogie\Events' ],
 			[ 'routes',            'ICanBoogie\Routing\Routes' ],
-			[ 'timezone',          'ICanBoogie\TimeZone' ],
-			[ 'connections',       'ICanBoogie\ActiveRecord\Connections' ],
-			[ 'db',                'ICanBoogie\ActiveRecord\Connection' ],
-			[ 'template_engines',  'ICanBoogie\Render\EngineCollectionInterface' ],
-			[ 'template_resolver', 'ICanBoogie\Render\TemplateResolverInterface' ],
-			[ 'template_resolver', 'ICanBoogie\ApplicationTemplateResolver' ]
+			[ 'timezone',          'ICanBoogie\TimeZone' ]
 
 		];
 	}

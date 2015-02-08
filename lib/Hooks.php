@@ -11,28 +11,10 @@
 
 namespace ICanBoogie;
 
-use ICanBoogie\Render\EngineCollection;
-use ICanBoogie\Render\Renderer;
-use ICanBoogie\Render\TemplateResolver;
 use ICanBoogie\Routing\Routes;
 
 class Hooks
 {
-    /*
-     * Events
-     */
-
-    /**
-     * Decorates the template resolver with an {@link ApplicationTemplateResolver} instance.
-     *
-     * @param TemplateResolver\AlterEvent $event
-     * @param TemplateResolver $target
-     */
-    static public function alter_template_resolver(TemplateResolver\AlterEvent $event, TemplateResolver $target)
-    {
-        $event->replace_with(new ApplicationTemplateResolver($event->instance, get_autoconfig()['app-paths']));
-    }
-
     /*
      * Prototypes
      */
@@ -44,38 +26,8 @@ class Hooks
      *
      * @return Routes
      */
-    static public function get_routes(Core $app)
+    static public function lazy_get_routes(Core $app)
     {
-        $definitions = $app->configs['routes'];
-
-        return new Routes($definitions);
-    }
-
-    /**
-     * Returns an engine collection.
-     *
-     * @return EngineCollection
-     */
-    static public function get_template_engines()
-    {
-        return Render\get_engines();
-    }
-
-    /**
-     * Returns a template resolver.
-     *
-     * @return TemplateResolver
-     */
-    static public function get_template_resolver()
-    {
-        return clone Render\get_template_resolver();
-    }
-
-    /**
-     * @return Renderer
-     */
-    static public function get_renderer()
-    {
-        return clone Render\get_renderer();
+        return new Routes($app->configs['routes']);
     }
 }

@@ -12,11 +12,11 @@
 namespace ICanBoogie;
 
 /**
- * Exception thrown when a user doesn't have the required permission.
+ * Exception thrown in attempt to create a second instance.
  */
-class PermissionRequired extends SecurityException
+class CoreAlreadyInstantiated extends \LogicException
 {
-	public function __construct($message = "You don't have the required permission.", $code = 401, \Exception $previous = null)
+	public function __construct($message = "The core is already instantiated.", $code = 500, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

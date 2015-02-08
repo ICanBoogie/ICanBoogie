@@ -383,7 +383,7 @@ EOT;
 	 *
 	 * @return string
 	 */
-	static public function format_code_sample($file, $line=0)
+	static public function format_code_sample($file, $line = 0)
 	{
 		$sample = '';
 		$fh = new \SplFileObject($file);

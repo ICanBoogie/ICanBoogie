@@ -293,9 +293,6 @@ function generate_token($length=8, $possible=TOKEN_NARROW)
 /**
  * Generate a 512 bit (64 chars) length token from {@link TOKEN_WIDE}.
  *
- * @param int $length=64
- * @param string $possible=TOKEN_WIDE
- *
  * @return string
  */
 function generate_token_wide()

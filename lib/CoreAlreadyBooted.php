@@ -12,11 +12,11 @@
 namespace ICanBoogie;
 
 /**
- * Exception thrown in attempt to run the code twice.
+ * Exception thrown in attempt to boot the application a second time.
  */
 class CoreAlreadyBooted extends \LogicException
 {
-	public function __construct($message="The core has already booted.", $code=500, \Exception $previous=null)
+	public function __construct($message = "The core has already booted.", $code = 500, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

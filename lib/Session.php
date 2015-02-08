@@ -14,13 +14,26 @@ namespace ICanBoogie;
 /**
  * Session.
  *
- * @property string $remote_ip The remote IP of the request that created the session.
  * @property string $remote_agent_hash The remote user agent hash of the request that created the
  * session.
+ * @property Logger $icanboogie_logger
  * @property string $token A token that can be used to prevent cross-site request forgeries.
  */
 class Session
 {
+	static public $defaults = [
+
+		'id' => null,
+		'name' => 'ICanBoogie',
+		'domain' => null,
+		'use_cookies' => true,
+		'use_only_cookies' => true,
+		'use_trans_sid' => false,
+		'cache_limiter' => null,
+		'module_name' => 'files'
+
+	];
+
 	/**
 	 * Checks if a session identifier can be found to retrieve a session.
 	 *
@@ -38,13 +51,13 @@ class Session
 	 *
 	 * Once the session is created the `start` event is fired with the session as sender.
 	 *
-	 * @param Core $core
+	 * @param Core $app
 	 *
 	 * @return Session
 	 */
-	static function get_session(Core $core)
+	static function get_session(Core $app)
 	{
-		$options = $core->config['session'];
+		$options = $app->config['session'];
 
 		unset($options['id']);
 
@@ -54,39 +67,42 @@ class Session
 	/**
 	 * Constructor.
 	 *
-	 * In order to circumvent session fixation and session hijacking, the remote IP and the user
-	 * agent hash are attached to the session. A previous session can only be restored if the
-	 * remote address and the user agent hash match those attached to that previous session.
-	 *
-	 * Although the user agent is easily forgeable, the IP address (fetched from
-	 * $_SERVER['REMOTE_ADDR']) is not forgeable without compromising the server itself. The
-	 * values are stored independently in order to prevent a collision attack.
+	 * In order to circumvent session fixation and session hijacking, the user agent hash is
+	 * attached to the session. A previous session can only be restored if the
+	 * user agent hash match.
 	 *
 	 * The session is destroyed when the values don't match and the "location" header is set to
 	 * request a reload.
 	 *
 	 * @param array $options
 	 */
-	public function __construct(array $options=[])
+	public function __construct(array $options = [])
 	{
 		if (session_id())
 		{
 			return;
 		}
 
-		$options += [
+		$options += self::$defaults + session_get_cookie_params();
 
-			'id' => null,
-			'name' => 'ICanBoogie',
-			'domain' => null,
-			'use_cookies' => true,
-			'use_only_cookies' => true,
-			'use_trans_sid' => false,
-			'cache_limiter' => null,
-			'module_name' => 'files'
+		$this->prepare($options);
 
-		] + session_get_cookie_params();
+		if (PHP_SAPI != 'cli')
+		{
+			session_start();
+			$this->check_fixation($options);
+		}
 
+		new Session\StartEvent($this);
+	}
+
+	/**
+	 * Prepare the session environment.
+	 *
+	 * @param array $options
+	 */
+	private function prepare(array $options)
+	{
 		$id = $options['id'];
 
 		if ($id)
@@ -118,26 +134,23 @@ class Session
 		{
 			output_reset_rewrite_vars();
 		}
+	}
 
-		if (PHP_SAPI != 'cli')
-		{
-			session_start();
-		}
-
-		#
-		# The following line are meant to circumvent session fixation.
-		#
-
-		$remote_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
+	/**
+	 * We do what we can to prevent session fixation.
+	 *
+	 * @param array $options
+	 */
+	private function check_fixation(array $options)
+	{
 		$remote_agent_hash = isset($_SERVER['HTTP_USER_AGENT']) ? md5($_SERVER['HTTP_USER_AGENT']) : null;
 
-		if (empty($this->remote_ip))
+		if (empty($this->remote_agent_hash))
 		{
-			$this->remote_ip = $remote_ip;
 			$this->remote_agent_hash = $remote_agent_hash;
 			$this->regenerate_token();
 		}
-		else if ($this->remote_ip != $remote_ip || $this->remote_agent_hash != $remote_agent_hash)
+		else if ($this->remote_agent_hash != $remote_agent_hash)
 		{
 			session_destroy();
 
@@ -150,18 +163,22 @@ class Session
 
 			exit;
 		}
-
-		new Session\StartEvent($this);
 	}
+
 
 	/**
 	 * Regenerates the id of the session.
+	 *
+	 * @param bool $delete_old_session
+	 *
+	 * @return bool|null `true` when the id is regenerated, `false` when it is not, `null` when
+	 * the application is running from CLI.
 	 */
 	public function regenerate_id($delete_old_session=false)
 	{
 		if (PHP_SAPI == 'cli')
 		{
-			return;
+			return null;
 		}
 
 		return session_regenerate_id($delete_old_session);
@@ -177,7 +194,7 @@ class Session
 	public function regenerate_token()
 	{
 		$_SESSION['token'] = $token = md5(uniqid());
-		$_SESSION['token_time'] = time();
+		$_SESSION['token_time'] = microtime(true);
 
 		return $token;
 	}

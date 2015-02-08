@@ -11,19 +11,22 @@
 
 namespace ICanBoogie\Core;
 
+use ICanBoogie\Core;
+use ICanBoogie\Event;
+
 /**
  * Event class for the `ICanBoogie\Core::boot` event.
  *
  * The event is fired after the core has booted.
  */
-class BootEvent extends \ICanBoogie\Event
+class BootEvent extends Event
 {
 	/**
 	 * The event is constructed with the type `boot`.
 	 *
-	 * @param \ICanBoogie\Core $target
+	 * @param Core $target
 	 */
-	public function __construct(\ICanBoogie\Core $target)
+	public function __construct(Core $target)
 	{
 		parent::__construct($target, 'boot');
 	}

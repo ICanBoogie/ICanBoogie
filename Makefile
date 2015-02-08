@@ -1,6 +1,7 @@
 # customization
 
 PACKAGE_NAME = "ICanBoogie"
+COMPOSER_ENV = COMPOSER_ROOT_VERSION=2.2.x-dev
 
 # do not edit the following lines
 
@@ -8,16 +9,20 @@ usage:
 	@echo "test:  Runs the test suite.\ndoc:   Creates the documentation.\nclean: Removes the documentation, the dependencies and the Composer files."
 
 vendor:
-	@composer install --dev
+	@$(COMPOSER_ENV) composer install
 
 update:
-	@composer update --dev
+	@$(COMPOSER_ENV) composer update
 
 autoload: vendor
-	@composer dump-autoload
+	@$(COMPOSER_ENV) composer dump-autoload
 
 test: vendor
 	@phpunit
+
+test-coverage: vendor
+	@mkdir -p build/coverage
+	@phpunit --coverage-html build/coverage
 
 doc: vendor
 	@mkdir -p "docs"
@@ -30,6 +35,7 @@ doc: vendor
 	--template-config /usr/share/php/data/ApiGen/templates/bootstrap/config.neon
 
 clean:
+	@rm -fR build/coverage
 	@rm -fR docs
 	@rm -fR vendor
 	@rm -f composer.lock

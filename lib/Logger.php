@@ -60,7 +60,7 @@ class Logger implements LoggerInterface
 		$this->core = $core;
 	}
 
-	public function log($level, $message, array $context=[])
+	public function log($level, $message, array $context = [])
 	{
 		$messages = &$this->get_stash()[$level];
 

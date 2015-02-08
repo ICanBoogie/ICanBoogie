@@ -1,10 +1,17 @@
-# ICanBoogie [![Build Status](https://travis-ci.org/ICanBoogie/ICanBoogie.svg?branch=2.0)](https://travis-ci.org/ICanBoogie/ICanBoogie)
+# ICanBoogie
+
+[![Release](https://img.shields.io/packagist/v/ICanBoogie/ICanBoogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
+[![Build Status](https://img.shields.io/travis/ICanBoogie/ICanBoogie/master.svg)](http://travis-ci.org/ICanBoogie/ICanBoogie)
+[![HHVM](https://img.shields.io/hhvm/icanboogie/icanboogie.svg)](http://hhvm.h4cc.de/package/icanboogie/icanboogie)
+[![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/ICanBoogie/master.svg)](https://scrutinizer-ci.com/g/ICanBoogie/ICanBoogie)
+[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/ICanBoogie/master.svg)](https://coveralls.io/r/ICanBoogie/ICanBoogie)
+[![Packagist](https://img.shields.io/packagist/dt/icanboogie/icanboogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
 
 __ICanBoogie__ is a high-performance micro-framework for PHP 5.4+. It is written with speed,
 flexibility and lightness in mind. ICanBoogie doesn't try to be an all-in-one do-it-all solution
 but provides the essential features to quickly and easily build web applications. It is easily
 extensible, and a variety of packages are available to complement its features with
-internationalization, translation, ORM, facets, mailer, and many more.
+rendering, views, routing, operations, internationalization, translation, ORM, facets, mailer…
 
 Together with [Brickrouge](http://brickrouge.org) and [Patron](https://github.com/Icybee/Patron),
 ICanBoogie is one of the components that make the CMS [Icybee](http://icybee.org). You might want
@@ -31,7 +38,7 @@ dispatcher if you want to.
 ICanBoogie and its components are usually very configurable and come with sensible defaults and a
 few conventions. Configurations are usually located in "config" folders, while locale messages are
 usually located in "locale" folders. Components configure themselves thanks to ICanBoogie's
-_autoconfig_ feature, and won't require much of you other than a line in your
+_Autoconfig_ feature, and won't require much of you other than a line in your
 `composer.json` file.
 
 
@@ -53,7 +60,7 @@ ICanBoogie tries to leverage the magic features of PHP as much as possible: gett
 invokable objects, array access, stringifiable objects, closures… with the goal of creating a
 coherent framework which requires less typing and most of all less guessing.
 
-Applications created with ICanBoogie often have a very concise code, and a fluid flow.
+Applications created with ICanBoogie often have concise code and fluid flow.
 
 
 
@@ -78,9 +85,10 @@ $time->minute += 120;
 echo $time;         // 2013-05-17T14:30:45Z
 ```
 
-The getter/setter feature provided by the [Prototype package][] allows you to create read-only or
-write-only properties, type control, properties façades, fallbacks to generate default values,
-forwarding properties, lazy loading…
+The getter/setter feature provided by [icanboogie/accessor][], and extended by
+[icanboogie/prototype][], allows you to create read-only or write-only properties, 
+properties façades, fallbacks to generate default values, forwarding properties, lazy loading,
+or type control.
 
 
 
@@ -88,7 +96,7 @@ forwarding properties, lazy loading…
 
 ### Dependency injection
 
-The [Prototype package][] allows methods to be defined at runtime, and since getters and setters
+[icanboogie/prototype][] allows methods to be defined at runtime, and since getters and setters
 are methods as well, this feature in often used as a mean to inject dependencies. What's great
 about it is that dependencies are only _injected_ when they are required, not when to instance
 is created.
@@ -383,22 +391,11 @@ If the server's name cannot be resolved into a directory, "default" is used inst
 
 
 
-## Render and view support
-
-ICanBoogie extends the template resolver used by [icanboogie/render][] and [icanboogie/view][]
-to search templates in the application paths (see [Multi-site support](#multi-site-support)).
-Also, the "//" prefix can be used to search for templates from these paths .e.g.
-"//my/special/templates/_form".
-
-
-
-
-
 ## Autoconfig
 
-_Autoconfig_ is a feature of ICanBoogie that automatically generates a configuration file from
-the available low-level components. Currently, it is used to define configuration constructors,
-paths to component configurations, paths to locale message catalogs, and paths to modules.
+The _Autoconfig_ feature automatically generates a configuration file from the available low-level
+components. Currently, it is used to define configuration constructors, paths to component
+configurations, paths to locale message catalogs, and paths to modules.
 
 
 
@@ -415,15 +412,15 @@ demonstrates how an application can specify the path to its configuration and lo
 {
 	"extra": {
 		"icanboogie": {
-			"config-path": "protected/all/config",
-			"locale-path": "protected/all/locale"
+			"config-path": "path/to/config",
+			"locale-path": "path/to/locale"
 		}
 	}
 }
 ```
 
-Note: Packages can also define their _autoconfig_ fragment in a stand-alone "icanboogie.json" file,
-beside their "composer.json" file, but using the "composer.json" file is recommended. The
+**Note:** Packages can also define their _autoconfig_ fragment in a stand-alone "icanboogie.json"
+file, beside their "composer.json" file, but using the "composer.json" file is recommended. The
 file must match the [icanboogie-schema.json](lib/Autoconfig/icanboogie-schema.json) schema.
 
 
@@ -459,7 +456,7 @@ respectively.
 ```php
 <?php
 
-$app = new ICanBoogie\Core( ICanBoogie\get_autoconfig() );
+$app = new ICanBoogie\Core(ICanBoogie\get_autoconfig());
 ```
 
 Additionally, the `ICanBoogie\AUTOCONFIG_PATHNAME` constant defines the absolute pathname to the
@@ -721,11 +718,11 @@ The following packages are required, you might want to check them out:
 - [icanboogie/routing](https://github.com/ICanBoogie/Routing)
 - [icanboogie/operation](https://github.com/ICanBoogie/Operation)
 - [icanboogie/errors](https://github.com/ICanBoogie/Errors)
-- [icanboogie/render][]
-- [icanboogie/view][]
 
 The following packages can also be installed for additional features:
 
+- [icanboogie/render][]: A rendering API.
+- [icanboogie/view][]: Adds views to controllers.
 - [icanboogie/activerecord](https://github.com/ICanBoogie/ActiveRecord): ActiveRecord Object-relational mapping.
 - [icanboogie/cldr](https://github.com/ICanBoogie/CLDR): Provides internationalization for
 your application.
@@ -734,6 +731,13 @@ and additional internationalization helpers.
 - [icanboogie/image](https://github.com/ICanBoogie/Image): Provides image resizing, filling,
 and color resolving.
 - [icanboogie/module][]: Provides framework extensibility using modules.
+
+The following bindings are available to help in integrating components:
+
+- [icanboogie/bind-activerecord][]
+- [icanboogie/bind-cldr][]
+- [icanboogie/bind-render][]
+- [icanboogie/bind-view][]
 
 
 
@@ -770,7 +774,8 @@ clean the directory with the `make clean` command.
 
 The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
-[![Build Status](https://travis-ci.org/ICanBoogie/ICanBoogie.svg?branch=2.0)](https://travis-ci.org/ICanBoogie/ICanBoogie)
+[![Build Status](https://img.shields.io/travis/ICanBoogie/ICanBoogie/master.svg)](http://travis-ci.org/ICanBoogie/ICanBoogie)
+[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/ICanBoogie/master.svg)](https://coveralls.io/r/ICanBoogie/ICanBoogie)
 
 
 
@@ -784,7 +789,13 @@ ICanBoogie is licensed under the New BSD License - See the [LICENSE](LICENSE) fi
 
 
 
+[icanboogie/accessor]: https://github.com/ICanBoogie/Accessor
+[icanboogie/bind-activerecord]: https://github.com/ICanBoogie/bind-activerecord
+[icanboogie/bind-cldr]: https://github.com/ICanBoogie/bind-cldr
+[icanboogie/bind-render]: https://github.com/ICanBoogie/bind-render
+[icanboogie/bind-view]: https://github.com/ICanBoogie/bind-view
 [icanboogie/module]: https://github.com/ICanBoogie/Module
+[icanboogie/prototype]: https://github.com/ICanBoogie/Prototype
 [icanboogie/render]: https://github.com/ICanBoogie/Render
 [icanboogie/view]: https://github.com/ICanBoogie/View
 [BootEvent]: http://icanboogie.org/docs/class-ICanBoogie.BootEvent.html

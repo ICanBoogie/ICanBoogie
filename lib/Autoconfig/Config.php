@@ -18,13 +18,45 @@ use Composer\Package\RootPackage;
 
 class Config
 {
+	/**
+	 * @var Package[]
+	 */
 	protected $packages;
+
+	/**
+	 * @var string
+	 */
 	protected $destination;
+
+	/**
+	 * @var Schema
+	 */
+	protected $composer_schema;
+
+	/**
+	 * @var Schema
+	 */
+	protected $icanboogie_schema;
+
+	/**
+	 * @var Filesystem
+	 */
 	protected $filesystem;
-	protected $validator;
+
+	/**
+	 * @var array
+	 */
 	protected $fragments = [];
+
+	/**
+	 * @var array
+	 */
 	protected $weights = [];
 
+	/**
+	 * @param Package[] $packages
+	 * @param string $destination
+	 */
 	public function __construct(array $packages, $destination)
 	{
 		$this->packages = $packages;
@@ -51,6 +83,8 @@ class Config
 	/**
 	 * Resolve the autoconfig fragments defined by the packages.
 	 *
+	 * @param array $packages
+	 *
 	 * @return array An array with the resolved fragments and their weights.
 	 */
 	protected function resolve_fragments(array $packages)
@@ -60,6 +94,7 @@ class Config
 
 		foreach ($packages as $pi)
 		{
+			/* @var $package Package */
 			list($package, $pathname) = $pi;
 
 			$pathname = realpath($pathname);
@@ -70,7 +105,7 @@ class Config
 				$weight = 10;
 			}
 
-			$fragment = $this->resolve_fragment($package, $pathname);
+			$fragment = $this->resolve_fragment($pathname);
 
 			if (!$fragment)
 			{
@@ -87,12 +122,11 @@ class Config
 	/**
 	 * Resolve the autoconfig fragment of a package.
 	 *
-	 * @param Package $package Package.
 	 * @param string $pathname The pathname to the package.
 	 *
 	 * @return mixed|null The autoconfig fragment, or `null` if the package doesn't define one.
 	 */
-	protected function resolve_fragment(Package $package, $pathname)
+	protected function resolve_fragment($pathname)
 	{
 		#
 		# Trying "extra/icanboogie" in "composer.json".
@@ -121,7 +155,7 @@ class Config
 
 		if (!file_exists($icanboogie_pathname))
 		{
-			return;
+			return null;
 		}
 
 		$this->icanboogie_schema->validate_file($icanboogie_pathname);
@@ -138,7 +172,7 @@ class Config
 	 *
 	 * @return array
 	 */
-	public function synthesize(Filesystem $filesystem=null)
+	public function synthesize(Filesystem $filesystem = null)
 	{
 		if (!$filesystem)
 		{
@@ -164,8 +198,10 @@ class Config
 				switch ($key)
 				{
 					case 'config-constructor':
+					case 'autoconfig-filters':
+					case 'app-paths':
 
-						$config[$key] = array_merge($config[$key], $value);
+						$config[$key] = array_merge($config[$key], (array) $value);
 
 						break;
 
@@ -193,21 +229,10 @@ class Config
 
 						break;
 
-					case 'autoconfig-filters':
-
-						$config[$key] = array_merge($config[$key], (array) $value);
-
-						break;
 
 					case 'app-root':
 
 						$config[$key] = $value;
-
-						break;
-
-					case 'app-paths':
-
-						$config[$key] = array_merge($config[$key], (array) $value);
 
 						break;
 				}
@@ -224,7 +249,7 @@ class Config
 	 *
 	 * @return string
 	 */
-	public function render($synthesized_config=null)
+	public function render($synthesized_config =null)
 	{
 		if (!$synthesized_config)
 		{
@@ -363,7 +388,7 @@ EOT;
 		{
 			file_put_contents($this->destination, $this->render());
 
-			echo "Created autoconfig in {$this->destination}\n";
+			echo "Created Autoconfig in {$this->destination}\n";
 		}
 		catch (\Exception $e)
 		{

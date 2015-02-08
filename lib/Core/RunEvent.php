@@ -11,12 +11,14 @@
 
 namespace ICanBoogie\Core;
 
+use ICanBoogie\Core;
+use ICanBoogie\Event;
 use ICanBoogie\HTTP\Request;
 
 /**
  * Event class for the `ICanBoogie\Core::run` event.
  */
-class RunEvent extends \ICanBoogie\Event
+class RunEvent extends Event
 {
 	/**
 	 * Initial request.
@@ -28,9 +30,10 @@ class RunEvent extends \ICanBoogie\Event
 	/**
 	 * The event is constructed with the type `run`.
 	 *
-	 * @param \ICanBoogie\Core $target
+	 * @param Core $target
+	 * @param Request $request
 	 */
-	public function __construct(\ICanBoogie\Core $target, Request $request)
+	public function __construct(Core $target, Request $request)
 	{
 		$this->request = $request;
 
