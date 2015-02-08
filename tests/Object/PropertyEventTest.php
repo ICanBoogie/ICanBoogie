@@ -40,7 +40,7 @@ class PropertyEventTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException ICanBoogie\PropertyNotWritable
+	 * @expectedException \ICanBoogie\PropertyNotWritable
 	 */
 	public function test_set_has_value()
 	{

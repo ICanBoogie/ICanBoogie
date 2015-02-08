@@ -19,7 +19,7 @@ namespace ICanBoogie;
  */
 class AlreadyAuthenticated extends SecurityException
 {
-	public function __construct($message = "The user is already authenticated", $code = 401, \Exception $previous = null)
+	public function __construct($message = "The user is already authenticated.", $code = 401, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

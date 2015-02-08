@@ -31,6 +31,24 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 		self::$core->boot();
 	}
 
+	public function test_is_booting()
+	{
+		$this->assertFalse(self::$core->is_booting);
+	}
+
+	public function test_is_booted()
+	{
+		$this->assertTrue(self::$core->is_booted);
+	}
+
+	public function test_get_config()
+	{
+		$config = self::$core->config;
+		$this->assertInternalType('array', $config);
+		$this->assertNotEmpty($config);
+		$this->assertArrayHasKey('exception_handler', $config);
+	}
+
 	/**
 	 * @dataProvider provide_test_write_readonly_properties
 	 * @expectedException \ICanBoogie\PropertyNotWritable

@@ -63,20 +63,16 @@ class Logger implements LoggerInterface
 	public function log($level, $message, array $context = [])
 	{
 		$messages = &$this->get_stash()[$level];
-
-		if ($messages)
-		{
-			$count = count($messages) + 1;
-			$max = self::MAX_MESSAGES;
-
-			if ($count >= $max)
-			{
-				$messages = array_splice($messages, $count - $max);
-				array_unshift($messages, [ '*** SLICED', [] ]);
-			}
-		}
-
 		$messages[] = [ $message, $context ];
+
+		$count = count($messages);
+		$max = self::MAX_MESSAGES;
+
+		if ($count + 1 > $max)
+		{
+			$messages = array_splice($messages, $count - $max + 1);
+			array_unshift($messages, [ '*** SLICED', [] ]);
+		}
 	}
 
 	public function get_messages($level)

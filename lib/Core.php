@@ -20,6 +20,8 @@ use ICanBoogie\Storage\FileStorage;
 /**
  * Core of the framework.
  *
+ * @property-read bool $is_booting `true` if the core is booting, `false` otherwise.
+ * @property-read bool $is_booted `true` if the core is booted, `false` otherwise.
  * @property Config $configs Configurations manager.
  * @property FileStorage $vars Persistent variables registry.
  * @property Session $session User's session.
