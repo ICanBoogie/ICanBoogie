@@ -19,6 +19,14 @@
 
 		},
 
+		"config-weight": {
+
+			"type": "integer",
+			"description": "The weight of the config. Default to CONFIG_WEIGHT_FRAMEWORK (-100)",
+			"required": false
+
+		},
+
 		"locale-path": {
 
 			"type": [ "string", "array" ],

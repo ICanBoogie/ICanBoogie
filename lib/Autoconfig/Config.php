@@ -18,6 +18,10 @@ use Composer\Package\RootPackage;
 
 class Config
 {
+	const CONFIG_WEIGHT_FRAMEWORK = -100;
+	const CONFIG_WEIGHT_MODULE = 0;
+	const CONFIG_WEIGHT_APP = 100;
+
 	/**
 	 * @var Package[]
 	 */
@@ -98,13 +102,6 @@ class Config
 			list($package, $pathname) = $pi;
 
 			$pathname = realpath($pathname);
-			$weight = -10;
-
-			if ($package instanceof RootPackage)
-			{
-				$weight = 10;
-			}
-
 			$fragment = $this->resolve_fragment($pathname);
 
 			if (!$fragment)
@@ -113,10 +110,33 @@ class Config
 			}
 
 			$fragments[$pathname] = $fragment;
-			$weights[$pathname] = $weight;
+			$weights[$pathname] = $this->resolve_config_weight($package, $fragment);
 		}
 
 		return [ $fragments, $weights ];
+	}
+
+	/**
+	 * Resolves config weight.
+	 *
+	 * @param Package $package
+	 * @param array $fragment
+	 *
+	 * @return int
+	 */
+	private function resolve_config_weight(Package $package, array $fragment)
+	{
+		if (isset($fragment['config-weight']))
+		{
+			return $fragment['config-weight'];
+		}
+
+		if ($package instanceof RootPackage)
+		{
+			return self::CONFIG_WEIGHT_APP;
+		}
+
+		return self::CONFIG_WEIGHT_FRAMEWORK;
 	}
 
 	/**
