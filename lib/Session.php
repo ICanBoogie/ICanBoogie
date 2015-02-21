@@ -83,7 +83,7 @@ class Session
 			return;
 		}
 
-		$options += self::$defaults + session_get_cookie_params();
+		$options = $this->prepare_options($options);
 
 		$this->prepare($options);
 
@@ -96,12 +96,24 @@ class Session
 		new Session\StartEvent($this);
 	}
 
+    /**
+     * Prepare session options.
+     *
+     * @param array $options
+     *
+     * @return array
+     */
+    protected function prepare_options(array $options)
+    {
+        return $options + self::$defaults + session_get_cookie_params();
+    }
+
 	/**
 	 * Prepare the session environment.
 	 *
 	 * @param array $options
 	 */
-	private function prepare(array $options)
+    protected function prepare(array $options)
 	{
 		$id = $options['id'];
 
@@ -164,7 +176,6 @@ class Session
 			exit;
 		}
 	}
-
 
 	/**
 	 * Regenerates the id of the session.

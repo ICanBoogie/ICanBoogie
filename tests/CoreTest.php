@@ -23,6 +23,20 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 		self::$core = app();
 	}
 
+    /**
+     * @expectedException \ICanBoogie\CoreAlreadyInstantiated
+     */
+    public function test_subsequent_construct_should_throw_exception()
+    {
+        new Core;
+    }
+
+    public function test_object_should_have_app_property()
+    {
+        $o = new Object;
+        $this->assertSame(self::$core, $o->app);
+    }
+
 	/**
 	 * @expectedException \ICanBoogie\CoreAlreadyBooted
 	 */
@@ -43,10 +57,14 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 
 	public function test_get_config()
 	{
-		$config = self::$core->config;
+        $app = self::$core;
+		$config = $app->config;
 		$this->assertInternalType('array', $config);
 		$this->assertNotEmpty($config);
 		$this->assertArrayHasKey('exception_handler', $config);
+
+        unset($app->config);
+        $this->assertSame($config, $app->config);
 	}
 
 	/**
@@ -104,4 +122,58 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 		$this->assertInstanceOf('ICanBoogie\TimeZone', self::$core->timezone);
 		$this->assertEquals('Europe/Madrid', (string) self::$core->timezone);
 	}
+
+    public function test_invoke()
+    {
+        $result = uniqid();
+
+        $response = $this
+            ->getMockBuilder('ICanBoogie\HTTP\Response')
+            ->disableOriginalConstructor()
+            ->setMethods([ '__invoke' ])
+            ->getMock();
+        $response
+            ->expects($this->once())
+            ->method('__invoke')
+            ->willReturn($result);
+
+        $request = $this
+            ->getMockBuilder('ICanBoogie\HTTP\Request')
+            ->disableOriginalConstructor()
+            ->setMethods([ '__invoke' ])
+            ->getMock();
+        $request
+            ->expects($this->once())
+            ->method('__invoke')
+            ->willReturn($response);
+
+        $app = $this
+            ->getMockBuilder('ICanBoogie\Core')
+            ->disableOriginalConstructor()
+            ->setMethods([ 'get_is_booted', 'boot', 'get_initial_request', 'run', 'terminate' ])
+            ->getMock();
+        $app
+            ->expects($this->once())
+            ->method('get_is_booted')
+            ->willReturn(false);
+        $app
+            ->expects($this->once())
+            ->method('boot');
+        $app
+            ->expects($this->once())
+            ->method('get_initial_request')
+            ->willReturn($request);
+        $app
+            ->expects($this->once())
+            ->method('run')
+            ->with($request);
+        $app
+            ->expects($this->once())
+            ->method('terminate')
+            ->with($request, $response);
+
+        /* @var $app Core */
+
+        $app();
+    }
 }

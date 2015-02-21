@@ -59,6 +59,13 @@ class Core extends Object
 {
 	static private $instance;
 
+    /**
+     * Options passed during construct.
+     *
+     * @var array
+     */
+    static private $construct_options = [];
+
 	/**
 	 * Returns the unique instance of the core object.
 	 *
@@ -95,6 +102,7 @@ class Core extends Object
 		}
 
 		self::$instance = $this;
+        self::$construct_options = $options;
 
 		Prototype::from('ICanBoogie\Object')['get_app'] = function() {
 
@@ -131,9 +139,6 @@ class Core extends Object
 			$configs->cache = new FileStorage(REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'configs');
 		}
 
-		$this->config['locale-path'] = $options['locale-path'];
-		$this->config['module-path'] = $options['module-path'];
-
 		#
 
 		if (class_exists('ICanBoogie\I18n', true))
@@ -164,8 +169,13 @@ class Core extends Object
 	 */
 	protected function lazy_get_config()
 	{
-		return $this->configs['core'];
-	}
+		$config = $this->configs['core'];
+
+        $config['locale-path'] = self::$construct_options['locale-path'];
+        $config['module-path'] = self::$construct_options['module-path'];
+
+        return $config;
+    }
 
 	/**
 	 * Returns the dispatcher used to dispatch HTTP requests.
@@ -311,7 +321,7 @@ class Core extends Object
 	{
 		http_response_code(500);
 
-		if (self::$is_booted === null)
+		if (!$this->is_booted)
 		{
 			$this->boot();
 		}
@@ -320,13 +330,23 @@ class Core extends Object
 
 		$request = $this->initial_request;
 
-		new Core\RunEvent($this, $request);
+		$this->run($request);
 
 		$response = $request();
 		$response();
 
 		$this->terminate($request, $response);
 	}
+
+    /**
+     * Fires the `ICanBoogie\Core::run` event.
+     *
+     * @param Request $request
+     */
+    protected function run(Request $request)
+    {
+        new Core\RunEvent($this, $request);
+    }
 
 	/**
 	 * Terminate the application.
