@@ -19,7 +19,6 @@ class HooksTest extends \PHPUnit_Framework_TestCase
 
 		$routes = Hooks::lazy_get_routes($app);
 		$this->assertInstanceOf('ICanBoogie\Routing\Routes', $routes);
-		$this->assertTrue(isset($routes['api:core/ping']));
 		$this->assertEquals($routes, $app->routes);
 		$this->assertSame($app->routes, $app->routes);
 	}
