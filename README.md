@@ -716,7 +716,6 @@ The following packages are required, you might want to check them out:
 - [icanboogie/event](https://github.com/ICanBoogie/Event)
 - [icanboogie/http](https://github.com/ICanBoogie/HTTP)
 - [icanboogie/routing](https://github.com/ICanBoogie/Routing)
-- [icanboogie/operation](https://github.com/ICanBoogie/Operation)
 - [icanboogie/errors](https://github.com/ICanBoogie/Errors)
 
 The following packages can also be installed for additional features:
@@ -731,6 +730,7 @@ and additional internationalization helpers.
 - [icanboogie/image](https://github.com/ICanBoogie/Image): Provides image resizing, filling,
 and color resolving.
 - [icanboogie/module][]: Provides framework extensibility using modules.
+- [icanboogie/operation](https://github.com/ICanBoogie/Operation): Operation oriented controllers API.
 
 The following bindings are available to help in integrating components:
 
