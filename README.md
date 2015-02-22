@@ -57,10 +57,9 @@ _Autoconfig_ feature, and won't require much of you other than a line in your
 ## Working with ICanBoogie
 
 ICanBoogie tries to leverage the magic features of PHP as much as possible: getters/setters,
-invokable objects, array access, stringifiable objects, closures… with the goal of creating a
-coherent framework which requires less typing and most of all less guessing.
-
-Applications created with ICanBoogie often have concise code and fluid flow.
+invokable objects, array access, stringifiable objects, closures… to create a coherent framework
+which requires less typing and most of all less guessing. As a result, applications created with
+ICanBoogie have readable concise code and fluid flow.
 
 
 
@@ -87,8 +86,8 @@ echo $time;         // 2013-05-17T14:30:45Z
 
 The getter/setter feature provided by [icanboogie/accessor][], and extended by
 [icanboogie/prototype][], allows you to create read-only or write-only properties, 
-properties façades, fallbacks to generate default values, forwarding properties, lazy loading,
-or type control.
+façades properties, fallbacks to generate default values. Getters are setters are also often
+using to control types, lazy load resources, and inject dependencies.
 
 
 
@@ -101,8 +100,8 @@ are methods as well, this feature in often used as a mean to inject dependencies
 about it is that dependencies are only _injected_ when they are required, not when to instance
 is created.
 
-The following example demonstrates how a database connection to be created when required and
-shared among instances of a class:
+The following example demonstrates how a shared database connection is obtained through a `db`
+property:
 
 ```php
 <?php
@@ -141,7 +140,7 @@ Prototype::from("A")['get_db'] = function(A $a) {
 
 If a string represents a serialized set of data ICanBoogie usually provides a class to make its
 manipulation easy. Instances can be created from strings, and in turn they can be used as strings.
-This apply to dates and times, time zones, time zone locations, HTTP headers, HTTP responses,
+This applies to dates and times, time zones, time zone locations, HTTP headers, HTTP responses,
 database queries, and many more.
 
 ```php
@@ -229,8 +228,8 @@ echo $translator('I can Boogie'); // Je sais danser le Boogie
 
 ### Collections as arrays
 
-Collections of objects are always managed as arrays, whether they are records in the database,
-database connections, models, modules, header fields…
+Collections of objects always provide an array interface, whether they are records in the
+database, database connections, models, modules, header fields…
 
 ```php
 <?php
@@ -250,7 +249,7 @@ $response->headers['Content-Type'] = 'text/html; charset=utf-8';
 
 ### Creating an instance from data
 
-Most classes provide a `from()` static method that create instances from various data type.
+Most classes provide a `from()` static method that create instances from various data types.
 This is especially true for sub-classes of the [Object][] class, which can create instances
 from arrays of properties. ActiveRecords are a perfect example of this feature:
 
@@ -305,7 +304,8 @@ $custom_request = Request::from([
 
 ## The life and death of your application
 
-With ICanBoogie, you only need three lines to create, run, and terminate your application:
+Thanks to its Autoconfig system and a few conventions, running your application only requires
+three lines:
 
 ```php
 <?php
@@ -319,9 +319,9 @@ $app();
 1\. The first line is pretty common for applications using [Composer][], it creates and runs
 its autoloader.
 
-2\. On the second line the [Core][] instance is created with the _autoconfig_ and its `boot()`
-method is invoked. At this point ICanBoogie and some low-level components are configured and
-booted. Your application is ready to process requests.
+2\. On the second line the [Core][] instance is created with the _autoconfig_, its `boot()`
+method is invoked, and the `ICanBoogie\Core::boot` event is fired. At this point ICanBoogie and
+low-level components are configured and booted. Your application is ready to process requests.
 
 3\. On the third line the application is run, which implies the following:
 
@@ -346,7 +346,7 @@ terminated.
 
 ICanBoogie has built-in multi-site support and can be configured for different domains. Even
 if you are dealing with only one domain, this feature can be used to provide different
-configuration for the "dev", "stage", and "production" version of a same application.
+configuration for the "dev", "stage", and "production" versions of a same application.
 
 The intended location for your custom application code is in a separate "protected" directory, but
 another directory can be defined with the `app-root` _autoconfig_ directive. The directory is
@@ -375,7 +375,7 @@ localhost
 org
 ```
 
-The directory "all" contains resources that are common to all the sites. It is always added when
+The directory "all" contains resources that are common to all sites. It is always added when
 present.
 
 To resolve the matching directory, the server's name is first broken into parts and the most
@@ -394,8 +394,9 @@ If the server's name cannot be resolved into a directory, "default" is used inst
 ## Autoconfig
 
 The _Autoconfig_ feature automatically generates a configuration file from the available low-level
-components. Currently, it is used to define configuration constructors, paths to component
-configurations, paths to locale message catalogs, and paths to modules.
+components participating in the _Autoconfig_ process. Currently, it is used to define
+configuration constructors, paths to component configurations, paths to locale message catalogs,
+and paths to modules.
 
 
 
@@ -448,7 +449,7 @@ is required in the _root_ package of the application:
 
 ### Obtaining the _autoconfig_
 
-The _autoconfig_ can be obtained using the `ICanBoogie\get_autoconfig()` function, and can be
+The _autoconfig_ is obtained using the `ICanBoogie\get_autoconfig()` function, and can be
 used as is to instantiate the [Core][] instance. The function also updates the `app-root` and
 `app-paths` values with the resolved application root and and resolved application paths
 respectively.
@@ -456,7 +457,9 @@ respectively.
 ```php
 <?php
 
-$app = new ICanBoogie\Core(ICanBoogie\get_autoconfig());
+namespace ICanBoogie;
+
+$app = new Core(get_autoconfig());
 ```
 
 Additionally, the `ICanBoogie\AUTOCONFIG_PATHNAME` constant defines the absolute pathname to the
@@ -544,44 +547,6 @@ The `ICanBoogie\Core::run` event of class [RunEvent][] is fired when the applica
 Third parties may use this event to alter various states of the application, starting with the
 initial request.
 
-The following code demonstrates how the event can be used to retrieve the website corresponding to
-the request and select the locale and time zone that should be used by the framework. Also, the
-code patches the `contextualize()` and `decontextualize()` routing helpers to alter the paths
-according to the website's path.
-
-```php
-<?php
-
-namespace Icybee\Modules\Sites;
-
-use ICanBoogie\Core;
-use ICanBoogie\Routing;
-
-$app->events->attach(function(Core\RunEvent $event, Core $target) {
-
-	$site = Model::find_by_request($event->request);
-	$path = $site->path;
-
-	if ($path)
-	{
-		Routing\Helpers::patch('contextualize', function ($str) use ($path)
-		{
-			return $path . $str;
-		});
-
-		Routing\Helpers::patch('decontextualize', function ($str) use ($path)
-		{
-			if (strpos($str, $path . '/') === 0)
-			{
-				$str = substr($str, strlen($path));
-			}
-
-			return $str;
-		});
-	}
-});
-```
-
 
 
 
@@ -640,13 +605,13 @@ has been created.
 ```php
 <?php
 
-use ICanBoogie\Object;
+namespace ICanBoogie;
 
 $o = new Object;
 $o->app;
 // throw ICanBoogie\PropertyNotDefined;
 
-$app = ICanBoogie\boot();
+$app = boot();
 $app === $o->app;
 // true
 ```
@@ -716,7 +681,6 @@ The following packages are required, you might want to check them out:
 - [icanboogie/event](https://github.com/ICanBoogie/Event)
 - [icanboogie/http](https://github.com/ICanBoogie/HTTP)
 - [icanboogie/routing](https://github.com/ICanBoogie/Routing)
-- [icanboogie/errors](https://github.com/ICanBoogie/Errors)
 
 The following packages can also be installed for additional features:
 
