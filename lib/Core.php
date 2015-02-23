@@ -31,13 +31,16 @@ use ICanBoogie\Storage\FileStorage;
  * @property-read Request $request The request being processed.
  * @property Request $initial_request The initial request.
  * @property-read Events $events Event collection.
- * @property-read Routing\Routes $routes Route collection.
  * @property-read LoggerInterface $logger The message logger.
+ *
+ * The following properties are provider by icanboogie/routing:
+ *
+ * @property Routing\Routes $routes
  *
  * The following properties are provider by icanboogie/module:
  *
- * @property Module\Models $models
- * @property Module\Modules $modules
+ * @property Module\ModelCollection $models
+ * @property Module\ModuleCollection $modules
  *
  * The following properties are provider by icanboogie/bind-activerecord:
  *
