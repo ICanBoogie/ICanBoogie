@@ -31,7 +31,8 @@
 		"icanboogie/config": "~1.0.0",
 		"icanboogie/http": "~2.3.0",
 		"icanboogie/prototype": "~2.1.0",
-		"icanboogie/routing": "~2.2.0"
+		"icanboogie/routing": "2.3.x-dev",
+		"icanboogie/bind-routing": "dev-master"
 	},
 
 	"require-dev": {
