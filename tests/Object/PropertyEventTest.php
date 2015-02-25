@@ -19,7 +19,8 @@ class PropertyEventTest extends \PHPUnit_Framework_TestCase
 	{
 		$o = new A;
 		$success = false;
-		$event = new PropertyEvent($o, 'madonna', $success);
+		$event = new PropertyEvent($o, 'one', $success);
+		$this->assertEquals('one', $event->property);
 		$this->assertFalse($event->has_value);
 
 		$event->value = null;
@@ -42,11 +43,22 @@ class PropertyEventTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @expectedException \ICanBoogie\PropertyNotWritable
 	 */
+	public function test_set_property()
+	{
+		$o = new A;
+		$success = false;
+		$event = new PropertyEvent($o, 'one', $success);
+		$event->property = null;
+	}
+
+	/**
+	 * @expectedException \ICanBoogie\PropertyNotWritable
+	 */
 	public function test_set_has_value()
 	{
 		$o = new A;
 		$success = false;
-		$event = new PropertyEvent($o, 'madonna', $success);
+		$event = new PropertyEvent($o, 'one', $success);
 		$event->has_value = null;
 	}
 }

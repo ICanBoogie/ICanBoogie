@@ -35,7 +35,7 @@ doc: vendor
 	--template-config /usr/share/php/data/ApiGen/templates/bootstrap/config.neon
 
 clean:
-	@rm -fR build/coverage
+	@rm -fR build
 	@rm -fR docs
 	@rm -fR vendor
 	@rm -f composer.lock
