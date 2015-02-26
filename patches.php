@@ -9,22 +9,6 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Prototype;
-
-use ICanBoogie\Object\PropertyEvent;
-
-/*
- * Patch `ICanBoogie\Prototype\last_chance_get`.
- */
-Helpers::patch('last_chance_get', function($target, $property, &$success) {
-
-	$success = false;
-	$event = new PropertyEvent($target, $property, $success);
-
-	return $event->has_value ? $event->value : null;
-
-});
-
 namespace ICanBoogie\HTTP;
 
 /*
