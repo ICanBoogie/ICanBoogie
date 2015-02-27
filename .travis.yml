@@ -9,7 +9,7 @@ php:
 before_script:
   - travis_retry composer self-update
   - COMPOSER_ROOT_VERSION=2.3.0 travis_retry composer install --prefer-source
-  - composer require satooshi/php-coveralls --prefer-source
+  - COMPOSER_ROOT_VERSION=2.3.0 composer require satooshi/php-coveralls --prefer-source
 
 script:
   - mkdir -p build/logs
