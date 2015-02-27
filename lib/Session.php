@@ -85,7 +85,7 @@ class Session
 
 		$options = $this->prepare_options($options);
 
-		$this->prepare($options);
+		$this->apply_options($options);
 
 		if (PHP_SAPI != 'cli')
 		{
@@ -109,11 +109,11 @@ class Session
     }
 
 	/**
-	 * Prepare the session environment.
+	 * Applies options.
 	 *
 	 * @param array $options
 	 */
-    protected function prepare(array $options)
+    protected function apply_options(array $options)
 	{
 		$id = $options['id'];
 
@@ -135,7 +135,21 @@ class Session
 			session_module_name($options['module_name']);
 		}
 
-		$use_trans_sid = $options['use_trans_sid'];
+		$this->apply_use_trans_id($options['use_trans_sid']);
+	}
+
+	/**
+	 * Applies `session.use_trans_sid`.
+	 *
+	 * @param $use_trans_sid
+	 */
+	protected function apply_use_trans_id($use_trans_sid)
+	{
+		if (ini_get('session.use_trans_sid') == $use_trans_sid)
+		{
+			return;
+		}
+
 		ini_set('session.use_trans_sid', $use_trans_sid);
 
 		if ($use_trans_sid)
