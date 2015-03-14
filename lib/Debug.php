@@ -69,7 +69,7 @@ class Debug
 	/**
 	 * Configures the class.
 	 *
-	 * @param array $config A config such as one returned by `$core->configs['debug']`.
+	 * @param array $config A config such as one returned by `$app->configs['debug']`.
 	 */
 	static public function configure(array $config)
 	{

@@ -20,13 +20,13 @@ class Logger implements LoggerInterface
 
 	use LoggerTrait;
 
-	static public function get_logger(Core $core)
+	static public function get_logger(Core $app)
 	{
 		static $logger;
 
 		if (!$logger)
 		{
-			$logger = new static($core);
+			$logger = new static($app);
 		}
 
 		return $logger;
@@ -53,11 +53,11 @@ class Logger implements LoggerInterface
 		return $rc;
 	}
 
-	private $core;
+	private $app;
 
-	public function __construct(Core $core)
+	public function __construct(Core $app)
 	{
-		$this->core = $core;
+		$this->app = $app;
 	}
 
 	public function log($level, $message, array $context = [])
@@ -98,7 +98,7 @@ class Logger implements LoggerInterface
 
 	private function &get_stash()
 	{
-		$stash = &$this->core->session->icanboogie_logger;
+		$stash = &$this->app->session->icanboogie_logger;
 
 		return $stash;
 	}

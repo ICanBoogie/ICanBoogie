@@ -150,10 +150,10 @@ function get_autoconfig()
  */
 function boot()
 {
-	$core = new Core( get_autoconfig() );
-	$core->boot();
+	$app = new Core( get_autoconfig() );
+	$app->boot();
 
-	return $core;
+	return $app;
 }
 
 /**
@@ -165,14 +165,14 @@ function boot()
  */
 function app()
 {
-	$core = Core::get();
+	$app = Core::get();
 
-	if (!$core)
+	if (!$app)
 	{
 		throw new CoreNotInstantiated;
 	}
 
-	return $core;
+	return $app;
 }
 
 /*

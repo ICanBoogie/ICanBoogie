@@ -17,7 +17,7 @@ define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR 
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$core = new Core(array_merge_recursive(get_autoconfig(), [
+(new Core(array_merge_recursive(get_autoconfig(), [
 
 	'config-path' => [
 
@@ -25,6 +25,4 @@ $core = new Core(array_merge_recursive(get_autoconfig(), [
 
 	]
 
-]));
-
-$core->boot();
+])))->boot();

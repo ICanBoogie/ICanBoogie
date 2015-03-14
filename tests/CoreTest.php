@@ -16,11 +16,11 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @var Core
 	 */
-	static private $core;
+	static private $app;
 
 	static public function setupBeforeClass()
 	{
-		self::$core = app();
+		self::$app = app();
 	}
 
     /**
@@ -34,7 +34,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
     public function test_object_should_have_app_property()
     {
         $o = new Object;
-        $this->assertSame(self::$core, $o->app);
+        $this->assertSame(self::$app, $o->app);
     }
 
 	/**
@@ -42,22 +42,22 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_second_boot()
 	{
-		self::$core->boot();
+		self::$app->boot();
 	}
 
 	public function test_is_booting()
 	{
-		$this->assertFalse(self::$core->is_booting);
+		$this->assertFalse(self::$app->is_booting);
 	}
 
 	public function test_is_booted()
 	{
-		$this->assertTrue(self::$core->is_booted);
+		$this->assertTrue(self::$app->is_booted);
 	}
 
 	public function test_get_config()
 	{
-        $app = self::$core;
+        $app = self::$app;
 		$config = $app->config;
 		$this->assertInternalType('array', $config);
 		$this->assertNotEmpty($config);
@@ -75,7 +75,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_write_readonly_properties($property)
 	{
-		self::$core->$property = null;
+		self::$app->$property = null;
 	}
 
 	public function provide_test_write_readonly_properties()
@@ -93,7 +93,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_property_type($property, $class)
 	{
-		$this->assertInstanceOf($class, self::$core->$property);
+		$this->assertInstanceOf($class, self::$app->$property);
 	}
 
 	public function provide_test_property_type()
@@ -114,13 +114,13 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 
 	public function test_set_timezone()
 	{
-		self::$core->timezone = 3600;
-		$this->assertInstanceOf('ICanBoogie\TimeZone', self::$core->timezone);
-		$this->assertEquals('Europe/Paris', (string) self::$core->timezone);
+		self::$app->timezone = 3600;
+		$this->assertInstanceOf('ICanBoogie\TimeZone', self::$app->timezone);
+		$this->assertEquals('Europe/Paris', (string) self::$app->timezone);
 
-		self::$core->timezone = 'Europe/Madrid';
-		$this->assertInstanceOf('ICanBoogie\TimeZone', self::$core->timezone);
-		$this->assertEquals('Europe/Madrid', (string) self::$core->timezone);
+		self::$app->timezone = 'Europe/Madrid';
+		$this->assertInstanceOf('ICanBoogie\TimeZone', self::$app->timezone);
+		$this->assertEquals('Europe/Madrid', (string) self::$app->timezone);
 	}
 
     public function test_invoke()
