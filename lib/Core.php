@@ -49,7 +49,7 @@ use ICanBoogie\Storage\FileStorage;
  *
  * The following properties are provider by icanboogie/bind-render:
  *
- * @property Render\TemplateResolverInterface $template_resolver
+ * @property Render\TemplateResolver $template_resolver
  * @property Render\EngineCollection $template_engines
  * @property Render\Renderer $renderer
  *
