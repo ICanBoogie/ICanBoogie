@@ -300,23 +300,6 @@ function generate_token_wide()
 	return Helpers::generate_token(64, TOKEN_WIDE);
 }
 
-/** PBKDF2 Implementation (described in RFC 2898)
- *
- *  @param string $p password
- *  @param string $s salt
- *  @param int $c iteration count (use 1000 or higher)
- *  @param int $kl derived key length
- *  @param string $a hash algorithm
- *
- *  @return string derived key
- *
- *  @source http://www.itnewb.com/v/Encrypting-Passwords-with-PHP-for-Storage-Using-the-RSA-PBKDF2-Standard
- */
-function pbkdf2($p, $s, $c=1000, $kl=32, $a='sha256')
-{
-	return Helpers::pbkdf2($p, $s, $c, $kl, $a);
-}
-
 /**
  * Normalize a string to be suitable as a namespace part.
  *
