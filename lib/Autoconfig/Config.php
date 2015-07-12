@@ -16,6 +16,9 @@ use Composer\Json\JsonFile;
 use Composer\Package\Package;
 use Composer\Package\RootPackage;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Config
 {
 	const CONFIG_WEIGHT_FRAMEWORK = -100;

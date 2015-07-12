@@ -13,6 +13,9 @@ namespace ICanBoogie\Autoconfig;
 
 use Composer\Script\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Hooks
 {
 	/**

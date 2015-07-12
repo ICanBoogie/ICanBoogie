@@ -13,6 +13,9 @@ namespace ICanBoogie\Autoconfig;
 
 use Composer\Autoload\AutoloadGenerator;
 
+/**
+ * @codeCoverageIgnore
+ */
 class FakeAutoloadGenerator extends AutoloadGenerator
 {
 	static public function sort_package_map(AutoloadGenerator $generator, $packageMap)

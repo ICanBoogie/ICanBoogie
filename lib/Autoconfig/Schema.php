@@ -18,6 +18,8 @@ use JsonSchema\Validator;
  * A JSON schema.
  *
  * Used to validate other JSON files.
+ *
+ * @codeCoverageIgnore
  */
 class Schema
 {

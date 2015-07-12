@@ -11,6 +11,9 @@
 
 namespace ICanBoogie;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Debug
 {
 	const MODE_DEV = 'dev';
