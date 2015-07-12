@@ -20,6 +20,13 @@ class Logger implements LoggerInterface
 
 	use LoggerTrait;
 
+	/**
+	 * Returns the application's logger, create it if needed.
+	 *
+	 * @param Core $app
+	 *
+	 * @return Logger
+	 */
 	static public function get_logger(Core $app)
 	{
 		static $logger;
@@ -32,6 +39,13 @@ class Logger implements LoggerInterface
 		return $logger;
 	}
 
+	/**
+	 * Formats messages.
+	 *
+	 * @param array $messages The messages to format.
+	 *
+	 * @return array
+	 */
 	static private function format_messages(array $messages)
 	{
 		$rc = [];
@@ -40,26 +54,40 @@ class Logger implements LoggerInterface
 		{
 			list($message, $context) = $message_and_context;
 
-			$message = (string) $message;
-
-			if ($context)
-			{
-				$message = format($message, $context);
-			}
-
-			$rc[] = $message;
+			$rc[] = (string) self::format_message($message, $context);
 		}
 
 		return $rc;
 	}
 
+	/**
+	 * Formats message with context.
+	 *
+	 * @param string $message
+	 * @param array $context
+	 *
+	 * @return string
+	 */
+	static private function format_message($message, $context)
+	{
+		return $context ? format($message, $context) : $message;
+	}
+
 	private $app;
 
+	/**
+	 * Initialize the {@link $app} property.
+	 *
+	 * @param Core $app
+	 */
 	public function __construct(Core $app)
 	{
 		$this->app = $app;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function log($level, $message, array $context = [])
 	{
 		$messages = &$this->get_stash()[$level];
@@ -75,6 +103,9 @@ class Logger implements LoggerInterface
 		}
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function get_messages($level)
 	{
 		$messages = &$this->get_stash()[$level];
@@ -87,6 +118,9 @@ class Logger implements LoggerInterface
 		return self::format_messages($messages);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function fetch_messages($level)
 	{
 		$messages = $this->get_messages($level);
@@ -96,9 +130,14 @@ class Logger implements LoggerInterface
 		return $messages;
 	}
 
+	/**
+	 * Returns stash reference.
+	 *
+	 * @return array
+	 */
 	private function &get_stash()
 	{
-		$stash = &$this->app->session->icanboogie_logger;
+		$stash = &$this->app->session['flash_messages'];
 
 		return $stash;
 	}
