@@ -301,33 +301,6 @@ function generate_token_wide()
 }
 
 /**
- * Normalize a string to be suitable as a namespace part.
- *
- * @param string $part The string to normalize.
- *
- * @return string Normalized string.
- */
-function normalize_namespace_part($part)
-{
-	return preg_replace_callback
-	(
-		'/[-\s_\.]\D/', function ($match)
-		{
-			$rc = ucfirst($match[0]{1});
-
-			if ($match[0]{0} == '.')
-			{
-				$rc = '\\' . $rc;
-			}
-
-			return $rc;
-		},
-
-		' ' . $part
-	);
-}
-
-/**
  * Creates an excerpt of an HTML string.
  *
  * The following tags are preserved: A, P, CODE, DEL, EM, INS and STRONG.

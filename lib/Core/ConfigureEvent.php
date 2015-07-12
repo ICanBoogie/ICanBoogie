@@ -15,17 +15,19 @@ use ICanBoogie\Core;
 use ICanBoogie\Event;
 
 /**
- * Event class for the `ICanBoogie\Core::run:before` event.
+ * Event class for the `ICanBoogie\Core::configure` event.
+ *
+ * The event is fired when the core is configured.
  */
-class BeforeRunEvent extends Event
+class ConfigureEvent extends Event
 {
 	/**
-	 * The event is constructed with the type `run:before`.
+	 * The event is constructed with the type `configure`.
 	 *
 	 * @param Core $target
 	 */
 	public function __construct(Core $target)
 	{
-		parent::__construct($target, 'run:before');
+		parent::__construct($target, 'configure');
 	}
 }

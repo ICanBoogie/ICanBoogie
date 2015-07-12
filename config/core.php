@@ -14,8 +14,8 @@ return [
 	'repository.cache' => '/repository/cache',
 	'repository.files' => '/repository/files',
 
-	'error_handler' => __NAMESPACE__ . '\Debug::error_handler',
-	'exception_handler' => __NAMESPACE__ . '\Debug::exception_handler',
+	'error_handler' => Debug::class. '::error_handler',
+	'exception_handler' => Debug::class. '::exception_handler',
 
 	'session' => [
 

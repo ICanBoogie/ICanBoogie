@@ -30,15 +30,6 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals(64, strlen($token));
 	}
 
-    public function test_pbkdf2()
-    {
-        $s = "p4ssw0rd" . uniqid();
-        $r = pbkdf2($s, "my-s4lt");
-
-        $this->assertNotSame($r, $s);
-        $this->assertEquals(32, strlen($r));
-    }
-
 	/**
 	 * @dataProvider provide_test_resolve_app_paths
 	 */

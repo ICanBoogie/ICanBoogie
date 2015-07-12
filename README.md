@@ -561,39 +561,6 @@ use this event to cleanup loose ends.
 
 
 
-### Request dispatchers are collected
-
-The `ICanBoogie\HTTP\Dispatcher::collect` event of class [ICanBoogie\HTTP\Dispatcher\CollectEvent](http://icanboogie.org/docs/class-ICanBoogie.HTTP.Dispatcher.CollectEvent.html)
-is fired when dispatchers are collected, just before the main dispatcher is instantiated. Third
-parties may use this event to register dispatchers or alter dispatchers.
-
-The following code illustrate how a `hello` dispatcher, that returns
-"Hello world!" when the request matches the path "/hello", can be registered.
-
-```php
-<?php
-
-use ICanBoogie\HTTP\Dispatcher;
-use ICanBoogie\HTTP\Request;
-use ICanBoogie\HTTP\Response;
-
-$app->events->attach(function(Dispatcher\CollectEvent $event, Dispatcher $target) {
-
-	$event->dispatchers['hello'] = function(Request $request) {
-
-		if ($request->path === '/hello')
-		{
-			return new Response('Hello world!');
-		}
-	}
-
-});
-```
-
-
-
-
-
 ## Prototype methods
 
 ### `ICanBoogie\Object::get_app`

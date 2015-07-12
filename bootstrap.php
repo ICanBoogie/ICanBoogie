@@ -57,4 +57,3 @@ or define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARAT
 
 register_shutdown_function('ICanBoogie\Debug::shutdown_handler');
 
-require_once ROOT . 'patches.php';

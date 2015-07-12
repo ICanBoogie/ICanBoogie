@@ -80,9 +80,9 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 
 	public function provide_test_write_readonly_properties()
 	{
-		$properties = 'dispatcher|language|request|routes';
+		$properties = 'dispatcher request routes';
 
-		return array_map(function($v) { return (array) $v; }, explode('|', $properties));
+		return array_map(function($v) { return (array) $v; }, explode(' ', $properties));
 	}
 
 	/**

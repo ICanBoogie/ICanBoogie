@@ -13,15 +13,15 @@ namespace ICanBoogie;
 
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
-use ICanBoogie\Routing\Pattern;
-use ICanBoogie\Routing\Route;
 use ICanBoogie\Storage\FileStorage;
 
 /**
  * Core of the framework.
  *
+ * @property-read bool $is_configured `true` if the core is configured, `false` otherwise.
  * @property-read bool $is_booting `true` if the core is booting, `false` otherwise.
  * @property-read bool $is_booted `true` if the core is booted, `false` otherwise.
+ * @property-read bool $is_running `true` if the core is running, `false` otherwise.
  * @property Config $configs Configurations manager.
  * @property FileStorage $vars Persistent variables registry.
  * @property Session $session User's session.
@@ -32,42 +32,80 @@ use ICanBoogie\Storage\FileStorage;
  * @property Request $initial_request The initial request.
  * @property-read Events $events Event collection.
  * @property-read LoggerInterface $logger The message logger.
- *
- * The following properties are provider by icanboogie/routing:
- *
- * @property Routing\Routes $routes
- *
- * The following properties are provider by icanboogie/module:
- *
- * @property Module\ModelCollection $models
- * @property Module\ModuleCollection $modules
- *
- * The following properties are provider by icanboogie/bind-activerecord:
- *
- * @property ActiveRecord\ConnectionCollection $connections
- * @property ActiveRecord\Connection $db
- *
- * The following properties are provider by icanboogie/bind-render:
- *
- * @property Render\TemplateResolver $template_resolver
- * @property Render\EngineCollection $template_engines
- * @property Render\Renderer $renderer
- *
- * The following properties are provider by icanboogie/bind-cldr:
- *
- * @property-read CLDR\Locale $locale
- * @property-read CLDR\Repository $cldr
  */
 class Core extends Object
 {
-	static private $instance;
+	/**
+	 * Status of the application.
+	 */
+	const STATUS_VOID = 0;
+	const STATUS_INSTANTIATING = 1;
+	const STATUS_INSTANTIATED = 2;
+	const STATUS_CONFIGURING = 3;
+	const STATUS_CONFIGURED = 4;
+	const STATUS_BOOTING = 5;
+	const STATUS_BOOTED = 6;
+	const STATUS_RUNNING = 7;
+	const STATUS_TERMINATED = 8;
 
-    /**
+	/**
+	 * One of `STATUS_*`.
+	 *
+	 * @var int
+	 */
+	static private $status = self::STATUS_VOID;
+
+	/**
+	 * Whether the core is configured.
+	 *
+	 * @return bool `true` if the core is configured, `false` otherwise.
+	 */
+	protected function get_is_configured()
+	{
+		return self::$status >= self::STATUS_CONFIGURED;
+	}
+
+	/**
+	 * Whether the core is booting.
+	 *
+	 * @return bool `true` if the core is booting, `false` otherwise.
+	 */
+	protected function get_is_booting()
+	{
+		return self::$status === self::STATUS_BOOTING;
+	}
+
+	/**
+	 * Whether the core is booted.
+	 *
+	 * @return bool `true` if the core is booted, `false` otherwise.
+	 */
+	protected function get_is_booted()
+	{
+		return self::$status >= self::STATUS_BOOTED;
+	}
+
+	/**
+	 * Whether the core is running.
+	 *
+	 * @return bool `true` if the core is running, `false` otherwise.
+	 */
+	protected function get_is_running()
+	{
+		return self::$status === self::STATUS_RUNNING;
+	}
+
+	/**
      * Options passed during construct.
      *
      * @var array
      */
     static private $construct_options = [];
+
+	/**
+	 * @var Core
+	 */
+	static private $instance;
 
 	/**
 	 * Returns the unique instance of the core object.
@@ -78,13 +116,6 @@ class Core extends Object
 	{
 		return self::$instance;
 	}
-
-	/**
-	 * Whether the core is running or not.
-	 *
-	 * @var boolean
-	 */
-	static public $is_running = false;
 
 	/**
 	 * Constructor.
@@ -104,10 +135,11 @@ class Core extends Object
 			throw new CoreAlreadyInstantiated;
 		}
 
+		self::$status = self::STATUS_INSTANTIATING;
 		self::$instance = $this;
         self::$construct_options = $options;
 
-		Prototype::from('ICanBoogie\Object')['get_app'] = function() {
+		Prototype::from(Object::class)['get_app'] = function() {
 
 			return $this;
 
@@ -142,17 +174,20 @@ class Core extends Object
 			$configs->cache = new FileStorage(REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'configs');
 		}
 
-		#
-
-		if (class_exists('ICanBoogie\I18n', true))
-		{
-			I18n::$load_paths = array_merge(I18n::$load_paths, $options['locale-path']);
-		}
+		self::$status = self::STATUS_INSTANTIATED;
 	}
 
-	protected function create_config_manager($path_list, $constructors)
+	/**
+	 * Returns configuration manager.
+	 *
+	 * @param array $paths Path list.
+	 * @param array $synthesizers Configuration synthesizers.
+	 *
+	 * @return Config
+	 */
+	protected function create_config_manager(array $paths, array $synthesizers)
 	{
-		return new Config($path_list, $constructors);
+		return new Config($paths, $synthesizers);
 	}
 
 	/**
@@ -181,23 +216,13 @@ class Core extends Object
     }
 
 	/**
-	 * Returns the dispatcher used to dispatch HTTP requests.
-	 *
-	 * @return HTTP\Dispatcher
-	 */
-	protected function get_dispatcher()
-	{
-		return HTTP\get_dispatcher();
-	}
-
-	/**
 	 * Returns the initial request object.
 	 *
 	 * @return Request
 	 */
 	protected function lazy_get_initial_request()
 	{
-		return Request::from($_SERVER);
+		return HTTP\get_initial_request();
 	}
 
 	/**
@@ -211,18 +236,13 @@ class Core extends Object
 	}
 
 	/**
-	 * Returns the locale language.
+	 * Returns HTTP dispatcher.
 	 *
-	 * @return string
+	 * @return HTTP\Dispatcher
 	 */
-	protected function get_language() // TODO-20140915: this method should be a prototype method
+	protected function get_dispatcher()
 	{
-		if (!class_exists('ICanBoogie\I18n', true))
-		{
-			return 'en';
-		}
-
-		return I18n\get_language();
+		return HTTP\get_dispatcher();
 	}
 
 	/**
@@ -269,16 +289,21 @@ class Core extends Object
 		return $this->timezone;
 	}
 
-	static private $is_booted;
-
-	protected function get_is_booted()
+	/**
+	 * Changes the status of the application.
+	 *
+	 * @param int $status
+	 * @param callable $callable
+	 *
+	 * @return mixed
+	 */
+	protected function change_status($status, callable $callable)
 	{
-		return self::$is_booted === true;
-	}
+		self::$status = $status;
+		$rc = $callable();
+		self::$status = $status + 1;
 
-	protected function get_is_booting()
-	{
-		return self::$is_booted === false;
+		return $rc;
 	}
 
 	/**
@@ -293,22 +318,23 @@ class Core extends Object
 	 */
 	public function boot()
 	{
-		if (self::$is_booted !== null)
+		if (self::$status >= self::STATUS_BOOTING)
 		{
 			throw new CoreAlreadyBooted;
 		}
 
-		self::$is_booted = false;
+		if (!$this->is_configured)
+		{
+			$this->configure();
+		}
 
-		Debug::configure($this->configs['debug']);
-		Prototype::configure($this->configs['prototypes']);
-		Events::patch('get', function() { return $this->events; });
+		$this->change_status(self::STATUS_BOOTING, function() {
 
-		new Core\BootEvent($this);
+			new Core\BootEvent($this);
 
-		$_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
+			$_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
 
-		self::$is_booted = true;
+		});
 	}
 
 	/**
@@ -324,24 +350,50 @@ class Core extends Object
 	{
 		http_response_code(500);
 
+		if (self::$status >= self::STATUS_RUNNING)
+		{
+			throw new CoreAlreadyRunning;
+		}
+
 		if (!$this->is_booted)
 		{
 			$this->boot();
 		}
 
-		self::$is_running = true;
+		$this->change_status(self::STATUS_RUNNING, function() {
 
-		$request = $this->initial_request;
+			$request = $this->initial_request;
 
-		$this->run($request);
+			$this->run($request);
 
-		$response = $request();
-		$response();
+			$response = $request();
+			$response();
 
-		$this->terminate($request, $response);
+			$this->terminate($request, $response);
+
+		});
 	}
 
-    /**
+	/**
+	 * Configures the application.
+	 *
+	 * The `configure` event of class {@link Core\ConfigureEvent} is fired after the application
+	 * is configured. Event hooks may use this event to further configure the application.
+	 */
+	protected function configure()
+	{
+		$this->change_status(self::STATUS_CONFIGURING, function() {
+
+			Debug::configure($this->configs['debug']);
+			Prototype::configure($this->configs['prototypes']);
+			Events::patch('get', function() { return $this->events; });
+
+			new Core\ConfigureEvent($this);
+
+		});
+	}
+
+	/**
      * Fires the `ICanBoogie\Core::run` event.
      *
      * @param Request $request
@@ -363,42 +415,6 @@ class Core extends Object
 	protected function terminate(Request $request, Response $response)
 	{
 		new Core\TerminateEvent($this, $request, $response);
-	}
-
-	/**
-	 * Generates a path with the specified parameters.
-	 *
-	 * @param string|Route $pattern_or_route_id_or_route A pattern, a route identifier or a
-	 * {@link Route} instance.
-	 * @param array $params
-	 *
-	 * @return string
-	 */
-	public function generate_path($pattern_or_route_id_or_route, $params=null)
-	{
-		if ($pattern_or_route_id_or_route instanceof Route)
-		{
-			$path = $pattern_or_route_id_or_route->format($params);
-		}
-		else if (isset($this->routes[$pattern_or_route_id_or_route]))
-		{
-			$path = $this->routes[$pattern_or_route_id_or_route]->format($params);
-		}
-		else if (Pattern::is_pattern($pattern_or_route_id_or_route))
-		{
-			$path = Pattern::from($pattern_or_route_id_or_route)->format($params);
-		}
-		else
-		{
-			throw new \InvalidArgumentException("Invalid \$pattern_or_route_id_or_route.");
-		}
-
-		return Routing\contextualize($path);
-	}
-
-	public function generate_url($pattern_or_route_id_or_route, $params=null)
-	{
-		return $this->site->url . $this->generate_path($pattern_or_route_id_or_route, $params);
 	}
 }
 
