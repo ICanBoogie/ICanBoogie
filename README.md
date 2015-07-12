@@ -7,7 +7,7 @@
 [![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/ICanBoogie/master.svg)](https://coveralls.io/r/ICanBoogie/ICanBoogie)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/icanboogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
 
-__ICanBoogie__ is a high-performance micro-framework for PHP 5.4+. It is written with speed,
+__ICanBoogie__ is a high-performance micro-framework for PHP 5.5+. It is written with speed,
 flexibility and lightness in mind. ICanBoogie doesn't try to be an all-in-one do-it-all solution
 but provides the essential features to quickly and easily build web applications. It is easily
 extensible, and a variety of packages are available to complement its features with
@@ -611,7 +611,7 @@ The following helper functions are defined:
 
 ## Requirements
 
-The minimum requirement is PHP 5.4.
+The minimum requirement is PHP 5.5.
 
 ICanBoogie has been tested with Apache HTTP server on Linux, MacOS, and Windows operating systems.
 The Apache server must support URL rewriting.

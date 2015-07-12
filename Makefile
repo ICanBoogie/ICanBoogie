@@ -1,7 +1,7 @@
 # customization
 
 PACKAGE_NAME = "ICanBoogie"
-COMPOSER_ENV = COMPOSER_ROOT_VERSION=2.3.0
+COMPOSER_ENV = COMPOSER_ROOT_VERSION=2.4.x-dev
 
 # do not edit the following lines
 

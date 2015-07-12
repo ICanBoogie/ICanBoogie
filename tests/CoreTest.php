@@ -45,7 +45,12 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 		self::$app->boot();
 	}
 
-	public function test_is_booting()
+    public function test_is_configured()
+    {
+        $this->assertTrue(self::$app->is_configured);
+    }
+
+    public function test_is_booting()
 	{
 		$this->assertFalse(self::$app->is_booting);
 	}
@@ -54,6 +59,11 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	{
 		$this->assertTrue(self::$app->is_booted);
 	}
+
+    public function test_is_running()
+    {
+        $this->assertFalse(self::$app->is_running);
+    }
 
 	public function test_get_config()
 	{
@@ -65,24 +75,6 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 
         unset($app->config);
         $this->assertSame($config, $app->config);
-	}
-
-	/**
-	 * @dataProvider provide_test_write_readonly_properties
-	 * @expectedException \ICanBoogie\PropertyNotWritable
-	 *
-	 * @param string $property Property name.
-	 */
-	public function test_write_readonly_properties($property)
-	{
-		self::$app->$property = null;
-	}
-
-	public function provide_test_write_readonly_properties()
-	{
-		$properties = 'dispatcher request routes';
-
-		return array_map(function($v) { return (array) $v; }, explode(' ', $properties));
 	}
 
 	/**
@@ -106,7 +98,6 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 			[ 'initial_request',   'ICanBoogie\HTTP\Request' ],
 			[ 'request',           'ICanBoogie\HTTP\Request' ],
 			[ 'events',            'ICanBoogie\Events' ],
-			[ 'routes',            'ICanBoogie\Routing\Routes' ],
 			[ 'timezone',          'ICanBoogie\TimeZone' ]
 
 		];
