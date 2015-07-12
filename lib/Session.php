@@ -19,8 +19,10 @@ namespace ICanBoogie;
  * @property Logger $icanboogie_logger
  * @property string $token A token that can be used to prevent cross-site request forgeries.
  */
-class Session
+class Session implements \ArrayAccess
 {
+	const SESSION_NAMESPACE = 'icanboogie';
+
 	static public $defaults = [
 
 		'id' => null,
@@ -224,23 +226,73 @@ class Session
 		return $token;
 	}
 
+	/**
+	 * @inheritdoc
+	 * @deprecated
+	 */
 	public function &__get($property)
 	{
-		return $_SESSION[$property];
+		$value = &$this[$property];
+
+		return $value;
 	}
 
+	/**
+	 * @inheritdoc
+	 * @deprecated
+	 */
 	public function __set($property, $value)
 	{
-		$_SESSION[$property] = $value;
+		$this[$property] = $value;
 	}
 
+	/**
+	 * @inheritdoc
+	 * @deprecated
+	 */
 	public function __isset($property)
 	{
-		return isset($_SESSION, $property);
+		return isset($this[$property]);
 	}
 
+	/**
+	 * @inheritdoc
+	 * @deprecated
+	 */
 	public function __unset($property)
 	{
-		unset($_SESSION[$property]);
+		unset($this[$property]);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function offsetExists($offset)
+	{
+		return isset($_SESSION[self::SESSION_NAMESPACE][$offset]);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function &offsetGet($offset)
+	{
+		return $_SESSION[self::SESSION_NAMESPACE][$offset];
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function offsetSet($offset, $value)
+	{
+		$_SESSION[self::SESSION_NAMESPACE][$offset] = $value;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function offsetUnset($offset)
+	{
+		unset($_SESSION[self::SESSION_NAMESPACE][$offset]);
 	}
 }
