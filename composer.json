@@ -29,8 +29,10 @@
 		"icanboogie/storage": "~1.1.0",
 		"icanboogie/config": "~1.0.0",
 		"icanboogie/bind-routing": "0.2.x-dev",
+		"icanboogie/bind-event": "dev-master",
 		"icanboogie/routing": "2.5.x-dev",
-		"icanboogie/http": "2.5.x-dev"
+		"icanboogie/http": "2.5.x-dev",
+		"icanboogie/event": "1.4.x-dev"
 	},
 
 	"require-dev": {

@@ -11,6 +11,7 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\Binding\Event\CoreBindings as EventBindings;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\Storage\FileStorage;
@@ -30,11 +31,12 @@ use ICanBoogie\Storage\FileStorage;
  * @property array $config The "core" configuration.
  * @property-read Request $request The request being processed.
  * @property Request $initial_request The initial request.
- * @property-read Events $events Event collection.
  * @property-read LoggerInterface $logger The message logger.
  */
 class Core extends Object
 {
+	use EventBindings;
+
 	/**
 	 * Status of the application.
 	 */
@@ -386,7 +388,8 @@ class Core extends Object
 
 			Debug::configure($this->configs['debug']);
 			Prototype::configure($this->configs['prototypes']);
-			Events::patch('get', function() { return $this->events; });
+
+			$this->events;
 
 			new Core\ConfigureEvent($this);
 

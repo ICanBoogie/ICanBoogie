@@ -97,7 +97,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 			[ 'dispatcher',        'ICanBoogie\HTTP\Dispatcher' ],
 			[ 'initial_request',   'ICanBoogie\HTTP\Request' ],
 			[ 'request',           'ICanBoogie\HTTP\Request' ],
-			[ 'events',            'ICanBoogie\Events' ],
+			[ 'events',            'ICanBoogie\EventCollection' ],
 			[ 'timezone',          'ICanBoogie\TimeZone' ]
 
 		];
