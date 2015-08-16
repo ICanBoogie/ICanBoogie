@@ -16,48 +16,71 @@ namespace ICanBoogie;
  */
 
 /**
+ * Resolves application instance name.
+ *
+ * @return string
+ */
+function resolve_instance_name()
+{
+	$instance = getenv('ICANBOOGIE_INSTANCE');
+
+	if (!$instance && PHP_SAPI == 'cli')
+	{
+		$instance = 'cli';
+	}
+
+	if (!$instance && !empty($_SERVER['SERVER_NAME']))
+	{
+		$instance = $_SERVER['SERVER_NAME'];
+	}
+
+	return $instance;
+}
+
+/**
  * Resolves the paths where the application can look for config, locale, modules, and more.
  *
- * Consider an application root directory  with the following directories:
+ * Consider an application root directory with the following directories:
  *
  * <pre>
  * all
  * cli
  * default
- * fr
- * icanboogie.fr
- * localhost
+ * dev
+ * icanboogie.org
  * org
  * </pre>
  *
  * The directory "all" contains resources that are shared between all the sites. It is always
- * added if it is present. The directory "default" is only used if a directory matching
- * `$server_name` cannot be found. The directory "cli" is used when the application is ran
- * from the CLI.
+ * added if present. The directory "default" is only added if there no directory matches
+ * `$instance`.
  *
- * To resolve the matching directory, `$server_name` is first broken into parts and the most
+ * To resolve the matching directory, `$instance` is first broken into parts and the most
  * specific ones are removed until a corresponding directory is found. For instance, given
- * the server name "www.icanboogie.localhost", the following directories are tried:
+ * the instance name "www.icanboogie.localhost", the following directories are tried:
  * "www.icanboogie.localhost", "icanboogie.localhost", and finally "localhost".
  *
  * @param string $root The absolute path of a root directory.
- * @param string|null $server_name A server name. If `$server_name` is `null`, it is resolved from
- * `PHP_SAPI` and `$_SERVER['SERVER_NAME']`. If `PHP_SAPI` equals "cli", then "cli" is used,
- * otherwise `$_SERVER['SERVER_NAME']` is used.
+ * @param string|null $instance An instance name. If `$instance` is `null`, the instance name
+ * defaults as follows:
+ *
+ * - The `ICANBOOGIE_INSTANCE` environment variable is defined, it is used as instance name.
+ * - The application runs from the CLI, "cli" is used.
+ * - `$_SERVER['SERVER_NAME']` is defined, it is used as instance name.
  *
  * @return string[] An array of absolute paths, ordered from the less specific to
  * the most specific.
  */
-function resolve_app_paths($root, $server_name=null)
+function resolve_app_paths($root, $instance = null)
 {
 	static $cache = [];
 
-	if ($server_name === null)
+	if ($instance === null)
 	{
-		$server_name = PHP_SAPI == 'cli' ? 'cli' : (empty($_SERVER['SERVER_NAME']) ? null : $_SERVER['SERVER_NAME']);
+		$instance = resolve_instance_name();
 	}
 
-	$cache_key = $root . '#' . $server_name;
+	$cache_key = $root . '#' . $instance;
 
 	if (isset($cache[$cache_key]))
 	{
@@ -65,7 +88,7 @@ function resolve_app_paths($root, $server_name=null)
 	}
 
 	$root = rtrim($root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-	$parts = explode('.', $server_name);
+	$parts = explode('.', $instance);
 	$paths = [];
 
 	while ($parts)
