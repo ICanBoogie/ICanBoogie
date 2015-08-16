@@ -20,6 +20,8 @@
 		"source": "https://github.com/ICanBoogie/ICanBoogie"
 	},
 
+	"minimum-stability": "dev",
+
 	"require": {
 		"php": ">=5.5.0",
 		"psr/log": "~1.0.0",

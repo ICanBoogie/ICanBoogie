@@ -344,7 +344,7 @@ terminated.
 
 ## Multi-site support
 
-ICanBoogie has built-in multi-site support and can be configured for different domains. Even
+ICanBoogie has built-in multi-site support and can be configured for different domains or environments. Even
 if you are dealing with only one domain, this feature can be used to provide different
 configuration for the "dev", "stage", and "production" versions of a same application.
 
@@ -352,9 +352,20 @@ The intended location for your custom application code is in a separate "protect
 another directory can be defined with the `app-root` _autoconfig_ directive. The directory is
 relative to the `root` directive.
 
-ICanBoogie will search for "config" directories to add to the _autoconfig_. Just like ICanBoogie,
-packages may use this feature to alter the _autoconfig_. For instance, [icanboogie/module][]
-searches for "modules" directories.
+ICanBoogie searches for "config" directories to add to the _autoconfig_. Packages may alter the _autoconfig_ as well. For instance, [icanboogie/module][] searches for "modules" directories.
+
+
+
+
+
+### Instance name
+
+The instance name of the application is used to resolve the application paths. It is usually defined by the `ICANBOOGIE_INSTANCE` environment variable.
+
+If the variable is not defined, the instance name defaults as follows:
+
+- The application runs from the CLI, "cli" is used as instance name.
+- `$_SERVER['SERVER_NAME']` is defined, it is used as instance name.
 
 
 
@@ -362,30 +373,25 @@ searches for "modules" directories.
 
 ### Resolving applications paths
 
-The server's name is used to resolve the application paths.
-
 Consider an application root directory with the following directories:
 
 ```
 all
 cli
 default
+dev
 icanboogie.org
-localhost
 org
 ```
 
-The directory "all" contains resources that are common to all sites. It is always added when
-present.
+The directory "all" contains resources that are common to all instances. It is always added if present. The directory "default" is only added if there no directory matches the instance name.
 
-To resolve the matching directory, the server's name is first broken into parts and the most
+To resolve the matching directory, the instance name is first broken into parts and the most
 specific ones are removed until a corresponding directory is found. For instance, given the
-server name `www.icanboogie.localhost`, the following directories are tried:
-`www.icanboogie.localhost`, `icanboogie.localhost`, and finally `localhost`.
+server name `www.icanboogie.dev`, the following directories are tried:
+`www.icanboogie.dev`, `icanboogie.dev`, and finally `dev`.
 
-If the server's name cannot be resolved into a directory, "default" is used instead.
-
-**Note:** "cli" is used as server name when the application is ran from the CLI.
+If the instance name cannot be resolved into a directory, "default" is used instead.
 
 
 
@@ -565,14 +571,20 @@ use this event to cleanup loose ends.
 
 ### `ICanBoogie\Object::get_app`
 
-The `app` magic property of [Object][] instances returns the [Core][] instance of the
+The `app` magic property of [Object][] instances returns the instance of the
 application. The property is read-only and is only available after the [Core][] instance
 has been created.
+
+The [ObjectBindings][] trait may be used to type hint instances.
 
 ```php
 <?php
 
 namespace ICanBoogie;
+
+use ICanBoogie\Binding\ObjectBindings;
+
+/* @var $o Object|ObjectBindings */
 
 $o = new Object;
 $o->app;
@@ -612,9 +624,6 @@ The following helper functions are defined:
 ## Requirements
 
 The minimum requirement is PHP 5.5.
-
-ICanBoogie has been tested with Apache HTTP server on Linux, MacOS, and Windows operating systems.
-The Apache server must support URL rewriting.
 
 
 
@@ -714,29 +723,32 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 ## License
 
-ICanBoogie is licensed under the New BSD License - See the [LICENSE](LICENSE) file for details.
+**ICanBoogie** is licensed under the New BSD License - See the [LICENSE](LICENSE) file for details.
 
 
 
 
 
-[icanboogie/accessor]: https://github.com/ICanBoogie/Accessor
+[icanboogie/accessor]:          https://github.com/ICanBoogie/Accessor
 [icanboogie/bind-activerecord]: https://github.com/ICanBoogie/bind-activerecord
-[icanboogie/bind-cldr]: https://github.com/ICanBoogie/bind-cldr
-[icanboogie/bind-render]: https://github.com/ICanBoogie/bind-render
-[icanboogie/bind-view]: https://github.com/ICanBoogie/bind-view
-[icanboogie/module]: https://github.com/ICanBoogie/Module
-[icanboogie/prototype]: https://github.com/ICanBoogie/Prototype
-[icanboogie/render]: https://github.com/ICanBoogie/Render
-[icanboogie/view]: https://github.com/ICanBoogie/View
-[BootEvent]: http://icanboogie.org/docs/class-ICanBoogie.BootEvent.html
+[icanboogie/bind-cldr]:         https://github.com/ICanBoogie/bind-cldr
+[icanboogie/bind-render]:       https://github.com/ICanBoogie/bind-render
+[icanboogie/bind-view]:         https://github.com/ICanBoogie/bind-view
+[icanboogie/module]:            https://github.com/ICanBoogie/Module
+[icanboogie/prototype]:         https://github.com/ICanBoogie/Prototype
+[icanboogie/render]:            https://github.com/ICanBoogie/Render
+[icanboogie/view]:              https://github.com/ICanBoogie/View
+[Prototype package]:            https://github.com/ICanBoogie/Prototype
+
 [Composer]: http://getcomposer.org/
-[Core]: http://icanboogie.org/docs/class-ICanBoogie.Core.html
-[CoreNotInstantiated]: http://icanboogie.org/docs/class-ICanBoogie.CoreNotInstantiated.html
-[DateTime]: http://icanboogie.org/docs/class-ICanBoogie.DateTime.html
-[TimeZone]: http://icanboogie.org/docs/class-ICanBoogie.TimeZone.html
-[Object]: http://icanboogie.org/docs/class-ICanBoogie.Object.html
-[Prototype package]: https://github.com/ICanBoogie/Prototype
-[Request]: http://icanboogie.org/docs/class-ICanBoogie.HTTP.Request.html
-[RunEvent]: http://icanboogie.org/docs/class-ICanBoogie.RunEvent.html
-[TerminateEvent]: http://icanboogie.org/docs/class-ICanBoogie.TerminateEvent.html
+
+[DateTime]:            http://api.icanboogie.org/datetime/1.1/class-ICanBoogie.DateTime.html
+[TimeZone]:            http://api.icanboogie.org/datetime/1.1/class-ICanBoogie.TimeZone.html
+[Request]:             http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Request.html
+[BootEvent]:           http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.BootEvent.html
+[Core]:                http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.html
+[CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.CoreNotInstantiated.html
+[ObjectBindings]:      http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Binding.ObjectBindings.html
+[RunEvent]:            http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.RunEvent.html
+[TerminateEvent]:      http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.TerminateEvent.html
+[Object]:              http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Object.html
