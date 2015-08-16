@@ -129,31 +129,18 @@ class Core
 	 */
 	public function __construct(array $options = [])
 	{
-		#
-		# instance
-		#
-
-		if (self::$instance)
-		{
-			throw new CoreAlreadyInstantiated;
-		}
+		$this->assert_not_instantiated();
 
 		self::$status = self::STATUS_INSTANTIATING;
 		self::$instance = $this;
         self::$construct_options = $options;
 
-		Prototype::from(Object::class)['get_app'] = function() {
-
-			return $this;
-
-		};
-
-		#
-
 		if (!date_default_timezone_get())
 		{
 			date_default_timezone_set('UTC');
 		}
+
+		$this->bind_object_class();
 
 		#
 		# config
@@ -178,6 +165,57 @@ class Core
 		}
 
 		self::$status = self::STATUS_INSTANTIATED;
+	}
+
+	/**
+	 * Asserts that the class is not instantiated yet.
+	 *
+	 * @throws CoreAlreadyInstantiated if the class is already instantiated.
+	 */
+	private function assert_not_instantiated()
+	{
+		if (self::$instance)
+		{
+			throw new CoreAlreadyInstantiated;
+		}
+	}
+
+	/**
+	 * Asserts that the application is not booted yet.
+	 *
+	 * @throws CoreAlreadyBooted if the application is already booted.
+	 */
+	public function assert_not_booted()
+	{
+		if (self::$status >= self::STATUS_BOOTING)
+		{
+			throw new CoreAlreadyBooted;
+		}
+	}
+
+	/**
+	 * Asserts that the application is not running yet.
+	 *
+	 * @throws CoreAlreadyRunning if the application is already running.
+	 */
+	public function assert_not_running()
+	{
+		if (self::$status >= self::STATUS_RUNNING)
+		{
+			throw new CoreAlreadyRunning;
+		}
+	}
+
+	/**
+	 * Binds the object class to our instance.
+	 */
+	private function bind_object_class()
+	{
+		Prototype::from(Object::class)['get_app'] = function() {
+
+			return $this;
+
+		};
 	}
 
 	/**
@@ -316,10 +354,7 @@ class Core
 	 */
 	public function boot()
 	{
-		if (self::$status >= self::STATUS_BOOTING)
-		{
-			throw new CoreAlreadyBooted;
-		}
+		$this->assert_not_booted();
 
 		if (!$this->is_configured)
 		{
@@ -348,10 +383,7 @@ class Core
 	{
 		http_response_code(500);
 
-		if (self::$status >= self::STATUS_RUNNING)
-		{
-			throw new CoreAlreadyRunning;
-		}
+		$this->assert_not_running();
 
 		if (!$this->is_booted)
 		{
