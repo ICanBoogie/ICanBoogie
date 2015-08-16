@@ -11,13 +11,16 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\HTTP\ClientError;
+use ICanBoogie\HTTP\SecurityError;
+
 /**
  * Exception thrown when the user is already authenticated.
  *
  * Third parties may use this exception to redirect authenticated user from a login page to their
  * profile page.
  */
-class AlreadyAuthenticated extends SecurityException
+class AlreadyAuthenticated extends ClientError implements SecurityError
 {
 	public function __construct($message = "The user is already authenticated.", $code = 401, \Exception $previous = null)
 	{
