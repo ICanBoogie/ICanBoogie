@@ -20,6 +20,6 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
 	public function test_get_session()
     {
-        $this->assertInstanceOf('ICanBoogie\Session', Session::get_session(app()));
+        $this->assertInstanceOf(Session::class, Session::get_session(app()));
     }
 }

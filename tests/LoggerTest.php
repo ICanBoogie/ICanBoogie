@@ -26,13 +26,13 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 	public function setUp()
 	{
 		$this->session = $this
-			->getMockBuilder('ICanBoogie\Session')
+			->getMockBuilder(Session::class)
 			->disableOriginalConstructor()
 			->setMethods([ '__set' ])
 			->getMock();
 
 		$this->app = $this
-			->getMockBuilder('ICanBoogie\Core')
+			->getMockBuilder(Core::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'get_session' ])
 			->getMock();
@@ -50,7 +50,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 		/* @var $app Core */
 
 		$logger = Logger::get_logger($app);
-		$this->assertInstanceOf('ICanBoogie\Logger', $logger);
+		$this->assertInstanceOf(Logger::class, $logger);
 		$this->assertSame($logger, Logger::get_logger($app));
 	}
 

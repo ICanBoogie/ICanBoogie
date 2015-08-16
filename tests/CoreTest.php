@@ -11,6 +11,11 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\RequestDispatcher;
+use ICanBoogie\HTTP\Response;
+use ICanBoogie\Storage\FileStorage;
+
 class CoreTest extends \PHPUnit_Framework_TestCase
 {
 	/**
@@ -33,6 +38,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 
     public function test_object_should_have_app_property()
     {
+        /* @var $o Object|Binding\ObjectBindings */
         $o = new Object;
         $this->assertSame(self::$app, $o->app);
     }
@@ -92,13 +98,13 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	{
 		return [
 
-			[ 'vars',              'ICanBoogie\Storage\FileStorage' ],
-			[ 'configs',           'ICanBoogie\Config' ],
-			[ 'dispatcher',        'ICanBoogie\HTTP\Dispatcher' ],
-			[ 'initial_request',   'ICanBoogie\HTTP\Request' ],
-			[ 'request',           'ICanBoogie\HTTP\Request' ],
-			[ 'events',            'ICanBoogie\EventCollection' ],
-			[ 'timezone',          'ICanBoogie\TimeZone' ]
+			[ 'vars',              FileStorage::class ],
+			[ 'configs',           Config::class ],
+			[ 'dispatcher',        RequestDispatcher::class ],
+			[ 'initial_request',   Request::class ],
+			[ 'request',           Request::class ],
+			[ 'events',            EventCollection::class ],
+			[ 'timezone',          TimeZone::class ]
 
 		];
 	}
@@ -106,11 +112,11 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	public function test_set_timezone()
 	{
 		self::$app->timezone = 3600;
-		$this->assertInstanceOf('ICanBoogie\TimeZone', self::$app->timezone);
+		$this->assertInstanceOf(TimeZone::class, self::$app->timezone);
 		$this->assertEquals('Europe/Paris', (string) self::$app->timezone);
 
 		self::$app->timezone = 'Europe/Madrid';
-		$this->assertInstanceOf('ICanBoogie\TimeZone', self::$app->timezone);
+		$this->assertInstanceOf(TimeZone::class, self::$app->timezone);
 		$this->assertEquals('Europe/Madrid', (string) self::$app->timezone);
 	}
 
@@ -119,7 +125,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
         $result = uniqid();
 
         $response = $this
-            ->getMockBuilder('ICanBoogie\HTTP\Response')
+            ->getMockBuilder(Response::class)
             ->disableOriginalConstructor()
             ->setMethods([ '__invoke' ])
             ->getMock();
@@ -129,7 +135,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
             ->willReturn($result);
 
         $request = $this
-            ->getMockBuilder('ICanBoogie\HTTP\Request')
+            ->getMockBuilder(Request::class)
             ->disableOriginalConstructor()
             ->setMethods([ '__invoke' ])
             ->getMock();
@@ -139,7 +145,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $app = $this
-            ->getMockBuilder('ICanBoogie\Core')
+            ->getMockBuilder(Core::class)
             ->disableOriginalConstructor()
             ->setMethods([ 'get_is_booted', 'boot', 'get_initial_request', 'run', 'terminate' ])
             ->getMock();
