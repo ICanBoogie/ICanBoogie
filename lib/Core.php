@@ -209,12 +209,7 @@ class Core extends Object
 	 */
 	protected function lazy_get_config()
 	{
-		$config = $this->configs['core'];
-
-        $config['locale-path'] = self::$construct_options['locale-path'];
-        $config['module-path'] = self::$construct_options['module-path'];
-
-        return $config;
+		return array_merge_recursive($this->configs['core'], self::$construct_options);
     }
 
 	/**
