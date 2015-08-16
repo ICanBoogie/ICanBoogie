@@ -33,8 +33,9 @@ use ICanBoogie\Storage\FileStorage;
  * @property Request $initial_request The initial request.
  * @property-read LoggerInterface $logger The message logger.
  */
-class Core extends Object
+class Core
 {
+	use PrototypeTrait;
 	use EventBindings;
 
 	/**
