@@ -343,6 +343,26 @@ class Core
 	}
 
 	/**
+	 * Configures the application.
+	 *
+	 * The `configure` event of class {@link Core\ConfigureEvent} is fired after the application
+	 * is configured. Event hooks may use this event to further configure the application.
+	 */
+	protected function configure()
+	{
+		$this->change_status(self::STATUS_CONFIGURING, function() {
+
+			Debug::configure($this->configs['debug']);
+			Prototype::configure($this->configs['prototype']);
+
+			$this->events;
+
+			new Core\ConfigureEvent($this);
+
+		});
+	}
+
+	/**
 	 * Boot the modules and configure Debug, Prototype and Events.
 	 *
 	 * The `boot` event of class {@link Core\BootEvent} is fired after the boot is finished.
@@ -405,33 +425,13 @@ class Core
 	}
 
 	/**
-	 * Configures the application.
-	 *
-	 * The `configure` event of class {@link Core\ConfigureEvent} is fired after the application
-	 * is configured. Event hooks may use this event to further configure the application.
-	 */
-	protected function configure()
-	{
-		$this->change_status(self::STATUS_CONFIGURING, function() {
-
-			Debug::configure($this->configs['debug']);
-			Prototype::configure($this->configs['prototypes']);
-
-			$this->events;
-
-			new Core\ConfigureEvent($this);
-
-		});
-	}
-
-	/**
      * Fires the `ICanBoogie\Core::run` event.
      *
      * @param Request $request
      */
     protected function run(Request $request)
     {
-        new Core\RunEvent($this, $request);
+	    new Core\RunEvent($this, $request);
     }
 
 	/**
