@@ -211,7 +211,7 @@ class Core
 	 */
 	private function bind_object_class()
 	{
-		Prototype::from(Object::class)['get_app'] = function() {
+		Prototype::from(Prototyped::class)['get_app'] = function() {
 
 			return $this;
 

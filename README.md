@@ -250,7 +250,7 @@ $response->headers['Content-Type'] = 'text/html; charset=utf-8';
 ### Creating an instance from data
 
 Most classes provide a `from()` static method that create instances from various data types.
-This is especially true for sub-classes of the [Object][] class, which can create instances
+This is especially true for sub-classes of the [Prototyped][] class, which can create instances
 from arrays of properties. ActiveRecords are a perfect example of this feature:
 
 ```php
@@ -569,9 +569,9 @@ use this event to cleanup loose ends.
 
 ## Prototype methods
 
-### `ICanBoogie\Object::get_app`
+### `ICanBoogie\Prototyped::get_app`
 
-The `app` magic property of [Object][] instances returns the instance of the
+The `app` magic property of [Prototyped][] instances returns the instance of the
 application. The property is read-only and is only available after the [Core][] instance
 has been created.
 
@@ -584,9 +584,9 @@ namespace ICanBoogie;
 
 use ICanBoogie\Binding\ObjectBindings;
 
-/* @var $o Object|ObjectBindings */
+/* @var $o Prototyped|ObjectBindings */
 
-$o = new Object;
+$o = new Prototyped;
 $o->app;
 // throw ICanBoogie\PropertyNotDefined;
 
@@ -751,4 +751,4 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [ObjectBindings]:      http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Binding.ObjectBindings.html
 [RunEvent]:            http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.RunEvent.html
 [TerminateEvent]:      http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.TerminateEvent.html
-[Object]:              http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Object.html
+[Prototyped]:              http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Prototyped.html

@@ -182,7 +182,7 @@ function boot()
 /**
  * Returns the {@link Core} instance.
  *
- * @return Core The {@link Core} instance.
+ * @return Core
  *
  * @throws CoreNotInstantiated if the core has not been instantiated yet.
  */

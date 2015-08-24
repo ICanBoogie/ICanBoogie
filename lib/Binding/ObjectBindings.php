@@ -12,7 +12,7 @@
 namespace ICanBoogie\Binding;
 
 /**
- * {@link \ICanBoogie\Object} prototype methods.
+ * {@link \ICanBoogie\Prototyped} prototype methods.
  *
  * @property-read \ICanBoogie\Core $app
  */
