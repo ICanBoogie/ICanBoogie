@@ -16,7 +16,7 @@ namespace ICanBoogie\Binding;
  *
  * @property-read \ICanBoogie\Core $app
  */
-trait ObjectBindings
+trait PrototypedBindings
 {
 
 }

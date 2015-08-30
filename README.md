@@ -575,16 +575,16 @@ The `app` magic property of [Prototyped][] instances returns the instance of the
 application. The property is read-only and is only available after the [Core][] instance
 has been created.
 
-The [ObjectBindings][] trait may be used to type hint instances.
+The [PrototypedBindings][] trait may be used to type hint instances.
 
 ```php
 <?php
 
 namespace ICanBoogie;
 
-use ICanBoogie\Binding\ObjectBindings;
+use ICanBoogie\Binding\PrototypedBindings;
 
-/* @var $o Prototyped|ObjectBindings */
+/* @var $o Prototyped|PrototypedBindings */
 
 $o = new Prototyped;
 $o->app;
@@ -748,7 +748,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [BootEvent]:           http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.BootEvent.html
 [Core]:                http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.html
 [CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.CoreNotInstantiated.html
-[ObjectBindings]:      http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Binding.ObjectBindings.html
+[PrototypedBindings]:      http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Binding.PrototypedBindings.html
 [RunEvent]:            http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.RunEvent.html
 [TerminateEvent]:      http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.TerminateEvent.html
 [Prototyped]:              http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Prototyped.html
