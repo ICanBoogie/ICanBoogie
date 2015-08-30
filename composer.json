@@ -27,7 +27,7 @@
 		"psr/log": "^1.0.0",
 
 		"icanboogie/bind-routing": "^0.2.0",
-		"icanboogie/bind-event": "dev-master",
+		"icanboogie/bind-event": "^2.0.0",
 		"icanboogie/bind-prototype": "dev-master",
 		"icanboogie/storage": "^1.1.0",
 		"icanboogie/config": "^1.0.0",
