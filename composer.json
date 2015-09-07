@@ -25,8 +25,7 @@
 	"require": {
 		"php": ">=5.5.0",
 		"psr/log": "^1.0.0",
-
-		"icanboogie/bind-routing": "^0.2.0",
+		"icanboogie/bind-routing": "^1.0.0",
 		"icanboogie/bind-event": "^2.0.0",
 		"icanboogie/bind-prototype": "dev-master",
 		"icanboogie/storage": "^1.1.0",
