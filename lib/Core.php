@@ -15,6 +15,7 @@ use ICanBoogie\Binding\Event\CoreBindings as EventBindings;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\Storage\FileStorage;
+use ICanBoogie\Storage\Storage;
 
 /**
  * Core of the framework.
@@ -161,7 +162,7 @@ class Core
 
 		if ($config['cache configs'])
 		{
-			$configs->cache = new FileStorage(REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'configs');
+			$configs->cache = $this->create_storage_for_configs($config['storage_for_configs']);
 		}
 
 		self::$status = self::STATUS_INSTANTIATED;
@@ -229,6 +230,26 @@ class Core
 	protected function create_config_manager(array $paths, array $synthesizers)
 	{
 		return new Config($paths, $synthesizers);
+	}
+
+	/**
+	 * @param string|callable $engine A class name or a callable.
+	 *
+	 * @return Storage
+	 */
+	protected function create_storage_for_configs($engine)
+	{
+		if (class_exists($engine))
+		{
+			return new $engine;
+		}
+
+		if (is_string($engine) && version_compare(PHP_VERSION, 7, '<') && strpos($engine, '::') !== false)
+		{
+			$engine = explode('::', $engine);
+		}
+
+		return $engine($this);
 	}
 
 	/**

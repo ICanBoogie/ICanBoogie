@@ -531,6 +531,16 @@ Check ICanBoogie's "config/core.php" for a list of the available options and the
 
 
 
+### Specify a storage engine for synthesized configurations
+
+A storage engine for synthesized configurations may be specified with the `storage_for_configs` option. You may specify a class name or a callable that would return a [Storage][] instance.
+
+The default implementation returns a [FileStorage][] instance, or if APC is available a [StorageCollection][] made of an [APCStorage][] instance and a [FileStorage][] instance.
+
+
+
+
+
 ## Events
 
 
@@ -748,7 +758,11 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [BootEvent]:           http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.BootEvent.html
 [Core]:                http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.html
 [CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.CoreNotInstantiated.html
-[PrototypedBindings]:      http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Binding.PrototypedBindings.html
+[PrototypedBindings]:  http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Binding.PrototypedBindings.html
 [RunEvent]:            http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.RunEvent.html
 [TerminateEvent]:      http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.TerminateEvent.html
-[Prototyped]:              http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Prototyped.html
+[Prototyped]:          http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Prototyped.html
+[APCStorage]:          http://api.icanboogie.org/storage/1.2/class-ICanBoogie.Storage.APCStorage.html
+[FileStorage]:         http://api.icanboogie.org/storage/1.2/class-ICanBoogie.Storage.FileStorage.html
+[Storage]:             http://api.icanboogie.org/storage/1.2/class-ICanBoogie.Storage.Storage.html
+[StorageCollection]:   http://api.icanboogie.org/storage/1.2/class-ICanBoogie.Storage.StorageCollection.html
