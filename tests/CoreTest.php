@@ -14,7 +14,7 @@ namespace ICanBoogie;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\Response;
-use ICanBoogie\Storage\FileStorage;
+use ICanBoogie\Storage\Storage;
 
 class CoreTest extends \PHPUnit_Framework_TestCase
 {
@@ -98,7 +98,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	{
 		return [
 
-			[ 'vars',              FileStorage::class ],
+			[ 'vars',              Storage::class ],
 			[ 'configs',           Config::class ],
 			[ 'dispatcher',        RequestDispatcher::class ],
 			[ 'initial_request',   Request::class ],

@@ -19,6 +19,35 @@ use ICanBoogie\Storage\StorageCollection;
 class Hooks
 {
 	/**
+	 * If APC is available the method return a storage collection with a {@link APCStorage}
+	 * instance and the specified storage instance.
+	 *
+	 * @param Storage $storage
+	 * @param string $prefix Prefix for the {@link APCStorage} instance.
+	 *
+	 * @return Storage|StorageCollection
+	 */
+	static private function with_apc_storage(Storage $storage, $prefix)
+	{
+		if (!APCStorage::is_available())
+		{
+			return $storage;
+		}
+
+		return new StorageCollection([ new APCStorage(self::make_apc_prefix() . $prefix), $storage ]);
+	}
+
+	/**
+	 * Makes an APC prefix for the application.
+	 *
+	 * @return string
+	 */
+	static public function make_apc_prefix()
+	{
+		return substr(sha1(__DIR__), 0, 8) . ':';
+	}
+
+	/**
 	 * Creates a storage engine for synthesized configurations.
 	 *
 	 * If APC is available the method returns a storage collection or {@link APCStorage} and
@@ -32,16 +61,23 @@ class Hooks
 	{
 		$storage = new FileStorage(REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'configs');
 
-		if (!APCStorage::is_available())
-		{
-			return $storage;
-		}
+		return self::with_apc_storage($storage, 'icanboogie_cache_configs');
+	}
 
-		return new StorageCollection([
+	/**
+	 * Creates a storage engine for synthesized configurations.
+	 *
+	 * If APC is available the method returns a storage collection or {@link APCStorage} and
+	 * {@link FileStorage}, otherwise a {@link FileStorage} is returned.
+	 *
+	 * @param Core $app
+	 *
+	 * @return Storage
+	 */
+	static public function create_storage_for_vars(Core $app)
+	{
+		$storage = new FileStorage(REPOSITORY . 'vars');
 
-			new APCStorage('icanboogie_cache_configs' . sha1(__DIR__)),
-			$storage
-
-		]);
+		return self::with_apc_storage($storage, 'icanboogie_vars');
 	}
 }

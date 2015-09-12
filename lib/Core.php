@@ -14,7 +14,6 @@ namespace ICanBoogie;
 use ICanBoogie\Binding\Event\CoreBindings as EventBindings;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
-use ICanBoogie\Storage\FileStorage;
 use ICanBoogie\Storage\Storage;
 
 /**
@@ -25,7 +24,7 @@ use ICanBoogie\Storage\Storage;
  * @property-read bool $is_booted `true` if the core is booted, `false` otherwise.
  * @property-read bool $is_running `true` if the core is running, `false` otherwise.
  * @property Config $configs Configurations manager.
- * @property FileStorage $vars Persistent variables registry.
+ * @property Storage $vars Persistent variables registry.
  * @property Session $session User's session.
  * @property string $language Locale language.
  * @property string|int $timezone Time zone.
@@ -233,11 +232,13 @@ class Core
 	}
 
 	/**
+	 * Creates a storage engine.
+	 *
 	 * @param string|callable $engine A class name or a callable.
 	 *
 	 * @return Storage
 	 */
-	protected function create_storage_for_configs($engine)
+	protected function create_storage($engine)
 	{
 		if (class_exists($engine))
 		{
@@ -253,13 +254,37 @@ class Core
 	}
 
 	/**
+	 * Creates storage engine for synthesized configs.
+	 *
+	 * @param string|callable $engine A class name or a callable.
+	 *
+	 * @return Storage
+	 */
+	protected function create_storage_for_configs($engine)
+	{
+		return $this->create_storage($engine);
+	}
+
+	/**
+	 * Creates storage engine for variables.
+	 *
+	 * @param string|callable $engine A class name or a callable.
+	 *
+	 * @return Storage
+	 */
+	protected function create_storage_for_vars($engine)
+	{
+		return $this->create_storage($engine);
+	}
+
+	/**
 	 * Returns the non-volatile variables registry.
 	 *
-	 * @return FileStorage
+	 * @return Storage
 	 */
 	protected function lazy_get_vars()
 	{
-		return new FileStorage(REPOSITORY . 'vars');
+		return $this->create_storage_for_vars($this->config['storage_for_vars']);
 	}
 
 	/**

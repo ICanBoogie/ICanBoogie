@@ -20,6 +20,18 @@ return [
 	 */
 	'storage_for_configs' => Hooks::class . '::create_storage_for_configs',
 
+	/**
+	 * Specifies the storage engine for variables.
+	 *
+	 * The value may be a class name or a callable that would create the instance. The callable
+	 * should have the following signature:
+	 *
+	 * ```
+	 * callable(\ICanBoogie\Core $app): \ICanBoogie\Storage\Storage
+	 * ```
+	 */
+	'storage_for_vars' => Hooks::class . '::create_storage_for_vars',
+
 	'repository' => '/repository',
 	'repository.temp' => '/repository/tmp',
 	'repository.cache' => '/repository/cache',

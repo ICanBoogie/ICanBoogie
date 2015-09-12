@@ -533,9 +533,25 @@ Check ICanBoogie's "config/core.php" for a list of the available options and the
 
 ### Specify a storage engine for synthesized configurations
 
-A storage engine for synthesized configurations may be specified with the `storage_for_configs` option. You may specify a class name or a callable that would return a [Storage][] instance.
+A storage engine for synthesized configurations may be specified with the
+`storage_for_configs` option. You may specify a class name or a callable that would return a
+[Storage][] instance.
 
-The default implementation returns a [FileStorage][] instance, or if APC is available a [StorageCollection][] made of an [APCStorage][] instance and a [FileStorage][] instance.
+The default implementation returns a [FileStorage][] instance, or if APC is available a
+[StorageCollection][] made of an [APCStorage][] instance and a [FileStorage][] instance.
+
+
+
+
+
+### Specify a storage engine for variables
+
+A storage engine for variables may be specified with the
+`storage_for_variables` option. You may specify a class name or a callable that would return a
+[Storage][] instance.
+
+The default implementation returns a [FileStorage][] instance, or if APC is available a
+[StorageCollection][] made of an [APCStorage][] instance and a [FileStorage][] instance.
 
 
 
