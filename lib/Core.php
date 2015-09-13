@@ -17,7 +17,7 @@ use ICanBoogie\HTTP\Response;
 use ICanBoogie\Storage\Storage;
 
 /**
- * Core of the framework.
+ * Core of the ICanBoogie framework.
  *
  * @property-read bool $is_configured `true` if the core is configured, `false` otherwise.
  * @property-read bool $is_booting `true` if the core is booting, `false` otherwise.
@@ -32,6 +32,7 @@ use ICanBoogie\Storage\Storage;
  * @property-read Request $request The request being processed.
  * @property Request $initial_request The initial request.
  * @property-read LoggerInterface $logger The message logger.
+ * @property-read Storage $storage_for_configs
  */
 class Core
 {
@@ -161,7 +162,7 @@ class Core
 
 		if ($config['cache configs'])
 		{
-			$configs->cache = $this->create_storage_for_configs($config['storage_for_configs']);
+			$configs->cache = $this->storage_for_configs;
 		}
 
 		self::$status = self::STATUS_INSTANTIATED;
@@ -263,6 +264,17 @@ class Core
 	protected function create_storage_for_configs($engine)
 	{
 		return $this->create_storage($engine);
+	}
+
+	/**
+	 * @return Storage
+	 */
+	protected function get_storage_for_configs()
+	{
+		static $storage;
+
+		return $storage
+			?: $storage = $this->create_storage_for_configs($this->config['storage_for_configs']);
 	}
 
 	/**

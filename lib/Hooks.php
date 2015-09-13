@@ -61,7 +61,7 @@ class Hooks
 	{
 		$storage = new FileStorage(REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'configs');
 
-		return self::with_apc_storage($storage, 'icanboogie_cache_configs');
+		return self::with_apc_storage($storage, 'icanboogie:configs:');
 	}
 
 	/**
@@ -78,6 +78,6 @@ class Hooks
 	{
 		$storage = new FileStorage(REPOSITORY . 'vars');
 
-		return self::with_apc_storage($storage, 'icanboogie_vars');
+		return self::with_apc_storage($storage, 'icanboogie:vars:');
 	}
 }
