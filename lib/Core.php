@@ -456,8 +456,10 @@ class Core
 	 * process runs properly the HTTP code is changed to the appropriate value by the response.
 	 *
 	 * The {@link boot()} method is invoked if the core has not booted yet.
+	 *
+	 * @param Request|null $request The request to handle. If `null`, the initial request is used.
 	 */
-	public function __invoke()
+	public function __invoke(Request $request = null)
 	{
 		http_response_code(500);
 
@@ -468,9 +470,12 @@ class Core
 			$this->boot();
 		}
 
-		$this->change_status(self::STATUS_RUNNING, function() {
+		$this->change_status(self::STATUS_RUNNING, function() use ($request) {
 
-			$request = $this->initial_request;
+			if (!$request)
+			{
+				$request = $this->initial_request;
+			}
 
 			$this->run($request);
 
