@@ -142,28 +142,8 @@ class Core
 		}
 
 		$this->bind_object_class();
-
-		#
-		# config
-		#
-
-		$this->configs = $configs = $this->create_config_manager($options['config-path'], $options['config-constructor']);
-		$config = $this->config;
-
-		if ($config['error_handler'])
-		{
-			set_error_handler($config['error_handler']);
-		}
-
-		if ($config['exception_handler'])
-		{
-			set_exception_handler($config['exception_handler']);
-		}
-
-		if ($config['cache configs'])
-		{
-			$configs->cache = $this->storage_for_configs;
-		}
+		$this->configs = $this->create_config_manager($options['config-path'], $options['config-constructor']);
+		$this->apply_config($this->config);
 
 		self::$status = self::STATUS_INSTANTIATED;
 	}
@@ -230,6 +210,33 @@ class Core
 	protected function create_config_manager(array $paths, array $synthesizers)
 	{
 		return new Config($paths, $synthesizers);
+	}
+
+	/**
+	 * Applies low-level configuration.
+	 *
+	 * @param array $config
+	 */
+	protected function apply_config(array $config)
+	{
+		$error_handler = $config['error_handler'];
+
+		if ($error_handler)
+		{
+			set_error_handler($error_handler);
+		}
+
+		$exception_handler = $config['exception_handler'];
+
+		if ($exception_handler)
+		{
+			set_exception_handler($exception_handler);
+		}
+
+		if ($config['cache configs'])
+		{
+			$this->configs->cache = $this->storage_for_configs;
+		}
 	}
 
 	/**
