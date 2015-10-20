@@ -123,7 +123,7 @@ class A
 	}
 }
 
-Prototype::from("A")['get_db'] = function(A $a) {
+Prototype::from(A::class)['get_db'] = function(A $a) {
 
 	static $db;
 	
@@ -344,15 +344,16 @@ terminated.
 
 ## Multi-site support
 
-ICanBoogie has built-in multi-site support and can be configured for different domains or environments. Even
-if you are dealing with only one domain, this feature can be used to provide different
-configuration for the "dev", "stage", and "production" versions of a same application.
+ICanBoogie has built-in multi-site support and can be configured for different domains or
+environments. Even if you are dealing with only one domain, this feature can be used to provide
+different configuration for the "dev", "stage", and "production" versions of a same application.
 
 The intended location for your custom application code is in a separate "protected" directory, but
 another directory can be defined with the `app-root` _autoconfig_ directive. The directory is
 relative to the `root` directive.
 
-ICanBoogie searches for "config" directories to add to the _autoconfig_. Packages may alter the _autoconfig_ as well. For instance, [icanboogie/module][] searches for "modules" directories.
+ICanBoogie searches for "config" directories to add to the _autoconfig_. Packages may alter the
+_autoconfig_ as well. For instance, [icanboogie/module][] searches for "modules" directories.
 
 
 
@@ -360,11 +361,13 @@ ICanBoogie searches for "config" directories to add to the _autoconfig_. Package
 
 ### Instance name
 
-The instance name of the application is used to resolve the application paths. It is usually defined by the `ICANBOOGIE_INSTANCE` environment variable.
+The instance name of the application is used to resolve the application paths. It is usually
+defined by the `ICANBOOGIE_INSTANCE` environment variable but can be retrieved from `PHP_SAPI` or
+`$_SERVER`.
 
 If the variable is not defined, the instance name defaults as follows:
 
-- The application runs from the CLI, "cli" is used as instance name.
+- The application runs from the CLI (e.g. PHP_SAPI == "cli"), "cli" is used as instance name.
 - `$_SERVER['SERVER_NAME']` is defined, it is used as instance name.
 
 
@@ -384,7 +387,8 @@ icanboogie.org
 org
 ```
 
-The directory "all" contains resources that are common to all instances. It is always added if present. The directory "default" is only added if there no directory matches the instance name.
+The directory "all" contains resources that are common to all instances. It is always added if
+present. The directory "default" is only added if there no directory matches the instance name.
 
 To resolve the matching directory, the instance name is first broken into parts and the most
 specific ones are removed until a corresponding directory is found. For instance, given the
@@ -641,6 +645,23 @@ The following helper functions are defined:
 
 
 
+## Routes
+
+The package provides a controller for the `/api/ping` route, which may be used to renew a session,
+if one existed in the first place. When the `timer` query parameter is present, the controller
+gives timing information as well.
+
+```php
+
+$request = Request::from('/api/ping?timer');
+echo $request()->body;
+// pong, in 4.875 ms (ready in 3.172 ms)
+```
+
+
+
+
+
 ----------
 
 
@@ -771,12 +792,12 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [DateTime]:            http://api.icanboogie.org/datetime/1.1/class-ICanBoogie.DateTime.html
 [TimeZone]:            http://api.icanboogie.org/datetime/1.1/class-ICanBoogie.TimeZone.html
 [Request]:             http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Request.html
-[BootEvent]:           http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.BootEvent.html
-[Core]:                http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.html
-[CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.CoreNotInstantiated.html
-[PrototypedBindings]:  http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Binding.PrototypedBindings.html
-[RunEvent]:            http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.RunEvent.html
-[TerminateEvent]:      http://api.icanboogie.org/icanboogie/2.4/class-ICanBoogie.Core.TerminateEvent.html
+[BootEvent]:           http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.BootEvent.html
+[Core]:                http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.html
+[CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.CoreNotInstantiated.html
+[PrototypedBindings]:  http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Binding.PrototypedBindings.html
+[RunEvent]:            http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.RunEvent.html
+[TerminateEvent]:      http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.TerminateEvent.html
 [Prototyped]:          http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Prototyped.html
 [APCStorage]:          http://api.icanboogie.org/storage/1.2/class-ICanBoogie.Storage.APCStorage.html
 [FileStorage]:         http://api.icanboogie.org/storage/1.2/class-ICanBoogie.Storage.FileStorage.html
