@@ -80,4 +80,19 @@ class Hooks
 
 		return self::with_apc_storage($storage, 'icanboogie:vars:');
 	}
+
+	/*
+	 * Events
+	 */
+
+	/**
+	 * Clears configurations cache.
+	 *
+	 * @param Core\ClearCacheEvent $event
+	 * @param Core $app
+	 */
+	static public function on_clear_cache(Core\ClearCacheEvent $event, Core $app)
+	{
+		$app->storage_for_configs->clear();
+	}
 }

@@ -430,7 +430,7 @@ demonstrates how an application can specify the path to its configuration and lo
 }
 ```
 
-**Note:** Packages can also define their _autoconfig_ fragment in a stand-alone "icanboogie.json"
+> **Note:** Packages can also define their _autoconfig_ fragment in a stand-alone "icanboogie.json"
 file, beside their "composer.json" file, but using the "composer.json" file is recommended. The
 file must match the [icanboogie-schema.json](lib/Autoconfig/icanboogie-schema.json) schema.
 
@@ -475,7 +475,7 @@ $app = new Core(get_autoconfig());
 Additionally, the `ICanBoogie\AUTOCONFIG_PATHNAME` constant defines the absolute pathname to the
 _autoconfig_ file.
 
-**Note:** A fatal error is triggered if the _autoconfig_ file does not exists, which might
+> **Note:** A fatal error is triggered if the _autoconfig_ file does not exists, which might
 happen if the user forgot to add the `post-autoload-dump` hook in its "composer.json" file.
 
 
@@ -529,7 +529,7 @@ return [
 ];
 ```
 
-Check ICanBoogie's "config/core.php" for a list of the available options and their default values.
+Check ICanBoogie's "config/core.php" for a list of available options and their default values.
 
 
 
@@ -567,11 +567,20 @@ The default implementation returns a [FileStorage][] instance, or if APC is avai
 
 
 
+### The application is configured
+
+The `ICanBoogie\Core::configure` event of class [ConfigureEvent][] is fired once the application
+is configured. Event hooks may use this event to alter the application configuration or
+configure components.
+
+
+
+
+
 ### The application has booted
 
 The `ICanBoogie\Core::boot` event of class [BootEvent][] is fired once the application has booted.
-Third parties may use this event to alter the configuration or the components before the
-application is ran.
+Event hooks may use this event to bootstrap components before the application is ran.
 
 
 
@@ -580,7 +589,7 @@ application is ran.
 ### The application is running
 
 The `ICanBoogie\Core::run` event of class [RunEvent][] is fired when the application is running.
-Third parties may use this event to alter various states of the application, starting with the
+Event hooks may use this event to alter various states of the application, starting with the
 initial request.
 
 
@@ -590,8 +599,18 @@ initial request.
 ### The application is terminated
 
 The `ICanBoogie\Core::terminate` event of class [TerminateEvent][] is fired after the response to
-the initial request was sent and the application is about to be terminated. Third parties may
+the initial request was sent and the application is about to be terminated. Event hooks may
 use this event to cleanup loose ends.
+
+
+
+
+
+### Cache must be cleared
+
+The `clear_cache` event of class [ClearCacheEvent][] is fired when the various caches of the
+application must be cleared. Event hooks may use this event to clear their own cache. For instance,
+ICanBoogie clears its configurations cache when this event is fired. 
 
 
 
@@ -629,22 +648,6 @@ $app === $o->app;
 
 
 
-## Helpers
-
-The following helper functions are defined:
-
-- `app()`: Returns the [Core][] instance, or throws [CoreNotInstantiated][] if it hasn't been instantiated yet.
-- `boot()`: Instantiates a [Core][] instance with the _autoconfig_ and boots it.
-- `log()`: Logs a debug message.
-- `log_success()`: Logs a success message.
-- `log_error()`: Logs an error message.
-- `log_info()`: Logs an info message.
-- `log_time()`: Logs a debug message associated with a timing information.
-
-
-
-
-
 ## Routes
 
 The package provides a controller for the `/api/ping` route, which may be used to renew a session,
@@ -657,6 +660,22 @@ $request = Request::from('/api/ping?timer');
 echo $request()->body;
 // pong, in 4.875 ms (ready in 3.172 ms)
 ```
+
+
+
+
+
+## Helpers
+
+The following helper functions are defined:
+
+- `app()`: Returns the [Core][] instance, or throws [CoreNotInstantiated][] if it hasn't been instantiated yet.
+- `boot()`: Instantiates a [Core][] instance with the _autoconfig_ and boots it.
+- `log()`: Logs a debug message.
+- `log_success()`: Logs a success message.
+- `log_error()`: Logs an error message.
+- `log_info()`: Logs an info message.
+- `log_time()`: Logs a debug message associated with a timing information.
 
 
 
@@ -717,7 +736,7 @@ and additional internationalization helpers.
 - [icanboogie/image](https://github.com/ICanBoogie/Image): Provides image resizing, filling,
 and color resolving.
 - [icanboogie/module][]: Provides framework extensibility using modules.
-- [icanboogie/operation](https://github.com/ICanBoogie/Operation): Operation oriented controllers API.
+- [icanboogie/operation][]: Operation oriented controllers API.
 
 The following bindings are available to help in integrating components:
 
@@ -782,6 +801,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [icanboogie/bind-render]:       https://github.com/ICanBoogie/bind-render
 [icanboogie/bind-view]:         https://github.com/ICanBoogie/bind-view
 [icanboogie/module]:            https://github.com/ICanBoogie/Module
+[icanboogie/operation]:         https://github.com/ICanBoogie/Operation
 [icanboogie/prototype]:         https://github.com/ICanBoogie/Prototype
 [icanboogie/render]:            https://github.com/ICanBoogie/Render
 [icanboogie/view]:              https://github.com/ICanBoogie/View
@@ -793,6 +813,8 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [TimeZone]:            http://api.icanboogie.org/datetime/1.1/class-ICanBoogie.TimeZone.html
 [Request]:             http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Request.html
 [BootEvent]:           http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.BootEvent.html
+[ClearCacheEvent]:     http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.ClearCacheEvent.html
+[ConfigureEvent]:      http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.ConfigureEvent.html
 [Core]:                http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.html
 [CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.CoreNotInstantiated.html
 [PrototypedBindings]:  http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Binding.PrototypedBindings.html
