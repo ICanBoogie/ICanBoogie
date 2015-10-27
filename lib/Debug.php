@@ -295,7 +295,7 @@ class Debug
 		}
 
 		return <<<EOT
-<pre class="alert alert-error $class">
+<pre class="alert alert-error alert-danger $class">
 <strong>$type with the following message:</strong>
 
 $message
