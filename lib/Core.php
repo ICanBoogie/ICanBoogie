@@ -14,6 +14,7 @@ namespace ICanBoogie;
 use ICanBoogie\Binding\Event\CoreBindings as EventBindings;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
+use ICanBoogie\HTTP\Status;
 use ICanBoogie\Storage\Storage;
 
 /**
@@ -468,8 +469,7 @@ class Core
 	 */
 	public function __invoke(Request $request = null)
 	{
-		http_response_code(500);
-
+		$this->initialize_response_header();
 		$this->assert_not_running();
 
 		if (!$this->is_booted)
@@ -516,6 +516,22 @@ class Core
 	protected function terminate(Request $request, Response $response)
 	{
 		new Core\TerminateEvent($this, $request, $response);
+	}
+
+	/**
+	 * Initializes default response header.
+	 *
+	 * The default response has the {@link Status::INTERNAL_SERVER_ERROR} status code and
+	 * the appropriate header fields so it is not cached. That way, if something goes wrong
+	 * and an error message is displayed it won't be cached by a proxi.
+	 */
+	protected function initialize_response_header()
+	{
+		http_response_code(Status::INTERNAL_SERVER_ERROR);
+
+		header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+		header('Pragma: no-cache');
+		header('Expires: 0');
 	}
 }
 
