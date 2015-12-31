@@ -42,8 +42,8 @@ return [
 
 	'session' => [
 
-		'name' => 'ICanBoogie',
-		'domain' => null
+		SessionOptions::OPTION_NAME => 'ICanBoogie'
 
 	]
+
 ];

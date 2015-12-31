@@ -17,6 +17,8 @@ define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR 
 
 require __DIR__ . '/../vendor/autoload.php';
 
+ini_set('session.use_cookies', '0');
+
 (new Core(array_merge_recursive(get_autoconfig(), [
 
 	'config-path' => [

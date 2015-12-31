@@ -19,14 +19,15 @@ use ICanBoogie\Session;
  */
 class StartEvent extends Event
 {
+	const TYPE = 'start';
+
 	/**
 	 * The event is constructed with the type `start`.
 	 *
 	 * @param Session $target
-	 * @param array $payload
 	 */
-	public function __construct(Session $target, array $payload = [])
+	public function __construct(Session $target)
 	{
-		parent::__construct($target, 'start', $payload);
+		parent::__construct($target, self::TYPE);
 	}
 }

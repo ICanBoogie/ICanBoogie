@@ -30,7 +30,8 @@
 		"icanboogie/bind-prototype": "^2.3.0",
 		"icanboogie/storage": "^2.0.0",
 		"icanboogie/config": "^1.0.0",
-		"icanboogie/http": "^2.5.0"
+		"icanboogie/http": "^2.5.0",
+		"icanboogie/session": "dev-master"
 	},
 
 	"require-dev": {

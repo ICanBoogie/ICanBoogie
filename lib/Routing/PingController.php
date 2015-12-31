@@ -21,10 +21,11 @@ class PingController extends Controller
 	protected function action(Request $request)
 	{
 		$this->response->content_type = 'text/plain';
+		$session = $this->app->session;
 
-		if (Session::exists())
+		if ($session->is_referenced)
 		{
-			$this->app->session;
+			$session->start_or_reuse();
 		}
 
 		$rc = 'pong';
