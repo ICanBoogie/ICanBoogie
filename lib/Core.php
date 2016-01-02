@@ -498,12 +498,14 @@ class Core
 	{
 		http_response_code(Status::INTERNAL_SERVER_ERROR);
 
+		// @codeCoverageIgnoreStart
 		if (!headers_sent())
 		{
 			header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 			header('Pragma: no-cache');
 			header('Expires: 0');
 		}
+		// @codeCoverageIgnoreEnd
 	}
 }
 

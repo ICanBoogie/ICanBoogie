@@ -18,6 +18,8 @@ use ICanBoogie\Event;
  * Event class for the `ICanBoogie\Core::boot` event.
  *
  * The event is fired after the core has booted.
+ *
+ * @codeCoverageIgnore
  */
 class BootEvent extends Event
 {

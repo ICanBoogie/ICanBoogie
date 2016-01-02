@@ -23,10 +23,12 @@ class PingController extends Controller
 		$this->response->content_type = 'text/plain';
 		$session = $this->app->session;
 
+		// @codeCoverageIgnoreStart
 		if ($session->is_referenced)
 		{
 			$session->start_or_reuse();
 		}
+		// @codeCoverageIgnoreEnd
 
 		$rc = 'pong';
 

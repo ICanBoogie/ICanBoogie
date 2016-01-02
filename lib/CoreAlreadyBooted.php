@@ -13,6 +13,8 @@ namespace ICanBoogie;
 
 /**
  * Exception thrown in attempt to boot the application a second time.
+ *
+ * @codeCoverageIgnore
  */
 class CoreAlreadyBooted extends \LogicException
 {

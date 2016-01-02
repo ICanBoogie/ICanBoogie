@@ -17,6 +17,8 @@ use ICanBoogie\HTTP\Request;
 
 /**
  * Event class for the `ICanBoogie\Core::run` event.
+ *
+ * @codeCoverageIgnore
  */
 class RunEvent extends Event
 {

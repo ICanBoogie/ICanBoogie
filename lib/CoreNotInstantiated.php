@@ -13,6 +13,8 @@ namespace ICanBoogie;
 
 /**
  * Exception thrown in attempt to obtain the core before is has been instantiated.
+ *
+ * @codeCoverageIgnore
  */
 class CoreNotInstantiated extends \LogicException
 {

@@ -16,6 +16,8 @@ use ICanBoogie\Session;
 
 /**
  * Event class for the `ICanBoogie\Session::start` event.
+ *
+ * @codeCoverageIgnore
  */
 class StartEvent extends Event
 {

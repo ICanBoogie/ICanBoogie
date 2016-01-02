@@ -22,6 +22,8 @@ use ICanBoogie\HTTP\Response;
  *
  * The event is fired after the response to the initial request was sent and that the core
  * is ready to be terminated.
+ *
+ * @codeCoverageIgnore
  */
 class TerminateEvent extends Event
 {

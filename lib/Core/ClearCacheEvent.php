@@ -18,6 +18,8 @@ use ICanBoogie\Event;
  * Representation of the `clear_cache` event.
  *
  * The event is fired when all the cache of the application must be cleared.
+ *
+ * @codeCoverageIgnore
  */
 class ClearCacheEvent extends Event
 {

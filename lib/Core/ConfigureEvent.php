@@ -18,6 +18,8 @@ use ICanBoogie\Event;
  * Event class for the `ICanBoogie\Core::configure` event.
  *
  * The event is fired when the core is configured.
+ *
+ * @codeCoverageIgnore
  */
 class ConfigureEvent extends Event
 {
@@ -30,6 +32,6 @@ class ConfigureEvent extends Event
 	 */
 	public function __construct(Core $target)
 	{
-		parent::__construct($target, 'configure');
+		parent::__construct($target, self::TYPE);
 	}
 }

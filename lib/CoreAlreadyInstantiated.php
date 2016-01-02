@@ -13,6 +13,8 @@ namespace ICanBoogie;
 
 /**
  * Exception thrown in attempt to create a second instance.
+ *
+ * @codeCoverageIgnore
  */
 class CoreAlreadyInstantiated extends \LogicException
 {

@@ -13,6 +13,8 @@ namespace ICanBoogie;
 
 /**
  * Exception thrown in attempt to run the core a second time.
+ *
+ * @codeCoverageIgnore
  */
 class CoreAlreadyRunning extends \LogicException
 {

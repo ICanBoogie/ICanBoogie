@@ -42,8 +42,9 @@ class Helpers
 	 * @param callable $callback Callback.
 	 *
 	 * @throws \RuntimeException is attempt to patch an undefined function.
+	 *
+	 * @codeCoverageIgnore
 	 */
-    // @codeCoverageIgnoreStart
 	static public function patch($name, $callback)
 	{
 		if (empty(self::$jumptable[$name]))
@@ -53,7 +54,6 @@ class Helpers
 
 		self::$jumptable[$name] = $callback;
 	}
-    // @codeCoverageIgnoreEnd
 
 	/*
 	 * Default implementations
