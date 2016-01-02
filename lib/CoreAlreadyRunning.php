@@ -16,7 +16,12 @@ namespace ICanBoogie;
  */
 class CoreAlreadyRunning extends \LogicException
 {
-	public function __construct($message = "The core is already running.", $code = 500, \Exception $previous = null)
+	const DEFAULT_MESSAGE = "The core is already running.";
+
+	/**
+	 * @inheritdoc
+	 */
+	public function __construct($message = self::DEFAULT_MESSAGE, $code = 500, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

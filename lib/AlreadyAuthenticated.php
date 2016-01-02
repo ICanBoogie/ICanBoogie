@@ -22,7 +22,12 @@ use ICanBoogie\HTTP\SecurityError;
  */
 class AlreadyAuthenticated extends ClientError implements SecurityError
 {
-	public function __construct($message = "The user is already authenticated.", $code = 401, \Exception $previous = null)
+	const DEFAULT_MESSAGE = "The user is already authenticated.";
+
+	/**
+	 * @inheritdoc
+	 */
+	public function __construct($message = self::DEFAULT_MESSAGE, $code = 401, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

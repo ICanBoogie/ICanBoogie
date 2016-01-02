@@ -16,7 +16,12 @@ namespace ICanBoogie;
  */
 class CoreAlreadyInstantiated extends \LogicException
 {
-	public function __construct($message = "The core is already instantiated.", $code = 500, \Exception $previous = null)
+	const DEFAULT_MESSAGE = "The core is already instantiated.";
+
+	/**
+	 * @inheritdoc
+	 */
+	public function __construct($message = self::DEFAULT_MESSAGE, $code = 500, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}

@@ -16,7 +16,12 @@ namespace ICanBoogie;
  */
 class CoreNotInstantiated extends \LogicException
 {
-	public function __construct($message = "The core has not been instantiated yet.", $code = 500, \Exception $previous = null)
+	const DEFAULT_MESSAGE = "The core has not been instantiated yet.";
+
+	/**
+	 * @inheritdoc
+	 */
+	public function __construct($message = self::DEFAULT_MESSAGE, $code = 500, \Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 	}
