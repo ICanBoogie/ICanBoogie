@@ -12,6 +12,7 @@
 namespace ICanBoogie;
 
 use ICanBoogie\Binding\Event\CoreBindings as EventBindings;
+use ICanBoogie\Binding\HTTP\CoreBindings as HTTPBindings;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\HTTP\Status;
@@ -30,15 +31,13 @@ use ICanBoogie\Storage\Storage;
  * @property string $language Locale language.
  * @property string|int $timezone Time zone.
  * @property array $config The "core" configuration.
- * @property-read Request $request The request being processed.
- * @property Request $initial_request The initial request.
  * @property-read LoggerInterface $logger The message logger.
  * @property-read Storage $storage_for_configs
  */
 class Core
 {
 	use PrototypeTrait;
-	use EventBindings;
+	use EventBindings, HTTPBindings;
 
 	/**
 	 * Status of the application.
@@ -318,36 +317,6 @@ class Core
     }
 
 	/**
-	 * Returns the initial request object.
-	 *
-	 * @return Request
-	 */
-	protected function lazy_get_initial_request()
-	{
-		return HTTP\get_initial_request();
-	}
-
-	/**
-	 * Returns the current request.
-	 *
-	 * @return Request
-	 */
-	protected function get_request()
-	{
-		return Request::get_current_request() ?: $this->initial_request;
-	}
-
-	/**
-	 * Returns HTTP dispatcher.
-	 *
-	 * @return HTTP\Dispatcher
-	 */
-	protected function get_dispatcher()
-	{
-		return HTTP\get_dispatcher();
-	}
-
-	/**
 	 * @var string The working time zone.
 	 */
 	private $timezone;
@@ -529,9 +498,12 @@ class Core
 	{
 		http_response_code(Status::INTERNAL_SERVER_ERROR);
 
-		header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-		header('Pragma: no-cache');
-		header('Expires: 0');
+		if (!headers_sent())
+		{
+			header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+			header('Pragma: no-cache');
+			header('Expires: 0');
+		}
 	}
 }
 

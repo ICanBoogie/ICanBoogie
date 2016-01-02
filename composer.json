@@ -25,12 +25,12 @@
 	"require": {
 		"php": ">=5.5.0",
 		"psr/log": "^1.0.0",
-		"icanboogie/bind-routing": "^3.0.0",
 		"icanboogie/bind-event": "^2.0.0",
 		"icanboogie/bind-prototype": "^2.3.0",
+		"icanboogie/bind-http": "^2.6.0",
+		"icanboogie/bind-routing": "^3.0.0",
 		"icanboogie/storage": "^2.0.0",
 		"icanboogie/config": "^1.0.0",
-		"icanboogie/http": "^2.5.0",
 		"icanboogie/session": "dev-master"
 	},
 
