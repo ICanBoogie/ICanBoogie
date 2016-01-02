@@ -21,8 +21,10 @@ use ICanBoogie\Event;
  */
 class ConfigureEvent extends Event
 {
+	const TYPE = 'configure';
+
 	/**
-	 * The event is constructed with the type `configure`.
+	 * The event is constructed with the type {@link TYPE}.
 	 *
 	 * @param Core $target
 	 */

@@ -20,6 +20,8 @@ use ICanBoogie\HTTP\Request;
  */
 class RunEvent extends Event
 {
+	const TYPE = 'run';
+
 	/**
 	 * Initial request.
 	 *
@@ -28,7 +30,7 @@ class RunEvent extends Event
 	public $request;
 
 	/**
-	 * The event is constructed with the type `run`.
+	 * The event is constructed with the type {@link TYPE}.
 	 *
 	 * @param Core $target
 	 * @param Request $request
@@ -37,6 +39,6 @@ class RunEvent extends Event
 	{
 		$this->request = $request;
 
-		parent::__construct($target, 'run');
+		parent::__construct($target, self::TYPE);
 	}
 }

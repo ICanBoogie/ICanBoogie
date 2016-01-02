@@ -22,7 +22,7 @@ class StartEvent extends Event
 	const TYPE = 'start';
 
 	/**
-	 * The event is constructed with the type `start`.
+	 * The event is constructed with the type {@link TYPE}.
 	 *
 	 * @param Session $target
 	 */

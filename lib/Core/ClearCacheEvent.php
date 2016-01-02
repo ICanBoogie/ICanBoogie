@@ -23,8 +23,13 @@ class ClearCacheEvent extends Event
 {
 	const TYPE = 'clear_cache';
 
-	public function __construct(Core $app)
+	/**
+	 * The event is constructed with the type {@link TYPE}.
+	 *
+	 * @param Core $target
+	 */
+	public function __construct(Core $target)
 	{
-		parent::__construct($app, self::TYPE);
+		parent::__construct($target, self::TYPE);
 	}
 }
