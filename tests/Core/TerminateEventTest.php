@@ -15,6 +15,8 @@ use ICanBoogie\Core;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 
+use function ICanBoogie\app;
+
 class TerminateEventTest extends \PHPUnit_Framework_TestCase
 {
 	public function test_instance()
@@ -40,7 +42,7 @@ class TerminateEventTest extends \PHPUnit_Framework_TestCase
 
 		$called = false;
 
-		\ICanBoogie\app()->events->once(function(TerminateEvent $event, Core $target) use ($app, $request, $response, &$called) {
+		app()->events->once(function(TerminateEvent $event, Core $target) use ($app, $request, $response, &$called) {
 
 			$this->assertSame($app, $target);
 			$this->assertSame($request, $event->request);

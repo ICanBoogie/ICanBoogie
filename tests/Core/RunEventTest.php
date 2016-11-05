@@ -14,6 +14,8 @@ namespace ICanBoogie\Core;
 use ICanBoogie\Core;
 use ICanBoogie\HTTP\Request;
 
+use function ICanBoogie\app;
+
 class RunEventTest extends \PHPUnit_Framework_TestCase
 {
 	public function test_instance()
@@ -33,7 +35,7 @@ class RunEventTest extends \PHPUnit_Framework_TestCase
 
 		$called = false;
 
-		\ICanBoogie\app()->events->once(function (RunEvent $event, Core $target) use ($app, $request, &$called) {
+		app()->events->once(function (RunEvent $event, Core $target) use ($app, $request, &$called) {
 
 			$this->assertSame($app, $target);
 			$this->assertSame($request, $event->request);

@@ -34,7 +34,9 @@ class Helpers
 	 */
 	static public function __callstatic($name, array $arguments)
 	{
-		return call_user_func_array(self::$jumptable[$name], $arguments);
+		$method = self::$jumptable[$name];
+
+		return $method(...$arguments);
 	}
 
 	/**

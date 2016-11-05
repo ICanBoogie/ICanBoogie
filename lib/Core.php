@@ -388,7 +388,7 @@ class Core
 		$this->change_status(self::STATUS_CONFIGURING, function() {
 
 			Debug::configure($this->configs['debug']);
-			Prototype::configure($this->configs['prototype']);
+			Prototype::bind($this->configs['prototype']);
 
 			$this->events;
 

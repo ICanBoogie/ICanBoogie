@@ -74,9 +74,9 @@ and `setMinute()` methods:
 ```php
 <?php
 
-use ICanBoogie\DateTime;
+use ICanBoogie\MutableDateTime;
 
-$time = new DateTime('2013-05-17 12:30:45', 'utc');
+$time = new MutableDateTime('2013-05-17 12:30:45', 'utc');
 echo $time;         // 2013-05-17T12:30:45Z
 echo $time->minute; // 30
 
@@ -704,7 +704,7 @@ The following helper functions are defined:
 
 ## Requirements
 
-The minimum requirement is PHP 5.5.
+The minimum requirement is PHP 5.6.
 
 
 
@@ -824,17 +824,17 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 [Composer]: http://getcomposer.org/
 
-[DateTime]:            http://api.icanboogie.org/datetime/1.1/class-ICanBoogie.DateTime.html
-[TimeZone]:            http://api.icanboogie.org/datetime/1.1/class-ICanBoogie.TimeZone.html
-[Request]:             http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Request.html
-[BootEvent]:           http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.BootEvent.html
-[ClearCacheEvent]:     http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.ClearCacheEvent.html
-[ConfigureEvent]:      http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.ConfigureEvent.html
-[Core]:                http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.html
-[CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.CoreNotInstantiated.html
-[PrototypedBindings]:  http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Binding.PrototypedBindings.html
-[RunEvent]:            http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.RunEvent.html
-[TerminateEvent]:      http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.TerminateEvent.html
+[DateTime]:            http://api.icanboogie.org/datetime/2.0/class-ICanBoogie.DateTime.html
+[TimeZone]:            http://api.icanboogie.org/datetime/2.0/class-ICanBoogie.TimeZone.html
+[Request]:             http://api.icanboogie.org/http/3.0/class-ICanBoogie.HTTP.Request.html
+[BootEvent]:           http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.BootEvent.html
+[ClearCacheEvent]:     http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.ClearCacheEvent.html
+[ConfigureEvent]:      http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.ConfigureEvent.html
+[Core]:                http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.html
+[CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.CoreNotInstantiated.html
+[PrototypedBindings]:  http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Binding.PrototypedBindings.html
+[RunEvent]:            http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.RunEvent.html
+[TerminateEvent]:      http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.TerminateEvent.html
 [Prototyped]:          http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Prototyped.html
 [APCStorage]:          http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.APCStorage.html
 [FileStorage]:         http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.FileStorage.html

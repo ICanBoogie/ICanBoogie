@@ -13,6 +13,8 @@ namespace ICanBoogie\Core;
 
 use ICanBoogie\Core;
 
+use function ICanBoogie\app;
+
 class BootEventTest extends \PHPUnit_Framework_TestCase
 {
 	public function test_instance()
@@ -26,7 +28,7 @@ class BootEventTest extends \PHPUnit_Framework_TestCase
 
 		$called = false;
 
-		\ICanBoogie\app()->events->once(function (BootEvent $event, Core $target) use ($app, &$called) {
+		app()->events->once(function (BootEvent $event, Core $target) use ($app, &$called) {
 
 			$this->assertSame($app, $target);
 			$event->stop();

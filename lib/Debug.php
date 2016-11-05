@@ -38,7 +38,7 @@ class Debug
 
 	static public function synthesize_config(array $fragments)
 	{
-		$config = call_user_func_array('ICanBoogie\array_merge_recursive', $fragments);
+		$config = array_merge_recursive(...array_values($fragments));
 		$config = array_merge($config, $config['modes'][$config['mode']]);
 
 		return $config;
@@ -188,9 +188,9 @@ class Debug
 	/**
 	 * Basic exception handler.
 	 *
-	 * @param \Exception $exception
+	 * @param \Error|\Exception $exception
 	 */
-	static public function exception_handler(\Exception $exception)
+	static public function exception_handler($exception)
 	{
 		if (!headers_sent())
 		{
@@ -258,7 +258,7 @@ class Debug
 				$trace = $alert['trace'];
 			}
 		}
-		else if ($alert instanceof \Exception)
+		else if ($alert instanceof \Exception || $alert instanceof \Throwable)
 		{
 			$type = get_class($alert);
 			$class = 'exception';
