@@ -4,12 +4,16 @@ namespace ICanBoogie\Routing;
 
 use ICanBoogie\Binding\PrototypedBindings;
 use ICanBoogie\HTTP\Request;
-use ICanBoogie\Session;
 
 class PingController extends Controller
 {
 	use PrototypedBindings;
 
+	/**
+	 * @param float $finish
+	 *
+	 * @return string
+	 */
 	static private function format_time($finish)
 	{
 		return number_format(($finish - $_SERVER['REQUEST_TIME_FLOAT']) * 1000, 3, '.', '') . ' ms';

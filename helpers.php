@@ -227,7 +227,7 @@ function log($message, array $params = [], $level = LogLevel::DEBUG)
  * @param string $message Message pattern.
  * @param array $params The parameters used to format the message.
  */
-function log_success($message, array $params=[])
+function log_success($message, array $params = [])
 {
 	log($message, $params, LogLevel::SUCCESS);
 }
@@ -238,7 +238,7 @@ function log_success($message, array $params=[])
  * @param string $message Message pattern.
  * @param array $params The parameters used to format the message.
  */
-function log_error($message, array $params=[])
+function log_error($message, array $params = [])
 {
 	log($message, $params, LogLevel::ERROR);
 }
@@ -249,7 +249,7 @@ function log_error($message, array $params=[])
  * @param string $message Message pattern.
  * @param array $params The parameters used to format the message.
  */
-function log_info($message, array $params=[])
+function log_info($message, array $params = [])
 {
 	log($message, $params, LogLevel::INFO);
 }
@@ -260,7 +260,7 @@ function log_info($message, array $params=[])
  * @param string $message Message pattern.
  * @param array $params The parameters used to format the message.
  */
-function log_time($message, array $params=[])
+function log_time($message, array $params = [])
 {
 	static $last;
 
@@ -308,7 +308,7 @@ define('ICanBoogie\TOKEN_WIDE', TOKEN_NUMERIC . TOKEN_ALPHA . TOKEN_SYMBOL . TOK
  *
  * @return string
  */
-function generate_token($length=8, $possible=TOKEN_NARROW)
+function generate_token($length = 8, $possible = TOKEN_NARROW)
 {
 	return Helpers::generate_token($length, $possible);
 }
@@ -333,7 +333,7 @@ function generate_token_wide()
  *
  * @return string
  */
-function excerpt($str, $limit=55)
+function excerpt($str, $limit = 55)
 {
 	static $allowed_tags = [
 

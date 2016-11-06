@@ -25,6 +25,7 @@ trait LoggerTrait
 	 *
 	 * @param string $message
 	 * @param array $context
+	 *
 	 * @return null
 	 */
 	public function success($message, array $context = [])

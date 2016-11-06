@@ -9,10 +9,10 @@ usage:
 	@echo "test:  Runs the test suite.\ndoc:   Creates the documentation.\nclean: Removes the documentation, the dependencies and the Composer files."
 
 vendor:
-	@COMPOSER_ROOT_VERSION=$(PACKAGE_VERSION) composer install
+	@COMPOSER_ROOT_VERSION=$(PACKAGE_VERSION) composer install --prefer-dist
 
 update:
-	@COMPOSER_ROOT_VERSION=$(PACKAGE_VERSION) composer update
+	@COMPOSER_ROOT_VERSION=$(PACKAGE_VERSION) composer update --prefer-dist
 
 autoload: vendor
 	@composer dump-autoload

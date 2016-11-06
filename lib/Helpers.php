@@ -13,12 +13,14 @@ namespace ICanBoogie;
 
 /**
  * Patchable helpers of the ICanBoogie package.
+ *
+ * @method static generate_token(int $length = 8, string $possible = TOKEN_NARROW)
  */
 class Helpers
 {
 	static private $jumptable = [
 
-		'generate_token' => [ __CLASS__, 'generate_token' ]
+		'generate_token' => [ __CLASS__, 'default_generate_token' ]
 
 	];
 
@@ -59,7 +61,7 @@ class Helpers
 	 * Default implementations
 	 */
 
-	static private function generate_token($length=8, $possible=TOKEN_NARROW)
+	static private function default_generate_token($length = 8, $possible = TOKEN_NARROW)
 	{
 		$token = '';
 		$y = strlen($possible) - 1;
