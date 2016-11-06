@@ -67,7 +67,7 @@ ICanBoogie have readable concise code and fluid flow.
 
 ### Getters and setters
 
-Magic properties are used in favor of getter and setter methods (e.g. `getXxx()` or `setXxx()`).
+Magic properties are used in favor of explicit getters and setters such as `getMinute()` and `setMinute()`.
 For instance,  [DateTime][] instances provide a `minute` magic property instead of `getMinute()`
 and `setMinute()` methods:
 
@@ -87,18 +87,18 @@ echo $time;         // 2013-05-17T14:30:45Z
 The getter/setter feature provided by [icanboogie/accessor][], and extended by
 [icanboogie/prototype][], allows you to create read-only or write-only properties, 
 façades properties, fallbacks to generate default values. Getters are setters are also often
-using to control types, lazy load resources, and inject dependencies.
+using to control types, lazy load resources, and inversion of control.
 
 
 
 
 
-### Dependency injection
+### Dependency injection, inversion of control
 
-[icanboogie/prototype][] allows methods to be defined at runtime, and since getters and setters
-are methods as well, this feature in often used as a mean to inject dependencies. What's great
-about it is that dependencies are only _injected_ when they are required, not when to instance
-is created.
+[icanboogie/prototype][] allows methods to be defined at runtime, and since getters and setters are
+methods as well, this feature in often used as a mean to reverse control to provide dependencies.
+What's great about it is that dependencies are only provided when they are required, not when to
+instance is created.
 
 The following example demonstrates how a shared database connection is obtained through a `db`
 property:
@@ -116,7 +116,7 @@ use ICanBoogie\PrototypeTrait;
 class A
 {
 	use PrototypeTrait;
-	
+
 	public function truncate()
 	{
 		$this->db("TRUNCATE my_table");
@@ -126,7 +126,7 @@ class A
 Prototype::from(A::class)['get_db'] = function(A $a) {
 
 	static $db;
-	
+
 	return $db ?: $db = new Connection("sqlite::memory:");
 
 };
@@ -174,6 +174,8 @@ use ICanBoogie\HTTP\Response;
 $response = new Response('ok', 200);
 echo $response;                       // HTTP/1.0 200 OK\r\nDate: Fri, 17 May 2013 15:08:21 GMT\r\n\r\nok
 
+/* @var $app ICanBoogie\Core */
+
 echo $app->models['pages']->own->visible->filter_by_nid(12)->order('created_on DESC')->limit(5);
 // SELECT * FROM `pages` `page` INNER JOIN `nodes` `node` USING(`nid`) WHERE (`constructor` = ?) AND (`is_online` = ?) AND (site_id = 0 OR site_id = ?) AND (language = "" OR language = ?) AND (`nid` = ?) ORDER BY created_on DESC LIMIT 5
 ```
@@ -192,6 +194,8 @@ prepared database statement is invoked to perform a command:
 
 # DB statements
 
+/* @var $app ICanBoogie\Core */
+
 $statement = $app->models['nodes']->prepare('UPDATE {self} SET title = ? WHERE nid = ?');
 $statement("Title 1", 1);
 $statement("Title 2", 2);
@@ -202,6 +206,8 @@ This applies to database connections, models, requests, responses, translators�
 
 ```php
 <?php
+
+/* @var $app ICanBoogie\Core */
 
 $pages = $app->models['pages'];
 $pages('SELECT * FROM {self_and_related} WHERE YEAR(created_on) = 2013')->all;
@@ -234,11 +240,17 @@ database, database connections, models, modules, header fields…
 ```php
 <?php
 
+/* @var $app ICanBoogie\Core */
+
 $app->models['nodes'][123];   // fetch record with key 123 in nodes
 $app->modules['nodes'];       // obtain the Nodes module
 $app->connections['primary']; // obtain the primary database connection
 
+/* @var $request ICanBoogie\HTTP\Request */
+
 $request['param1'];            // fetch param of the request named `param1`, returns `null` if it doesn't exists
+
+/* @var $response ICanBoogie\HTTP\Response */
 
 $response->headers['Cache-Control'] = 'no-cache';
 $response->headers['Content-Type'] = 'text/html; charset=utf-8';
@@ -249,7 +261,7 @@ $response->headers['Content-Type'] = 'text/html; charset=utf-8';
 
 ### Creating an instance from data
 
-Most classes provide a `from()` static method that create instances from various data types.
+Most classes provide a `from()` static method that creates instances from various data types.
 This is especially true for sub-classes of the [Prototyped][] class, which can create instances
 from arrays of properties. ActiveRecords are a perfect example of this feature:
 
@@ -283,12 +295,11 @@ $initial_request = Request::from($_SERVER);
 
 $custom_request = Request::from([
 
-	'path' => '/path/to/controller',
-	'is_post' => true,
-	'is_local' => true,
-	'is_xhr' => true,
-
-	'request_params' => [
+	Request::OPTION_URI => '/path/to/controller',
+	Request::OPTION_IS_POST => true,
+	Request::OPTION_IS_LOCAL => true,
+	Request::OPTION_IS_XHR => true,
+	Request::OPTION_REQUEST_PARAMS => [
 
 		'param1' => 'value1',
 		'param2' => 'value2'
@@ -521,15 +532,15 @@ return [
 
 	'session' => [
 
-			'name' => "ICanBoogie",
-			'domain' => ".example.org"
+		'name' => "ICanBoogie",
+		'domain' => ".example.org"
 
-		]
 	]
+
 ];
 ```
 
-Check ICanBoogie's "config/core.php" for a list of available options and their default values.
+> Check ICanBoogie's "config/core.php" for a list of available options and their default values.
 
 
 
@@ -655,8 +666,12 @@ if one existed in the first place. When the `timer` query parameter is present, 
 gives timing information as well.
 
 ```php
+<?php
+
+use ICanBoogie\HTTP\Request;
 
 $request = Request::from('/api/ping?timer');
+
 echo $request()->body;
 // pong, in 4.875 ms (ready in 3.172 ms)
 ```
@@ -811,7 +826,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 [DateTime]:            http://api.icanboogie.org/datetime/1.1/class-ICanBoogie.DateTime.html
 [TimeZone]:            http://api.icanboogie.org/datetime/1.1/class-ICanBoogie.TimeZone.html
-[Request]:             http://api.icanboogie.org/http/2.5/class-ICanBoogie.HTTP.Request.html
+[Request]:             http://api.icanboogie.org/http/2.6/class-ICanBoogie.HTTP.Request.html
 [BootEvent]:           http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.BootEvent.html
 [ClearCacheEvent]:     http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.ClearCacheEvent.html
 [ConfigureEvent]:      http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.ConfigureEvent.html
@@ -821,7 +836,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [RunEvent]:            http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.RunEvent.html
 [TerminateEvent]:      http://api.icanboogie.org/icanboogie/3.0/class-ICanBoogie.Core.TerminateEvent.html
 [Prototyped]:          http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Prototyped.html
-[APCStorage]:          http://api.icanboogie.org/storage/1.2/class-ICanBoogie.Storage.APCStorage.html
-[FileStorage]:         http://api.icanboogie.org/storage/1.2/class-ICanBoogie.Storage.FileStorage.html
-[Storage]:             http://api.icanboogie.org/storage/1.2/class-ICanBoogie.Storage.Storage.html
-[StorageCollection]:   http://api.icanboogie.org/storage/1.2/class-ICanBoogie.Storage.StorageCollection.html
+[APCStorage]:          http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.APCStorage.html
+[FileStorage]:         http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.FileStorage.html
+[Storage]:             http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.Storage.html
+[StorageCollection]:   http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.StorageCollection.html
