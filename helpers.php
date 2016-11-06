@@ -209,7 +209,7 @@ function app()
  * @param array $params The parameters used to format the message.
  * @param string $level
  */
-function log($message, array $params=[], $level=LogLevel::DEBUG)
+function log($message, array $params = [], $level = LogLevel::DEBUG)
 {
 	static $logger;
 
