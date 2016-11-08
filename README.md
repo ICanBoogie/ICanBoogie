@@ -1,4 +1,4 @@
-# ICanBoogie
+<p align="center"><img height="120" src="https://cdn.rawgit.com/ICanBoogie/app-hello/master/web/assets/icanboogie.svg" alt="ICanBoogie" /></p>
 
 [![Release](https://img.shields.io/packagist/v/ICanBoogie/ICanBoogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
 [![Build Status](https://img.shields.io/travis/ICanBoogie/ICanBoogie/master.svg)](http://travis-ci.org/ICanBoogie/ICanBoogie)
@@ -7,14 +7,14 @@
 [![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/ICanBoogie/master.svg)](https://coveralls.io/r/ICanBoogie/ICanBoogie)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/icanboogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
 
-__ICanBoogie__ is a high-performance micro-framework for PHP 5.5+. It is written with speed,
-flexibility and lightness in mind. ICanBoogie doesn't try to be an all-in-one do-it-all solution
-but provides the essential features to quickly and easily build web applications. It is easily
-extensible, and a variety of packages are available to complement its features with
-rendering, views, routing, operations, internationalization, translation, ORM, facets, mailer…
+**ICanBoogie** is a high-performance micro-framework. It is written with speed, flexibility and
+lightness in mind. **ICanBoogie** doesn't try to be an all-in-one do-it-all solution but provides the
+essential features to quickly and easily build web applications. It is easily extensible, and a
+variety of packages are available to complement its features with [rendering](https://github.com/icanboogie/render), [views](https://github.com/icanboogie/view), [routing](https://github.com/icanboogie/routing),
+[operations](https://github.com/icanboogie/operation), [internationalization](https://github.com/icanboogie/cldr), [translation](https://github.com/icanboogie/i18n), [ActiveRecord](https://github.com/icanboogie/activerecord), [facets](https://github.com/icanboogie/facets), [mailer](https://github.com/icanboogie/mailer)…
 
 Together with [Brickrouge](http://brickrouge.org) and [Patron](https://github.com/Icybee/Patron),
-ICanBoogie is one of the components that make the CMS [Icybee](http://icybee.org). You might want
+**ICanBoogie** is one of the components that make the CMS [Icybee](http://icybee.org). You might want
 to check these projects too.
 
 
@@ -23,7 +23,7 @@ to check these projects too.
 
 ### What does _micro_ mean?
 
-_micro_ means that the core features of ICanBoogie are kept to the essential, the core is simple
+_"Micro"_ means that the core features of ICanBoogie are kept to the essential, the core is simple
 but greatly extensible. For instance, ICanBoogie won't force an ORM on you, although its
 [ActiveRecord](https://github.com/ICanBoogie/ActiveRecord) implementation is pretty nice. In the
 same fashion, its routing mechanisms are quite agnostic and let you use your very own
@@ -87,7 +87,7 @@ echo $time;         // 2013-05-17T14:30:45Z
 The getter/setter feature provided by [icanboogie/accessor][], and extended by
 [icanboogie/prototype][], allows you to create read-only or write-only properties, 
 façades properties, fallbacks to generate default values. Getters are setters are also often
-using to control types, lazy load resources, and inversion of control.
+used to control type, lazy load resources, and inversion of control.
 
 
 
