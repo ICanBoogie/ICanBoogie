@@ -38,7 +38,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 
     public function test_object_should_have_app_property()
     {
-        /* @var $o Object|Binding\PrototypedBindings */
+        /* @var $o Prototyped|Binding\PrototypedBindings */
         $o = new Prototyped;
         $this->assertSame(self::$app, $o->app);
     }

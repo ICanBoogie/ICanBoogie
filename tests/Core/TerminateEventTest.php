@@ -12,33 +12,35 @@
 namespace ICanBoogie\Core;
 
 use ICanBoogie\Core;
+use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Response;
 
 class TerminateEventTest extends \PHPUnit_Framework_TestCase
 {
 	public function test_instance()
 	{
 		$app = $this
-			->getMockBuilder('ICanBoogie\Core')
+			->getMockBuilder(Core::class)
 			->disableOriginalConstructor()
 			->getMock();
 
 		$request = $this
-			->getMockBuilder('ICanBoogie\HTTP\Request')
+			->getMockBuilder(Request::class)
 			->disableOriginalConstructor()
 			->getMock();
 
 		$response = $this
-			->getMockBuilder('ICanBoogie\HTTP\Response')
+			->getMockBuilder(Response::class)
 			->disableOriginalConstructor()
 			->getMock();
 
 		/* @var $app Core */
-		/* @var $request \ICanBoogie\HTTP\Request */
-		/* @var $response \ICanBoogie\HTTP\Response */
+		/* @var $request Request */
+		/* @var $response Response */
 
 		$called = false;
 
-		\ICanBoogie\app()->events->once(function(Core\TerminateEvent $event, Core $target) use ($app, $request, $response, &$called) {
+		\ICanBoogie\app()->events->once(function(TerminateEvent $event, Core $target) use ($app, $request, $response, &$called) {
 
 			$this->assertSame($app, $target);
 			$this->assertSame($request, $event->request);
