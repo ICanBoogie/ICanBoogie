@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Core;
+namespace ICanBoogie\Application;
 
 use ICanBoogie\Application;
 use ICanBoogie\Event;
 
 /**
- * Representation of the `clear_cache` event.
+ * Event class for the `ICanBoogie\Application::clear_cache` event.
  *
  * The event is fired when all the cache of the application must be cleared.
  *

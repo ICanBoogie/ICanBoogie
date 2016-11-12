@@ -828,7 +828,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [TimeZone]:            http://api.icanboogie.org/datetime/2.0/class-ICanBoogie.TimeZone.html
 [Request]:             http://api.icanboogie.org/http/3.0/class-ICanBoogie.HTTP.Request.html
 [BootEvent]:           http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.BootEvent.html
-[ClearCacheEvent]:     http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.ClearCacheEvent.html
+[ClearCacheEvent]:     http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.ClearCacheEvent.html
 [ConfigureEvent]:      http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.ConfigureEvent.html
 [Application]:         http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.html
 [CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.CoreNotInstantiated.html
