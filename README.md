@@ -330,8 +330,8 @@ $app();
 1\. The first line is pretty common for applications using [Composer][], it creates and runs
 its autoloader.
 
-2\. On the second line the [Core][] instance is created with the _autoconfig_, its `boot()`
-method is invoked, and the `ICanBoogie\Core::boot` event is fired. At this point ICanBoogie and
+2\. On the second line the [Core][] instance is created with the _autoconfig_, its `boot()` method
+is invoked, and the `ICanBoogie\Application::boot` event is fired. At this point ICanBoogie and
 low-level components are configured and booted. Your application is ready to process requests.
 
 3\. On the third line the application is run, which implies the following:
@@ -590,8 +590,8 @@ configure components.
 
 ### The application has booted
 
-The `ICanBoogie\Core::boot` event of class [BootEvent][] is fired once the application has booted.
-Event hooks may use this event to bootstrap components before the application is ran.
+The `ICanBoogie\Application::boot` event of class [BootEvent][] is fired once the application has
+booted. Event hooks may use this event to bootstrap components before the application is ran.
 
 
 
@@ -827,7 +827,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [DateTime]:            http://api.icanboogie.org/datetime/2.0/class-ICanBoogie.DateTime.html
 [TimeZone]:            http://api.icanboogie.org/datetime/2.0/class-ICanBoogie.TimeZone.html
 [Request]:             http://api.icanboogie.org/http/3.0/class-ICanBoogie.HTTP.Request.html
-[BootEvent]:           http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.BootEvent.html
+[BootEvent]:           http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.BootEvent.html
 [ClearCacheEvent]:     http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.ClearCacheEvent.html
 [ConfigureEvent]:      http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.ConfigureEvent.html
 [Application]:         http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.html

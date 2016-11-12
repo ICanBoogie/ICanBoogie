@@ -422,7 +422,7 @@ abstract class Core
 
 			/* @var $this Application */
 
-			new Core\BootEvent($this);
+			new Application\BootEvent($this);
 
 			$_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
 

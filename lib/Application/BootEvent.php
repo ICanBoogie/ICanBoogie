@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Core;
+namespace ICanBoogie\Application;
 
 use ICanBoogie\Application;
 use ICanBoogie\Event;
 
 /**
- * Event class for the `ICanBoogie\Core::boot` event.
+ * Event class for the `ICanBoogie\Application::boot` event.
  *
  * The event is fired after the application has booted.
  *
