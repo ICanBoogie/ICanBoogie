@@ -73,7 +73,7 @@
 			"config-path": "config/",
 			"locale-path": "locale/",
 			"config-constructor": {
-				"core": "recursive merge",
+				"app": "recursive merge",
 				"debug": "ICanBoogie\\Debug::synthesize_config"
 			},
 			"autoconfig-filters": [ "ICanBoogie\\Autoconfig\\Hooks::filter_autoconfig" ]

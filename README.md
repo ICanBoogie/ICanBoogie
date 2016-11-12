@@ -513,10 +513,10 @@ the `get_autoconfig()` function returns it. For instance, ICanBoogie uses this f
 
 
 
-## Configuring the _core_
+## Configuring the application
 
-The [Application][] instance is configured with _core_ configuration fragments. The fragment used by
-your application is usually located in the `/protected/all/config/core.php` file.
+The [Application][] instance is configured with `app` configuration fragments. The fragment used by
+your application is usually located in the `/protected/all/config/app.php` file.
 
 The following example demonstrates how to enable configs caching and how to specify the name
 of the session and its scope.
@@ -524,7 +524,7 @@ of the session and its scope.
 ```php
 <?php
 
-// protected/all/config/core.php
+// protected/all/config/app.php
 
 return [
 
@@ -540,7 +540,7 @@ return [
 ];
 ```
 
-> Check ICanBoogie's "config/core.php" for a list of available options and their default values.
+> Check ICanBoogie's "config/app.php" for a list of available options and their default values.
 
 
 

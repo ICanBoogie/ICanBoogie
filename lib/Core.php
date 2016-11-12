@@ -30,7 +30,7 @@ use ICanBoogie\Storage\Storage;
  * @property Session $session User's session.
  * @property string $language Locale language.
  * @property string|int $timezone Time zone.
- * @property array $config The "core" configuration.
+ * @property array $config The "app" configuration.
  * @property-read LoggerInterface $logger The message logger.
  * @property-read Storage $storage_for_configs
  */
@@ -307,13 +307,13 @@ abstract class Core
 	}
 
 	/**
-	 * Returns the _core_ configuration.
+	 * Returns the `app` configuration.
 	 *
 	 * @return array
 	 */
 	protected function lazy_get_config()
 	{
-		return array_merge_recursive($this->configs['core'], self::$construct_options);
+		return array_merge_recursive($this->configs['app'], self::$construct_options);
     }
 
 	/**
