@@ -16,7 +16,7 @@ namespace ICanBoogie;
  *
  * @codeCoverageIgnore
  */
-class CoreAlreadyRunning extends \LogicException
+class ApplicationAlreadyRunning extends \LogicException
 {
 	const DEFAULT_MESSAGE = "The application is already running.";
 

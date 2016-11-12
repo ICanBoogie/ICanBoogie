@@ -177,13 +177,13 @@ abstract class Core
 	/**
 	 * Asserts that the application is not running yet.
 	 *
-	 * @throws CoreAlreadyRunning if the application is already running.
+	 * @throws ApplicationAlreadyRunning if the application is already running.
 	 */
 	public function assert_not_running()
 	{
 		if (self::$status >= self::STATUS_RUNNING)
 		{
-			throw new CoreAlreadyRunning;
+			throw new ApplicationAlreadyRunning;
 		}
 	}
 
