@@ -37,6 +37,7 @@ abstract class Core
 	use PrototypeTrait;
 	use Binding\Event\ApplicationBindings;
 	use Binding\HTTP\ApplicationBindings;
+	use Binding\Routing\ApplicationBindings;
 
 	/**
 	 * Status of the application.
