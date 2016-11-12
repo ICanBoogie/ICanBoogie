@@ -15,8 +15,7 @@ $_SERVER['DOCUMENT_ROOT'] = __DIR__;
 
 define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'icanboogie' . DIRECTORY_SEPARATOR . 'autoconfig.php');
 
-$autoload = require __DIR__ . '/../vendor/autoload.php';
-$autoload->addPsr4('ICanBoogie\\', __DIR__);
+require __DIR__ . '/../vendor/autoload.php';
 
 ini_set('session.use_cookies', '0');
 

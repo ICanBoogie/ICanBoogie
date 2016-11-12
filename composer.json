@@ -57,6 +57,12 @@
 		"files": [ "bootstrap.php", "helpers.php" ]
 	},
 
+	"autoload-dev": {
+		"psr-4": {
+			"ICanBoogie\\": "tests"
+		}
+	},
+
 	"scripts": {
 		"post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"
 	},
