@@ -126,7 +126,7 @@ abstract class Core
 	 *
 	 * @param array $options Initial options to create the application.
 	 *
-	 * @throws CoreAlreadyInstantiated in attempt to create a second instance.
+	 * @throws ApplicationAlreadyInstantiated in attempt to create a second instance.
 	 */
 	public function __construct(array $options = [])
 	{
@@ -151,13 +151,13 @@ abstract class Core
 	/**
 	 * Asserts that the class is not instantiated yet.
 	 *
-	 * @throws CoreAlreadyInstantiated if the class is already instantiated.
+	 * @throws ApplicationAlreadyInstantiated if the class is already instantiated.
 	 */
 	private function assert_not_instantiated()
 	{
 		if (self::$instance)
 		{
-			throw new CoreAlreadyInstantiated;
+			throw new ApplicationAlreadyInstantiated;
 		}
 	}
 

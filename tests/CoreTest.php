@@ -29,7 +29,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	}
 
     /**
-     * @expectedException \ICanBoogie\CoreAlreadyInstantiated
+     * @expectedException \ICanBoogie\ApplicationAlreadyInstantiated
      */
     public function test_subsequent_construct_should_throw_exception()
     {

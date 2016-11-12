@@ -16,7 +16,7 @@ namespace ICanBoogie;
  *
  * @codeCoverageIgnore
  */
-class CoreAlreadyInstantiated extends \LogicException
+class ApplicationAlreadyInstantiated extends \LogicException
 {
 	const DEFAULT_MESSAGE = "The application is already instantiated.";
 
