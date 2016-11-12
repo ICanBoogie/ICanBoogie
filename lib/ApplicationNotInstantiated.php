@@ -16,7 +16,7 @@ namespace ICanBoogie;
  *
  * @codeCoverageIgnore
  */
-class CoreNotInstantiated extends \LogicException
+class ApplicationNotInstantiated extends \LogicException
 {
 	const DEFAULT_MESSAGE = "The application has not been instantiated yet.";
 

@@ -684,7 +684,7 @@ echo $request()->body;
 
 The following helper functions are defined:
 
-- `app()`: Returns the [Application][] instance, or throws [CoreNotInstantiated][] if it hasn't been instantiated yet.
+- `app()`: Returns the [Application][] instance, or throws [ApplicationNotInstantiated][] if it hasn't been instantiated yet.
 - `boot()`: Instantiates a [Application][] instance with the _autoconfig_ and boots it.
 - `log()`: Logs a debug message.
 - `log_success()`: Logs a success message.
@@ -692,11 +692,11 @@ The following helper functions are defined:
 - `log_info()`: Logs an info message.
 - `log_time()`: Logs a debug message associated with a timing information.
 
+       
 
 
 
-
-----------
+-------       ---
 
 
 
@@ -824,19 +824,19 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 [Composer]: http://getcomposer.org/
 
-[DateTime]:            http://api.icanboogie.org/datetime/2.0/class-ICanBoogie.DateTime.html
-[TimeZone]:            http://api.icanboogie.org/datetime/2.0/class-ICanBoogie.TimeZone.html
-[Request]:             http://api.icanboogie.org/http/3.0/class-ICanBoogie.HTTP.Request.html
-[BootEvent]:           http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.BootEvent.html
-[ClearCacheEvent]:     http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.ClearCacheEvent.html
-[ConfigureEvent]:      http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.ConfigureEvent.html
-[Application]:         http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.html
-[CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.CoreNotInstantiated.html
-[PrototypedBindings]:  http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Binding.PrototypedBindings.html
-[RunEvent]:            http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.RunEvent.html
-[TerminateEvent]:      http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.TerminateEvent.html
-[Prototyped]:          http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Prototyped.html
-[APCStorage]:          http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.APCStorage.html
-[FileStorage]:         http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.FileStorage.html
-[Storage]:             http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.Storage.html
-[StorageCollection]:   http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.StorageCollection.html
+[DateTime]:                   http://api.icanboogie.org/datetime/2.0/class-ICanBoogie.DateTime.html
+[TimeZone]:                   http://api.icanboogie.org/datetime/2.0/class-ICanBoogie.TimeZone.html
+[Request]:                    http://api.icanboogie.org/http/3.0/class-ICanBoogie.HTTP.Request.html
+[BootEvent]:                  http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.BootEvent.html
+[ClearCacheEvent]:            http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.ClearCacheEvent.html
+[ConfigureEvent]:             http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.ConfigureEvent.html
+[Application]:                http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.html
+[ApplicationNotInstantiated]: http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.ApplicationNotInstantiated.html
+[PrototypedBindings]:         http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Binding.PrototypedBindings.html
+[RunEvent]:                   http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.RunEvent.html
+[TerminateEvent]:             http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.TerminateEvent.html
+[Prototyped]:                 http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Prototyped.html
+[APCStorage]:                 http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.APCStorage.html
+[FileStorage]:                http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.FileStorage.html
+[Storage]:                    http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.Storage.html
+[StorageCollection]:          http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.StorageCollection.html

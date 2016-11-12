@@ -196,7 +196,7 @@ function boot(array $options = null)
  *
  * @return Application
  *
- * @throws CoreNotInstantiated if the core has not been instantiated yet.
+ * @throws ApplicationNotInstantiated if the core has not been instantiated yet.
  */
 function app()
 {
@@ -208,7 +208,7 @@ function app()
 
 	if (!$app)
 	{
-		throw new CoreNotInstantiated;
+		throw new ApplicationNotInstantiated;
 	}
 
 	return $app;
