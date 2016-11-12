@@ -339,7 +339,7 @@ low-level components are configured and booted. Your application is ready to pro
 3.1\. The HTTP response code is set to 500, so that if a fatal error occurs the error message
 won't be sent with the HTTP code 200 (Ok).
 
-3.2\. The initial request is obtained and the `ICanBoogie\Core::run` event is fired with it.
+3.2\. The initial request is obtained and the `ICanBoogie\Application::run` event is fired with it.
 
 3.3\. The request is executed to obtain a response.
 
@@ -599,7 +599,7 @@ booted. Event hooks may use this event to bootstrap components before the applic
 
 ### The application is running
 
-The `ICanBoogie\Core::run` event of class [RunEvent][] is fired when the application is running.
+The `ICanBoogie\Application::run` event of class [RunEvent][] is fired when the application is running.
 Event hooks may use this event to alter various states of the application, starting with the
 initial request.
 
@@ -833,7 +833,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [Application]:         http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.html
 [CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.CoreNotInstantiated.html
 [PrototypedBindings]:  http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Binding.PrototypedBindings.html
-[RunEvent]:            http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.RunEvent.html
+[RunEvent]:            http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.RunEvent.html
 [TerminateEvent]:      http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.TerminateEvent.html
 [Prototyped]:          http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Prototyped.html
 [APCStorage]:          http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.APCStorage.html

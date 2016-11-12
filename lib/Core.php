@@ -468,7 +468,7 @@ abstract class Core
 	}
 
 	/**
-     * Fires the `ICanBoogie\Core::run` event.
+     * Fires the `ICanBoogie\Application::run` event.
      *
      * @param Request $request
      */
@@ -476,7 +476,7 @@ abstract class Core
     {
 	    /* @var $this Application */
 
-	    new Core\RunEvent($this, $request);
+	    new Application\RunEvent($this, $request);
     }
 
 	/**

@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Core;
+namespace ICanBoogie\Application;
 
 use ICanBoogie\Application;
-use ICanBoogie\Core;
 use ICanBoogie\HTTP\Request;
 
 use function ICanBoogie\app;

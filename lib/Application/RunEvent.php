@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Core;
+namespace ICanBoogie\Application;
 
 use ICanBoogie\Application;
 use ICanBoogie\Event;
 use ICanBoogie\HTTP\Request;
 
 /**
- * Event class for the `ICanBoogie\Core::run` event.
+ * Event class for the `ICanBoogie\Application::run` event.
  *
  * @property-read Request $request
  *
