@@ -346,7 +346,7 @@ won't be sent with the HTTP code 200 (Ok).
 3.4\. The response is executed to respond to the request. It should set the HTTP code to the
 appropriate value.
 
-3.5\. The `ICanBoogie\Core::terminate` event is fired at which point the application should be
+3.5\. The `ICanBoogie\Application::terminate` event is fired at which point the application should be
 terminated.
 
 
@@ -609,7 +609,7 @@ initial request.
 
 ### The application is terminated
 
-The `ICanBoogie\Core::terminate` event of class [TerminateEvent][] is fired after the response to
+The `ICanBoogie\Application::terminate` event of class [TerminateEvent][] is fired after the response to
 the initial request was sent and the application is about to be terminated. Event hooks may
 use this event to cleanup loose ends.
 
@@ -834,7 +834,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.CoreNotInstantiated.html
 [PrototypedBindings]:  http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Binding.PrototypedBindings.html
 [RunEvent]:            http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.RunEvent.html
-[TerminateEvent]:      http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.TerminateEvent.html
+[TerminateEvent]:      http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.TerminateEvent.html
 [Prototyped]:          http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Prototyped.html
 [APCStorage]:          http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.APCStorage.html
 [FileStorage]:         http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.FileStorage.html

@@ -482,8 +482,8 @@ abstract class Core
 	/**
 	 * Terminate the application.
 	 *
-	 * The method throws the `ICanBoogie\Core::terminate` event of class
-	 * {@link Core\TerminateEvent}.
+	 * Fires the `ICanBoogie\Application::terminate` event of class
+	 * {@link Application\TerminateEvent}.
 	 *
 	 * @param Request $request
 	 * @param Response $response
@@ -492,7 +492,7 @@ abstract class Core
 	{
 		/* @var $this Application */
 
-		new Core\TerminateEvent($this, $request, $response);
+		new Application\TerminateEvent($this, $request, $response);
 	}
 
 	/**
