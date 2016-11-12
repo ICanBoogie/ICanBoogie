@@ -12,7 +12,6 @@
 namespace ICanBoogie;
 
 use ICanBoogie\Binding\Event\CoreBindings as EventBindings;
-use ICanBoogie\Binding\HTTP\CoreBindings as HTTPBindings;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\HTTP\Status;
@@ -37,7 +36,8 @@ use ICanBoogie\Storage\Storage;
 abstract class Core
 {
 	use PrototypeTrait;
-	use EventBindings, HTTPBindings;
+	use EventBindings;
+	use Binding\HTTP\ApplicationBindings;
 
 	/**
 	 * Status of the application.
