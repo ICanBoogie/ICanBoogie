@@ -11,6 +11,7 @@
 
 namespace ICanBoogie\Core;
 
+use ICanBoogie\Application;
 use ICanBoogie\Core;
 use ICanBoogie\HTTP\Request;
 
@@ -21,7 +22,7 @@ class RunEventTest extends \PHPUnit_Framework_TestCase
 	public function test_instance()
 	{
 		$app = $this
-			->getMockBuilder(Core::class)
+			->getMockBuilder(Application::class)
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -30,12 +31,12 @@ class RunEventTest extends \PHPUnit_Framework_TestCase
 			->disableOriginalConstructor()
 			->getMock();
 
-		/* @var $app Core */
+		/* @var $app Application */
 		/* @var $request Request */
 
 		$called = false;
 
-		app()->events->once(function (RunEvent $event, Core $target) use ($app, $request, &$called) {
+		app()->events->once(function (RunEvent $event, Application $target) use ($app, $request, &$called) {
 
 			$this->assertSame($app, $target);
 			$this->assertSame($request, $event->request);

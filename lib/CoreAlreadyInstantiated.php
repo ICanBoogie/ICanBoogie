@@ -18,7 +18,7 @@ namespace ICanBoogie;
  */
 class CoreAlreadyInstantiated extends \LogicException
 {
-	const DEFAULT_MESSAGE = "The core is already instantiated.";
+	const DEFAULT_MESSAGE = "The application is already instantiated.";
 
 	/**
 	 * @inheritdoc

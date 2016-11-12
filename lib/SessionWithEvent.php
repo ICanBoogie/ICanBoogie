@@ -22,11 +22,11 @@ class SessionWithEvent extends Session
 	static private $instance;
 
 	/**
-	 * @param Core $app
+	 * @param Application $app
 	 *
 	 * @return static
 	 */
-	static public function for_app(Core $app)
+	static public function for_app(Application $app)
 	{
 		return self::$instance ?: self::$instance = new static($app->config['session']);
 	}

@@ -12,13 +12,13 @@
 namespace ICanBoogie;
 
 /**
- * Exception thrown in attempt to run the core a second time.
+ * Exception thrown in attempt to run the application a second time.
  *
  * @codeCoverageIgnore
  */
 class CoreAlreadyRunning extends \LogicException
 {
-	const DEFAULT_MESSAGE = "The core is already running.";
+	const DEFAULT_MESSAGE = "The application is already running.";
 
 	/**
 	 * @inheritdoc

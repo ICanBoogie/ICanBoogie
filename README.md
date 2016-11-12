@@ -515,8 +515,8 @@ the `get_autoconfig()` function returns it. For instance, ICanBoogie uses this f
 
 ## Configuring the _core_
 
-The [Core][] instance is configured with _core_ configuration fragments. The fragment used by your
-application is usually located in the `/protected/all/config/core.php` file.
+The [Application][] instance is configured with _core_ configuration fragments. The fragment used by
+your application is usually located in the `/protected/all/config/core.php` file.
 
 The following example demonstrates how to enable configs caching and how to specify the name
 of the session and its scope.
@@ -684,8 +684,8 @@ echo $request()->body;
 
 The following helper functions are defined:
 
-- `app()`: Returns the [Core][] instance, or throws [CoreNotInstantiated][] if it hasn't been instantiated yet.
-- `boot()`: Instantiates a [Core][] instance with the _autoconfig_ and boots it.
+- `app()`: Returns the [Application][] instance, or throws [CoreNotInstantiated][] if it hasn't been instantiated yet.
+- `boot()`: Instantiates a [Application][] instance with the _autoconfig_ and boots it.
 - `log()`: Logs a debug message.
 - `log_success()`: Logs a success message.
 - `log_error()`: Logs an error message.
@@ -830,7 +830,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [BootEvent]:           http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.BootEvent.html
 [ClearCacheEvent]:     http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.ClearCacheEvent.html
 [ConfigureEvent]:      http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.ConfigureEvent.html
-[Core]:                http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.html
+[Application]:         http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.html
 [CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.CoreNotInstantiated.html
 [PrototypedBindings]:  http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Binding.PrototypedBindings.html
 [RunEvent]:            http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.RunEvent.html

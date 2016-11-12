@@ -12,6 +12,7 @@
 namespace ICanBoogie\Core;
 
 use ICanBoogie\Core;
+use ICanBoogie\Application;
 
 use function ICanBoogie\app;
 
@@ -20,11 +21,11 @@ class BootEventTest extends \PHPUnit_Framework_TestCase
 	public function test_instance()
 	{
 		$app = $this
-			->getMockBuilder(Core::class)
+			->getMockBuilder(Application::class)
 			->disableOriginalConstructor()
 			->getMock();
 
-		/* @var $app Core */
+		/* @var $app Application */
 
 		$called = false;
 

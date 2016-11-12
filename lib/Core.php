@@ -21,10 +21,10 @@ use ICanBoogie\Storage\Storage;
 /**
  * Core of the ICanBoogie framework.
  *
- * @property-read bool $is_configured `true` if the core is configured, `false` otherwise.
- * @property-read bool $is_booting `true` if the core is booting, `false` otherwise.
- * @property-read bool $is_booted `true` if the core is booted, `false` otherwise.
- * @property-read bool $is_running `true` if the core is running, `false` otherwise.
+ * @property-read bool $is_configured `true` if the application is configured, `false` otherwise.
+ * @property-read bool $is_booting `true` if the application is booting, `false` otherwise.
+ * @property-read bool $is_booted `true` if the application is booted, `false` otherwise.
+ * @property-read bool $is_running `true` if the application is running, `false` otherwise.
  * @property Config $configs Configurations manager.
  * @property Storage $vars Persistent variables registry.
  * @property Session $session User's session.
@@ -34,7 +34,7 @@ use ICanBoogie\Storage\Storage;
  * @property-read LoggerInterface $logger The message logger.
  * @property-read Storage $storage_for_configs
  */
-class Core
+abstract class Core
 {
 	use PrototypeTrait;
 	use EventBindings, HTTPBindings;
@@ -60,9 +60,9 @@ class Core
 	static private $status = self::STATUS_VOID;
 
 	/**
-	 * Whether the core is configured.
+	 * Whether the application is configured.
 	 *
-	 * @return bool `true` if the core is configured, `false` otherwise.
+	 * @return bool `true` if the application is configured, `false` otherwise.
 	 */
 	protected function get_is_configured()
 	{
@@ -70,9 +70,9 @@ class Core
 	}
 
 	/**
-	 * Whether the core is booting.
+	 * Whether the application is booting.
 	 *
-	 * @return bool `true` if the core is booting, `false` otherwise.
+	 * @return bool `true` if the application is booting, `false` otherwise.
 	 */
 	protected function get_is_booting()
 	{
@@ -80,9 +80,9 @@ class Core
 	}
 
 	/**
-	 * Whether the core is booted.
+	 * Whether the application is booted.
 	 *
-	 * @return bool `true` if the core is booted, `false` otherwise.
+	 * @return bool `true` if the application is booted, `false` otherwise.
 	 */
 	protected function get_is_booted()
 	{
@@ -90,9 +90,9 @@ class Core
 	}
 
 	/**
-	 * Whether the core is running.
+	 * Whether the application is running.
 	 *
-	 * @return bool `true` if the core is running, `false` otherwise.
+	 * @return bool `true` if the application is running, `false` otherwise.
 	 */
 	protected function get_is_running()
 	{
@@ -107,14 +107,14 @@ class Core
     static private $construct_options = [];
 
 	/**
-	 * @var Core
+	 * @var Application
 	 */
 	static private $instance;
 
 	/**
-	 * Returns the unique instance of the core object.
+	 * Returns the unique instance of the application.
 	 *
-	 * @return Core The core object.
+	 * @return Application
 	 */
 	static public function get()
 	{
@@ -124,7 +124,7 @@ class Core
 	/**
 	 * Constructor.
 	 *
-	 * @param array $options Initial options to create the core object.
+	 * @param array $options Initial options to create the application.
 	 *
 	 * @throws CoreAlreadyInstantiated in attempt to create a second instance.
 	 */
@@ -392,6 +392,8 @@ class Core
 
 			$this->events;
 
+			/* @var $this Application */
+
 			new Core\ConfigureEvent($this);
 
 		});
@@ -405,7 +407,7 @@ class Core
 	 * The `ICANBOOGIE_READY_TIME_FLOAT` key is added to the `$_SERVER` super global with the
 	 * micro-time at which the boot finished.
 	 *
-	 * @throws CoreAlreadyBooted in attempt to boot the core twice.
+	 * @throws CoreAlreadyBooted in attempt to boot the application twice.
 	 */
 	public function boot()
 	{
@@ -418,6 +420,8 @@ class Core
 
 		$this->change_status(self::STATUS_BOOTING, function() {
 
+			/* @var $this Application */
+
 			new Core\BootEvent($this);
 
 			$_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
@@ -429,10 +433,10 @@ class Core
 	 * Run the application.
 	 *
 	 * In order to avoid error messages triggered by PHP fatal errors to be send with a 200 (Ok)
-	 * HTTP code, the HTTP code is changed to 500 before the core is run (and booted). When the
-	 * process runs properly the HTTP code is changed to the appropriate value by the response.
+	 * HTTP code, the HTTP code is changed to 500 before the application is run (and booted). When
+	 * the process runs properly the HTTP code is changed to the appropriate value by the response.
 	 *
-	 * The {@link boot()} method is invoked if the core has not booted yet.
+	 * The {@link boot()} method is invoked if the application has not booted yet.
 	 *
 	 * @param Request|null $request The request to handle. If `null`, the initial request is used.
 	 */
@@ -470,6 +474,8 @@ class Core
      */
     protected function run(Request $request)
     {
+	    /* @var $this Application */
+
 	    new Core\RunEvent($this, $request);
     }
 
@@ -484,6 +490,8 @@ class Core
 	 */
 	protected function terminate(Request $request, Response $response)
 	{
+		/* @var $this Application */
+
 		new Core\TerminateEvent($this, $request, $response);
 	}
 

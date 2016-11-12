@@ -32,7 +32,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 			->getMock();
 
 		$this->app = $this
-			->getMockBuilder(Core::class)
+			->getMockBuilder(Application::class)
 			->disableOriginalConstructor()
 			->setMethods([ 'get_session' ])
 			->getMock();
@@ -47,7 +47,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 	{
 		$app = $this->app;
 
-		/* @var $app Core */
+		/* @var $app Application */
 
 		$logger = Logger::get_logger($app);
 		$this->assertInstanceOf(Logger::class, $logger);
@@ -68,7 +68,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 
 		$app = $this->app;
 
-		/* @var $app Core */
+		/* @var $app Application */
 
 		$logger = new Logger($app);
 		$logger->success($message, [ 'id' => $arg ]);
@@ -87,7 +87,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
 
 		$app = $this->app;
 
-		/* @var $app Core */
+		/* @var $app Application */
 
 		$logger = new Logger($app);
 		$this->assertEmpty($logger->fetch_messages(LogLevel::SUCCESS));

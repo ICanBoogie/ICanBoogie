@@ -11,13 +11,13 @@
 
 namespace ICanBoogie\Core;
 
-use ICanBoogie\Core;
+use ICanBoogie\Application;
 use ICanBoogie\Event;
 
 /**
  * Event class for the `ICanBoogie\Core::configure` event.
  *
- * The event is fired when the core is configured.
+ * The event is fired when the application is configured.
  *
  * @codeCoverageIgnore
  */
@@ -28,9 +28,9 @@ class ConfigureEvent extends Event
 	/**
 	 * The event is constructed with the type {@link TYPE}.
 	 *
-	 * @param Core $target
+	 * @param Application $target
 	 */
-	public function __construct(Core $target)
+	public function __construct(Application $target)
 	{
 		parent::__construct($target, self::TYPE);
 	}

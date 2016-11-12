@@ -19,7 +19,7 @@ use ICanBoogie\Storage\Storage;
 class CoreTest extends \PHPUnit_Framework_TestCase
 {
 	/**
-	 * @var Core
+	 * @var Application
 	 */
 	static private $app;
 
@@ -33,7 +33,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
      */
     public function test_subsequent_construct_should_throw_exception()
     {
-        new Core;
+        new Application;
     }
 
     public function test_object_should_have_app_property()
@@ -86,7 +86,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @dataProvider provide_test_property_type
 	 *
-	 * @param string $property Property of the Core object.
+	 * @param string $property Property of the application.
 	 * @param string $class The expected class of the property.
 	 */
 	public function test_property_type($property, $class)
@@ -145,7 +145,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $app = $this
-            ->getMockBuilder(Core::class)
+            ->getMockBuilder(Application::class)
             ->disableOriginalConstructor()
             ->setMethods([ 'get_is_booted', 'boot', 'get_initial_request', 'run', 'terminate' ])
             ->getMock();
@@ -169,7 +169,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
             ->method('terminate')
             ->with($request, $response);
 
-        /* @var $app Core */
+        /* @var $app Application */
 
         $app();
     }

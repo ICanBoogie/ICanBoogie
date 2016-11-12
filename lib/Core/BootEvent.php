@@ -11,13 +11,13 @@
 
 namespace ICanBoogie\Core;
 
-use ICanBoogie\Core;
+use ICanBoogie\Application;
 use ICanBoogie\Event;
 
 /**
  * Event class for the `ICanBoogie\Core::boot` event.
  *
- * The event is fired after the core has booted.
+ * The event is fired after the application has booted.
  *
  * @codeCoverageIgnore
  */
@@ -28,9 +28,9 @@ class BootEvent extends Event
 	/**
 	 * The event is constructed with the type {@link TYPE}.
 	 *
-	 * @param Core $target
+	 * @param Application $target
 	 */
-	public function __construct(Core $target)
+	public function __construct(Application $target)
 	{
 		parent::__construct($target, self::TYPE);
 	}

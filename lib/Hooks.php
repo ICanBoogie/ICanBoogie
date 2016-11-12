@@ -53,11 +53,11 @@ class Hooks
 	 * If APC is available the method returns a storage collection or {@link APCStorage} and
 	 * {@link FileStorage}, otherwise a {@link FileStorage} is returned.
 	 *
-	 * @param Core $app
+	 * @param Application $app
 	 *
 	 * @return Storage
 	 */
-	static public function create_storage_for_configs(Core $app)
+	static public function create_storage_for_configs(Application $app)
 	{
 		$storage = new FileStorage(REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'configs');
 
@@ -70,11 +70,11 @@ class Hooks
 	 * If APC is available the method returns a storage collection or {@link APCStorage} and
 	 * {@link FileStorage}, otherwise a {@link FileStorage} is returned.
 	 *
-	 * @param Core $app
+	 * @param Application $app
 	 *
 	 * @return Storage
 	 */
-	static public function create_storage_for_vars(Core $app)
+	static public function create_storage_for_vars(Application $app)
 	{
 		$storage = new FileStorage(REPOSITORY . 'vars');
 
@@ -89,9 +89,9 @@ class Hooks
 	 * Clears configurations cache.
 	 *
 	 * @param Core\ClearCacheEvent $event
-	 * @param Core $app
+	 * @param Application $app
 	 */
-	static public function on_clear_cache(Core\ClearCacheEvent $event, Core $app)
+	static public function on_clear_cache(Core\ClearCacheEvent $event, Application $app)
 	{
 		$app->storage_for_configs->clear();
 	}

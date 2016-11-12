@@ -14,12 +14,12 @@ namespace ICanBoogie;
 /**
  * Accessor for the `$app` property.
  *
- * @property-read Core $app
+ * @property-read Application $app
  */
 trait AppAccessor
 {
 	/**
-	 * @return Core
+	 * @return Application
 	 */
 	protected function get_app()
 	{
