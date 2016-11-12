@@ -580,7 +580,7 @@ The default implementation returns a [FileStorage][] instance, or if APC is avai
 
 ### The application is configured
 
-The `ICanBoogie\Core::configure` event of class [ConfigureEvent][] is fired once the application
+The `ICanBoogie\Application::configure` event of class [ConfigureEvent][] is fired once the application
 is configured. Event hooks may use this event to alter the application configuration or
 configure components.
 
@@ -829,7 +829,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [Request]:             http://api.icanboogie.org/http/3.0/class-ICanBoogie.HTTP.Request.html
 [BootEvent]:           http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.BootEvent.html
 [ClearCacheEvent]:     http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.ClearCacheEvent.html
-[ConfigureEvent]:      http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.ConfigureEvent.html
+[ConfigureEvent]:      http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.ConfigureEvent.html
 [Application]:         http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.html
 [CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.CoreNotInstantiated.html
 [PrototypedBindings]:  http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Binding.PrototypedBindings.html

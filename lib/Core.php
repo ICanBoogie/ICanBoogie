@@ -394,7 +394,7 @@ abstract class Core
 
 			/* @var $this Application */
 
-			new Core\ConfigureEvent($this);
+			new Application\ConfigureEvent($this);
 
 		});
 	}
