@@ -44,7 +44,7 @@ class CoreTest extends \PHPUnit_Framework_TestCase
     }
 
 	/**
-	 * @expectedException \ICanBoogie\CoreAlreadyBooted
+	 * @expectedException \ICanBoogie\ApplicationAlreadyBooted
 	 */
 	public function test_second_boot()
 	{

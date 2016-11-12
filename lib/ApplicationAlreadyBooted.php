@@ -16,7 +16,7 @@ namespace ICanBoogie;
  *
  * @codeCoverageIgnore
  */
-class CoreAlreadyBooted extends \LogicException
+class ApplicationAlreadyBooted extends \LogicException
 {
 	const DEFAULT_MESSAGE = "The application has already booted.";
 

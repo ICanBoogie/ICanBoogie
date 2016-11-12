@@ -164,13 +164,13 @@ abstract class Core
 	/**
 	 * Asserts that the application is not booted yet.
 	 *
-	 * @throws CoreAlreadyBooted if the application is already booted.
+	 * @throws ApplicationAlreadyBooted if the application is already booted.
 	 */
 	public function assert_not_booted()
 	{
 		if (self::$status >= self::STATUS_BOOTING)
 		{
-			throw new CoreAlreadyBooted;
+			throw new ApplicationAlreadyBooted;
 		}
 	}
 
@@ -407,7 +407,7 @@ abstract class Core
 	 * The `ICANBOOGIE_READY_TIME_FLOAT` key is added to the `$_SERVER` super global with the
 	 * micro-time at which the boot finished.
 	 *
-	 * @throws CoreAlreadyBooted in attempt to boot the application twice.
+	 * @throws ApplicationAlreadyBooted in attempt to boot the application twice.
 	 */
 	public function boot()
 	{
