@@ -12,13 +12,13 @@
 namespace ICanBoogie;
 
 /**
- * Exception thrown in attempt to run the core a second time.
+ * Exception thrown in attempt to obtain the application before is has been instantiated.
  *
  * @codeCoverageIgnore
  */
-class CoreAlreadyRunning extends \LogicException
+class ApplicationNotInstantiated extends \LogicException
 {
-	const DEFAULT_MESSAGE = "The core is already running.";
+	const DEFAULT_MESSAGE = "The application has not been instantiated yet.";
 
 	/**
 	 * @inheritdoc

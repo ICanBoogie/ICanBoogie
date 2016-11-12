@@ -9,14 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Binding;
+namespace ICanBoogie;
 
-/**
- * {@link \ICanBoogie\Prototyped} prototype methods.
- *
- * @property-read \ICanBoogie\Application $app
- */
-trait PrototypedBindings
+class Application extends Core
 {
 
 }

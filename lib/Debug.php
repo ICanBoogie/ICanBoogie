@@ -492,7 +492,7 @@ EOT;
 	}
 
 	/**
-	 * The method is forwarded to the core's logger `get_messages()` method.
+	 * The method is forwarded to the application's logger `get_messages()` method.
 	 *
 	 * @param $level
 	 *
@@ -504,7 +504,7 @@ EOT;
 	}
 
 	/**
-	 * The method is forwarded to the core's logger `fetch_messages()` method.
+	 * The method is forwarded to the application's logger `fetch_messages()` method.
 	 *
 	 * @param $level
 	 *

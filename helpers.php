@@ -171,7 +171,7 @@ function get_autoconfig()
  *
  * @param array|null $options If `null` options are obtained with `get_autoconfig()`.
  *
- * @return Core
+ * @return Application
  */
 function boot(array $options = null)
 {
@@ -180,26 +180,35 @@ function boot(array $options = null)
 		$options = get_autoconfig();
 	}
 
-	$app = new Core($options);
+	if (!class_exists(Application::class))
+	{
+		throw new \LogicException("Your application must define a `ICanBoogie\\Application class` that extends `ICanBoogie\\Core`");
+	}
+
+	$app = new Application($options);
 	$app->boot();
 
 	return $app;
 }
 
 /**
- * Returns the {@link Core} instance.
+ * Return application instance.
  *
- * @return Core
+ * @return Application
  *
- * @throws CoreNotInstantiated if the core has not been instantiated yet.
+ * @throws ApplicationNotInstantiated if the core has not been instantiated yet.
  */
 function app()
 {
+	/*
+	 * We use `Core` here because if the `Application` class does not exists, it is only aliased
+	 * by the `boot()` helper.
+	 */
 	$app = Core::get();
 
 	if (!$app)
 	{
-		throw new CoreNotInstantiated;
+		throw new ApplicationNotInstantiated;
 	}
 
 	return $app;

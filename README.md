@@ -330,8 +330,8 @@ $app();
 1\. The first line is pretty common for applications using [Composer][], it creates and runs
 its autoloader.
 
-2\. On the second line the [Core][] instance is created with the _autoconfig_, its `boot()`
-method is invoked, and the `ICanBoogie\Core::boot` event is fired. At this point ICanBoogie and
+2\. On the second line the [Core][] instance is created with the _autoconfig_, its `boot()` method
+is invoked, and the `ICanBoogie\Application::boot` event is fired. At this point ICanBoogie and
 low-level components are configured and booted. Your application is ready to process requests.
 
 3\. On the third line the application is run, which implies the following:
@@ -339,14 +339,14 @@ low-level components are configured and booted. Your application is ready to pro
 3.1\. The HTTP response code is set to 500, so that if a fatal error occurs the error message
 won't be sent with the HTTP code 200 (Ok).
 
-3.2\. The initial request is obtained and the `ICanBoogie\Core::run` event is fired with it.
+3.2\. The initial request is obtained and the `ICanBoogie\Application::run` event is fired with it.
 
 3.3\. The request is executed to obtain a response.
 
 3.4\. The response is executed to respond to the request. It should set the HTTP code to the
 appropriate value.
 
-3.5\. The `ICanBoogie\Core::terminate` event is fired at which point the application should be
+3.5\. The `ICanBoogie\Application::terminate` event is fired at which point the application should be
 terminated.
 
 
@@ -513,10 +513,10 @@ the `get_autoconfig()` function returns it. For instance, ICanBoogie uses this f
 
 
 
-## Configuring the _core_
+## Configuring the application
 
-The [Core][] instance is configured with _core_ configuration fragments. The fragment used by your
-application is usually located in the `/protected/all/config/core.php` file.
+The [Application][] instance is configured with `app` configuration fragments. The fragment used by
+your application is usually located in the `/protected/all/config/app.php` file.
 
 The following example demonstrates how to enable configs caching and how to specify the name
 of the session and its scope.
@@ -524,7 +524,7 @@ of the session and its scope.
 ```php
 <?php
 
-// protected/all/config/core.php
+// protected/all/config/app.php
 
 return [
 
@@ -540,7 +540,7 @@ return [
 ];
 ```
 
-> Check ICanBoogie's "config/core.php" for a list of available options and their default values.
+> Check ICanBoogie's "config/app.php" for a list of available options and their default values.
 
 
 
@@ -580,7 +580,7 @@ The default implementation returns a [FileStorage][] instance, or if APC is avai
 
 ### The application is configured
 
-The `ICanBoogie\Core::configure` event of class [ConfigureEvent][] is fired once the application
+The `ICanBoogie\Application::configure` event of class [ConfigureEvent][] is fired once the application
 is configured. Event hooks may use this event to alter the application configuration or
 configure components.
 
@@ -590,8 +590,8 @@ configure components.
 
 ### The application has booted
 
-The `ICanBoogie\Core::boot` event of class [BootEvent][] is fired once the application has booted.
-Event hooks may use this event to bootstrap components before the application is ran.
+The `ICanBoogie\Application::boot` event of class [BootEvent][] is fired once the application has
+booted. Event hooks may use this event to bootstrap components before the application is ran.
 
 
 
@@ -599,7 +599,7 @@ Event hooks may use this event to bootstrap components before the application is
 
 ### The application is running
 
-The `ICanBoogie\Core::run` event of class [RunEvent][] is fired when the application is running.
+The `ICanBoogie\Application::run` event of class [RunEvent][] is fired when the application is running.
 Event hooks may use this event to alter various states of the application, starting with the
 initial request.
 
@@ -609,7 +609,7 @@ initial request.
 
 ### The application is terminated
 
-The `ICanBoogie\Core::terminate` event of class [TerminateEvent][] is fired after the response to
+The `ICanBoogie\Application::terminate` event of class [TerminateEvent][] is fired after the response to
 the initial request was sent and the application is about to be terminated. Event hooks may
 use this event to cleanup loose ends.
 
@@ -684,19 +684,19 @@ echo $request()->body;
 
 The following helper functions are defined:
 
-- `app()`: Returns the [Core][] instance, or throws [CoreNotInstantiated][] if it hasn't been instantiated yet.
-- `boot()`: Instantiates a [Core][] instance with the _autoconfig_ and boots it.
+- `app()`: Returns the [Application][] instance, or throws [ApplicationNotInstantiated][] if it hasn't been instantiated yet.
+- `boot()`: Instantiates a [Application][] instance with the _autoconfig_ and boots it.
 - `log()`: Logs a debug message.
 - `log_success()`: Logs a success message.
 - `log_error()`: Logs an error message.
 - `log_info()`: Logs an info message.
 - `log_time()`: Logs a debug message associated with a timing information.
 
+       
 
 
 
-
-----------
+-------       ---
 
 
 
@@ -824,19 +824,19 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
 [Composer]: http://getcomposer.org/
 
-[DateTime]:            http://api.icanboogie.org/datetime/2.0/class-ICanBoogie.DateTime.html
-[TimeZone]:            http://api.icanboogie.org/datetime/2.0/class-ICanBoogie.TimeZone.html
-[Request]:             http://api.icanboogie.org/http/3.0/class-ICanBoogie.HTTP.Request.html
-[BootEvent]:           http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.BootEvent.html
-[ClearCacheEvent]:     http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.ClearCacheEvent.html
-[ConfigureEvent]:      http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.ConfigureEvent.html
-[Core]:                http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.html
-[CoreNotInstantiated]: http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.CoreNotInstantiated.html
-[PrototypedBindings]:  http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Binding.PrototypedBindings.html
-[RunEvent]:            http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.RunEvent.html
-[TerminateEvent]:      http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.TerminateEvent.html
-[Prototyped]:          http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Prototyped.html
-[APCStorage]:          http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.APCStorage.html
-[FileStorage]:         http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.FileStorage.html
-[Storage]:             http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.Storage.html
-[StorageCollection]:   http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.StorageCollection.html
+[DateTime]:                   http://api.icanboogie.org/datetime/2.0/class-ICanBoogie.DateTime.html
+[TimeZone]:                   http://api.icanboogie.org/datetime/2.0/class-ICanBoogie.TimeZone.html
+[Request]:                    http://api.icanboogie.org/http/3.0/class-ICanBoogie.HTTP.Request.html
+[BootEvent]:                  http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.BootEvent.html
+[ClearCacheEvent]:            http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.ClearCacheEvent.html
+[ConfigureEvent]:             http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.ConfigureEvent.html
+[Application]:                http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Core.html
+[ApplicationNotInstantiated]: http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.ApplicationNotInstantiated.html
+[PrototypedBindings]:         http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Binding.PrototypedBindings.html
+[RunEvent]:                   http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.RunEvent.html
+[TerminateEvent]:             http://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.Application.TerminateEvent.html
+[Prototyped]:                 http://api.icanboogie.org/prototype/2.3/class-ICanBoogie.Prototyped.html
+[APCStorage]:                 http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.APCStorage.html
+[FileStorage]:                http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.FileStorage.html
+[Storage]:                    http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.Storage.html
+[StorageCollection]:          http://api.icanboogie.org/storage/2.0/class-ICanBoogie.Storage.StorageCollection.html

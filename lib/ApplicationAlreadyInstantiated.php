@@ -12,13 +12,13 @@
 namespace ICanBoogie;
 
 /**
- * Exception thrown in attempt to boot the application a second time.
+ * Exception thrown in attempt to create a second instance.
  *
  * @codeCoverageIgnore
  */
-class CoreAlreadyBooted extends \LogicException
+class ApplicationAlreadyInstantiated extends \LogicException
 {
-	const DEFAULT_MESSAGE = "The core has already booted.";
+	const DEFAULT_MESSAGE = "The application is already instantiated.";
 
 	/**
 	 * @inheritdoc

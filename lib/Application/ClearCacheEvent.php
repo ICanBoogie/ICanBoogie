@@ -9,28 +9,28 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Core;
+namespace ICanBoogie\Application;
 
-use ICanBoogie\Core;
+use ICanBoogie\Application;
 use ICanBoogie\Event;
 
 /**
- * Event class for the `ICanBoogie\Core::boot` event.
+ * Event class for the `ICanBoogie\Application::clear_cache` event.
  *
- * The event is fired after the core has booted.
+ * The event is fired when all the cache of the application must be cleared.
  *
  * @codeCoverageIgnore
  */
-class BootEvent extends Event
+class ClearCacheEvent extends Event
 {
-	const TYPE = 'boot';
+	const TYPE = 'clear_cache';
 
 	/**
 	 * The event is constructed with the type {@link TYPE}.
 	 *
-	 * @param Core $target
+	 * @param Application $target
 	 */
-	public function __construct(Core $target)
+	public function __construct(Application $target)
 	{
 		parent::__construct($target, self::TYPE);
 	}

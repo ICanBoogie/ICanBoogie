@@ -10,17 +10,17 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Core;
+namespace ICanBoogie\Application;
 
-use ICanBoogie\Core;
+use ICanBoogie\Application;
 use ICanBoogie\Event;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 
 /**
- * Event class for the `ICanBoogie\Core::terminate` event
+ * Event class for the `ICanBoogie\Application::terminate` event
  *
- * The event is fired after the response to the initial request was sent and that the core
+ * The event is fired after the response to the initial request was sent and that the application
  * is ready to be terminated.
  *
  * @codeCoverageIgnore
@@ -42,11 +42,11 @@ class TerminateEvent extends Event
 	/**
 	 * The event is constructed with the type {@link TYPE}.
 	 *
-	 * @param Core $target
+	 * @param Application $target
 	 * @param Request $request
 	 * @param Response $response
 	 */
-	public function __construct(Core $target, Request $request, Response $response)
+	public function __construct(Application $target, Request $request, Response $response)
 	{
 		$this->request = $request;
 		$this->response = $response;

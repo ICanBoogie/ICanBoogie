@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Core;
+namespace ICanBoogie\Application;
 
-use ICanBoogie\Core;
+use ICanBoogie\Application;
 
 use function ICanBoogie\app;
 
@@ -20,15 +20,15 @@ class BootEventTest extends \PHPUnit_Framework_TestCase
 	public function test_instance()
 	{
 		$app = $this
-			->getMockBuilder(Core::class)
+			->getMockBuilder(Application::class)
 			->disableOriginalConstructor()
 			->getMock();
 
-		/* @var $app Core */
+		/* @var $app Application */
 
 		$called = false;
 
-		app()->events->once(function (BootEvent $event, Core $target) use ($app, &$called) {
+		app()->events->once(function (BootEvent $event, Application $target) use ($app, &$called) {
 
 			$this->assertSame($app, $target);
 			$event->stop();

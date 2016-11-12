@@ -9,19 +9,20 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Core;
+namespace ICanBoogie\Application;
 
-use ICanBoogie\Core;
+use ICanBoogie\Application;
 use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Response;
 
 use function ICanBoogie\app;
 
-class RunEventTest extends \PHPUnit_Framework_TestCase
+class TerminateEventTest extends \PHPUnit_Framework_TestCase
 {
 	public function test_instance()
 	{
 		$app = $this
-			->getMockBuilder(Core::class)
+			->getMockBuilder(Application::class)
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -30,21 +31,28 @@ class RunEventTest extends \PHPUnit_Framework_TestCase
 			->disableOriginalConstructor()
 			->getMock();
 
-		/* @var $app Core */
+		$response = $this
+			->getMockBuilder(Response::class)
+			->disableOriginalConstructor()
+			->getMock();
+
+		/* @var $app Application */
 		/* @var $request Request */
+		/* @var $response Response */
 
 		$called = false;
 
-		app()->events->once(function (RunEvent $event, Core $target) use ($app, $request, &$called) {
+		app()->events->once(function(TerminateEvent $event, Application $target) use ($app, $request, $response, &$called) {
 
 			$this->assertSame($app, $target);
 			$this->assertSame($request, $event->request);
+			$this->assertSame($response, $event->response);
 			$event->stop();
 			$called = true;
 
 		});
 
-		new RunEvent($app, $request);
+		new TerminateEvent($app, $request, $response);
 
 		$this->assertTrue($called);
 	}

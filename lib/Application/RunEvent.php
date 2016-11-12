@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie\Core;
+namespace ICanBoogie\Application;
 
-use ICanBoogie\Core;
+use ICanBoogie\Application;
 use ICanBoogie\Event;
 use ICanBoogie\HTTP\Request;
 
 /**
- * Event class for the `ICanBoogie\Core::run` event.
+ * Event class for the `ICanBoogie\Application::run` event.
  *
  * @property-read Request $request
  *
@@ -44,10 +44,10 @@ class RunEvent extends Event
 	/**
 	 * The event is constructed with the type {@link TYPE}.
 	 *
-	 * @param Core $target
+	 * @param Application $target
 	 * @param Request $request
 	 */
-	public function __construct(Core $target, Request $request)
+	public function __construct(Application $target, Request $request)
 	{
 		$this->request = $request;
 

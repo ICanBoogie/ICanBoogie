@@ -12,7 +12,7 @@
 namespace ICanBoogie;
 
 /**
- * A message logger using the core's session to store the messages.
+ * A message logger using the application's session to store the messages.
  */
 class Logger implements LoggerInterface
 {
@@ -23,11 +23,11 @@ class Logger implements LoggerInterface
 	/**
 	 * Returns the application's logger, create it if needed.
 	 *
-	 * @param Core $app
+	 * @param Application $app
 	 *
 	 * @return Logger
 	 */
-	static public function get_logger(Core $app)
+	static public function get_logger(Application $app)
 	{
 		static $logger;
 
@@ -78,9 +78,9 @@ class Logger implements LoggerInterface
 	/**
 	 * Initialize the {@link $app} property.
 	 *
-	 * @param Core $app
+	 * @param Application $app
 	 */
-	public function __construct(Core $app)
+	public function __construct(Application $app)
 	{
 		$this->app = $app;
 	}
