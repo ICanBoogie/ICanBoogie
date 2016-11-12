@@ -167,13 +167,20 @@ function get_autoconfig()
 }
 
 /**
- * Instantiates a {@link Core} instance with the autoconfig and boots it.
+ * Instantiate and boot the application.
+ *
+ * @param array|null $options If `null` options are obtained with `get_autoconfig()`.
  *
  * @return Core
  */
-function boot()
+function boot(array $options = null)
 {
-	$app = new Core( get_autoconfig() );
+	if ($options === null)
+	{
+		$options = get_autoconfig();
+	}
+
+	$app = new Core($options);
 	$app->boot();
 
 	return $app;

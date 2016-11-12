@@ -19,7 +19,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 ini_set('session.use_cookies', '0');
 
-(new Core(array_merge_recursive(get_autoconfig(), [
+boot(array_merge_recursive(get_autoconfig(), [
 
 	'config-path' => [
 
@@ -27,4 +27,4 @@ ini_set('session.use_cookies', '0');
 
 	]
 
-])))->boot();
+]));
