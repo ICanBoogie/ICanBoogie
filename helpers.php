@@ -149,7 +149,7 @@ function get_autoconfig()
 
 		$autoconfig = (require AUTOCONFIG_PATHNAME) + [
 
-			'app-root' => 'protected'
+			'app-root' => 'app'
 
 		];
 

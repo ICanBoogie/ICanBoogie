@@ -209,7 +209,7 @@ class Config
 			'locale-path' => [],
 			'module-path' => [],
 			'autoconfig-filters' => [],
-			'app-root' => 'protected',
+			'app-root' => 'app',
 			'app-paths' => []
 
 		];

@@ -359,7 +359,7 @@ ICanBoogie has built-in multi-site support and can be configured for different d
 environments. Even if you are dealing with only one domain, this feature can be used to provide
 different configuration for the "dev", "stage", and "production" versions of a same application.
 
-The intended location for your custom application code is in a separate "protected" directory, but
+The intended location for your custom application code is in a separate `app` directory, but
 another directory can be defined with the `app-root` _autoconfig_ directive. The directory is
 relative to the `root` directive.
 
@@ -516,7 +516,7 @@ the `get_autoconfig()` function returns it. For instance, ICanBoogie uses this f
 ## Configuring the application
 
 The [Application][] instance is configured with `app` configuration fragments. The fragment used by
-your application is usually located in the `/protected/all/config/app.php` file.
+your application is usually located in the `/app/all/config/app.php` file.
 
 The following example demonstrates how to enable configs caching and how to specify the name
 of the session and its scope.
@@ -524,7 +524,7 @@ of the session and its scope.
 ```php
 <?php
 
-// protected/all/config/app.php
+// app/all/config/app.php
 
 return [
 

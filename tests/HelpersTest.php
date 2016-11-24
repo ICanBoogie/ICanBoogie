@@ -41,8 +41,8 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 	public function provide_test_resolve_app_paths()
 	{
 		$root = __DIR__ . DIRECTORY_SEPARATOR . 'cases' . DIRECTORY_SEPARATOR . 'resolve_app_paths' . DIRECTORY_SEPARATOR;
-		$root0 = $root . 'protected_0' . DIRECTORY_SEPARATOR;
-		$root1 = $root . 'protected_1' . DIRECTORY_SEPARATOR;
+		$root0 = $root . 'app_0' . DIRECTORY_SEPARATOR;
+		$root1 = $root . 'app_1' . DIRECTORY_SEPARATOR;
 
 		return [
 
