@@ -43,6 +43,8 @@ or define('ICanBoogie\DOCUMENT_ROOT', rtrim(strtr($_SERVER['DOCUMENT_ROOT'] ?: g
  * directory that should be writable.
  *
  * @var string
+ *
+ * @deprecated
  */
 defined('ICanBoogie\REPOSITORY')
 or define('ICanBoogie\REPOSITORY', DOCUMENT_ROOT . 'repository' . DIRECTORY_SEPARATOR);
@@ -56,4 +58,3 @@ defined('ICanBoogie\AUTOCONFIG_PATHNAME')
 or define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'autoconfig.php');
 
 register_shutdown_function('ICanBoogie\Debug::shutdown_handler');
-
