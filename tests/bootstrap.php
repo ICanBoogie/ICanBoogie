@@ -11,19 +11,15 @@
 
 namespace ICanBoogie;
 
-$_SERVER['DOCUMENT_ROOT'] = __DIR__;
-
 define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'icanboogie' . DIRECTORY_SEPARATOR . 'autoconfig.php');
 
 require __DIR__ . '/../vendor/autoload.php';
-
-ini_set('session.use_cookies', '0');
 
 boot(array_merge_recursive(get_autoconfig(), [
 
 	'config-path' => [
 
-		__DIR__ . DIRECTORY_SEPARATOR . 'config' => 10
+		__DIR__ . DIRECTORY_SEPARATOR . 'config' => Autoconfig\Config::CONFIG_WEIGHT_APP
 
 	]
 
