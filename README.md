@@ -524,13 +524,14 @@ of the session and its scope.
 ```php
 <?php
 
+namespace ICanBoogie;
+
 // app/all/config/app.php
 
 return [
 
-	'cache configs' => true,
-
-	'session' => [
+	AppConfig::CACHE_CONFIGS => true,
+	AppConfig::SESSION => [
 
 		'name' => "ICanBoogie",
 		'domain' => ".example.org"

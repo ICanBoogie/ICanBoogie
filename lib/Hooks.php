@@ -59,7 +59,8 @@ class Hooks
 	 */
 	static public function create_storage_for_configs(Application $app)
 	{
-		$storage = new FileStorage(REPOSITORY . 'cache' . DIRECTORY_SEPARATOR . 'configs');
+		$directory = $app->config[AppConfig::REPOSITORY_CACHE_CONFIGS];
+		$storage = new FileStorage($directory);
 
 		return self::with_apc_storage($storage, 'icanboogie:configs:');
 	}
@@ -76,7 +77,8 @@ class Hooks
 	 */
 	static public function create_storage_for_vars(Application $app)
 	{
-		$storage = new FileStorage(REPOSITORY . 'vars');
+		$directory = $app->config[AppConfig::REPOSITORY_VARS];
+		$storage = new FileStorage($directory);
 
 		return self::with_apc_storage($storage, 'icanboogie:vars:');
 	}
