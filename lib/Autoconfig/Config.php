@@ -326,7 +326,7 @@ return [
 
 	],
 
-	'root' => dirname(dirname(__DIR__)),
+	'root' => getcwd(),
 
 	'app-root' => "$app_root",
 
