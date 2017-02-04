@@ -59,8 +59,11 @@
 
 	"autoload-dev": {
 		"psr-4": {
-			"ICanBoogie\\": "tests"
-		}
+			"ICanBoogie\\": "tests/lib"
+		},
+		"files": [
+			"tests/Application.php"
+		]
 	},
 
 	"scripts": {
