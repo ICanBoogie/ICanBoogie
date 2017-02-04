@@ -468,6 +468,16 @@ abstract class Core
 	}
 
 	/**
+	 * Fires the `ICanBoogie\Application::clear_cache` event.
+	 */
+	public function clear_cache()
+	{
+		/* @var $this Application */
+
+		new Application\ClearCacheEvent($this);
+	}
+
+	/**
      * Fires the `ICanBoogie\Application::run` event.
      *
      * @param Request $request

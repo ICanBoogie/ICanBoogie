@@ -173,4 +173,18 @@ class CoreTest extends \PHPUnit_Framework_TestCase
 
         $app();
     }
+
+    public function test_clear_cache()
+    {
+    	$invoked = false;
+
+    	$app = app();
+    	$app->events->once(function (Application\ClearCacheEvent $event, Application $target) use (&$invoked) {
+		    $invoked = true;
+	    });
+
+    	$app->clear_cache();
+
+    	$this->assertTrue($invoked);
+    }
 }
