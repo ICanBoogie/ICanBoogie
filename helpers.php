@@ -40,36 +40,10 @@ function resolve_instance_name()
 /**
  * Resolves the paths where the application can look for config, locale, modules, and more.
  *
- * Consider an application root directory with the following directories:
- *
- * <pre>
- * all
- * cli
- * default
- * dev
- * icanboogie.org
- * org
- * </pre>
- *
- * The directory "all" contains resources that are shared between all the sites. It is always
- * added if present. The directory "default" is only added if there no directory matches
- * `$instance`.
- *
- * To resolve the matching directory, `$instance` is first broken into parts and the most
- * specific ones are removed until a corresponding directory is found. For instance, given
- * the instance name "www.icanboogie.localhost", the following directories are tried:
- * "www.icanboogie.localhost", "icanboogie.localhost", and finally "localhost".
- *
- * @param string $root The absolute path of a root directory.
- * @param string|null $instance An instance name. If `$instance` is `null`, the instance name
- * defaults as follows:
- *
- * - The `ICANBOOGIE_INSTANCE` environment variable is defined, it is used as instance name.
- * - The application runs from the CLI, "cli" is used.
- * - `$_SERVER['SERVER_NAME']` is defined, it is used as instance name.
- *
  * @return string[] An array of absolute paths, ordered from the less specific to
  * the most specific.
+ *
+ * @see https://icanboogie.org/docs/4.0/multi-site
  */
 function resolve_app_paths($root, $instance = null)
 {
@@ -126,15 +100,9 @@ function resolve_app_paths($root, $instance = null)
 /**
  * Returns the autoconfig.
  *
- * The path of the autoconfig is defined by the {@link AUTOCONFIG_PATHNAME} constant.
- *
- * The `app-root` and `app-paths` values are updated. `app-root` is resolved from `root`, which may
- * gives `false` if the application root is not defined. The value `app-paths` is returned by
- * the {@link resolve_app_paths()} function with `app-root` as parameter.
- *
- * The filters defined in `filters` are invoked to alter the autoconfig.
- *
  * @return array
+ *
+ * @see https://icanboogie.org/docs/4.0/autoconfig#obtaining-the-autoconfig
  */
 function get_autoconfig()
 {
@@ -144,7 +112,7 @@ function get_autoconfig()
 	{
 		if (!file_exists(AUTOCONFIG_PATHNAME))
 		{
-			trigger_error("The autoconfig file has not been generated. Check the `script` section of your composer.json file. https://github.com/ICanBoogie/ICanBoogie#generating-the-autoconfig-file", E_USER_ERROR);
+			trigger_error("The autoconfig file is missing. Check the `script` section of your composer.json file. https://icanboogie.org/docs/4.0/autoconfig#generating-the-autoconfig-file", E_USER_ERROR);
 		}
 
 		$autoconfig = (require AUTOCONFIG_PATHNAME) + [
@@ -182,7 +150,7 @@ function boot(array $options = null)
 
 	if (!class_exists(Application::class))
 	{
-		throw new \LogicException("Your application must define a `ICanBoogie\\Application class` that extends `ICanBoogie\\Core`");
+		throw new \LogicException("Your application must define a `ICanBoogie\\Application class` that extends `ICanBoogie\\Core`. https://icanboogie.org/docs/4.0/the-application-class");
 	}
 
 	$app = new Application($options);
