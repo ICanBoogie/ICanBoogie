@@ -28,7 +28,7 @@ class SessionWithEvent extends Session
 	 */
 	static public function for_app(Application $app)
 	{
-		return self::$instance ?: self::$instance = new static($app->config['session']);
+		return self::$instance ?: self::$instance = new static($app->config[AppConfig::SESSION]);
 	}
 
 	/**

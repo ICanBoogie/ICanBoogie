@@ -39,17 +39,17 @@ class Hooks
 	}
 
 	/**
-	 * Adds the "config" directories found in the app paths to `config-path`.
+	 * Adds the "config" directories found in the app paths to `CONFIG_PATH`.
 	 *
 	 * @param array $autoconfig
 	 */
 	static public function filter_autoconfig(array &$autoconfig)
 	{
-		foreach ($autoconfig['app-paths'] as $directory)
+		foreach ($autoconfig[Autoconfig::APP_PATHS] as $directory)
 		{
 			if (file_exists($directory . 'config'))
 			{
-				$autoconfig['config-path'][$directory . 'config'] = 20;
+				$autoconfig[Autoconfig::CONFIG_PATH][$directory . 'config'] = Autoconfig::CONFIG_WEIGHT_APP;
 			}
 		}
 	}

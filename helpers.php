@@ -11,6 +11,8 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\Autoconfig\Autoconfig;
+
 /*
  * Core
  */
@@ -115,17 +117,16 @@ function get_autoconfig()
 			trigger_error("The autoconfig file is missing. Check the `script` section of your composer.json file. https://icanboogie.org/docs/4.0/autoconfig#generating-the-autoconfig-file", E_USER_ERROR);
 		}
 
-		$autoconfig = (require AUTOCONFIG_PATHNAME) + [
+		$autoconfig = (require AUTOCONFIG_PATHNAME);
 
-			'app-root' => 'app'
+		$root = $autoconfig[Autoconfig::ROOT];
+		$autoconfig[Autoconfig::APP_ROOT] = realpath($root . DIRECTORY_SEPARATOR . $autoconfig[Autoconfig::APP_ROOT]);
+		$autoconfig[Autoconfig::APP_PATHS] = array_merge(
+			$autoconfig[Autoconfig::APP_PATHS],
+			resolve_app_paths($autoconfig[Autoconfig::APP_ROOT])
+		);
 
-		];
-
-		$root = $autoconfig['root'];
-		$autoconfig['app-root'] = realpath($root . DIRECTORY_SEPARATOR . $autoconfig['app-root']);
-		$autoconfig['app-paths'] = array_merge($autoconfig['app-paths'], resolve_app_paths($autoconfig['app-root']));
-
-		foreach ($autoconfig['filters'] as $filter)
+		foreach ($autoconfig[Autoconfig::AUTOCONFIG_FILTERS] as $filter)
 		{
 			call_user_func_array($filter, [ &$autoconfig ]);
 		}

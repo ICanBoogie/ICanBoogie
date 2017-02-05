@@ -11,6 +11,7 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\Autoconfig\Autoconfig;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\HTTP\Status;
@@ -142,7 +143,7 @@ abstract class Core
 		}
 
 		$this->bind_object_class();
-		$this->configs = $this->create_config_manager($options['config-path'], $options['config-constructor']);
+		$this->configs = $this->create_config_manager($options[Autoconfig::CONFIG_PATH], $options[Autoconfig::CONFIG_CONSTRUCTOR]);
 		$this->apply_config($this->config);
 
 		self::$status = self::STATUS_INSTANTIATED;
@@ -219,21 +220,21 @@ abstract class Core
 	 */
 	protected function apply_config(array $config)
 	{
-		$error_handler = $config['error_handler'];
+		$error_handler = $config[AppConfig::ERROR_HANDLER];
 
 		if ($error_handler)
 		{
 			set_error_handler($error_handler);
 		}
 
-		$exception_handler = $config['exception_handler'];
+		$exception_handler = $config[AppConfig::EXCEPTION_HANDLER];
 
 		if ($exception_handler)
 		{
 			set_exception_handler($exception_handler);
 		}
 
-		if ($config['cache configs'])
+		if ($config[AppConfig::CACHE_CONFIGS])
 		{
 			$this->configs->cache = $this->storage_for_configs;
 		}
@@ -281,7 +282,7 @@ abstract class Core
 		static $storage;
 
 		return $storage
-			?: $storage = $this->create_storage_for_configs($this->config['storage_for_configs']);
+			?: $storage = $this->create_storage_for_configs($this->config[AppConfig::STORAGE_FOR_CONFIGS]);
 	}
 
 	/**
@@ -303,7 +304,7 @@ abstract class Core
 	 */
 	protected function lazy_get_vars()
 	{
-		return $this->create_storage_for_vars($this->config['storage_for_vars']);
+		return $this->create_storage_for_vars($this->config[AppConfig::STORAGE_FOR_VARS]);
 	}
 
 	/**
