@@ -119,7 +119,7 @@ function get_autoconfig()
 
 		$autoconfig = (require AUTOCONFIG_PATHNAME);
 
-		$root = $autoconfig[Autoconfig::ROOT];
+		$root = APP_ROOT;
 		$autoconfig[Autoconfig::APP_ROOT] = realpath($root . DIRECTORY_SEPARATOR . $autoconfig[Autoconfig::APP_ROOT]);
 		$autoconfig[Autoconfig::APP_PATHS] = array_merge(
 			$autoconfig[Autoconfig::APP_PATHS],

@@ -324,8 +324,6 @@ return [
 
 	],
 
-	Autoconfig::ROOT => getcwd(),
-
 	Autoconfig::APP_ROOT => "$app_root",
 
 	Autoconfig::APP_PATHS => [
