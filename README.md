@@ -1,4 +1,4 @@
-<p align="center"><img height="120" src="https://cdn.rawgit.com/ICanBoogie/app-hello/master/web/assets/icanboogie.svg" alt="ICanBoogie" /></p>
+<p><img height="120" src="https://cdn.rawgit.com/ICanBoogie/app-hello/master/web/assets/icanboogie.svg" alt="ICanBoogie" /></p>
 
 [![Release](https://img.shields.io/packagist/v/ICanBoogie/ICanBoogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
 [![Build Status](https://img.shields.io/travis/ICanBoogie/ICanBoogie/master.svg)](http://travis-ci.org/ICanBoogie/ICanBoogie)
