@@ -19,7 +19,7 @@ use Composer\Package\RootPackage;
 /**
  * @codeCoverageIgnore
  */
-class Config
+class AutoconfigGenerator
 {
 	const CONFIG_WEIGHT_FRAMEWORK = -100;
 	const CONFIG_WEIGHT_MODULE = 0;

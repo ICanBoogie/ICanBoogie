@@ -34,7 +34,7 @@ class Hooks
 
 		$vendor_dir = $composer->getConfig()->get('vendor-dir');
 		$destination = realpath($vendor_dir) . "/icanboogie/autoconfig.php";
-		$config = new Config($sorted, $destination);
+		$config = new AutoconfigGenerator($sorted, $destination);
 		$config();
 	}
 
