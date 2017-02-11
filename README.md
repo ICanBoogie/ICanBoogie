@@ -204,7 +204,7 @@ The documentation for the package and its dependencies can be generated with the
 command. The documentation is generated in the `docs` directory using [ApiGen](http://apigen.org/).
 The package directory can later by cleaned with the `make clean` command.
 
-The documentation for the complete framework is also available online: <http://icanboogie.org/docs/>
+The documentation for the complete framework is also available online: <https://icanboogie.org/docs/>
 
 
 
@@ -245,7 +245,7 @@ The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 [icanboogie/view]:              https://github.com/ICanBoogie/View
 [Prototype package]:            https://github.com/ICanBoogie/Prototype
 
-[ApplicationNotInstantiated]:   https://api.icanboogie.org/icanboogie/4.0/class-ICanBoogie.ApplicationNotInstantiated.html
+[ApplicationNotInstantiated]:   https://icanboogie.org/api/icanboogie/4.0/class-ICanBoogie.ApplicationNotInstantiated.html
 
 [Application]:                  https://icanboogie.org/docs/4.0/the-application-class
 [Autoconfig]:                   https://icanboogie.org/docs/4.0/autoconfig
