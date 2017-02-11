@@ -49,17 +49,6 @@ defined('ICanBoogie\DOCUMENT_ROOT')
 or define('ICanBoogie\DOCUMENT_ROOT', rtrim(strtr($_SERVER['DOCUMENT_ROOT'] ?: getcwd(), DIRECTORY_SEPARATOR == '/' ? '\\' : '/', DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
 
 /**
- * Repository root. The repository is the directory where all files are stored. It's the only
- * directory that should be writable.
- *
- * @var string
- *
- * @deprecated
- */
-defined('ICanBoogie\REPOSITORY')
-or define('ICanBoogie\REPOSITORY', DOCUMENT_ROOT . 'repository' . DIRECTORY_SEPARATOR);
-
-/**
  * Pathname to the autoconfig file.
  *
  *  @var string
