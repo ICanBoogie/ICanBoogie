@@ -2,27 +2,26 @@
 	"name": "icanboogie/icanboogie",
 	"type": "library",
 	"description": "High-performance object-oriented micro-framework for PHP5.4+",
-	"keywords": [ "framework" ],
+	"keywords": [
+		"framework"
+	],
 	"homepage": "https://icanboogie.org/",
 	"license": "BSD-3-Clause",
-
 	"authors": [
 		{
 			"name": "Olivier Laviale",
 			"email": "olivier.laviale@gmail.com",
 			"homepage": "https://olvlvl.com/",
-			"role" : "Developer"
+			"role": "Developer"
 		}
 	],
-
 	"support": {
 		"issues": "https://github.com/ICanBoogie/ICanBoogie/issues",
 		"source": "https://github.com/ICanBoogie/ICanBoogie"
 	},
-
 	"minimum-stability": "dev",
 	"prefer-stable": true,
-
+	"prefer-dist": true,
 	"require": {
 		"php": ">=5.6.0",
 		"psr/log": "^1.0",
@@ -34,11 +33,9 @@
 		"icanboogie/config": "^1.0",
 		"icanboogie/session": "dev-master"
 	},
-
 	"require-dev": {
 		"composer/composer": "dev-master"
 	},
-
 	"suggest": {
 		"icanboogie/bind-activerecord": "ActiveRecord Object-relational mapping.",
 		"icanboogie/bind-cldr": "Provides internationalization to your application.",
@@ -49,14 +46,15 @@
 		"icanboogie/module": "Provides support to extend ICanBoogie using modules.",
 		"icanboogie/operation": "Operation oriented controllers API."
 	},
-
 	"autoload": {
 		"psr-4": {
 			"ICanBoogie\\": "lib"
 		},
-		"files": [ "bootstrap.php", "helpers.php" ]
+		"files": [
+			"bootstrap.php",
+			"helpers.php"
+		]
 	},
-
 	"autoload-dev": {
 		"psr-4": {
 			"ICanBoogie\\": "tests/lib"
@@ -65,11 +63,9 @@
 			"tests/Application.php"
 		]
 	},
-
 	"scripts": {
 		"post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"
 	},
-
 	"extra": {
 		"icanboogie": {
 			"app-root": "app",
@@ -79,7 +75,9 @@
 				"app": "ICanBoogie\\AppConfig::synthesize",
 				"debug": "ICanBoogie\\Debug::synthesize_config"
 			},
-			"autoconfig-filters": [ "ICanBoogie\\Autoconfig\\Hooks::filter_autoconfig" ]
+			"autoconfig-filters": [
+				"ICanBoogie\\Autoconfig\\Hooks::filter_autoconfig"
+			]
 		}
 	}
 }
