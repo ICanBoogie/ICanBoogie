@@ -12,14 +12,6 @@
 namespace ICanBoogie;
 
 /**
- * The application root directory.
- *
- * @var string
- */
-defined('ICanBoogie\APP_ROOT')
-or define('ICanBoogie\APP_ROOT', getcwd() . DIRECTORY_SEPARATOR);
-
-/**
  * The ROOT directory of the ICanBoogie framework.
  *
  * @var string

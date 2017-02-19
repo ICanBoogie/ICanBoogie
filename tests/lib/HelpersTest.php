@@ -11,6 +11,8 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\Autoconfig\Autoconfig;
+
 class HelpersTest extends \PHPUnit_Framework_TestCase
 {
 	public function test_generate_token()
@@ -65,5 +67,62 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 			[ $root1, 'undefined',                [ ] ],
 
 		];
+	}
+
+	public function test_get_autoconfig()
+	{
+		$cwd = getcwd();
+		$package_root = dirname($cwd);
+
+		$this->assertSame([
+
+			Autoconfig::CONFIG_CONSTRUCTOR => [
+
+				'app' => [ 'ICanBoogie\AppConfig::synthesize' ],
+				'debug' => [ 'ICanBoogie\Debug::synthesize_config' ],
+				'event' => [ 'ICanBoogie\Binding\Event\Hooks::synthesize_config' ],
+				'http_dispatchers' => [ 'ICanBoogie\Binding\HTTP\Hooks::synthesize_dispatchers_config', 'http' ],
+				'prototype' => [ 'ICanBoogie\Binding\Prototype\Hooks::synthesize_config' ],
+				'routes' => [ 'ICanBoogie\Binding\Routing\Hooks::synthesize_routes_config' ]
+
+			],
+
+			Autoconfig::CONFIG_PATH => [
+
+				"$package_root/config" => Autoconfig::CONFIG_WEIGHT_APP,
+				"$package_root/vendor/icanboogie/bind-event/config" => Autoconfig::CONFIG_WEIGHT_FRAMEWORK,
+				"$package_root/vendor/icanboogie/bind-routing/config" => Autoconfig::CONFIG_WEIGHT_FRAMEWORK,
+				"$package_root/vendor/icanboogie/bind-http/config" => Autoconfig::CONFIG_WEIGHT_FRAMEWORK,
+				"$cwd/app/all/config" => Autoconfig::CONFIG_WEIGHT_APP,
+				"$cwd/app/default/config" => Autoconfig::CONFIG_WEIGHT_APP,
+
+			],
+
+			Autoconfig::LOCALE_PATH => [
+
+				"$package_root/locale"
+
+			],
+
+			Autoconfig::MODULE_PATH => [
+
+			],
+
+			Autoconfig::AUTOCONFIG_FILTERS => [
+
+				'ICanBoogie\Autoconfig\Hooks::filter_autoconfig'
+
+			],
+
+			Autoconfig::APP_ROOT => "$cwd/app",
+
+			Autoconfig::APP_PATHS => [
+
+				"$cwd/app/all/",
+				"$cwd/app/default/",
+
+			]
+
+		], get_autoconfig());
 	}
 }

@@ -110,26 +110,25 @@ function get_autoconfig()
 {
 	static $autoconfig;
 
-	if ($autoconfig === null)
+	if ($autoconfig)
 	{
-		if (!file_exists(AUTOCONFIG_PATHNAME))
-		{
-			trigger_error("The autoconfig file is missing. Check the `script` section of your composer.json file. https://icanboogie.org/docs/4.0/autoconfig#generating-the-autoconfig-file", E_USER_ERROR);
-		}
+		return $autoconfig;
+	}
 
-		$autoconfig = (require AUTOCONFIG_PATHNAME);
+	if (!file_exists(AUTOCONFIG_PATHNAME))
+	{
+		trigger_error("The autoconfig file is missing. Check the `script` section of your composer.json file. https://icanboogie.org/docs/4.0/autoconfig#generating-the-autoconfig-file", E_USER_ERROR);
+	}
 
-		$root = APP_ROOT;
-		$autoconfig[Autoconfig::APP_ROOT] = realpath($root . DIRECTORY_SEPARATOR . $autoconfig[Autoconfig::APP_ROOT]);
-		$autoconfig[Autoconfig::APP_PATHS] = array_merge(
-			$autoconfig[Autoconfig::APP_PATHS],
-			resolve_app_paths($autoconfig[Autoconfig::APP_ROOT])
-		);
+	$autoconfig = require AUTOCONFIG_PATHNAME;
 
-		foreach ($autoconfig[Autoconfig::AUTOCONFIG_FILTERS] as $filter)
-		{
-			call_user_func_array($filter, [ &$autoconfig ]);
-		}
+	$root = &$autoconfig[Autoconfig::APP_ROOT];
+	$root = realpath(getcwd() . DIRECTORY_SEPARATOR . $root);
+	$autoconfig[Autoconfig::APP_PATHS] = array_merge($autoconfig[Autoconfig::APP_PATHS], resolve_app_paths($root));
+
+	foreach ($autoconfig[Autoconfig::AUTOCONFIG_FILTERS] as $filter)
+	{
+		call_user_func_array($filter, [ &$autoconfig ]);
 	}
 
 	return $autoconfig;
