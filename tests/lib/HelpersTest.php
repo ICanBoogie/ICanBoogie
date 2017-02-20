@@ -121,7 +121,9 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 				"$cwd/app/all/",
 				"$cwd/app/default/",
 
-			]
+			],
+
+			Autoconfig::BASE_PATH => getcwd()
 
 		], get_autoconfig());
 	}

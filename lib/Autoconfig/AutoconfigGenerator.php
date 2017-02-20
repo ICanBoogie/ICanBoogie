@@ -330,7 +330,10 @@ return [
 
 		$app_paths
 
-	]
+	],
+
+	Autoconfig::BASE_PATH => getcwd()
+
 ];
 EOT;
 	}

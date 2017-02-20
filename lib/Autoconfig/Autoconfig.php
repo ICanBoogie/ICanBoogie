@@ -16,6 +16,11 @@ interface Autoconfig
 	const APP_ROOT = 'app-root';
 	const APP_PATHS = 'app-paths';
 	const AUTOCONFIG_FILTERS = 'autoconfig-filters';
+
+	/**
+	 * The fully qualified path to the project root.
+	 */
+	const BASE_PATH = 'base-path';
 	const CONFIG_CONSTRUCTOR = 'config-constructor';
 	const CONFIG_PATH = 'config-path';
 	const LOCALE_PATH = 'locale-path';
