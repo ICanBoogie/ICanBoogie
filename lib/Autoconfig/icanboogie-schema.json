@@ -50,7 +50,7 @@
 
 		},
 
-		"app-root": {
+		"app-path": {
 
 			"type": "string",
 			"description": "The root directory of the application paths."

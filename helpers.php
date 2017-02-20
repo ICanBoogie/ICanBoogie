@@ -42,7 +42,10 @@ function resolve_instance_name()
 /**
  * Resolves the paths where the application can look for config, locale, modules, and more.
  *
- * @return string[] An array of absolute paths, ordered from the less specific to
+ * @param string $root
+ * @param string|null $instance
+ *
+ * @return \string[] An array of absolute paths, ordered from the less specific to
  * the most specific.
  *
  * @see https://icanboogie.org/docs/4.0/multi-site
@@ -121,10 +124,10 @@ function get_autoconfig()
 	}
 
 	$autoconfig = require AUTOCONFIG_PATHNAME;
-
-	$root = &$autoconfig[Autoconfig::APP_ROOT];
-	$root = realpath(getcwd() . DIRECTORY_SEPARATOR . $root);
-	$autoconfig[Autoconfig::APP_PATHS] = array_merge($autoconfig[Autoconfig::APP_PATHS], resolve_app_paths($root));
+	$autoconfig[Autoconfig::APP_PATHS] = array_merge(
+		$autoconfig[Autoconfig::APP_PATHS],
+		resolve_app_paths($autoconfig[Autoconfig::APP_PATH])
+	);
 
 	foreach ($autoconfig[Autoconfig::AUTOCONFIG_FILTERS] as $filter)
 	{

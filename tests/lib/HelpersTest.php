@@ -114,7 +114,7 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 
 			],
 
-			Autoconfig::APP_ROOT => "$cwd/app",
+			Autoconfig::APP_PATH => "$cwd/app",
 
 			Autoconfig::APP_PATHS => [
 
@@ -123,7 +123,7 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 
 			],
 
-			Autoconfig::BASE_PATH => getcwd()
+			Autoconfig::BASE_PATH => $cwd
 
 		], get_autoconfig());
 	}

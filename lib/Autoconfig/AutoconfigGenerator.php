@@ -205,7 +205,6 @@ class AutoconfigGenerator implements Autoconfig
 			self::LOCALE_PATH => [],
 			self::MODULE_PATH => [],
 			self::AUTOCONFIG_FILTERS => [],
-			self::APP_ROOT => self::DEFAULT_APP_ROOT,
 			self::APP_PATHS => []
 
 		];
@@ -247,13 +246,6 @@ class AutoconfigGenerator implements Autoconfig
 						}
 
 						break;
-
-
-					case self::APP_ROOT:
-
-						$config[$key] = $value;
-
-						break;
 				}
 			}
 		}
@@ -282,7 +274,6 @@ class AutoconfigGenerator implements Autoconfig
 		$locale_path = implode(",\n\t\t", $synthesized_config[self::LOCALE_PATH]);
 		$module_path = implode(",\n\t\t", $synthesized_config[self::MODULE_PATH]);
 		$filters = $this->render_filters($synthesized_config[self::AUTOCONFIG_FILTERS]);
-		$app_root = $synthesized_config[self::APP_ROOT];
 		$app_paths = implode(",\n\t\t", $synthesized_config[self::APP_PATHS]);
 
 		return <<<EOT
@@ -324,7 +315,7 @@ return [
 
 	],
 
-	Autoconfig::APP_ROOT => "$app_root",
+	Autoconfig::APP_PATH => getcwd() . DIRECTORY_SEPARATOR . Autoconfig::DEFAULT_APP_DIRECTORY,
 
 	Autoconfig::APP_PATHS => [
 

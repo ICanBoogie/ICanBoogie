@@ -68,7 +68,6 @@
 	},
 	"extra": {
 		"icanboogie": {
-			"app-root": "app",
 			"config-path": "config/",
 			"locale-path": "locale/",
 			"config-constructor": {

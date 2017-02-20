@@ -13,7 +13,10 @@ namespace ICanBoogie\Autoconfig;
 
 interface Autoconfig
 {
-	const APP_ROOT = 'app-root';
+	/**
+	 * The fully qualified path to the `app` directory.
+	 */
+	const APP_PATH = 'app-path';
 	const APP_PATHS = 'app-paths';
 	const AUTOCONFIG_FILTERS = 'autoconfig-filters';
 
@@ -31,5 +34,5 @@ interface Autoconfig
 	const CONFIG_WEIGHT_APP = 100;
 	const ROOT = 'root';
 
-	const DEFAULT_APP_ROOT = 'app';
+	const DEFAULT_APP_DIRECTORY = 'app';
 }
