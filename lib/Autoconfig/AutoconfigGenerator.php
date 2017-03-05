@@ -156,6 +156,11 @@ class AutoconfigGenerator implements Autoconfig
 
 		$composer_pathname = $pathname . DIRECTORY_SEPARATOR . 'composer.json';
 
+		if (!file_exists($composer_pathname)) {
+			trigger_error("Missing file: `$composer_pathname`.", E_USER_NOTICE);
+			return null;
+		}
+
 		$this->composer_schema->validate_file($composer_pathname);
 
 		$json = new JsonFile($composer_pathname);
