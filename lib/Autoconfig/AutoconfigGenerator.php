@@ -148,6 +148,15 @@ class AutoconfigGenerator implements Autoconfig
 	protected function resolve_fragment($pathname)
 	{
 		#
+		# It seems `$pathname` can be empty when `composer install` is run for the first time,
+		# in which case we use the current directory.
+		#
+
+		if (!$pathname) {
+			$pathname = getcwd();
+		}
+
+		#
 		# Trying "extra/icanboogie" in "composer.json".
 		#
 		# We read the JSON file ourselves because $package->getExtra() can't be trusted for some
