@@ -1,7 +1,7 @@
 {
 	"name": "icanboogie/icanboogie",
 	"type": "library",
-	"description": "High-performance object-oriented micro-framework for PHP5.4+",
+	"description": "High-performance micro-framework for PHP",
 	"keywords": [
 		"framework"
 	],
