@@ -18,7 +18,7 @@ use ICanBoogie\HTTP\Status;
 use ICanBoogie\Storage\Storage;
 
 /**
- * Core of the ICanBoogie framework.
+ * Application abstract.
  *
  * @property-read bool $is_configured `true` if the application is configured, `false` otherwise.
  * @property-read bool $is_booting `true` if the application is booting, `false` otherwise.
@@ -33,7 +33,7 @@ use ICanBoogie\Storage\Storage;
  * @property-read LoggerInterface $logger The message logger.
  * @property-read Storage $storage_for_configs
  */
-abstract class Core
+abstract class ApplicationAbstract
 {
 	use PrototypeTrait;
 	use Binding\Event\ApplicationBindings;
@@ -381,8 +381,9 @@ abstract class Core
 	/**
 	 * Configures the application.
 	 *
-	 * The `configure` event of class {@link Core\ConfigureEvent} is fired after the application
-	 * is configured. Event hooks may use this event to further configure the application.
+	 * The `configure` event of class {@link Application\ConfigureEvent} is fired after the
+	 * application is configured. Event hooks may use this event to further configure the
+	 * application.
 	 */
 	protected function configure()
 	{
@@ -403,7 +404,7 @@ abstract class Core
 	/**
 	 * Boot the modules and configure Debug, Prototype and Events.
 	 *
-	 * The `boot` event of class {@link Core\BootEvent} is fired after the boot is finished.
+	 * The `boot` event of class {@link Application\BootEvent} is fired after the boot is finished.
 	 *
 	 * The `ICANBOOGIE_READY_TIME_FLOAT` key is added to the `$_SERVER` super global with the
 	 * micro-time at which the boot finished.

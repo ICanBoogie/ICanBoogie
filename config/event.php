@@ -6,6 +6,6 @@ $hooks = Hooks::class . '::';
 
 return [
 
-	Core::class . '::clear_cache' => $hooks . 'on_clear_cache'
+	Application::class . '::clear_cache' => $hooks . 'on_clear_cache'
 
 ];

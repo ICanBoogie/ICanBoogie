@@ -2,6 +2,8 @@
 
 PACKAGE_NAME = icanboogie/icanboogie
 PACKAGE_VERSION = 4.0
+PHPUNIT_VERSION=phpunit-5.7.phar
+PHPUNIT=./build/$(PHPUNIT_VERSION)
 
 # do not edit the following lines
 
@@ -17,12 +19,16 @@ update:
 autoload: vendor
 	@composer dump-autoload
 
-test: vendor
-	@phpunit
+$(PHPUNIT):
+	wget https://phar.phpunit.de/$(PHPUNIT_VERSION) -O $(PHPUNIT)
+	chmod +x $(PHPUNIT)
+
+test: vendor $(PHPUNIT)
+	@$(PHPUNIT)
 
 test-coverage: vendor
 	@mkdir -p build/coverage
-	@phpunit --coverage-html ../build/coverage
+	@$(PHPUNIT) --coverage-html ../build/coverage
 
 doc: vendor
 	@mkdir -p build/docs

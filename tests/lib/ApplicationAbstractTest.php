@@ -16,7 +16,7 @@ use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\Storage\Storage;
 
-class CoreTest extends \PHPUnit_Framework_TestCase
+class ApplicationAbstractTest extends \PHPUnit_Framework_TestCase
 {
 	/**
 	 * @var Application

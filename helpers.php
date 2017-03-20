@@ -14,7 +14,7 @@ namespace ICanBoogie;
 use ICanBoogie\Autoconfig\Autoconfig;
 
 /*
- * Core
+ * Application
  */
 
 /**
@@ -153,7 +153,7 @@ function boot(array $options = null)
 
 	if (!class_exists(Application::class))
 	{
-		throw new \LogicException("Your application must define a `ICanBoogie\\Application class` that extends `ICanBoogie\\Core`. https://icanboogie.org/docs/4.0/the-application-class");
+		throw new \LogicException("Your application must define a `ICanBoogie\\Application class` that extends `ICanBoogie\\ApplicationAbstract`. https://icanboogie.org/docs/4.0/the-application-class");
 	}
 
 	$app = new Application($options);
@@ -172,10 +172,10 @@ function boot(array $options = null)
 function app()
 {
 	/*
-	 * We use `Core` here because if the `Application` class does not exists, it is only aliased
-	 * by the `boot()` helper.
+	 * We use `ApplicationAbstract` here instead of `Application`, so that we don't trigger
+	 * another error if the `Application` class is not defined.
 	 */
-	$app = Core::get();
+	$app = ApplicationAbstract::get();
 
 	if (!$app)
 	{

@@ -35,7 +35,7 @@ class AppConfig
 	 * should have the following signature:
 	 *
 	 * ```
-	 * callable(\ICanBoogie\Core $app): \ICanBoogie\Storage\Storage
+	 * callable(\ICanBoogie\Application $app): \ICanBoogie\Storage\Storage
 	 * ```
 	 */
 	const STORAGE_FOR_CONFIGS = 'storage_for_configs';
@@ -47,7 +47,7 @@ class AppConfig
 	 * should have the following signature:
 	 *
 	 * ```
-	 * callable(\ICanBoogie\Core $app): \ICanBoogie\Storage\Storage
+	 * callable(\ICanBoogie\Application $app): \ICanBoogie\Storage\Storage
 	 * ```
 	 */
 	const STORAGE_FOR_VARS = 'storage_for_vars';

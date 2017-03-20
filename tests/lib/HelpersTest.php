@@ -80,9 +80,9 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 
 				'app' => [ 'ICanBoogie\AppConfig::synthesize' ],
 				'debug' => [ 'ICanBoogie\Debug::synthesize_config' ],
-				'event' => [ 'ICanBoogie\Binding\Event\Hooks::synthesize_config' ],
+				'event' => [ 'ICanBoogie\Binding\Event\EventConfigSynthesizer::synthesize' ],
 				'http_dispatchers' => [ 'ICanBoogie\Binding\HTTP\Hooks::synthesize_dispatchers_config', 'http' ],
-				'prototype' => [ 'ICanBoogie\Binding\Prototype\Hooks::synthesize_config' ],
+				'prototype' => [ 'ICanBoogie\Binding\Prototype\PrototypeConfigSynthesizer::synthesize' ],
 				'routes' => [ 'ICanBoogie\Binding\Routing\Hooks::synthesize_routes_config' ]
 
 			],
@@ -90,9 +90,9 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 			Autoconfig::CONFIG_PATH => [
 
 				"$package_root/config" => Autoconfig::CONFIG_WEIGHT_APP,
+				"$package_root/vendor/icanboogie/bind-http/config" => Autoconfig::CONFIG_WEIGHT_FRAMEWORK,
 				"$package_root/vendor/icanboogie/bind-event/config" => Autoconfig::CONFIG_WEIGHT_FRAMEWORK,
 				"$package_root/vendor/icanboogie/bind-routing/config" => Autoconfig::CONFIG_WEIGHT_FRAMEWORK,
-				"$package_root/vendor/icanboogie/bind-http/config" => Autoconfig::CONFIG_WEIGHT_FRAMEWORK,
 				"$cwd/app/all/config" => Autoconfig::CONFIG_WEIGHT_APP,
 				"$cwd/app/default/config" => Autoconfig::CONFIG_WEIGHT_APP,
 

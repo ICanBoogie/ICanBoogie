@@ -4,6 +4,7 @@ cache:
   directories:
     - $COMPOSER_CACHE_DIR
     - $HOME/.composer/cache
+    - $TRAVIS_BUILD_DIR/build
 
 language: php
 
@@ -18,12 +19,12 @@ matrix:
     - php: hhvm
 
 before_script:
+  - wget https://phar.phpunit.de/phpunit-5.7.phar -O ./build/phpunit-5.7.phar
   - if [[ $TRAVIS_PHP_VERSION != "5.6" ]]; then COMPOSER_ROOT_VERSION=4.0 composer install; fi
   - if [[ $TRAVIS_PHP_VERSION = "5.6" ]]; then COMPOSER_ROOT_VERSION=4.0 composer require satooshi/php-coveralls; fi
 
 script:
-  - mkdir -p build/logs
-  - phpunit --coverage-clover ../build/logs/clover.xml
+  - php ./build/phpunit-5.7.phar --coverage-clover ../clover.xml
 
 after_success:
-  - if [[ "$TRAVIS_PHP_VERSION" = "5.6" ]]; then php vendor/bin/coveralls -v; fi
+  - if [[ "$TRAVIS_PHP_VERSION" = "5.6" ]]; then php vendor/bin/coveralls -v -x clover.xml; fi
