@@ -2,13 +2,11 @@
 
 PACKAGE_NAME = icanboogie/icanboogie
 PACKAGE_VERSION = 4.0
-PHPUNIT_VERSION=phpunit-5.7.phar
-PHPUNIT_FILENAME=build/$(PHPUNIT_VERSION)
-PHPUNIT=php $(PHPUNIT_FILENAME)
+PHPUNIT_VERSION = phpunit-5.7.phar
+PHPUNIT_FILENAME = build/$(PHPUNIT_VERSION)
+PHPUNIT = php $(PHPUNIT_FILENAME)
 
 # do not edit the following lines
-
-all: $(PHPUNIT) vendor
 
 usage:
 	@echo "test:  Runs the test suite.\ndoc:   Creates the documentation.\nclean: Removes the documentation, the dependencies and the Composer files."
@@ -22,19 +20,24 @@ update:
 autoload: vendor
 	@composer dump-autoload
 
-$(PHPUNIT):
-	mkdir -p build
-	wget https://phar.phpunit.de/$(PHPUNIT_VERSION) -O $(PHPUNIT_FILENAME)
+test-dependencies: vendor $(PHPUNIT_FILENAME)
 
-test: vendor $(PHPUNIT)
+$(PHPUNIT_FILENAME):
+	mkdir -p build
+	wget https://phar.phpunit.de/$(PHPUNIT_VERSION) -O $(PHPUNIT_FILENAME) -q
+
+test: test-dependencies
 	@$(PHPUNIT)
 
-test-coverage: vendor
+test-coverage: test-dependencies
 	@mkdir -p build/coverage
 	@$(PHPUNIT) --coverage-html ../build/coverage
 
-test-clover: vendor
-	@$(PHPUNIT) --coverage-clover ../clover.xml
+test-coveralls: test-dependencies
+	@mkdir -p build/logs
+	COMPOSER_ROOT_VERSION=$(PACKAGE_VERSION) composer require satooshi/php-coveralls
+	@$(PHPUNIT) --coverage-clover ../build/logs/clover.xml
+	php vendor/bin/coveralls -v
 
 doc: vendor
 	@mkdir -p build/docs
@@ -49,4 +52,4 @@ clean:
 	@rm -fR vendor
 	@rm -f composer.lock
 
-.PHONY: all test test-coverage test-clover doc clean
+.PHONY: all autoload doc clean test test-coverage test-coveralls test-dependencies update
