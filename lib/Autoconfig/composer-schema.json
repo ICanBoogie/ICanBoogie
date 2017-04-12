@@ -53,8 +53,8 @@
 
 						"modules-path": {
 
-							"type": "array",
-							"description": "Path to application's custom modules.",
+							"type": "string",
+							"description": "(root-only) Path to application's custom modules.",
 							"required": false
 
 						},

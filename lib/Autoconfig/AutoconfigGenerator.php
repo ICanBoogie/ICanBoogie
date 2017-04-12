@@ -238,7 +238,6 @@ class AutoconfigGenerator
 			ComposerExtra::CONFIG_CONSTRUCTOR => Autoconfig::CONFIG_CONSTRUCTOR,
 			ComposerExtra::CONFIG_PATH => Autoconfig::CONFIG_PATH,
 			ComposerExtra::LOCALE_PATH => Autoconfig::LOCALE_PATH,
-			ComposerExtra::MODULES_PATH => Autoconfig::MODULE_PATH,
 			ComposerExtra::AUTOCONFIG_FILTERS => Autoconfig::AUTOCONFIG_FILTERS,
 			ComposerExtra::APP_PATHS => Autoconfig::APP_PATHS,
 
@@ -251,7 +250,6 @@ class AutoconfigGenerator
 			Autoconfig::CONFIG_CONSTRUCTOR => [],
 			Autoconfig::CONFIG_PATH => [],
 			Autoconfig::LOCALE_PATH => [],
-			Autoconfig::MODULE_PATH => [],
 			Autoconfig::AUTOCONFIG_FILTERS => [],
 			Autoconfig::APP_PATHS => []
 
@@ -289,7 +287,6 @@ class AutoconfigGenerator
 						break;
 
 					case ComposerExtra::LOCALE_PATH:
-					case ComposerExtra::MODULES_PATH:
 
 						$key = $mapping[$key];
 
@@ -350,7 +347,6 @@ class AutoconfigGenerator
 		$config_constructor = $this->render_config_constructor($synthesized_config[Autoconfig::CONFIG_CONSTRUCTOR]);
 		$config_path = $this->render_config_path($synthesized_config[Autoconfig::CONFIG_PATH]);
 		$locale_path = implode(",\n\t\t", $synthesized_config[Autoconfig::LOCALE_PATH]);
-		$module_path = implode(",\n\t\t", $synthesized_config[Autoconfig::MODULE_PATH]);
 		$filters = $this->render_filters($synthesized_config[Autoconfig::AUTOCONFIG_FILTERS]);
 		$app_paths = implode(",\n\t\t", $synthesized_config[Autoconfig::APP_PATHS]);
 
@@ -385,12 +381,6 @@ return [
 	Autoconfig::LOCALE_PATH => [
 
 		$locale_path
-
-	],
-
-	Autoconfig::MODULE_PATH => [
-
-		$module_path
 
 	],
 
