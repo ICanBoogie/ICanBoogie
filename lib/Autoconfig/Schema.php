@@ -37,14 +37,14 @@ class Schema
 	 *
 	 * @var mixed
 	 */
-	protected $schema;
+	private $schema;
 
 	/**
 	 * Validator.
 	 *
 	 * @var Validator
 	 */
-	protected $validator;
+	private $validator;
 
 	/**
 	 * Initialize the {@link schema} and {@link validator} properties.
@@ -82,7 +82,7 @@ class Schema
 				$errors .= "\n- " . ($error['property'] ? $error['property'] . ': ' : '') . $error['message'];
 			}
 
-			throw new \Exception("$pathname does not match the expected JSON schema:\n$errors");
+			throw new \Exception("`$pathname` does not match the expected JSON schema:\n$errors");
 		}
 
 		return true;

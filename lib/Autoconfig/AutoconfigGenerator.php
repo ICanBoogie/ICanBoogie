@@ -20,7 +20,7 @@ use ICanBoogie\Accessor\AccessorTrait;
 /**
  * @codeCoverageIgnore
  *
- * @property-read Package[] $packages
+ * @property-read array<string, Package> $packages
  */
 class AutoconfigGenerator
 {
@@ -32,7 +32,7 @@ class AutoconfigGenerator
 	private $packages;
 
 	/**
-	 * @return array<string, Package>|\Generator
+	 * @return \Generator
 	 */
 	protected function get_packages()
 	{
@@ -45,8 +45,6 @@ class AutoconfigGenerator
 
 			yield $pathname => $package;
 		}
-
-		return null;
 	}
 
 	/**
@@ -243,8 +241,6 @@ class AutoconfigGenerator
 
 		];
 
-		$filesystem = $this->filesystem;
-
 		$config = [
 
 			Autoconfig::CONFIG_CONSTRUCTOR => [],
@@ -278,7 +274,7 @@ class AutoconfigGenerator
 						{
 							$config[Autoconfig::CONFIG_PATH][] = [
 
-								$filesystem->findShortestPathCode($this->destination, "$path/$v"),
+								$this->findShortestPathCode("$path/$v"),
 								$this->weights[$path]
 
 							];
@@ -292,7 +288,7 @@ class AutoconfigGenerator
 
 						foreach ((array) $value as $v)
 						{
-							$config[$key][] = $filesystem->findShortestPathCode($this->destination, "$path/$v");
+							$config[$key][] = $this->findShortestPathCode("$path/$v");
 						}
 
 						break;
@@ -331,24 +327,24 @@ class AutoconfigGenerator
 	/**
 	 * Render the synthesized autoconfig into a string.
 	 *
-	 * @param string $synthesized_config
+	 * @param array $config Synthesized config.
 	 *
 	 * @return string
 	 */
-	public function render($synthesized_config =null)
+	public function render($config = [])
 	{
-		if (!$synthesized_config)
+		if (!$config)
 		{
-			$synthesized_config = $this->synthesize();
+			$config = $this->synthesize();
 		}
 
 		$class = __CLASS__;
 
-		$config_constructor = $this->render_config_constructor($synthesized_config[Autoconfig::CONFIG_CONSTRUCTOR]);
-		$config_path = $this->render_config_path($synthesized_config[Autoconfig::CONFIG_PATH]);
-		$locale_path = implode(",\n\t\t", $synthesized_config[Autoconfig::LOCALE_PATH]);
-		$filters = $this->render_filters($synthesized_config[Autoconfig::AUTOCONFIG_FILTERS]);
-		$app_paths = implode(",\n\t\t", $synthesized_config[Autoconfig::APP_PATHS]);
+		$config_constructor = $this->render_config_constructor($config[Autoconfig::CONFIG_CONSTRUCTOR]);
+		$config_path = $this->render_config_path($config[Autoconfig::CONFIG_PATH]);
+		$locale_path = implode(",\n\t\t", $config[Autoconfig::LOCALE_PATH]);
+		$filters = $this->render_filters($config[Autoconfig::AUTOCONFIG_FILTERS]);
+		$app_paths = implode(",\n\t\t", $config[Autoconfig::APP_PATHS]);
 
 		$extension_render = '';
 

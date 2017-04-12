@@ -104,10 +104,6 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 
 			],
 
-			Autoconfig::MODULE_PATH => [
-
-			],
-
 			Autoconfig::AUTOCONFIG_FILTERS => [
 
 				'ICanBoogie\Autoconfig\Hooks::filter_autoconfig'
