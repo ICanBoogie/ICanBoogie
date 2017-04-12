@@ -238,7 +238,7 @@ class AutoconfigGenerator
 			ComposerExtra::CONFIG_CONSTRUCTOR => Autoconfig::CONFIG_CONSTRUCTOR,
 			ComposerExtra::CONFIG_PATH => Autoconfig::CONFIG_PATH,
 			ComposerExtra::LOCALE_PATH => Autoconfig::LOCALE_PATH,
-			ComposerExtra::MODULE_PATH => Autoconfig::MODULE_PATH,
+			ComposerExtra::MODULES_PATH => Autoconfig::MODULE_PATH,
 			ComposerExtra::AUTOCONFIG_FILTERS => Autoconfig::AUTOCONFIG_FILTERS,
 			ComposerExtra::APP_PATHS => Autoconfig::APP_PATHS,
 
@@ -289,7 +289,7 @@ class AutoconfigGenerator
 						break;
 
 					case ComposerExtra::LOCALE_PATH:
-					case ComposerExtra::MODULE_PATH:
+					case ComposerExtra::MODULES_PATH:
 
 						$key = $mapping[$key];
 

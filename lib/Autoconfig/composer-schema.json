@@ -51,10 +51,10 @@
 
 						},
 
-						"module-path": {
+						"modules-path": {
 
-							"type": [ "string", "array" ],
-							"description": "A path to a module or a collection of modules.",
+							"type": "array",
+							"description": "Path to application's custom modules.",
 							"required": false
 
 						},
