@@ -29,7 +29,7 @@
 
 						"config-path": {
 
-							"type": [ "string", "array" ],
+							"type": "string",
 							"description": "A path to add to the config locations.",
 							"required": false
 

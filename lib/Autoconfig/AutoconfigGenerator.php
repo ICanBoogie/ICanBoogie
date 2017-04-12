@@ -19,7 +19,7 @@ use Composer\Package\RootPackage;
 /**
  * @codeCoverageIgnore
  */
-class AutoconfigGenerator implements Autoconfig
+class AutoconfigGenerator
 {
 	/**
 	 * @var Package[]
@@ -125,17 +125,17 @@ class AutoconfigGenerator implements Autoconfig
 	 */
 	private function resolve_config_weight(Package $package, array $fragment)
 	{
-		if (isset($fragment[self::CONFIG_WEIGHT]))
+		if (isset($fragment[ComposerExtra::CONFIG_WEIGHT]))
 		{
-			return $fragment[self::CONFIG_WEIGHT];
+			return $fragment[ComposerExtra::CONFIG_WEIGHT];
 		}
 
 		if ($package instanceof RootPackage)
 		{
-			return self::CONFIG_WEIGHT_APP;
+			return Autoconfig::CONFIG_WEIGHT_APP;
 		}
 
-		return self::CONFIG_WEIGHT_FRAMEWORK;
+		return Autoconfig::CONFIG_WEIGHT_FRAMEWORK;
 	}
 
 	/**
@@ -207,6 +207,17 @@ class AutoconfigGenerator implements Autoconfig
 	 */
 	public function synthesize(Filesystem $filesystem = null)
 	{
+		static $mapping = [
+
+			ComposerExtra::CONFIG_CONSTRUCTOR => Autoconfig::CONFIG_CONSTRUCTOR,
+			ComposerExtra::CONFIG_PATH => Autoconfig::CONFIG_PATH,
+			ComposerExtra::LOCALE_PATH => Autoconfig::LOCALE_PATH,
+			ComposerExtra::MODULE_PATH => Autoconfig::MODULE_PATH,
+			ComposerExtra::AUTOCONFIG_FILTERS => Autoconfig::AUTOCONFIG_FILTERS,
+			ComposerExtra::APP_PATHS => Autoconfig::APP_PATHS,
+
+		];
+
 		if (!$filesystem)
 		{
 			$filesystem = $this->filesystem;
@@ -214,12 +225,12 @@ class AutoconfigGenerator implements Autoconfig
 
 		$config = [
 
-			self::CONFIG_CONSTRUCTOR => [],
-			self::CONFIG_PATH => [],
-			self::LOCALE_PATH => [],
-			self::MODULE_PATH => [],
-			self::AUTOCONFIG_FILTERS => [],
-			self::APP_PATHS => []
+			Autoconfig::CONFIG_CONSTRUCTOR => [],
+			Autoconfig::CONFIG_PATH => [],
+			Autoconfig::LOCALE_PATH => [],
+			Autoconfig::MODULE_PATH => [],
+			Autoconfig::AUTOCONFIG_FILTERS => [],
+			Autoconfig::APP_PATHS => []
 
 		];
 
@@ -229,19 +240,20 @@ class AutoconfigGenerator implements Autoconfig
 			{
 				switch ($key)
 				{
-					case self::CONFIG_CONSTRUCTOR:
-					case self::AUTOCONFIG_FILTERS:
-					case self::APP_PATHS:
+					case ComposerExtra::CONFIG_CONSTRUCTOR:
+					case ComposerExtra::AUTOCONFIG_FILTERS:
+					case ComposerExtra::APP_PATHS:
 
+						$key = $mapping[$key];
 						$config[$key] = array_merge($config[$key], (array) $value);
 
 						break;
 
-					case self::CONFIG_PATH:
+					case ComposerExtra::CONFIG_PATH:
 
 						foreach ((array) $value as $v)
 						{
-							$config[$key][] = [
+							$config[Autoconfig::CONFIG_PATH][] = [
 
 								$filesystem->findShortestPathCode($this->destination, "$path/$v"),
 								$this->weights[$path]
@@ -251,8 +263,10 @@ class AutoconfigGenerator implements Autoconfig
 
 						break;
 
-					case self::LOCALE_PATH:
-					case self::MODULE_PATH:
+					case ComposerExtra::LOCALE_PATH:
+					case ComposerExtra::MODULE_PATH:
+
+						$key = $mapping[$key];
 
 						foreach ((array) $value as $v)
 						{
@@ -283,12 +297,12 @@ class AutoconfigGenerator implements Autoconfig
 
 		$class = __CLASS__;
 
-		$config_constructor = $this->render_config_constructor($synthesized_config[self::CONFIG_CONSTRUCTOR]);
-		$config_path = $this->render_config_path($synthesized_config[self::CONFIG_PATH]);
-		$locale_path = implode(",\n\t\t", $synthesized_config[self::LOCALE_PATH]);
-		$module_path = implode(",\n\t\t", $synthesized_config[self::MODULE_PATH]);
-		$filters = $this->render_filters($synthesized_config[self::AUTOCONFIG_FILTERS]);
-		$app_paths = implode(",\n\t\t", $synthesized_config[self::APP_PATHS]);
+		$config_constructor = $this->render_config_constructor($synthesized_config[Autoconfig::CONFIG_CONSTRUCTOR]);
+		$config_path = $this->render_config_path($synthesized_config[Autoconfig::CONFIG_PATH]);
+		$locale_path = implode(",\n\t\t", $synthesized_config[Autoconfig::LOCALE_PATH]);
+		$module_path = implode(",\n\t\t", $synthesized_config[Autoconfig::MODULE_PATH]);
+		$filters = $this->render_filters($synthesized_config[Autoconfig::AUTOCONFIG_FILTERS]);
+		$app_paths = implode(",\n\t\t", $synthesized_config[Autoconfig::APP_PATHS]);
 
 		return <<<EOT
 <?php
