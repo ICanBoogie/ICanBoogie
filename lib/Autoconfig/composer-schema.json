@@ -59,6 +59,13 @@
 
 						},
 
+						"autoconfig-extension": {
+
+							"type": [ "string" ],
+							"description": "An Autoconfig extension class to register."
+
+						},
+
 						"autoconfig-filters": {
 
 							"type": [ "string", "array" ],

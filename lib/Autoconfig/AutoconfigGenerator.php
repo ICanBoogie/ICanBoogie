@@ -15,21 +15,44 @@ use Composer\Util\Filesystem;
 use Composer\Json\JsonFile;
 use Composer\Package\Package;
 use Composer\Package\RootPackage;
+use ICanBoogie\Accessor\AccessorTrait;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @property-read Package[] $packages
  */
 class AutoconfigGenerator
 {
+	use AccessorTrait;
+
 	/**
 	 * @var Package[]
 	 */
-	protected $packages;
+	private $packages;
+
+	/**
+	 * @return array<string, Package>|\Generator
+	 */
+	protected function get_packages()
+	{
+		foreach ($this->packages as list($package, $pathname))
+		{
+			if (!$pathname)
+			{
+				$pathname = getcwd();
+			}
+
+			yield $pathname => $package;
+		}
+
+		return null;
+	}
 
 	/**
 	 * @var string
 	 */
-	protected $destination;
+	private $destination;
 
 	/**
 	 * @var Schema
@@ -55,6 +78,11 @@ class AutoconfigGenerator
 	 * @var array
 	 */
 	protected $weights = [];
+
+	/**
+	 * @var ExtensionAbstract[]
+	 */
+	private $extensions = [];
 
 	/**
 	 * @param Package[] $packages
@@ -95,11 +123,11 @@ class AutoconfigGenerator
 		$fragments = [];
 		$weights = [];
 
-		foreach ($packages as $pi)
-		{
-			/* @var $package Package */
-			list($package, $pathname) = $pi;
+		/* @var $package Package */
+		/* @var $pathname string */
 
+		foreach ($packages as list($package, $pathname))
+		{
 			$pathname = realpath($pathname);
 			$fragment = $this->resolve_fragment($pathname);
 
@@ -201,11 +229,9 @@ class AutoconfigGenerator
 	/**
 	 * Synthesize the autoconfig fragments into a single array.
 	 *
-	 * @param Filesystem $filesystem
-	 *
 	 * @return array
 	 */
-	public function synthesize(Filesystem $filesystem = null)
+	private function synthesize()
 	{
 		static $mapping = [
 
@@ -218,10 +244,7 @@ class AutoconfigGenerator
 
 		];
 
-		if (!$filesystem)
-		{
-			$filesystem = $this->filesystem;
-		}
+		$filesystem = $this->filesystem;
 
 		$config = [
 
@@ -233,6 +256,8 @@ class AutoconfigGenerator
 			Autoconfig::APP_PATHS => []
 
 		];
+
+		$extensions = [];
 
 		foreach ($this->fragments as $path => $fragment)
 		{
@@ -274,11 +299,36 @@ class AutoconfigGenerator
 						}
 
 						break;
+
+					case ComposerExtra::AUTOCONFIG_EXTENSION:
+
+						$extensions[] = $value;
 				}
 			}
 		}
 
+		$this->extensions = array_map(function ($extension) {
+
+			return new $extension($this);
+
+		}, $extensions);
+
+		foreach ($this->extensions as $extension)
+		{
+			$extension->synthesize($config);
+		}
+
 		return $config;
+	}
+
+	/**
+	 * @param string $to
+	 *
+	 * @return string
+	 */
+	public function findShortestPathCode($to)
+	{
+		return $this->filesystem->findShortestPathCode($this->destination, $to);
 	}
 
 	/**
@@ -303,6 +353,13 @@ class AutoconfigGenerator
 		$module_path = implode(",\n\t\t", $synthesized_config[Autoconfig::MODULE_PATH]);
 		$filters = $this->render_filters($synthesized_config[Autoconfig::AUTOCONFIG_FILTERS]);
 		$app_paths = implode(",\n\t\t", $synthesized_config[Autoconfig::APP_PATHS]);
+
+		$extension_render = '';
+
+		foreach ($this->extensions as $extension)
+		{
+			$extension_render .= "\n" . $extension->render() . "\n";
+		}
 
 		return <<<EOT
 <?php
@@ -351,8 +408,8 @@ return [
 
 	],
 
-	Autoconfig::BASE_PATH => getcwd()
-
+	Autoconfig::BASE_PATH => getcwd(),
+$extension_render
 ];
 EOT;
 	}

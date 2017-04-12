@@ -18,12 +18,13 @@ namespace ICanBoogie\Autoconfig;
  */
 interface ComposerExtra
 {
+	const AUTOCONFIG_EXTENSION = 'autoconfig-extension';
+	const AUTOCONFIG_FILTERS = 'autoconfig-filters';
 	const CONFIG_CONSTRUCTOR = 'config-constructor';
 	const CONFIG_PATH = 'config-path';
 	const CONFIG_WEIGHT = 'config-weight';
 	const LOCALE_PATH = 'locale-path';
 	const MODULE_PATH = 'module-path';
-	const AUTOCONFIG_FILTERS = 'autoconfig-filters';
 	const APP_PATH = 'app-path';
 	const APP_PATHS = 'app-paths';
 }
