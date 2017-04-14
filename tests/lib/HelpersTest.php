@@ -76,6 +76,23 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertSame([
 
+			Autoconfig::BASE_PATH => $cwd,
+
+			Autoconfig::APP_PATH => "$cwd/app",
+
+			Autoconfig::APP_PATHS => [
+
+				"$cwd/app/all/",
+				"$cwd/app/default/",
+
+			],
+
+
+			Autoconfig::LOCALE_PATH => [
+
+				"$package_root/locale"
+
+			],
 			Autoconfig::CONFIG_CONSTRUCTOR => [
 
 				'app' => [ 'ICanBoogie\AppConfig::synthesize' ],
@@ -84,6 +101,12 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 				'http_dispatchers' => [ 'ICanBoogie\Binding\HTTP\Hooks::synthesize_dispatchers_config', 'http' ],
 				'prototype' => [ 'ICanBoogie\Binding\Prototype\PrototypeConfigSynthesizer::synthesize' ],
 				'routes' => [ 'ICanBoogie\Binding\Routing\Hooks::synthesize_routes_config' ]
+
+			],
+
+			Autoconfig::AUTOCONFIG_FILTERS => [
+
+				'ICanBoogie\Autoconfig\Hooks::filter_autoconfig'
 
 			],
 
@@ -97,29 +120,6 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 				"$cwd/app/default/config" => Autoconfig::CONFIG_WEIGHT_APP,
 
 			],
-
-			Autoconfig::LOCALE_PATH => [
-
-				"$package_root/locale"
-
-			],
-
-			Autoconfig::AUTOCONFIG_FILTERS => [
-
-				'ICanBoogie\Autoconfig\Hooks::filter_autoconfig'
-
-			],
-
-			Autoconfig::APP_PATH => "$cwd/app",
-
-			Autoconfig::APP_PATHS => [
-
-				"$cwd/app/all/",
-				"$cwd/app/default/",
-
-			],
-
-			Autoconfig::BASE_PATH => $cwd
 
 		], get_autoconfig());
 	}
