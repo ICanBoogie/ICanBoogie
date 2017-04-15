@@ -58,11 +58,6 @@ class AutoconfigGenerator
 	protected $composer_schema;
 
 	/**
-	 * @var Schema
-	 */
-	protected $icanboogie_schema;
-
-	/**
 	 * @var Filesystem
 	 */
 	protected $filesystem;
@@ -92,7 +87,6 @@ class AutoconfigGenerator
 		$this->destination = $destination;
 
 		$this->composer_schema = new Schema(__DIR__ . '/composer-schema.json');
-		$this->icanboogie_schema = new Schema(__DIR__ . '/icanboogie-schema.json');
 		$this->filesystem = new Filesystem;
 	}
 
@@ -142,29 +136,6 @@ class AutoconfigGenerator
 	}
 
 	/**
-	 * Resolves config weight.
-	 *
-	 * @param Package $package
-	 * @param array $fragment
-	 *
-	 * @return int
-	 */
-	private function resolve_config_weight(Package $package, array $fragment)
-	{
-		if (isset($fragment[ComposerExtra::CONFIG_WEIGHT]))
-		{
-			return $fragment[ComposerExtra::CONFIG_WEIGHT];
-		}
-
-		if ($package instanceof RootPackage)
-		{
-			return Autoconfig::CONFIG_WEIGHT_APP;
-		}
-
-		return Autoconfig::CONFIG_WEIGHT_FRAMEWORK;
-	}
-
-	/**
 	 * Resolve the autoconfig fragment of a package.
 	 *
 	 * @param string $pathname The pathname to the package.
@@ -201,27 +172,35 @@ class AutoconfigGenerator
 		$json = new JsonFile($composer_pathname);
 		$data = $json->read();
 
-		if (!empty($data['extra']['icanboogie']))
-		{
-			return $data['extra']['icanboogie'];
-		}
-
-		#
-		# Trying "icanboogie.json"
-		#
-
-		$icanboogie_pathname = $pathname . DIRECTORY_SEPARATOR . 'icanboogie.json';
-
-		if (!file_exists($icanboogie_pathname))
+		if (empty($data['extra']['icanboogie']))
 		{
 			return null;
 		}
 
-		$this->icanboogie_schema->validate_file($icanboogie_pathname);
+		return $data['extra']['icanboogie'];
+	}
 
-		$json = new JsonFile($icanboogie_pathname);
+	/**
+	 * Resolves config weight.
+	 *
+	 * @param Package $package
+	 * @param array $fragment
+	 *
+	 * @return int
+	 */
+	private function resolve_config_weight(Package $package, array $fragment)
+	{
+		if (isset($fragment[ComposerExtra::CONFIG_WEIGHT]))
+		{
+			return $fragment[ComposerExtra::CONFIG_WEIGHT];
+		}
 
-		return $json->read();
+		if ($package instanceof RootPackage)
+		{
+			return Autoconfig::CONFIG_WEIGHT_APP;
+		}
+
+		return Autoconfig::CONFIG_WEIGHT_FRAMEWORK;
 	}
 
 	/**
