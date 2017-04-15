@@ -11,6 +11,7 @@
 
 namespace ICanBoogie\Autoconfig;
 
+use Composer\Package\RootPackageInterface;
 use Composer\Util\Filesystem;
 use Composer\Package\Package;
 use Composer\Package\RootPackage;
@@ -20,6 +21,7 @@ use ICanBoogie\Accessor\AccessorTrait;
  * @codeCoverageIgnore
  *
  * @property-read Package[] $packages
+ * @property-read RootPackageInterface $root_package
  */
 final class AutoconfigGenerator
 {
@@ -44,6 +46,22 @@ final class AutoconfigGenerator
 
 			yield $pathname => $package;
 		}
+	}
+
+	/**
+	 * @return Package|null
+	 */
+	private function get_root_package()
+	{
+		foreach ($this->packages as list($package))
+		{
+			if ($package instanceof RootPackageInterface)
+			{
+				return $package;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -74,6 +92,8 @@ final class AutoconfigGenerator
 	/**
 	 * @param Package[] $packages
 	 * @param string $destination
+	 *
+	 * @uses get_root_package
 	 */
 	public function __construct(array $packages, $destination)
 	{
