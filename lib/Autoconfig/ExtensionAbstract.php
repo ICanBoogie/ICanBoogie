@@ -54,4 +54,37 @@ abstract class ExtensionAbstract
 	 * @return string
 	 */
 	abstract public function render();
+
+	/**
+	 * @param string $key
+	 * @param string $value
+	 *
+	 * @return string
+	 */
+	protected function render_entry($key, $value)
+	{
+		return $this->generator->render_entry($key, $value);
+	}
+
+	/**
+	 * @param string $key
+	 * @param array $items
+	 * @param callable $renderer
+	 *
+	 * @return string
+	 */
+	protected function render_array_entry($key, array $items, callable $renderer)
+	{
+		return $this->generator->render_array_entry($key, $items, $renderer);
+	}
+
+	/**
+	 * @param string $to
+	 *
+	 * @return string
+	 */
+	protected function findShortestPathCode($to)
+	{
+		return $this->generator->findShortestPathCode($to);
+	}
 }
