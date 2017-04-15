@@ -96,10 +96,11 @@ final class AutoconfigGenerator
 	{
 		list($fragments, $weights) = $this->collect_fragments();
 
-		$this->validate_fragments($fragments);
-
 		$this->fragments = $fragments;
 		$this->weights = $weights;
+		$this->extensions = $this->collect_extensions($fragments);
+
+		$this->validate_fragments($fragments);
 
 		$this->write();
 	}
@@ -206,6 +207,29 @@ EOT;
 	}
 
 	/**
+	 * @param array $fragments
+	 *
+	 * @return ExtensionAbstract[]
+	 */
+	private function collect_extensions(array $fragments)
+	{
+		$extensions = [];
+
+		foreach ($fragments as $fragment)
+		{
+			if (empty($fragment[SchemaOptions::AUTOCONFIG_EXTENSION]))
+			{
+				continue;
+			}
+
+			$class = $fragment[SchemaOptions::AUTOCONFIG_EXTENSION];
+			$extensions[] = new $class($this);
+		}
+
+		return $extensions;
+	}
+
+	/**
 	 * Validate fragments against schema.
 	 *
 	 * @param array $fragments
@@ -270,8 +294,6 @@ EOT;
 
 		];
 
-		$extensions = [];
-
 		foreach ($this->fragments as $path => $fragment)
 		{
 			foreach ($fragment as $key => $value)
@@ -311,19 +333,9 @@ EOT;
 						}
 
 						break;
-
-					case SchemaOptions::AUTOCONFIG_EXTENSION:
-
-						$extensions[] = $value;
 				}
 			}
 		}
-
-		$this->extensions = array_map(function ($extension) {
-
-			return new $extension($this);
-
-		}, $extensions);
 
 		foreach ($this->extensions as $extension)
 		{
