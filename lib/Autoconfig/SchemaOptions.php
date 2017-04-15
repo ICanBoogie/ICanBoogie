@@ -14,9 +14,9 @@ namespace ICanBoogie\Autoconfig;
 /**
  * Keys of the ICanBoogie section in the composer.json file.
  *
- * @see composer-schema.json
+ * @see schema.json
  */
-interface ComposerExtra
+interface SchemaOptions
 {
 	const AUTOCONFIG_EXTENSION = 'autoconfig-extension';
 	const AUTOCONFIG_FILTERS = 'autoconfig-filters';

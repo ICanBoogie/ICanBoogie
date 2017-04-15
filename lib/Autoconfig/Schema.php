@@ -33,6 +33,31 @@ class Schema
 	}
 
 	/**
+	 * @param mixed $data
+	 *
+	 * @return mixed
+	 */
+	static public function normalize_data($data)
+	{
+		if ($data && is_array($data))
+		{
+			array_walk($data, function (&$data) {
+				$data = self::normalize_data($data);
+			});
+
+			reset($data);
+			$key = key($data);
+
+			if (is_scalar($key) && !is_numeric($key))
+			{
+				$data = (object) $data;
+			}
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Schema.
 	 *
 	 * @var mixed
@@ -64,8 +89,6 @@ class Schema
 	 * @param string $pathname The pathname to the file where the data is defined.
 	 *
 	 * @throws \Exception when the data is not valid.
-	 *
-	 * @return boolean `true` if the data is valid.
 	 */
 	public function validate($data, $pathname)
 	{
@@ -81,11 +104,9 @@ class Schema
 			{
 				$errors .= "\n- " . ($error['property'] ? $error['property'] . ': ' : '') . $error['message'];
 			}
-
+var_dump($data);
 			throw new \Exception("`$pathname` does not match the expected JSON schema:\n$errors");
 		}
-
-		return true;
 	}
 
 	/**

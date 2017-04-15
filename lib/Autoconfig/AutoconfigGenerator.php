@@ -12,7 +12,6 @@
 namespace ICanBoogie\Autoconfig;
 
 use Composer\Util\Filesystem;
-use Composer\Json\JsonFile;
 use Composer\Package\Package;
 use Composer\Package\RootPackage;
 use ICanBoogie\Accessor\AccessorTrait;
@@ -55,7 +54,7 @@ final class AutoconfigGenerator
 	/**
 	 * @var Schema
 	 */
-	private $composer_schema;
+	private $icanboogie_schema;
 
 	/**
 	 * @var Filesystem
@@ -86,7 +85,7 @@ final class AutoconfigGenerator
 		$this->packages = $packages;
 		$this->destination = $destination;
 
-		$this->composer_schema = new Schema(__DIR__ . '/composer-schema.json');
+		$this->icanboogie_schema = new Schema(__DIR__ . '/schema.json');
 		$this->filesystem = new Filesystem;
 	}
 
@@ -96,6 +95,8 @@ final class AutoconfigGenerator
 	public function __invoke()
 	{
 		list($fragments, $weights) = $this->collect_fragments();
+
+		$this->validate_fragments($fragments);
 
 		$this->fragments = $fragments;
 		$this->weights = $weights;
@@ -171,7 +172,7 @@ EOT;
 		foreach ($this->get_packages() as $pathname => $package)
 		{
 			$pathname = realpath($pathname);
-			$fragment = $this->find_fragment($pathname);
+			$fragment = $this->find_fragment($package);
 
 			if (!$fragment)
 			{
@@ -186,36 +187,37 @@ EOT;
 	}
 
 	/**
-	 * Try to find `extra/icanboogie` in package's `composer.json`.
+	 * Try to find autoconfig fragment of package.
 	 *
-	 * @param string $pathname The pathname to the package.
+	 * @param Package $package
 	 *
 	 * @return array|null The autoconfig fragment, or `null` if the package doesn't define one.
 	 */
-	private function find_fragment($pathname)
+	private function find_fragment(Package $package)
 	{
-		#
-		# We read the JSON file ourselves because $package->getExtra() can't be trusted for some
-		# reason.
-		#
+		$extra = $package->getExtra();
 
-		$composer_pathname = $pathname . DIRECTORY_SEPARATOR . 'composer.json';
-
-		if (!file_exists($composer_pathname)) {
-			trigger_error("Missing file: `$composer_pathname`.", E_USER_NOTICE);
-			return null;
-		}
-
-		$this->composer_schema->validate_file($composer_pathname);
-
-		$data = (new JsonFile($composer_pathname))->read();
-
-		if (empty($data['extra']['icanboogie']))
+		if (empty($extra['icanboogie']))
 		{
 			return null;
 		}
 
-		return $data['extra']['icanboogie'];
+		return $extra['icanboogie'];
+	}
+
+	/**
+	 * Validate fragments against schema.
+	 *
+	 * @param array $fragments
+	 */
+	private function validate_fragments(array $fragments)
+	{
+		$schema = $this->icanboogie_schema;
+
+		foreach ($fragments as $pathname => $fragment)
+		{
+			$schema->validate(Schema::normalize_data($fragment), $pathname);
+		}
 	}
 
 	/**
@@ -228,9 +230,9 @@ EOT;
 	 */
 	private function resolve_config_weight(Package $package, array $fragment)
 	{
-		if (isset($fragment[ComposerExtra::CONFIG_WEIGHT]))
+		if (isset($fragment[SchemaOptions::CONFIG_WEIGHT]))
 		{
-			return $fragment[ComposerExtra::CONFIG_WEIGHT];
+			return $fragment[SchemaOptions::CONFIG_WEIGHT];
 		}
 
 		if ($package instanceof RootPackage)
@@ -250,11 +252,11 @@ EOT;
 	{
 		static $mapping = [
 
-			ComposerExtra::CONFIG_CONSTRUCTOR => Autoconfig::CONFIG_CONSTRUCTOR,
-			ComposerExtra::CONFIG_PATH => Autoconfig::CONFIG_PATH,
-			ComposerExtra::LOCALE_PATH => Autoconfig::LOCALE_PATH,
-			ComposerExtra::AUTOCONFIG_FILTERS => Autoconfig::AUTOCONFIG_FILTERS,
-			ComposerExtra::APP_PATHS => Autoconfig::APP_PATHS,
+			SchemaOptions::CONFIG_CONSTRUCTOR => Autoconfig::CONFIG_CONSTRUCTOR,
+			SchemaOptions::CONFIG_PATH => Autoconfig::CONFIG_PATH,
+			SchemaOptions::LOCALE_PATH => Autoconfig::LOCALE_PATH,
+			SchemaOptions::AUTOCONFIG_FILTERS => Autoconfig::AUTOCONFIG_FILTERS,
+			SchemaOptions::APP_PATHS => Autoconfig::APP_PATHS,
 
 		];
 
@@ -276,16 +278,16 @@ EOT;
 			{
 				switch ($key)
 				{
-					case ComposerExtra::CONFIG_CONSTRUCTOR:
-					case ComposerExtra::AUTOCONFIG_FILTERS:
-					case ComposerExtra::APP_PATHS:
+					case SchemaOptions::CONFIG_CONSTRUCTOR:
+					case SchemaOptions::AUTOCONFIG_FILTERS:
+					case SchemaOptions::APP_PATHS:
 
 						$key = $mapping[$key];
 						$config[$key] = array_merge($config[$key], (array) $value);
 
 						break;
 
-					case ComposerExtra::CONFIG_PATH:
+					case SchemaOptions::CONFIG_PATH:
 
 						foreach ((array) $value as $v)
 						{
@@ -299,7 +301,7 @@ EOT;
 
 						break;
 
-					case ComposerExtra::LOCALE_PATH:
+					case SchemaOptions::LOCALE_PATH:
 
 						$key = $mapping[$key];
 
@@ -310,7 +312,7 @@ EOT;
 
 						break;
 
-					case ComposerExtra::AUTOCONFIG_EXTENSION:
+					case SchemaOptions::AUTOCONFIG_EXTENSION:
 
 						$extensions[] = $value;
 				}
