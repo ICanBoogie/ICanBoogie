@@ -24,7 +24,6 @@ interface SchemaOptions
 	const CONFIG_PATH = 'config-path';
 	const CONFIG_WEIGHT = 'config-weight';
 	const LOCALE_PATH = 'locale-path';
-	const MODULES_PATH = 'modules-path';
 	const APP_PATH = 'app-path';
 	const APP_PATHS = 'app-paths';
 }

@@ -230,6 +230,17 @@ EOT;
 	private function validate_fragments(array $fragments)
 	{
 		$data = Schema::read(__DIR__ . '/schema.json');
+		$properties = &$data->properties;
+		$set_property = function ($property, array $data) use (&$properties)
+		{
+			$properties->$property = (object) $data;
+		};
+
+		foreach ($this->extensions as $extension)
+		{
+			$extension->alter_schema($set_property);
+		}
+
 		$schema = new Schema($data);
 
 		foreach ($fragments as $pathname => $fragment)

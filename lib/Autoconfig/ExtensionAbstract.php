@@ -30,11 +30,25 @@ abstract class ExtensionAbstract
 	}
 
 	/**
+	 * Alter the autoconfig schema used to validate fragments.
+	 *
+	 * @param callable $set_property A callable used to set a property,
+	 * with the following signature: `void (string $property, array $data)`
+	 */
+	public function alter_schema(callable $set_property)
+	{
+
+	}
+
+	/**
 	 * @param array $autoconfig
 	 *
 	 * @return void
 	 */
-	abstract public function synthesize(array &$autoconfig);
+	public function synthesize(array &$autoconfig)
+	{
+
+	}
 
 	/**
 	 * @return string

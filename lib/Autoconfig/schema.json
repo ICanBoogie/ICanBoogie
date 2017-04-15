@@ -36,14 +36,6 @@
 
 		},
 
-		"modules-path": {
-
-			"type": "string",
-			"description": "(root-only) Path to application's custom modules.",
-			"required": false
-
-		},
-
 		"autoconfig-extension": {
 
 			"type": [ "string" ],
