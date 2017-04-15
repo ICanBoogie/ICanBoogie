@@ -22,7 +22,7 @@ use ICanBoogie\Accessor\AccessorTrait;
  *
  * @property-read Package[] $packages
  */
-class AutoconfigGenerator
+final class AutoconfigGenerator
 {
 	use AccessorTrait;
 
@@ -34,7 +34,7 @@ class AutoconfigGenerator
 	/**
 	 * @return \Generator
 	 */
-	protected function get_packages()
+	private function get_packages()
 	{
 		foreach ($this->packages as list($package, $pathname))
 		{
@@ -55,22 +55,22 @@ class AutoconfigGenerator
 	/**
 	 * @var Schema
 	 */
-	protected $composer_schema;
+	private $composer_schema;
 
 	/**
 	 * @var Filesystem
 	 */
-	protected $filesystem;
+	private $filesystem;
 
 	/**
 	 * @var array
 	 */
-	protected $fragments = [];
+	private $fragments = [];
 
 	/**
 	 * @var array
 	 */
-	protected $weights = [];
+	private $weights = [];
 
 	/**
 	 * @var ExtensionAbstract[]
@@ -95,7 +95,7 @@ class AutoconfigGenerator
 	 */
 	public function __invoke()
 	{
-		list($fragments, $weights) = $this->resolve_fragments($this->packages);
+		list($fragments, $weights) = $this->collect_fragments();
 
 		$this->fragments = $fragments;
 		$this->weights = $weights;
@@ -104,24 +104,74 @@ class AutoconfigGenerator
 	}
 
 	/**
-	 * Resolve the autoconfig fragments defined by the packages.
+	 * @param string $to
 	 *
-	 * @param array $packages
+	 * @return string
 	 *
-	 * @return array An array with the resolved fragments and their weights.
+	 * @used-by ExtensionAbstract
 	 */
-	protected function resolve_fragments(array $packages)
+	public function findShortestPathCode($to)
+	{
+		return $this->filesystem->findShortestPathCode($this->destination, $to);
+	}
+
+	/**
+	 * @param string $key
+	 * @param string $value
+	 *
+	 * @return string
+	 *
+	 * @used-by ExtensionAbstract
+	 */
+	public function render_entry($key, $value)
+	{
+		return <<<EOT
+    '$key' => $value,
+EOT;
+	}
+
+	/**
+	 * @param string $key
+	 * @param array $items
+	 * @param callable $renderer
+	 *
+	 * @return string
+	 *
+	 * @used-by ExtensionAbstract
+	 */
+	public function render_array_entry($key, array $items, callable $renderer)
+	{
+		$rendered_items = implode(array_map(function ($item, $key) use ($renderer) {
+
+			return "\t\t" . $renderer($item, $key) . ",\n";
+
+		}, $items, array_keys($items)));
+
+		/* @var string $key */
+		/* @var string $rendered_items */
+
+		return <<<EOT
+    '$key' => [
+
+$rendered_items
+    ],
+EOT;
+	}
+
+	/**
+	 * Collect autoconfig fragments from packages.
+	 *
+	 * @return array An array with the collected fragments and their weights.
+	 */
+	private function collect_fragments()
 	{
 		$fragments = [];
 		$weights = [];
 
-		/* @var $package Package */
-		/* @var $pathname string */
-
-		foreach ($packages as list($package, $pathname))
+		foreach ($this->get_packages() as $pathname => $package)
 		{
 			$pathname = realpath($pathname);
-			$fragment = $this->resolve_fragment($pathname);
+			$fragment = $this->find_fragment($pathname);
 
 			if (!$fragment)
 			{
@@ -136,25 +186,14 @@ class AutoconfigGenerator
 	}
 
 	/**
-	 * Resolve the autoconfig fragment of a package.
+	 * Try to find `extra/icanboogie` in package's `composer.json`.
 	 *
 	 * @param string $pathname The pathname to the package.
 	 *
-	 * @return mixed|null The autoconfig fragment, or `null` if the package doesn't define one.
+	 * @return array|null The autoconfig fragment, or `null` if the package doesn't define one.
 	 */
-	protected function resolve_fragment($pathname)
+	private function find_fragment($pathname)
 	{
-		#
-		# It seems `$pathname` can be empty when `composer install` is run for the first time,
-		# in which case we use the current directory.
-		#
-
-		if (!$pathname) {
-			$pathname = getcwd();
-		}
-
-		#
-		# Trying "extra/icanboogie" in "composer.json".
 		#
 		# We read the JSON file ourselves because $package->getExtra() can't be trusted for some
 		# reason.
@@ -169,8 +208,7 @@ class AutoconfigGenerator
 
 		$this->composer_schema->validate_file($composer_pathname);
 
-		$json = new JsonFile($composer_pathname);
-		$data = $json->read();
+		$data = (new JsonFile($composer_pathname))->read();
 
 		if (empty($data['extra']['icanboogie']))
 		{
@@ -294,23 +332,13 @@ class AutoconfigGenerator
 	}
 
 	/**
-	 * @param string $to
-	 *
-	 * @return string
-	 */
-	public function findShortestPathCode($to)
-	{
-		return $this->filesystem->findShortestPathCode($this->destination, $to);
-	}
-
-	/**
 	 * Render the synthesized autoconfig into a string.
 	 *
 	 * @param array $config Synthesized config.
 	 *
 	 * @return string
 	 */
-	public function render($config = [])
+	private function render($config = [])
 	{
 		if (!$config)
 		{
@@ -361,45 +389,6 @@ class AutoconfigGenerator
 return [
 $extension_render
 ];
-EOT;
-	}
-
-	/**
-	 * @param string $key
-	 * @param string $value
-	 *
-	 * @return string
-	 */
-	public function render_entry($key, $value)
-	{
-		return <<<EOT
-    '$key' => $value,
-EOT;
-	}
-
-	/**
-	 * @param string $key
-	 * @param array $items
-	 * @param callable $renderer
-	 *
-	 * @return string
-	 */
-	public function render_array_entry($key, array $items, callable $renderer)
-	{
-		$rendered_items = implode(array_map(function ($item, $key) use ($renderer) {
-
-			return "\t\t" . $renderer($item, $key) . ",\n";
-
-		}, $items, array_keys($items)));
-
-		/* @var string $key */
-		/* @var string $rendered_items */
-
-		return <<<EOT
-    '$key' => [
-
-$rendered_items
-    ],
 EOT;
 	}
 
@@ -508,7 +497,7 @@ EOT;
 	/**
 	 * Write the autoconfig file.
 	 */
-	public function write()
+	private function write()
 	{
 		try
 		{
