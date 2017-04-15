@@ -23,7 +23,14 @@ use JsonSchema\Validator;
  */
 class Schema
 {
-	static public function read_json($pathname)
+	/**
+	 * Read schema data from a JSON file.
+	 *
+	 * @param string $pathname
+	 *
+	 * @return mixed
+	 */
+	static public function read($pathname)
 	{
 		$json = file_get_contents($pathname);
 
@@ -72,13 +79,11 @@ class Schema
 	private $validator;
 
 	/**
-	 * Initialize the {@link schema} and {@link validator} properties.
-	 *
-	 * @param string $pathname The pathname to the schema file.
+	 * @param mixed $data Schema data as returned by {@link read()}.
 	 */
-	public function __construct($pathname)
+	public function __construct($data)
 	{
-		$this->schema = self::read_json($pathname);
+		$this->schema = $data;
 		$this->validator = new Validator;
 	}
 
@@ -114,14 +119,14 @@ var_dump($data);
 	 *
 	 * @param string $pathname The pathname to the JSON file to validate.
 	 *
-	 * @see validate()
+	 * @throws \Exception when the data is not valid.
 	 *
-	 * @return bool
+	 * @see validate()
 	 */
 	public function validate_file($pathname)
 	{
-		$data = self::read_json($pathname);
+		$data = self::read($pathname);
 
-		return $this->validate($data, $pathname);
+		$this->validate($data, $pathname);
 	}
 }

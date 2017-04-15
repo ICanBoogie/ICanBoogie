@@ -52,11 +52,6 @@ final class AutoconfigGenerator
 	private $destination;
 
 	/**
-	 * @var Schema
-	 */
-	private $icanboogie_schema;
-
-	/**
 	 * @var Filesystem
 	 */
 	private $filesystem;
@@ -84,8 +79,6 @@ final class AutoconfigGenerator
 	{
 		$this->packages = $packages;
 		$this->destination = $destination;
-
-		$this->icanboogie_schema = new Schema(__DIR__ . '/schema.json');
 		$this->filesystem = new Filesystem;
 	}
 
@@ -236,7 +229,8 @@ EOT;
 	 */
 	private function validate_fragments(array $fragments)
 	{
-		$schema = $this->icanboogie_schema;
+		$data = Schema::read(__DIR__ . '/schema.json');
+		$schema = new Schema($data);
 
 		foreach ($fragments as $pathname => $fragment)
 		{
