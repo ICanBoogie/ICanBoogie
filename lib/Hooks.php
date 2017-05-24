@@ -52,6 +52,7 @@ class Hooks
 	 *
 	 * If APC is available the method returns a storage collection or {@link APCStorage} and
 	 * {@link FileStorage}, otherwise a {@link FileStorage} is returned.
+	 * {@link FileStorage\Adapter\PHPAdapter} is used as adapter for {@link FileStorage}.
 	 *
 	 * @param Application $app
 	 *
@@ -60,9 +61,9 @@ class Hooks
 	static public function create_storage_for_configs(Application $app)
 	{
 		$directory = $app->config[AppConfig::REPOSITORY_CACHE_CONFIGS];
-		$storage = new FileStorage($directory);
+		$storage = new FileStorage($directory, new FileStorage\Adapter\PHPAdapter());
 
-		return self::with_apc_storage($storage, 'icanboogie:configs:');
+		return self::with_apc_storage($storage, 'icanboogie:config:');
 	}
 
 	/**
