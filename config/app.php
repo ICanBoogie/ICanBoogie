@@ -28,7 +28,7 @@ return [
 	AppConfig::REPOSITORY_VARS => '{repository}/var',
 
 	AppConfig::ERROR_HANDLER => null,
-	AppConfig::EXCEPTION_HANDLER => Debug::class. '::exception_handler',
+	AppConfig::EXCEPTION_HANDLER => null,
 
 	AppConfig::SESSION => [
 

@@ -104,30 +104,6 @@ class Debug
 	**
 	*/
 
-	/**
-	 * Basic exception handler.
-	 *
-	 * @param \Error|\Exception $exception
-	 */
-	static public function exception_handler($exception)
-	{
-		if (!headers_sent())
-		{
-			$code = $exception->getCode();
-
-			$message = $exception->getMessage();
-			$message = strip_tags($message);
-			$message = str_replace([ "\r\n", "\n" ], '', $message);
-
-			header("HTTP/1.0 $code $message");
-			header("Content-Type: text/html; charset=utf-8");
-		}
-
-		$message = self::format_alert($exception);
-
-		echo $message;
-	}
-
 	const MAX_STRING_LEN = 16;
 
 	static private $error_names = [
