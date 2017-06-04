@@ -22,20 +22,6 @@ class Debug
 
 	static public $mode = 'dev';
 
-	/**
-	 * Last error.
-	 *
-	 * @var array[string]mixed
-	 */
-	static public $last_error;
-
-	/**
-	 * Last error message.
-	 *
-	 * @var string
-	 */
-	static public $last_error_message;
-
 	static public function synthesize_config(array $fragments)
 	{
 		$config = array_merge_recursive(...array_values($fragments));
@@ -117,54 +103,6 @@ class Debug
 
 	**
 	*/
-
-	/**
-	 * Handles errors.
-	 *
-	 * The {@link $last_error} and {@link $last_error_message} properties are updated.
-	 *
-	 * The alert is formatted, reported and if the `verbose` option is true the alert is displayed.
-	 *
-	 * @param int $no The level of the error raised.
-	 * @param string $str The error message.
-	 * @param string $file The filename that the error was raised in.
-	 * @param int $line The line number the error was raised at.
-	 * @param array $context The active symbol table at the point the error occurred.
-	 */
-	static public function error_handler($no, $str, $file, $line, $context)
-	{
-		if (!headers_sent())
-		{
-			header('HTTP/1.0 500 ' . strip_tags($str));
-		}
-
-		$trace = debug_backtrace();
-
-		array_shift($trace); // remove the trace of our function
-
-		$error = [
-
-			'type' => $no,
-			'message' => $str,
-			'file' => $file,
-			'line' => $line,
-			'context' => $context,
-			'trace' => $trace
-
-		];
-
-		self::$last_error = $error;
-		self::$last_error_message = $str;
-
-		$message = self::format_alert($error);
-
-		if (self::$config_verbose)
-		{
-			echo $message;
-
-			flush();
-		}
-	}
 
 	/**
 	 * Basic exception handler.
