@@ -47,5 +47,3 @@ or define('ICanBoogie\DOCUMENT_ROOT', rtrim(strtr($_SERVER['DOCUMENT_ROOT'] ?: g
  */
 defined('ICanBoogie\AUTOCONFIG_PATHNAME')
 or define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'autoconfig.php');
-
-register_shutdown_function('ICanBoogie\Debug::shutdown_handler');

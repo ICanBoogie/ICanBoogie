@@ -48,8 +48,6 @@ class Debug
 
 	static private $config_code_sample = true;
 	static private $config_line_number = true;
-	static private $config_report = false;
-	static private $config_report_address = null;
 	static private $config_stack_trace = true;
 	static private $config_exception_chain = true;
 	static private $config_verbose = true;
@@ -112,21 +110,6 @@ class Debug
 		}
 	}
 
-	/**
-	 * Stores logged messages in the session and report fatal errors.
-	 */
-	static public function shutdown_handler()
-	{
-		$error = error_get_last();
-
-		if ($error && $error['type'] == E_ERROR)
-		{
-			$message = self::format_alert($error);
-
-			self::report($message);
-		}
-	}
-
 	/*
 	**
 
@@ -175,8 +158,6 @@ class Debug
 
 		$message = self::format_alert($error);
 
-		self::report($message);
-
 		if (self::$config_verbose)
 		{
 			echo $message;
@@ -207,8 +188,6 @@ class Debug
 		$message = self::format_alert($exception);
 
 		echo $message;
-
-		self::report($message);
 	}
 
 	const MAX_STRING_LEN = 16;
@@ -408,82 +387,6 @@ EOT;
 		}
 
 		return "\n\n<strong>Code sample:</strong>\n$sample";
-	}
-
-	/**
-	 * Reports the alert to the admin of the website.
-	 *
-	 * The method sends an email to the admin of the website defined whose email address is defined
-	 * in the debug config using the "report_address" key.
-	 *
-	 * @param string $message
-	 */
-	static public function report($message)
-	{
-		$report_address = self::$config_report_address;
-
-		if (!$report_address)
-		{
-			return;
-		}
-
-		$more = "\n\n<strong>Request URI:</strong>\n\n" . escape($_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['REQUEST_URI']);
-
-		if (!empty($_SERVER['HTTP_REFERER']))
-		{
-			$more .= "\n\n<strong>Referrer:</strong>\n\n" . escape($_SERVER['HTTP_REFERER']);
-		}
-
-		if (!empty($_SERVER['HTTP_USER_AGENT']))
-		{
-			$more .= "\n\n<strong>User Agent:</strong>\n\n" . escape($_SERVER['HTTP_USER_AGENT']);
-		}
-
-		$more .= "\n\n<strong>Remote address:</strong>\n\n" . escape($_SERVER['REMOTE_ADDR']);
-
-		if ($message instanceof \Exception)
-		{
-			$message = self::format_alert($message);
-		}
-
-		$message = str_replace('</pre>', '', $message);
-		$message = trim($message) . $more . '</pre>';
-
-		#
-		# during the same session, same messages are only reported once
-		#
-
-		$hash = md5($message);
-
-		if (isset($_SESSION['wddebug']['reported'][$hash]))
-		{
-			return;
-		}
-
-		$_SESSION['wddebug']['reported'][$hash] = true;
-
-		#
-		#
-		#
-
-		$host = $_SERVER['SERVER_NAME'];
-		$host = str_replace('www.', '', $host);
-
-		$parts = [
-
-			'From' => 'icanboogie@' . $host,
-			'Content-Type' => 'text/html; charset=' . CHARSET
-
-		];
-
-		$headers = '';
-
-		foreach ($parts as $key => $value)
-		{
-			$headers .= "$key: $value\r\n";
-		}
-
-		mail($report_address, __CLASS__ . ': Report from ' . $host, $message, $headers);
 	}
 
 	static private function get_logger()
