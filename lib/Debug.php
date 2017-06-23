@@ -115,38 +115,6 @@ class Debug
 
 	];
 
-	/**
-	 * Extracts and formats a code sample around the line that triggered the alert.
-	 *
-	 * @param string $file
-	 * @param int $line
-	 *
-	 * @return string
-	 */
-	static public function format_code_sample($file, $line = 0)
-	{
-		$sample = '';
-		$fh = new \SplFileObject($file);
-		$lines = new \LimitIterator($fh, $line < 5 ? 0 : $line - 5, 10);
-
-		foreach ($lines as $i => $str)
-		{
-			$i++;
-
-			$str = escape(rtrim($str));
-
-			if ($i == $line)
-			{
-				$str = '<ins>' . $str . '</ins>';
-			}
-
-			$str = str_replace("\t", "\xC2\xA0\xC2\xA0\xC2\xA0\xC2\xA0", $str);
-			$sample .= sprintf("\n%6d. %s", $i, $str);
-		}
-
-		return "\n\n<strong>Code sample:</strong>\n$sample";
-	}
-
 	static private function get_logger()
 	{
 		return app()->logger;
