@@ -1,3 +1,4 @@
-before_commands:
-    - "sudo composer self-update"
-    - "COMPOSER_ROOT_VERSION=4.0.0 composer install"
+build:
+  environment:
+    variables:
+      COMPOSER_ROOT_VERSION: '4.0.0'
