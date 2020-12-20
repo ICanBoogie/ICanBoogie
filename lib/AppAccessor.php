@@ -18,10 +18,7 @@ namespace ICanBoogie;
  */
 trait AppAccessor
 {
-	/**
-	 * @return Application
-	 */
-	protected function get_app()
+	protected function get_app(): Application
 	{
 		return app();
 	}

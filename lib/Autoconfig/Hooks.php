@@ -12,18 +12,24 @@
 namespace ICanBoogie\Autoconfig;
 
 use Composer\Script\Event;
+use Throwable;
+
+use function file_exists;
+use function realpath;
 
 /**
  * @codeCoverageIgnore
  */
-class Hooks
+final class Hooks
 {
 	/**
 	 * Generate the _autoconfig_ file on 'autoload_dump' Composer event.
 	 *
 	 * @param Event $event
+	 *
+	 * @throws Throwable
 	 */
-	static public function on_autoload_dump(Event $event)
+	static public function on_autoload_dump(Event $event): void
 	{
 		$composer = $event->getComposer();
 		$package = $composer->getPackage();
@@ -41,9 +47,9 @@ class Hooks
 	/**
 	 * Adds the "config" directories found in the app paths to `CONFIG_PATH`.
 	 *
-	 * @param array $autoconfig
+	 * @param array<string, mixed> $autoconfig
 	 */
-	static public function filter_autoconfig(array &$autoconfig)
+	static public function filter_autoconfig(array &$autoconfig): void
 	{
 		foreach ($autoconfig[Autoconfig::APP_PATHS] as $directory)
 		{

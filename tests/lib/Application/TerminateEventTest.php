@@ -17,7 +17,7 @@ use ICanBoogie\HTTP\Response;
 
 use function ICanBoogie\app;
 
-class TerminateEventTest extends \PHPUnit_Framework_TestCase
+class TerminateEventTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_instance()
 	{

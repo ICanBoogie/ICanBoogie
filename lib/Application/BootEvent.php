@@ -21,14 +21,12 @@ use ICanBoogie\Event;
  *
  * @codeCoverageIgnore
  */
-class BootEvent extends Event
+final class BootEvent extends Event
 {
-	const TYPE = 'boot';
+	public const TYPE = 'boot';
 
 	/**
 	 * The event is constructed with the type {@link TYPE}.
-	 *
-	 * @param Application $target
 	 */
 	public function __construct(Application $target)
 	{

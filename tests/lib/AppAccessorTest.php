@@ -4,7 +4,7 @@ namespace ICanBoogie;
 
 use ICanBoogie\AppAccessorTest\UseCase;
 
-class AppAccessorTest extends \PHPUnit_Framework_TestCase
+class AppAccessorTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_get()
 	{

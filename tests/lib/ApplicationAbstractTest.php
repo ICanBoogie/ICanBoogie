@@ -16,7 +16,7 @@ use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\Storage\Storage;
 
-class ApplicationAbstractTest extends \PHPUnit_Framework_TestCase
+class ApplicationAbstractTest extends \PHPUnit\Framework\TestCase
 {
 	/**
 	 * @var Application
@@ -119,60 +119,6 @@ class ApplicationAbstractTest extends \PHPUnit_Framework_TestCase
 		$this->assertInstanceOf(TimeZone::class, self::$app->timezone);
 		$this->assertEquals('Europe/Madrid', (string) self::$app->timezone);
 	}
-
-    public function test_invoke()
-    {
-        $result = uniqid();
-
-        $response = $this
-            ->getMockBuilder(Response::class)
-            ->disableOriginalConstructor()
-            ->setMethods([ '__invoke' ])
-            ->getMock();
-        $response
-            ->expects($this->once())
-            ->method('__invoke')
-            ->willReturn($result);
-
-        $request = $this
-            ->getMockBuilder(Request::class)
-            ->disableOriginalConstructor()
-            ->setMethods([ '__invoke' ])
-            ->getMock();
-        $request
-            ->expects($this->once())
-            ->method('__invoke')
-            ->willReturn($response);
-
-        $app = $this
-            ->getMockBuilder(Application::class)
-            ->disableOriginalConstructor()
-            ->setMethods([ 'get_is_booted', 'boot', 'get_initial_request', 'run', 'terminate' ])
-            ->getMock();
-        $app
-            ->expects($this->once())
-            ->method('get_is_booted')
-            ->willReturn(false);
-        $app
-            ->expects($this->once())
-            ->method('boot');
-        $app
-            ->expects($this->once())
-            ->method('get_initial_request')
-            ->willReturn($request);
-        $app
-            ->expects($this->once())
-            ->method('run')
-            ->with($request);
-        $app
-            ->expects($this->once())
-            ->method('terminate')
-            ->with($request, $response);
-
-        /* @var $app Application */
-
-        $app();
-    }
 
     public function test_clear_cache()
     {

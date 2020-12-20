@@ -14,26 +14,22 @@ namespace ICanBoogie;
 /**
  * A message logger using the application's session to store the messages.
  */
-class Logger implements LoggerInterface
+final class Logger implements LoggerInterface
 {
-	const MAX_MESSAGES = 50;
+	public const MAX_MESSAGES = 50;
 
 	use LoggerTrait;
 
 	/**
 	 * Returns the application's logger, create it if needed.
-	 *
-	 * @param Application $app
-	 *
-	 * @return Logger
 	 */
-	static public function get_logger(Application $app)
+	static public function get_logger(Application $app): LoggerInterface
 	{
 		static $logger;
 
 		if (!$logger)
 		{
-			$logger = new static($app);
+			$logger = new self($app);
 		}
 
 		return $logger;
@@ -42,17 +38,17 @@ class Logger implements LoggerInterface
 	/**
 	 * Formats messages.
 	 *
-	 * @param array $messages The messages to format.
+	 * @param array<array{0: string, 1: array<string, mixed>}> $messages The messages to format.
 	 *
-	 * @return array
+	 * @return string[]
 	 */
-	static private function format_messages(array $messages)
+	static private function format_messages(array $messages): array
 	{
 		$rc = [];
 
 		foreach ($messages as $message_and_context)
 		{
-			list($message, $context) = $message_and_context;
+			[ $message, $context ] = $message_and_context;
 
 			$rc[] = (string) self::format_message($message, $context);
 		}
@@ -63,23 +59,18 @@ class Logger implements LoggerInterface
 	/**
 	 * Formats message with context.
 	 *
-	 * @param string $message
-	 * @param array $context
-	 *
-	 * @return string
+	 * @param array<string, mixed> $context
 	 */
-	static private function format_message($message, $context)
+	static private function format_message(string $message, array $context): string
 	{
 		return $context ? format($message, $context) : $message;
 	}
 
+	/**
+	 * @var Application
+	 */
 	private $app;
 
-	/**
-	 * Initialize the {@link $app} property.
-	 *
-	 * @param Application $app
-	 */
 	public function __construct(Application $app)
 	{
 		$this->app = $app;
@@ -132,10 +123,8 @@ class Logger implements LoggerInterface
 
 	/**
 	 * Returns stash reference.
-	 *
-	 * @return array
 	 */
-	private function &get_stash()
+	private function &get_stash(): array
 	{
 		$stash = &$this->app->session['flash_messages'];
 

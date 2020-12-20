@@ -2,7 +2,7 @@
 
 namespace ICanBoogie;
 
-class SessionWithEventTest extends \PHPUnit_Framework_TestCase
+class SessionWithEventTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_for_app()
 	{

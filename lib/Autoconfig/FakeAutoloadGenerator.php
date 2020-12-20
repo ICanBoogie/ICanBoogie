@@ -16,9 +16,9 @@ use Composer\Autoload\AutoloadGenerator;
 /**
  * @codeCoverageIgnore
  */
-class FakeAutoloadGenerator extends AutoloadGenerator
+final class FakeAutoloadGenerator extends AutoloadGenerator
 {
-	static public function sort_package_map(AutoloadGenerator $generator, $packageMap)
+	static public function sort_package_map(AutoloadGenerator $generator, array $packageMap): array
 	{
 		return $generator->sortPackageMap($packageMap);
 	}

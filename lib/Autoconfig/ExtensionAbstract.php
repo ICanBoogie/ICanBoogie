@@ -19,11 +19,8 @@ abstract class ExtensionAbstract
 	/**
 	 * @var AutoconfigGenerator
 	 */
-	protected $generator;
+	private $generator;
 
-	/**
-	 * @param AutoconfigGenerator $generator
-	 */
 	public function __construct(AutoconfigGenerator $generator)
 	{
 		$this->generator = $generator;
@@ -35,56 +32,36 @@ abstract class ExtensionAbstract
 	 * @param callable $set_property A callable used to set a property,
 	 * with the following signature: `void (string $property, array $data)`
 	 */
-	public function alter_schema(callable $set_property)
+	public function alter_schema(callable $set_property): void
 	{
 
 	}
 
 	/**
-	 * @param array $autoconfig
-	 *
-	 * @return void
+	 * @param array<string, mixed> $autoconfig
 	 */
-	public function synthesize(array &$autoconfig)
+	public function synthesize(array &$autoconfig): void
 	{
 
 	}
 
-	/**
-	 * @return string
-	 */
-	abstract public function render();
+	abstract public function render(): string;
 
-	/**
-	 * @param string $key
-	 * @param string $value
-	 *
-	 * @return string
-	 */
-	protected function render_entry($key, $value)
+	protected function render_entry(string $key, string $value): string
 	{
 		return $this->generator->render_entry($key, $value);
 	}
 
 	/**
-	 * @param string $key
-	 * @param array $items
-	 * @param callable $renderer
-	 *
-	 * @return string
+	 * @param array<string, mixed> $items
 	 */
-	protected function render_array_entry($key, array $items, callable $renderer)
+	protected function render_array_entry(string $key, array $items, callable $renderer): string
 	{
 		return $this->generator->render_array_entry($key, $items, $renderer);
 	}
 
-	/**
-	 * @param string $to
-	 *
-	 * @return string
-	 */
-	protected function findShortestPathCode($to)
+	protected function find_shortest_path_code(string $to): string
 	{
-		return $this->generator->findShortestPathCode($to);
+		return $this->generator->find_shortest_path_code($to);
 	}
 }

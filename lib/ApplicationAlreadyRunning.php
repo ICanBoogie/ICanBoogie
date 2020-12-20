@@ -11,20 +11,20 @@
 
 namespace ICanBoogie;
 
+use LogicException;
+use Throwable;
+
 /**
  * Exception thrown in attempt to run the application a second time.
  *
  * @codeCoverageIgnore
  */
-class ApplicationAlreadyRunning extends \LogicException
+final class ApplicationAlreadyRunning extends LogicException
 {
-	const DEFAULT_MESSAGE = "The application is already running.";
+	public const DEFAULT_MESSAGE = "The application is already running.";
 
-	/**
-	 * @inheritdoc
-	 */
-	public function __construct($message = self::DEFAULT_MESSAGE, $code = 500, \Exception $previous = null)
+	public function __construct(string $message = self::DEFAULT_MESSAGE, Throwable $previous = null)
 	{
-		parent::__construct($message, $code, $previous);
+		parent::__construct($message, 0, $previous);
 	}
 }

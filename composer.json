@@ -21,20 +21,21 @@
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,
-	"prefer-dist": true,
 	"require": {
-		"php": "^5.6 | ^7.0",
+		"php": "^7.2",
+		"ext-json": "*",
 		"psr/log": "^1.0",
-		"icanboogie/bind-event": "^3.0",
-		"icanboogie/bind-prototype": "^4.0",
-		"icanboogie/bind-http": "^3.0",
-		"icanboogie/bind-routing": "^4.0",
+		"icanboogie/bind-event": "^5.0",
+		"icanboogie/bind-prototype": "^5.0",
+		"icanboogie/bind-http": "^5.0",
+		"icanboogie/bind-routing": "^5.0",
 		"icanboogie/storage": "^3.0",
 		"icanboogie/config": "^1.2",
-		"icanboogie/session": "^1.0"
+		"icanboogie/session": "^2.0"
 	},
 	"require-dev": {
-		"composer/composer": "dev-master"
+		"composer/composer": "dev-master",
+		"phpstan/phpstan": "^0.12.63"
 	},
 	"suggest": {
 		"icanboogie/bind-activerecord": "ActiveRecord Object-relational mapping.",
@@ -59,12 +60,15 @@
 		"psr-4": {
 			"ICanBoogie\\": "tests/lib"
 		},
-		"files": [
+		"classmap": [
 			"tests/Application.php"
 		]
 	},
 	"scripts": {
 		"post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"
+	},
+	"config": {
+		"sort-packages": true
 	},
 	"extra": {
 		"icanboogie": {

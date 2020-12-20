@@ -13,7 +13,7 @@ namespace ICanBoogie\Routing;
 
 use ICanBoogie\HTTP\Request;
 
-class PingControllerTest extends \PHPUnit_Framework_TestCase
+class PingControllerTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_process()
 	{

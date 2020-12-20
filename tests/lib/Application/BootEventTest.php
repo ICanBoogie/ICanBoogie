@@ -15,7 +15,7 @@ use ICanBoogie\Application;
 
 use function ICanBoogie\app;
 
-class BootEventTest extends \PHPUnit_Framework_TestCase
+class BootEventTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_instance()
 	{

@@ -11,20 +11,20 @@
 
 namespace ICanBoogie;
 
+use LogicException;
+use Throwable;
+
 /**
  * Exception thrown in attempt to create a second instance.
  *
  * @codeCoverageIgnore
  */
-class ApplicationAlreadyInstantiated extends \LogicException
+final class ApplicationAlreadyInstantiated extends LogicException
 {
-	const DEFAULT_MESSAGE = "The application is already instantiated.";
+	public const DEFAULT_MESSAGE = "The application is already instantiated.";
 
-	/**
-	 * @inheritdoc
-	 */
-	public function __construct($message = self::DEFAULT_MESSAGE, $code = 500, \Exception $previous = null)
+	public function __construct(string $message = self::DEFAULT_MESSAGE, Throwable $previous = null)
 	{
-		parent::__construct($message, $code, $previous);
+		parent::__construct($message, 0, $previous);
 	}
 }

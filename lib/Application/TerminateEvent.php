@@ -25,26 +25,32 @@ use ICanBoogie\HTTP\Response;
  *
  * @codeCoverageIgnore
  */
-class TerminateEvent extends Event
+final class TerminateEvent extends Event
 {
-	const TYPE = 'terminate';
+	public const TYPE = 'terminate';
 
 	/**
 	 * @var Request
 	 */
-	public $request;
+	private $request;
+
+	protected function get_request(): Request
+	{
+		return $this->request;
+	}
 
 	/**
 	 * @var Response
 	 */
-	public $response;
+	private $response;
+
+	protected function get_response(): Response
+	{
+		return $this->response;
+	}
 
 	/**
 	 * The event is constructed with the type {@link TYPE}.
-	 *
-	 * @param Application $target
-	 * @param Request $request
-	 * @param Response $response
 	 */
 	public function __construct(Application $target, Request $request, Response $response)
 	{

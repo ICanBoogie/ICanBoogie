@@ -5,16 +5,11 @@ namespace ICanBoogie\Routing;
 use ICanBoogie\Binding\PrototypedBindings;
 use ICanBoogie\HTTP\Request;
 
-class PingController extends Controller
+final class PingController extends Controller
 {
 	use PrototypedBindings;
 
-	/**
-	 * @param float $finish
-	 *
-	 * @return string
-	 */
-	static private function format_time($finish)
+	static private function format_time(float $finish): string
 	{
 		return number_format(($finish - $_SERVER['REQUEST_TIME_FLOAT']) * 1000, 3, '.', '') . ' ms';
 	}
@@ -22,7 +17,7 @@ class PingController extends Controller
 	/**
 	 * @inheritdoc
 	 */
-	protected function action(Request $request)
+	protected function action(Request $request): string
 	{
 		$this->response->content_type = 'text/plain';
 		$session = $this->app->session;

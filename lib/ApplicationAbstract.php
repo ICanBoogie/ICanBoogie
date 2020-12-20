@@ -17,6 +17,18 @@ use ICanBoogie\HTTP\Response;
 use ICanBoogie\HTTP\Status;
 use ICanBoogie\Storage\Storage;
 
+use function assert;
+use function date_default_timezone_get;
+use function date_default_timezone_set;
+use function header;
+use function headers_sent;
+use function http_response_code;
+use function is_numeric;
+use function microtime;
+use function set_error_handler;
+use function set_exception_handler;
+use function timezone_name_from_abbr;
+
 /**
  * Application abstract.
  *
@@ -24,6 +36,8 @@ use ICanBoogie\Storage\Storage;
  * @property-read bool $is_booting `true` if the application is booting, `false` otherwise.
  * @property-read bool $is_booted `true` if the application is booted, `false` otherwise.
  * @property-read bool $is_running `true` if the application is running, `false` otherwise.
+ * @property-read bool $is_terminating `true` if the application is terminating, `false` otherwise.
+ * @property-read bool $is_terminated `true` if the application is terminated, `false` otherwise.
  * @property Config $configs Configurations manager.
  * @property Storage $vars Persistent variables registry.
  * @property Session $session User's session.
@@ -35,6 +49,19 @@ use ICanBoogie\Storage\Storage;
  */
 abstract class ApplicationAbstract
 {
+	/**
+	 * @uses ApplicationAbstract::get_is_configured()
+	 * @uses ApplicationAbstract::get_is_booting()
+	 * @uses ApplicationAbstract::get_is_booted()
+	 * @uses ApplicationAbstract::get_is_running()
+	 * @uses ApplicationAbstract::get_is_terminating()
+	 * @uses ApplicationAbstract::get_is_terminated()
+	 * @uses ApplicationAbstract::get_timezone()
+	 * @uses ApplicationAbstract::set_timezone()
+	 * @uses ApplicationAbstract::get_storage_for_configs()
+	 * @uses ApplicationAbstract::lazy_get_vars()
+	 * @uses ApplicationAbstract::lazy_get_config()
+	 */
 	use PrototypeTrait;
 	use Binding\Event\ApplicationBindings;
 	use Binding\HTTP\ApplicationBindings;
@@ -43,69 +70,16 @@ abstract class ApplicationAbstract
 	/**
 	 * Status of the application.
 	 */
-	const STATUS_VOID = 0;
-	const STATUS_INSTANTIATING = 1;
-	const STATUS_INSTANTIATED = 2;
-	const STATUS_CONFIGURING = 3;
-	const STATUS_CONFIGURED = 4;
-	const STATUS_BOOTING = 5;
-	const STATUS_BOOTED = 6;
-	const STATUS_RUNNING = 7;
-	const STATUS_TERMINATED = 8;
-
-	/**
-	 * One of `STATUS_*`.
-	 *
-	 * @var int
-	 */
-	static private $status = self::STATUS_VOID;
-
-	/**
-	 * Whether the application is configured.
-	 *
-	 * @return bool `true` if the application is configured, `false` otherwise.
-	 */
-	protected function get_is_configured()
-	{
-		return self::$status >= self::STATUS_CONFIGURED;
-	}
-
-	/**
-	 * Whether the application is booting.
-	 *
-	 * @return bool `true` if the application is booting, `false` otherwise.
-	 */
-	protected function get_is_booting()
-	{
-		return self::$status === self::STATUS_BOOTING;
-	}
-
-	/**
-	 * Whether the application is booted.
-	 *
-	 * @return bool `true` if the application is booted, `false` otherwise.
-	 */
-	protected function get_is_booted()
-	{
-		return self::$status >= self::STATUS_BOOTED;
-	}
-
-	/**
-	 * Whether the application is running.
-	 *
-	 * @return bool `true` if the application is running, `false` otherwise.
-	 */
-	protected function get_is_running()
-	{
-		return self::$status === self::STATUS_RUNNING;
-	}
-
-	/**
-     * Options passed during construct.
-     *
-     * @var array
-     */
-    static private $construct_options = [];
+	public const STATUS_VOID = 0;
+	public const STATUS_INSTANTIATING = 1;
+	public const STATUS_INSTANTIATED = 2;
+	public const STATUS_CONFIGURING = 3;
+	public const STATUS_CONFIGURED = 4;
+	public const STATUS_BOOTING = 5;
+	public const STATUS_BOOTED = 6;
+	public const STATUS_RUNNING = 7;
+	public const STATUS_TERMINATING = 8;
+	public const STATUS_TERMINATED = 9;
 
 	/**
 	 * @var Application
@@ -114,18 +88,152 @@ abstract class ApplicationAbstract
 
 	/**
 	 * Returns the unique instance of the application.
-	 *
-	 * @return Application
 	 */
-	static public function get()
+	static public function get(): ?Application
 	{
 		return self::$instance;
 	}
 
 	/**
-	 * Constructor.
+	 * One of `STATUS_*`.
 	 *
-	 * @param array $options Initial options to create the application.
+	 * @var int
+	 */
+	private $status = self::STATUS_VOID;
+
+	/**
+	 * Whether the application is configured.
+	 */
+	private function get_is_configured(): bool
+	{
+		return $this->status >= self::STATUS_CONFIGURED;
+	}
+
+	/**
+	 * Whether the application is booting.
+	 */
+	private function get_is_booting(): bool
+	{
+		return $this->status === self::STATUS_BOOTING;
+	}
+
+	/**
+	 * Whether the application is booted.
+	 */
+	private function get_is_booted(): bool
+	{
+		return $this->status >= self::STATUS_BOOTED;
+	}
+
+	/**
+	 * Whether the application is running.
+	 */
+	private function get_is_running(): bool
+	{
+		return $this->status === self::STATUS_RUNNING;
+	}
+
+	/**
+	 * Whether the application is terminating.
+	 */
+	private function get_is_terminating(): bool
+	{
+		return $this->status === self::STATUS_TERMINATING;
+	}
+
+	/**
+	 * Whether the application is terminated.
+	 */
+	private function get_is_terminated(): bool
+	{
+		return $this->status === self::STATUS_TERMINATED;
+	}
+
+	/**
+	 * Options passed during construct.
+	 *
+	 * @var array<string, mixed>
+	 */
+	private $construct_options = [];
+
+	/**
+	 * @var TimeZone|null
+	 */
+	private $timezone;
+
+	/**
+	 * Sets the working time zone.
+	 *
+	 * When the time zone is set the default time zone is also set with
+	 * {@link date_default_timezone_set()}.
+	 *
+	 * @param TimeZone|string|int $timezone An instance of {@link TimeZone},
+	 * the name of a time zone, or numeric equivalent e.g. 3600.
+	 */
+	private function set_timezone($timezone): void
+	{
+		if (is_numeric($timezone))
+		{
+			$timezone = timezone_name_from_abbr("", (int) $timezone, 0);
+		}
+
+		$this->timezone = TimeZone::from($timezone);
+
+		date_default_timezone_set((string) $this->timezone);
+	}
+
+	/**
+	 * Returns the working time zone.
+	 *
+	 * If the time zone is not defined yet it defaults to the value of
+	 * {@link date_default_timezone_get()} or "UTC".
+	 */
+	private function get_timezone(): TimeZone
+	{
+		if (!$this->timezone)
+		{
+			$this->timezone = TimeZone::from(date_default_timezone_get() ?: 'UTC');
+		}
+
+		return $this->timezone;
+	}
+
+	/**
+	 * @var Storage<string, mixed>
+	 */
+	private $storage_for_configs;
+
+	/**
+	 * @return Storage<string, mixed>
+	 */
+	private function get_storage_for_configs(): Storage
+	{
+		return $this->storage_for_configs
+			?? $this->storage_for_configs = $this->create_storage($this->config[ AppConfig::STORAGE_FOR_CONFIGS ]);
+	}
+
+	/**
+	 * Returns the non-volatile variables registry.
+	 *
+	 * @return Storage<string, mixed>
+	 */
+	private function lazy_get_vars(): Storage
+	{
+		return $this->create_storage($this->config[AppConfig::STORAGE_FOR_VARS]);
+	}
+
+	/**
+	 * Returns the `app` configuration.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function lazy_get_config(): array
+	{
+		return array_merge_recursive($this->configs['app'], $this->construct_options);
+	}
+
+	/**
+	 * @param array<string, mixed> $options Initial options to create the application.
 	 *
 	 * @throws ApplicationAlreadyInstantiated in attempt to create a second instance.
 	 */
@@ -133,9 +241,12 @@ abstract class ApplicationAbstract
 	{
 		$this->assert_not_instantiated();
 
-		self::$status = self::STATUS_INSTANTIATING;
+		assert($this instanceof Application);
+
 		self::$instance = $this;
-        self::$construct_options = $options;
+
+		$this->status = self::STATUS_INSTANTIATING;
+		$this->construct_options = $options;
 
 		if (!date_default_timezone_get())
 		{
@@ -143,10 +254,13 @@ abstract class ApplicationAbstract
 		}
 
 		$this->bind_object_class();
-		$this->configs = $this->create_config_manager($options[Autoconfig::CONFIG_PATH], $options[Autoconfig::CONFIG_CONSTRUCTOR]);
+		$this->configs = $this->create_config_manager(
+			$options[ Autoconfig::CONFIG_PATH ],
+			$options[ Autoconfig::CONFIG_CONSTRUCTOR ]
+		);
 		$this->apply_config($this->config);
 
-		self::$status = self::STATUS_INSTANTIATED;
+		$this->status = self::STATUS_INSTANTIATED;
 	}
 
 	/**
@@ -154,7 +268,7 @@ abstract class ApplicationAbstract
 	 *
 	 * @throws ApplicationAlreadyInstantiated if the class is already instantiated.
 	 */
-	private function assert_not_instantiated()
+	private function assert_not_instantiated(): void
 	{
 		if (self::$instance)
 		{
@@ -167,9 +281,9 @@ abstract class ApplicationAbstract
 	 *
 	 * @throws ApplicationAlreadyBooted if the application is already booted.
 	 */
-	public function assert_not_booted()
+	private function assert_not_booted(): void
 	{
-		if (self::$status >= self::STATUS_BOOTING)
+		if ($this->status >= self::STATUS_BOOTING)
 		{
 			throw new ApplicationAlreadyBooted;
 		}
@@ -180,9 +294,9 @@ abstract class ApplicationAbstract
 	 *
 	 * @throws ApplicationAlreadyRunning if the application is already running.
 	 */
-	public function assert_not_running()
+	private function assert_not_running(): void
 	{
-		if (self::$status >= self::STATUS_RUNNING)
+		if ($this->status >= self::STATUS_RUNNING)
 		{
 			throw new ApplicationAlreadyRunning;
 		}
@@ -191,7 +305,7 @@ abstract class ApplicationAbstract
 	/**
 	 * Binds the object class to our instance.
 	 */
-	private function bind_object_class()
+	private function bind_object_class(): void
 	{
 		Prototype::from(Prototyped::class)['get_app'] = function() {
 
@@ -205,10 +319,8 @@ abstract class ApplicationAbstract
 	 *
 	 * @param array $paths Path list.
 	 * @param array $synthesizers Configuration synthesizers.
-	 *
-	 * @return Config
 	 */
-	protected function create_config_manager(array $paths, array $synthesizers)
+	private function create_config_manager(array $paths, array $synthesizers): Config
 	{
 		return new Config($paths, $synthesizers);
 	}
@@ -216,9 +328,9 @@ abstract class ApplicationAbstract
 	/**
 	 * Applies low-level configuration.
 	 *
-	 * @param array $config
+	 * @param array<string, mixed> $config
 	 */
-	protected function apply_config(array $config)
+	private function apply_config(array $config): void
 	{
 		$error_handler = $config[AppConfig::ERROR_HANDLER];
 
@@ -241,139 +353,31 @@ abstract class ApplicationAbstract
 	}
 
 	/**
-	 * Creates a storage engine.
+	 * Creates a storage engine, using a factory.
 	 *
-	 * @param string|callable $engine A class name or a callable.
+	 * @param callable(Application): Storage<string, mixed> $factory
 	 *
-	 * @return Storage
+	 * @return Storage<string, mixed>
 	 */
-	protected function create_storage($engine)
+	private function create_storage(callable $factory): Storage
 	{
-		if (class_exists($engine))
-		{
-			return new $engine;
-		}
+		assert($this instanceof Application);
 
-		if (is_string($engine) && version_compare(PHP_VERSION, 7, '<') && strpos($engine, '::') !== false)
-		{
-			$engine = explode('::', $engine);
-		}
-
-		return $engine($this);
-	}
-
-	/**
-	 * Creates storage engine for synthesized configs.
-	 *
-	 * @param string|callable $engine A class name or a callable.
-	 *
-	 * @return Storage
-	 */
-	protected function create_storage_for_configs($engine)
-	{
-		return $this->create_storage($engine);
-	}
-
-	/**
-	 * @return Storage
-	 */
-	protected function get_storage_for_configs()
-	{
-		static $storage;
-
-		return $storage
-			?: $storage = $this->create_storage_for_configs($this->config[AppConfig::STORAGE_FOR_CONFIGS]);
-	}
-
-	/**
-	 * Creates storage engine for variables.
-	 *
-	 * @param string|callable $engine A class name or a callable.
-	 *
-	 * @return Storage
-	 */
-	protected function create_storage_for_vars($engine)
-	{
-		return $this->create_storage($engine);
-	}
-
-	/**
-	 * Returns the non-volatile variables registry.
-	 *
-	 * @return Storage
-	 */
-	protected function lazy_get_vars()
-	{
-		return $this->create_storage_for_vars($this->config[AppConfig::STORAGE_FOR_VARS]);
-	}
-
-	/**
-	 * Returns the `app` configuration.
-	 *
-	 * @return array
-	 */
-	protected function lazy_get_config()
-	{
-		return array_merge_recursive($this->configs['app'], self::$construct_options);
-    }
-
-	/**
-	 * @var string The working time zone.
-	 */
-	private $timezone;
-
-	/**
-	 * Sets the working time zone.
-	 *
-	 * When the time zone is set the default time zone is also set with
-	 * {@link date_default_timezone_set()}.
-	 *
-	 * @param TimeZone|string|int $timezone An instance of {@link TimeZone},
-	 * the name of a time zone, or numeric equivalent e.g. 3600.
-	 */
-	protected function set_timezone($timezone)
-	{
-		if (is_numeric($timezone))
-		{
-			$timezone = timezone_name_from_abbr(null, $timezone, 0);
-		}
-
-		$this->timezone = TimeZone::from($timezone);
-
-		date_default_timezone_set((string) $this->timezone);
-	}
-
-	/**
-	 * Returns the working time zone.
-	 *
-	 * If the time zone is not defined yet it defaults to the value of
-	 * {@link date_default_timezone_get()} or "UTC".
-	 *
-	 * @return TimeZone
-	 */
-	protected function get_timezone()
-	{
-		if (!$this->timezone)
-		{
-			$this->timezone = TimeZone::from(date_default_timezone_get() ?: 'UTC');
-		}
-
-		return $this->timezone;
+		return $factory($this);
 	}
 
 	/**
 	 * Changes the status of the application.
 	 *
-	 * @param int $status
 	 * @param callable $callable
 	 *
 	 * @return mixed
 	 */
-	protected function change_status($status, callable $callable)
+	private function change_status(int $status, callable $callable)
 	{
-		self::$status = $status;
+		$this->status = $status;
 		$rc = $callable();
-		self::$status = $status + 1;
+		$this->status = $status + 1;
 
 		return $rc;
 	}
@@ -385,19 +389,17 @@ abstract class ApplicationAbstract
 	 * application is configured. Event hooks may use this event to further configure the
 	 * application.
 	 */
-	protected function configure()
+	private function configure(): void
 	{
-		$this->change_status(self::STATUS_CONFIGURING, function() {
-
+		$this->change_status(self::STATUS_CONFIGURING, function () {
 			Debug::configure($this->configs['debug']);
 			Prototype::bind($this->configs['prototype']);
 
 			$this->events;
 
-			/* @var $this Application */
+			assert($this instanceof Application);
 
 			new Application\ConfigureEvent($this);
-
 		});
 	}
 
@@ -411,7 +413,7 @@ abstract class ApplicationAbstract
 	 *
 	 * @throws ApplicationAlreadyBooted in attempt to boot the application twice.
 	 */
-	public function boot()
+	public function boot(): void
 	{
 		$this->assert_not_booted();
 
@@ -420,14 +422,12 @@ abstract class ApplicationAbstract
 			$this->configure();
 		}
 
-		$this->change_status(self::STATUS_BOOTING, function() {
-
-			/* @var $this Application */
+		$this->change_status(self::STATUS_BOOTING, function () {
+			assert($this instanceof Application);
 
 			new Application\BootEvent($this);
 
 			$_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
-
 		});
 	}
 
@@ -440,9 +440,9 @@ abstract class ApplicationAbstract
 	 *
 	 * The {@link boot()} method is invoked if the application has not booted yet.
 	 *
-	 * @param Request|null $request The request to handle. If `null`, the initial request is used.
+	 * @param Request<string, mixed>|null $request The request to handle. If `null`, the initial request is used.
 	 */
-	public function __invoke(Request $request = null)
+	public function run(Request $request = null): void
 	{
 		$this->initialize_response_header();
 		$this->assert_not_running();
@@ -452,59 +452,31 @@ abstract class ApplicationAbstract
 			$this->boot();
 		}
 
-		$this->change_status(self::STATUS_RUNNING, function() use ($request) {
-
+		$this->change_status(self::STATUS_RUNNING, function () use ($request): void {
 			if (!$request)
 			{
 				$request = $this->initial_request;
 			}
 
-			$this->run($request);
+			assert($this instanceof Application);
+
+			new Application\RunEvent($this, $request);
 
 			$response = $request();
 			$response();
 
 			$this->terminate($request, $response);
-
 		});
 	}
 
 	/**
-	 * Fires the `ICanBoogie\Application::clear_cache` event.
-	 */
-	public function clear_cache()
-	{
-		/* @var $this Application */
-
-		new Application\ClearCacheEvent($this);
-	}
-
-	/**
-     * Fires the `ICanBoogie\Application::run` event.
-     *
-     * @param Request $request
-     */
-    protected function run(Request $request)
-    {
-	    /* @var $this Application */
-
-	    new Application\RunEvent($this, $request);
-    }
-
-	/**
-	 * Terminate the application.
+	 * Alias to `run()`
 	 *
-	 * Fires the `ICanBoogie\Application::terminate` event of class
-	 * {@link Application\TerminateEvent}.
-	 *
-	 * @param Request $request
-	 * @param Response $response
+	 * @param Request<string, mixed>|null $request
 	 */
-	protected function terminate(Request $request, Response $response)
+	public function __invoke(Request $request = null): void
 	{
-		/* @var $this Application */
-
-		new Application\TerminateEvent($this, $request, $response);
+		$this->run($request);
 	}
 
 	/**
@@ -514,7 +486,7 @@ abstract class ApplicationAbstract
 	 * the appropriate header fields so it is not cached. That way, if something goes wrong
 	 * and an error message is displayed it won't be cached by a proxi.
 	 */
-	protected function initialize_response_header()
+	private function initialize_response_header(): void
 	{
 		http_response_code(Status::INTERNAL_SERVER_ERROR);
 
@@ -526,6 +498,33 @@ abstract class ApplicationAbstract
 			header('Expires: 0');
 		}
 		// @codeCoverageIgnoreEnd
+	}
+
+	/**
+	 * Terminate the application.
+	 *
+	 * Fires the `ICanBoogie\Application::terminate` event of class
+	 * {@link Application\TerminateEvent}.
+	 *
+	 * @param Request<string, mixed> $request
+	 */
+	private function terminate(Request $request, Response $response): void
+	{
+		$this->change_status(self::STATUS_TERMINATING, function () use ($request, $response): void {
+			assert($this instanceof Application);
+
+			new Application\TerminateEvent($this, $request, $response);
+		});
+	}
+
+	/**
+	 * Fires the `ICanBoogie\Application::clear_cache` event.
+	 */
+	public function clear_cache(): void
+	{
+		assert($this instanceof Application);
+
+		new Application\ClearCacheEvent($this);
 	}
 }
 

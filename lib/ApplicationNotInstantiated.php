@@ -11,20 +11,23 @@
 
 namespace ICanBoogie;
 
+use LogicException;
+use Throwable;
+
 /**
  * Exception thrown in attempt to obtain the application before is has been instantiated.
  *
  * @codeCoverageIgnore
  */
-class ApplicationNotInstantiated extends \LogicException
+final class ApplicationNotInstantiated extends LogicException
 {
-	const DEFAULT_MESSAGE = "The application has not been instantiated yet.";
+	public const DEFAULT_MESSAGE = "The application has not been instantiated yet.";
 
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct($message = self::DEFAULT_MESSAGE, $code = 500, \Exception $previous = null)
+	public function __construct(string $message = self::DEFAULT_MESSAGE, Throwable $previous = null)
 	{
-		parent::__construct($message, $code, $previous);
+		parent::__construct($message, 0, $previous);
 	}
 }

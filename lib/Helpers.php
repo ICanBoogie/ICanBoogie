@@ -11,13 +11,18 @@
 
 namespace ICanBoogie;
 
+use RuntimeException;
+
 /**
  * Patchable helpers of the ICanBoogie package.
  *
  * @method static generate_token(int $length = 8, string $possible = TOKEN_NARROW)
  */
-class Helpers
+final class Helpers
 {
+	/**
+	 * @var array<string, callable>
+	 */
 	static private $jumptable = [
 
 		'generate_token' => [ __CLASS__, 'default_generate_token' ]
@@ -28,11 +33,13 @@ class Helpers
 	 * Calls the callback of a patchable function.
 	 *
 	 * @param string $name Name of the function.
-	 * @param array $arguments Arguments.
+	 * @param mixed[] $arguments Arguments.
 	 *
 	 * @return mixed
+	 *
+	 * @uses default_generate_token()
 	 */
-	static public function __callstatic($name, array $arguments)
+	static public function __callstatic(string $name, array $arguments)
 	{
 		$method = self::$jumptable[$name];
 
@@ -45,15 +52,15 @@ class Helpers
 	 * @param string $name Name of the function.
 	 * @param callable $callback Callback.
 	 *
-	 * @throws \RuntimeException is attempt to patch an undefined function.
+	 * @throws RuntimeException is attempt to patch an undefined function.
 	 *
 	 * @codeCoverageIgnore
 	 */
-	static public function patch($name, $callback)
+	static public function patch(string $name, callable $callback): void
 	{
 		if (empty(self::$jumptable[$name]))
 		{
-			throw new \RuntimeException("Undefined patchable: $name.");
+			throw new RuntimeException("Undefined patchable: $name.");
 		}
 
 		self::$jumptable[$name] = $callback;
@@ -63,7 +70,7 @@ class Helpers
 	 * Default implementations
 	 */
 
-	static private function default_generate_token($length = 8, $possible = TOKEN_NARROW)
+	static private function default_generate_token(int $length = 8, string $possible = TOKEN_NARROW): string
 	{
 		$token = '';
 		$y = strlen($possible) - 1;

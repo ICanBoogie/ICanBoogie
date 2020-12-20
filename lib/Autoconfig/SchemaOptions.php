@@ -18,12 +18,12 @@ namespace ICanBoogie\Autoconfig;
  */
 interface SchemaOptions
 {
-	const AUTOCONFIG_EXTENSION = 'autoconfig-extension';
-	const AUTOCONFIG_FILTERS = 'autoconfig-filters';
-	const CONFIG_CONSTRUCTOR = 'config-constructor';
-	const CONFIG_PATH = 'config-path';
-	const CONFIG_WEIGHT = 'config-weight';
-	const LOCALE_PATH = 'locale-path';
-	const APP_PATH = 'app-path';
-	const APP_PATHS = 'app-paths';
+	public const AUTOCONFIG_EXTENSION = 'autoconfig-extension';
+	public const AUTOCONFIG_FILTERS = 'autoconfig-filters';
+	public const CONFIG_CONSTRUCTOR = 'config-constructor';
+	public const CONFIG_PATH = 'config-path';
+	public const CONFIG_WEIGHT = 'config-weight';
+	public const LOCALE_PATH = 'locale-path';
+	public const APP_PATH = 'app-path';
+	public const APP_PATHS = 'app-paths';
 }

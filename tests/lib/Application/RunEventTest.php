@@ -16,7 +16,7 @@ use ICanBoogie\HTTP\Request;
 
 use function ICanBoogie\app;
 
-class RunEventTest extends \PHPUnit_Framework_TestCase
+class RunEventTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_instance()
 	{

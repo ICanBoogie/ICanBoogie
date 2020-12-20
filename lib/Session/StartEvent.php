@@ -19,14 +19,12 @@ use ICanBoogie\Session;
  *
  * @codeCoverageIgnore
  */
-class StartEvent extends Event
+final class StartEvent extends Event
 {
-	const TYPE = 'start';
+	public const TYPE = 'start';
 
 	/**
 	 * The event is constructed with the type {@link TYPE}.
-	 *
-	 * @param Session $target
 	 */
 	public function __construct(Session $target)
 	{

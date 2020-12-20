@@ -22,9 +22,9 @@ use ICanBoogie\HTTP\Request;
  *
  * @codeCoverageIgnore
  */
-class RunEvent extends Event
+final class RunEvent extends Event
 {
-	const TYPE = 'run';
+	public const TYPE = 'run';
 
 	/**
 	 * Initial request.
@@ -33,19 +33,13 @@ class RunEvent extends Event
 	 */
 	private $request;
 
-	/**
-	 * @return Request
-	 */
-	protected function get_request()
+	protected function get_request(): Request
 	{
 		return $this->request;
 	}
 
 	/**
 	 * The event is constructed with the type {@link TYPE}.
-	 *
-	 * @param Application $target
-	 * @param Request $request
 	 */
 	public function __construct(Application $target, Request $request)
 	{

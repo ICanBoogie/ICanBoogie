@@ -11,22 +11,31 @@
 
 namespace ICanBoogie;
 
-class AppConfig
+use LogicException;
+
+use function array_values;
+use function file_exists;
+use function realpath;
+use function str_replace;
+
+use const DIRECTORY_SEPARATOR;
+
+final class AppConfig
 {
 	/**
 	 * Whether message catalogs should be cached.
 	 */
-	const CACHE_CATALOGS = 'cache catalogs';
+	public const CACHE_CATALOGS = 'cache catalogs';
 
 	/**
 	 * Whether synthesized configuration fragments should be cached.
 	 */
-	const CACHE_CONFIGS = 'cache configs';
+	public const CACHE_CONFIGS = 'cache configs';
 
 	/**
 	 * Whether module descriptors should be cached.
 	 */
-	const CACHE_MODULES = 'cache modules';
+	public const CACHE_MODULES = 'cache modules';
 
 	/**
 	 * Specify the storage engine for synthesized configurations.
@@ -38,7 +47,7 @@ class AppConfig
 	 * callable(\ICanBoogie\Application $app): \ICanBoogie\Storage\Storage
 	 * ```
 	 */
-	const STORAGE_FOR_CONFIGS = 'storage_for_configs';
+	public const STORAGE_FOR_CONFIGS = 'storage_for_configs';
 
 	/**
 	 * Specify the storage engine for variables.
@@ -50,22 +59,22 @@ class AppConfig
 	 * callable(\ICanBoogie\Application $app): \ICanBoogie\Storage\Storage
 	 * ```
 	 */
-	const STORAGE_FOR_VARS = 'storage_for_vars';
+	public const STORAGE_FOR_VARS = 'storage_for_vars';
 
 	/**
 	 * Specify the error handler of the application.
 	 */
-	const ERROR_HANDLER = 'error_handler';
+	public const ERROR_HANDLER = 'error_handler';
 
 	/**
 	 * Specify the exception handler of the application.
 	 */
-	const EXCEPTION_HANDLER = 'exception_handler';
+	public const EXCEPTION_HANDLER = 'exception_handler';
 
 	/**
 	 * Specify the path to the _repository_ directory.
 	 */
-	const REPOSITORY = 'repository';
+	public const REPOSITORY = 'repository';
 
 	/**
 	 * Specify the path to the _cache_ directory.
@@ -74,7 +83,7 @@ class AppConfig
 	 *
 	 * **Note**: `{repository}` is replaced by the directory specified by `REPOSITORY`.
 	 */
-	const REPOSITORY_CACHE = 'repository/cache';
+	public const REPOSITORY_CACHE = 'repository/cache';
 
 	/**
 	 * Specify the path to the _cache/configs_ directory.
@@ -83,7 +92,7 @@ class AppConfig
 	 *
 	 * **Note**: `{repository}` is replaced by the directory specified by `REPOSITORY`.
 	 */
-	const REPOSITORY_CACHE_CONFIGS = 'repository/cache/configs';
+	public const REPOSITORY_CACHE_CONFIGS = 'repository/cache/configs';
 
 	/**
 	 * Specify the path to the _files_ directory.
@@ -92,7 +101,7 @@ class AppConfig
 	 *
 	 * **Note**: `{repository}` is replaced by the directory specified by `REPOSITORY`.
 	 */
-	const REPOSITORY_FILES = 'repository/files';
+	public const REPOSITORY_FILES = 'repository/files';
 
 	/**
 	 * Specify the path to the _tmp_ directory.
@@ -101,7 +110,7 @@ class AppConfig
 	 *
 	 * **Note**: `{repository}` is replaced by the directory specified by `REPOSITORY`.
 	 */
-	const REPOSITORY_TMP = 'repository/tmp';
+	public const REPOSITORY_TMP = 'repository/tmp';
 
 	/**
 	 * Specify the path to the _var_ directory.
@@ -110,21 +119,21 @@ class AppConfig
 	 *
 	 * **Note**: `{repository}` is replaced by the directory specified by `REPOSITORY`.
 	 */
-	const REPOSITORY_VARS = 'repository/var';
+	public const REPOSITORY_VARS = 'repository/var';
 
 	/**
 	 * Specify session parameters.
 	 */
-	const SESSION = 'session';
+	public const SESSION = 'session';
 
 	/**
 	 * Synthesize the `app` config, from `app` fragments.
 	 *
-	 * @param array $fragments
+	 * @param array<array<string, mixed>> $fragments
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
-	static public function synthesize(array $fragments)
+	static public function synthesize(array $fragments): array
 	{
 		$config = array_merge_recursive(...array_values($fragments));
 
@@ -136,9 +145,9 @@ class AppConfig
 	/**
 	 * Normalize `REPOSITORY*` items.
 	 *
-	 * @param array $config
+	 * @param array<string, mixed> $config
 	 */
-	static private function normalize_repository(array &$config)
+	static private function normalize_repository(array &$config): void
 	{
 		static $interpolatable = [
 
@@ -154,10 +163,12 @@ class AppConfig
 
 		if (!file_exists($repository))
 		{
-			throw new \LogicException("The directory does not exists: $repository");
+			throw new LogicException("The directory does not exists: $repository");
 		}
 
 		$repository = realpath($repository);
+
+		assert(is_string($repository));
 
 		foreach ($interpolatable as $item)
 		{

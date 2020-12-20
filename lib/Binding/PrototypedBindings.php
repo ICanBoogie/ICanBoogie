@@ -11,10 +11,12 @@
 
 namespace ICanBoogie\Binding;
 
+use ICanBoogie\Application;
+
 /**
  * {@link \ICanBoogie\Prototyped} prototype methods.
  *
- * @property-read \ICanBoogie\Application $app
+ * @property-read Application $app
  */
 trait PrototypedBindings
 {

@@ -1,10 +1,10 @@
 # customization
 
 PACKAGE_NAME = icanboogie/icanboogie
-PACKAGE_VERSION = 4.0
-PHPUNIT_VERSION = phpunit-5.7.phar
-PHPUNIT_FILENAME = build/$(PHPUNIT_VERSION)
-PHPUNIT = php $(PHPUNIT_FILENAME)
+PACKAGE_VERSION = 5.0
+# we need a PHPUnit in a standalone package or it will trigger the autoload and mess with the constants.
+PHPUNIT_VERSION = phpunit-7-4.phar
+PHPUNIT = build/$(PHPUNIT_VERSION)
 
 # do not edit the following lines
 
@@ -17,27 +17,31 @@ vendor:
 update:
 	@COMPOSER_ROOT_VERSION=$(PACKAGE_VERSION) composer update
 
-autoload: vendor
-	@composer dump-autoload
+# testing
 
-test-dependencies: vendor $(PHPUNIT_FILENAME)
+test-dependencies: vendor $(PHPUNIT)
 
-$(PHPUNIT_FILENAME):
+$(PHPUNIT):
 	mkdir -p build
-	wget https://phar.phpunit.de/$(PHPUNIT_VERSION) -O $(PHPUNIT_FILENAME) -q
+	wget https://phar.phpunit.de/$(PHPUNIT_VERSION) -O $(PHPUNIT)
+	chmod +x $(PHPUNIT)
+
+test-container:
+	@docker-compose run --rm app sh
+	@docker-compose down
 
 test: test-dependencies
 	@$(PHPUNIT)
 
 test-coverage: test-dependencies
 	@mkdir -p build/coverage
-	@$(PHPUNIT) --coverage-html ../build/coverage
+	@$(PHPUNIT) --coverage-html build/coverage --coverage-text
 
 test-coveralls: test-dependencies
 	@mkdir -p build/logs
-	COMPOSER_ROOT_VERSION=$(PACKAGE_VERSION) composer require satooshi/php-coveralls
-	@$(PHPUNIT) --coverage-clover ../build/logs/clover.xml
-	php vendor/bin/php-coveralls -v
+	@$(PHPUNIT) --coverage-clover build/logs/clover.xml
+
+#doc
 
 doc: vendor
 	@mkdir -p build/docs
@@ -46,6 +50,8 @@ doc: vendor
 	--destination build/docs/ \
 	--title "$(PACKAGE_NAME) v$(PACKAGE_VERSION)" \
 	--template-theme "bootstrap"
+
+# utils
 
 clean:
 	@rm -fR build

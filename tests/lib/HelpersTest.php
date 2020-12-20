@@ -13,7 +13,7 @@ namespace ICanBoogie;
 
 use ICanBoogie\Autoconfig\Autoconfig;
 
-class HelpersTest extends \PHPUnit_Framework_TestCase
+class HelpersTest extends \PHPUnit\Framework\TestCase
 {
 	public function test_generate_token()
 	{

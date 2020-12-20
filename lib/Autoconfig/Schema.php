@@ -12,7 +12,21 @@
 namespace ICanBoogie\Autoconfig;
 
 use Composer\Json\JsonFile;
+use InvalidArgumentException;
 use JsonSchema\Validator;
+use RuntimeException;
+use Throwable;
+
+use function array_walk;
+use function file_get_contents;
+use function is_array;
+use function is_numeric;
+use function is_scalar;
+use function json_decode;
+use function json_last_error;
+use function json_last_error_msg;
+use function key;
+use function reset;
 
 /**
  * A JSON schema.
@@ -21,22 +35,26 @@ use JsonSchema\Validator;
  *
  * @codeCoverageIgnore
  */
-class Schema
+final class Schema
 {
 	/**
 	 * Read schema data from a JSON file.
-	 *
-	 * @param string $pathname
-	 *
-	 * @return mixed
 	 */
-	static public function read($pathname)
+	static public function read(string $pathname): object
 	{
 		$json = file_get_contents($pathname);
 
+		assert(is_string($json));
+
 		JsonFile::parseJson($json, $pathname);
 
-		return json_decode($json);
+		$decoded = json_decode($json);
+
+		if (json_last_error()) {
+			throw new RuntimeException(json_last_error_msg());
+		}
+
+		return $decoded;
 	}
 
 	/**
@@ -79,11 +97,11 @@ class Schema
 	private $validator;
 
 	/**
-	 * @param mixed $data Schema data as returned by {@link read()}.
+	 * @param object $schema Schema data as returned by {@link read()}.
 	 */
-	public function __construct($data)
+	public function __construct(object $schema)
 	{
-		$this->schema = $data;
+		$this->schema = $schema;
 		$this->validator = new Validator;
 	}
 
@@ -93,9 +111,9 @@ class Schema
 	 * @param mixed $data Data to validate.
 	 * @param string $pathname The pathname to the file where the data is defined.
 	 *
-	 * @throws \Exception when the data is not valid.
+	 * @throws Throwable when the data is not valid.
 	 */
-	public function validate($data, $pathname)
+	public function validate($data, string $pathname): void
 	{
 		$validator = $this->validator;
 
@@ -109,8 +127,8 @@ class Schema
 			{
 				$errors .= "\n- " . ($error['property'] ? $error['property'] . ': ' : '') . $error['message'];
 			}
-var_dump($data);
-			throw new \Exception("`$pathname` does not match the expected JSON schema:\n$errors");
+
+			throw new InvalidArgumentException("`$pathname` does not match the expected JSON schema:\n$errors");
 		}
 	}
 
@@ -119,11 +137,11 @@ var_dump($data);
 	 *
 	 * @param string $pathname The pathname to the JSON file to validate.
 	 *
-	 * @throws \Exception when the data is not valid.
+	 * @throws Throwable when the data is not valid.
 	 *
 	 * @see validate()
 	 */
-	public function validate_file($pathname)
+	public function validate_file(string $pathname): void
 	{
 		$data = self::read($pathname);
 

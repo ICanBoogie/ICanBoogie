@@ -11,16 +11,28 @@
 
 namespace ICanBoogie\Autoconfig;
 
+use Composer\Package\Package;
+use Composer\Package\PackageInterface;
+use Composer\Package\RootPackage;
 use Composer\Package\RootPackageInterface;
 use Composer\Util\Filesystem;
-use Composer\Package\Package;
-use Composer\Package\RootPackage;
 use ICanBoogie\Accessor\AccessorTrait;
+use Throwable;
+
+use function array_keys;
+use function array_map;
+use function array_merge;
+use function explode;
+use function file_put_contents;
+use function getcwd;
+use function implode;
+use function ksort;
+use function realpath;
 
 /**
  * @codeCoverageIgnore
  *
- * @property-read Package[] $packages
+ * @property-read array<string, Package> $packages
  * @property-read RootPackageInterface $root_package
  */
 final class AutoconfigGenerator
@@ -33,11 +45,11 @@ final class AutoconfigGenerator
 	private $packages;
 
 	/**
-	 * @return \Generator
+	 * @return array<string, Package>
 	 */
-	private function get_packages()
+	private function get_packages(): iterable
 	{
-		foreach ($this->packages as list($package, $pathname))
+		foreach ($this->packages as [ $package, $pathname ])
 		{
 			if (!$pathname)
 			{
@@ -48,12 +60,9 @@ final class AutoconfigGenerator
 		}
 	}
 
-	/**
-	 * @return Package|null
-	 */
-	private function get_root_package()
+	private function get_root_package(): ?RootPackageInterface
 	{
-		foreach ($this->packages as list($package))
+		foreach ($this->packages as [ $package ])
 		{
 			if ($package instanceof RootPackageInterface)
 			{
@@ -75,12 +84,12 @@ final class AutoconfigGenerator
 	private $filesystem;
 
 	/**
-	 * @var array
+	 * @var array<string, mixed>
 	 */
 	private $fragments = [];
 
 	/**
-	 * @var array
+	 * @var array<string, int>
 	 */
 	private $weights = [];
 
@@ -91,11 +100,10 @@ final class AutoconfigGenerator
 
 	/**
 	 * @param Package[] $packages
-	 * @param string $destination
 	 *
 	 * @uses get_root_package
 	 */
-	public function __construct(array $packages, $destination)
+	public function __construct(array $packages, string $destination)
 	{
 		$this->packages = $packages;
 		$this->destination = $destination;
@@ -104,41 +112,27 @@ final class AutoconfigGenerator
 
 	/**
 	 * Search for autoconfig fragments defined by the packages and create the autoconfig file.
+	 *
+	 * @throws Throwable
 	 */
-	public function __invoke()
+	public function __invoke(): void
 	{
-		list($fragments, $weights) = $this->collect_fragments();
+		[ $fragments, $weights ] = $this->collect_fragments();
 
 		$this->fragments = $fragments;
 		$this->weights = $weights;
 		$this->extensions = $this->collect_extensions($fragments);
 
 		$this->validate_fragments($fragments);
-
 		$this->write();
 	}
 
-	/**
-	 * @param string $to
-	 *
-	 * @return string
-	 *
-	 * @used-by ExtensionAbstract
-	 */
-	public function findShortestPathCode($to)
+	public function find_shortest_path_code(string $to): string
 	{
 		return $this->filesystem->findShortestPathCode($this->destination, $to);
 	}
 
-	/**
-	 * @param string $key
-	 * @param string $value
-	 *
-	 * @return string
-	 *
-	 * @used-by ExtensionAbstract
-	 */
-	public function render_entry($key, $value)
+	public function render_entry(string $key, string $value): string
 	{
 		return <<<EOT
     '$key' => $value,
@@ -146,24 +140,15 @@ EOT;
 	}
 
 	/**
-	 * @param string $key
-	 * @param array $items
-	 * @param callable $renderer
-	 *
-	 * @return string
-	 *
-	 * @used-by ExtensionAbstract
+	 * @param array<string, mixed> $items
 	 */
-	public function render_array_entry($key, array $items, callable $renderer)
+	public function render_array_entry(string $key, array $items, callable $renderer): string
 	{
 		$rendered_items = implode(array_map(function ($item, $key) use ($renderer) {
 
 			return "\t\t" . $renderer($item, $key) . ",\n";
 
 		}, $items, array_keys($items)));
-
-		/* @var string $key */
-		/* @var string $rendered_items */
 
 		return <<<EOT
     '$key' => [
@@ -176,9 +161,9 @@ EOT;
 	/**
 	 * Collect autoconfig fragments from packages.
 	 *
-	 * @return array An array with the collected fragments and their weights.
+	 * @return array{0: array<string, mixed>, 1: array<string, int>} An array with the collected fragments and their weights.
 	 */
-	private function collect_fragments()
+	private function collect_fragments(): array
 	{
 		$fragments = [];
 		$weights = [];
@@ -186,6 +171,9 @@ EOT;
 		foreach ($this->get_packages() as $pathname => $package)
 		{
 			$pathname = realpath($pathname);
+
+			assert(is_string($pathname));
+
 			$fragment = $this->find_fragment($package);
 
 			if (!$fragment)
@@ -203,28 +191,19 @@ EOT;
 	/**
 	 * Try to find autoconfig fragment of package.
 	 *
-	 * @param Package $package
-	 *
-	 * @return array|null The autoconfig fragment, or `null` if the package doesn't define one.
+	 * @return array<string, mixed>|null The autoconfig fragment, or `null` if the package doesn't define one.
 	 */
-	private function find_fragment(Package $package)
+	private function find_fragment(PackageInterface $package): ?array
 	{
-		$extra = $package->getExtra();
-
-		if (empty($extra['icanboogie']))
-		{
-			return null;
-		}
-
-		return $extra['icanboogie'];
+		return $package->getExtra()['icanboogie'] ?? null;
 	}
 
 	/**
-	 * @param array $fragments
+	 * @param array<string, mixed> $fragments
 	 *
 	 * @return ExtensionAbstract[]
 	 */
-	private function collect_extensions(array $fragments)
+	private function collect_extensions(array $fragments): array
 	{
 		$extensions = [];
 
@@ -245,13 +224,15 @@ EOT;
 	/**
 	 * Validate fragments against schema.
 	 *
-	 * @param array $fragments
+	 * @param array<string, mixed> $fragments
+	 *
+	 * @throws Throwable
 	 */
-	private function validate_fragments(array $fragments)
+	private function validate_fragments(array $fragments): void
 	{
 		$data = Schema::read(__DIR__ . '/schema.json');
 		$properties = &$data->properties;
-		$set_property = function ($property, array $data) use (&$properties)
+		$set_property = function ($property, array $data) use (&$properties): void
 		{
 			$properties->$property = (object) $data;
 		};
@@ -270,14 +251,9 @@ EOT;
 	}
 
 	/**
-	 * Resolves config weight.
-	 *
-	 * @param Package $package
-	 * @param array $fragment
-	 *
-	 * @return int
+	 * @param array<string, mixed> $fragment
 	 */
-	private function resolve_config_weight(Package $package, array $fragment)
+	private function resolve_config_weight(PackageInterface $package, array $fragment): int
 	{
 		if (isset($fragment[SchemaOptions::CONFIG_WEIGHT]))
 		{
@@ -295,9 +271,9 @@ EOT;
 	/**
 	 * Synthesize the autoconfig fragments into a single array.
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
-	private function synthesize()
+	private function synthesize(): array
 	{
 		static $mapping = [
 
@@ -340,7 +316,7 @@ EOT;
 						{
 							$config[Autoconfig::CONFIG_PATH][] = [
 
-								$this->findShortestPathCode("$path/$v"),
+								$this->find_shortest_path_code("$path/$v"),
 								$this->weights[$path]
 
 							];
@@ -354,7 +330,7 @@ EOT;
 
 						foreach ((array) $value as $v)
 						{
-							$config[$key][] = $this->findShortestPathCode("$path/$v");
+							$config[$key][] = $this->find_shortest_path_code("$path/$v");
 						}
 
 						break;
@@ -373,11 +349,9 @@ EOT;
 	/**
 	 * Render the synthesized autoconfig into a string.
 	 *
-	 * @param array $config Synthesized config.
-	 *
-	 * @return string
+	 * @param array<string, mixed> $config Synthesized config.
 	 */
-	private function render($config = [])
+	private function render(array $config = []): string
 	{
 		if (!$config)
 		{
@@ -423,7 +397,7 @@ EOT;
  *
  * @generated by $class
  * @see https://icanboogie.org/docs/4.0/autoconfig
- */ 
+ */
 
 return [
 $extension_render
@@ -434,16 +408,14 @@ EOT;
 	/**
 	 * Render the {@link Autoconfig::APP_PATHS} part of the autoconfig.
 	 *
-	 * @param array $config
-	 *
-	 * @return string
+	 * @param array<string, mixed> $config
 	 */
-	private function render_app_paths(array $config)
+	private function render_app_paths(array $config): string
 	{
 		return $this->render_array_entry(
 			Autoconfig::APP_PATHS,
 			$config[Autoconfig::APP_PATHS],
-			function ($item)
+			function ($item): string
 			{
 				return (string) $item;
 			}
@@ -453,16 +425,14 @@ EOT;
 	/**
 	 * Render the {@link Autoconfig::LOCALE_PATH} part of the autoconfig.
 	 *
-	 * @param array $config
-	 *
-	 * @return string
+	 * @param array<string, mixed> $config
 	 */
-	private function render_locale_paths(array $config)
+	private function render_locale_paths(array $config): string
 	{
 		return $this->render_array_entry(
 			Autoconfig::LOCALE_PATH,
 			$config[Autoconfig::LOCALE_PATH],
-			function ($item)
+			function ($item): string
 			{
 				return (string) $item;
 			}
@@ -472,11 +442,9 @@ EOT;
 	/**
 	 * Render the {@link Autoconfig::CONFIG_CONSTRUCTOR} part of the autoconfig.
 	 *
-	 * @param array $config
-	 *
-	 * @return string
+	 * @param array<string, mixed> $config
 	 */
-	private function render_config_constructor(array $config)
+	private function render_config_constructor(array $config): string
 	{
 		$synthesized = $config[Autoconfig::CONFIG_CONSTRUCTOR];
 		ksort($synthesized);
@@ -484,9 +452,9 @@ EOT;
 		return $this->render_array_entry(
 			Autoconfig::CONFIG_CONSTRUCTOR,
 			$synthesized,
-			function ($constructor, $name)
+			function ($constructor, $name): string
 			{
-				list($callback, $from) = explode('#', $constructor) + [ 1 => null ];
+				[ $callback, $from ] = explode('#', $constructor) + [ 1 => null ];
 
 				return "'$name' => [ '$callback'" . ($from ? ", '$from'" : '') . " ]";
 			}
@@ -496,18 +464,16 @@ EOT;
 	/**
 	 * Render the {@link Autoconfig::CONFIG_PATH} part of the autoconfig.
 	 *
-	 * @param array $config
-	 *
-	 * @return string
+	 * @param array<string, mixed> $config
 	 */
-	private function render_config_path(array $config)
+	private function render_config_path(array $config): string
 	{
 		return $this->render_array_entry(
 			Autoconfig::CONFIG_PATH,
 			$config[Autoconfig::CONFIG_PATH],
-			function ($item)
+			function ($item): string
 			{
-				list($path_code, $weight) = $item;
+				[ $path_code, $weight ] = $item;
 
 				return "{$path_code} => {$weight}";
 			}
@@ -517,16 +483,14 @@ EOT;
 	/**
 	 * Render the {@link Autoconfig::AUTOCONFIG_FILTERS} part of the autoconfig.
 	 *
-	 * @param array $config
-	 *
-	 * @return string
+	 * @param array<string, mixed> $config
 	 */
-	private function render_filters(array $config)
+	private function render_filters(array $config): string
 	{
 		return $this->render_array_entry(
 			Autoconfig::AUTOCONFIG_FILTERS,
 			$config[Autoconfig::AUTOCONFIG_FILTERS],
-			function ($callable)
+			function ($callable): string
 			{
 				return "'$callable'";
 			}
@@ -535,8 +499,10 @@ EOT;
 
 	/**
 	 * Write the autoconfig file.
+	 *
+	 * @throws Throwable
 	 */
-	private function write()
+	private function write(): void
 	{
 		try
 		{
@@ -544,7 +510,7 @@ EOT;
 
 			echo "Created Autoconfig in {$this->destination}\n";
 		}
-		catch (\Exception $e)
+		catch (Throwable $e)
 		{
 			echo $e;
 

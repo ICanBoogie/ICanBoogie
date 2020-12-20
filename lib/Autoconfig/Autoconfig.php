@@ -16,22 +16,22 @@ interface Autoconfig
 	/**
 	 * The fully qualified path to the `app` directory.
 	 */
-	const APP_PATH = 'app-path';
-	const APP_PATHS = 'app-paths';
-	const AUTOCONFIG_FILTERS = 'autoconfig-filters';
+	public const APP_PATH = 'app-path';
+	public const APP_PATHS = 'app-paths';
+	public const AUTOCONFIG_FILTERS = 'autoconfig-filters';
 
 	/**
 	 * The fully qualified path to the project root.
 	 */
-	const BASE_PATH = 'base-path';
-	const CONFIG_CONSTRUCTOR = 'config-constructor';
-	const CONFIG_PATH = 'config-path';
-	const CONFIG_WEIGHT = 'config-weight';
-	const CONFIG_WEIGHT_FRAMEWORK = -100;
-	const CONFIG_WEIGHT_MODULE = 0;
-	const CONFIG_WEIGHT_APP = 100;
-	const LOCALE_PATH = 'locale-path';
-	const ROOT = 'root';
+	public const BASE_PATH = 'base-path';
+	public const CONFIG_CONSTRUCTOR = 'config-constructor';
+	public const CONFIG_PATH = 'config-path';
+	public const CONFIG_WEIGHT = 'config-weight';
+	public const CONFIG_WEIGHT_FRAMEWORK = -100;
+	public const CONFIG_WEIGHT_MODULE = 0;
+	public const CONFIG_WEIGHT_APP = 100;
+	public const LOCALE_PATH = 'locale-path';
+	public const ROOT = 'root';
 
-	const DEFAULT_APP_DIRECTORY = 'app';
+	public const DEFAULT_APP_DIRECTORY = 'app';
 }

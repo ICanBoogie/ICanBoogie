@@ -11,7 +11,7 @@
 
 namespace ICanBoogie;
 
-class AppConfigTest extends \PHPUnit_Framework_TestCase
+class AppConfigTest extends \PHPUnit\Framework\TestCase
 {
 	/**
 	 * @expectedException \LogicException

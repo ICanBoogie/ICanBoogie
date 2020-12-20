@@ -11,6 +11,10 @@
 
 namespace ICanBoogie;
 
+/**
+ * @uses Hooks::create_storage_for_configs()
+ * @uses Hooks::create_storage_for_vars()
+ */
 return [
 
 	AppConfig::CACHE_CATALOGS => false,

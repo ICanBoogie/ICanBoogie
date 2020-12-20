@@ -21,14 +21,12 @@ use ICanBoogie\Event;
  *
  * @codeCoverageIgnore
  */
-class ClearCacheEvent extends Event
+final class ClearCacheEvent extends Event
 {
-	const TYPE = 'clear_cache';
+	public const TYPE = 'clear_cache';
 
 	/**
 	 * The event is constructed with the type {@link TYPE}.
-	 *
-	 * @param Application $target
 	 */
 	public function __construct(Application $target)
 	{
