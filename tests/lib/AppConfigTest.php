@@ -11,13 +11,14 @@
 
 namespace ICanBoogie;
 
+use LogicException;
+
 class AppConfigTest extends \PHPUnit\Framework\TestCase
 {
-	/**
-	 * @expectedException \LogicException
-	 */
 	public function testShouldThrowExceptionOnInvalidRepository()
 	{
+		$this->expectException(LogicException::class);
+
 		AppConfig::synthesize([ [
 
 			AppConfig::REPOSITORY => __DIR__ . 'AppConfigTest.php/' . uniqid()

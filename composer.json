@@ -22,19 +22,19 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"require": {
-		"php": "^7.2",
+		"php": ">=7.2.5",
 		"ext-json": "*",
-		"psr/log": "^1.0",
 		"icanboogie/bind-event": "^5.0",
-		"icanboogie/bind-prototype": "^5.0",
 		"icanboogie/bind-http": "^5.0",
+		"icanboogie/bind-prototype": "^5.0",
 		"icanboogie/bind-routing": "^5.0",
-		"icanboogie/storage": "^3.0",
 		"icanboogie/config": "^1.2",
-		"icanboogie/session": "^2.0"
+		"icanboogie/session": "^2.0",
+		"icanboogie/storage": "^3.0",
+		"psr/log": "^1.0"
 	},
 	"require-dev": {
-		"composer/composer": "dev-master",
+		"composer/composer": "^2.0",
 		"phpstan/phpstan": "^0.12.63"
 	},
 	"suggest": {

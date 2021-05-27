@@ -11,8 +11,16 @@
 
 namespace ICanBoogie;
 
+use function dirname;
+
+use const DIRECTORY_SEPARATOR;
+
 chdir(__DIR__);
 
+/*
+ * Careful! PHPUnit cannot be required as a dependency for it will trigger autoload before running
+ * this file, which includes running the bootstrap file.
+ */
 define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'icanboogie' . DIRECTORY_SEPARATOR . 'autoconfig.php');
 
 require __DIR__ . '/../vendor/autoload.php';

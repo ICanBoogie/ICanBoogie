@@ -23,7 +23,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
 	 */
 	private $app;
 
-	public function setUp()
+	protected function setUp(): void
 	{
 		$this->session = $this
 			->getMockBuilder(Session::class)

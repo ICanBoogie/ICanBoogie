@@ -1,7 +1,6 @@
 <p><img height="120" src="https://cdn.rawgit.com/ICanBoogie/app-hello/master/web/assets/icanboogie.svg" alt="ICanBoogie" /></p>
 
 [![Release](https://img.shields.io/packagist/v/ICanBoogie/ICanBoogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
-[![Build Status](https://img.shields.io/travis/ICanBoogie/ICanBoogie/master.svg)](http://travis-ci.org/ICanBoogie/ICanBoogie)
 [![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/ICanBoogie/master.svg)](https://scrutinizer-ci.com/g/ICanBoogie/ICanBoogie)
 [![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/ICanBoogie/master.svg)](https://coveralls.io/r/ICanBoogie/ICanBoogie)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/icanboogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
@@ -59,7 +58,7 @@ usually located in "locale" folders. Components configure themselves thanks to I
 	- [Getters and setters](https://icanboogie.org/docs/4.0/icanboogie#getters-and-setters)
 	- [Dependency injection, inversion of control](https://icanboogie.org/docs/4.0/icanboogie#dependency-injection-inversion-of-control)
 	- [Objects as strings](https://icanboogie.org/docs/4.0/icanboogie#objects-as-strings)
-	- [Invokable objects](https://icanboogie.org/docs/4.0/icanboogie#invokable-objects) 
+	- [Invokable objects](https://icanboogie.org/docs/4.0/icanboogie#invokable-objects)
 	- [Collections as arrays](https://icanboogie.org/docs/4.0/icanboogie#collections-as-arrays)
 	- [Creating an instance from data](https://icanboogie.org/docs/4.0/icanboogie#creating-an-instance-from-data)
 - [The life and death of your application](https://icanboogie.org/docs/4.0/life-and-death)
@@ -114,7 +113,7 @@ not been instantiated yet.
 - `log_info()`: Logs an info message.
 - `log_time()`: Logs a debug message associated with a timing information.
 
-       
+
 
 
 
@@ -214,11 +213,6 @@ The documentation for the complete framework is also available online: <https://
 The test suite is ran with the `make test` command. [Composer](http://getcomposer.org/) is
 automatically installed as well as all dependencies required to run the suite. You can later
 clean the directory with the `make clean` command.
-
-The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
-
-[![Build Status](https://img.shields.io/travis/ICanBoogie/ICanBoogie/master.svg)](http://travis-ci.org/ICanBoogie/ICanBoogie)
-[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/ICanBoogie/master.svg)](https://coveralls.io/r/ICanBoogie/ICanBoogie)
 
 
 

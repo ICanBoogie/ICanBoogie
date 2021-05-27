@@ -1,8 +1,9 @@
 ---
-version: "2.1"
+version: "3.2"
 services:
   app:
     build: .
     volumes:
     - .:/app:delegated
+    - ~/.composer:/root/.composer
     working_dir: /app

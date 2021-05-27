@@ -120,7 +120,9 @@ function get_autoconfig()
 
 	if (!file_exists(AUTOCONFIG_PATHNAME))
 	{
-		trigger_error("The autoconfig file is missing. Check the `script` section of your composer.json file. https://icanboogie.org/docs/4.0/autoconfig#generating-the-autoconfig-file", E_USER_ERROR);
+		$file = AUTOCONFIG_PATHNAME;
+
+		trigger_error("The autoconfig file is missing: $file. Check the `script` section of your composer.json file. https://icanboogie.org/docs/4.0/autoconfig#generating-the-autoconfig-file", E_USER_ERROR);
 	}
 
 	$autoconfig = require AUTOCONFIG_PATHNAME;

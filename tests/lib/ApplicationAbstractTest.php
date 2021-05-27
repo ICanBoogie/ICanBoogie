@@ -13,7 +13,6 @@ namespace ICanBoogie;
 
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\RequestDispatcher;
-use ICanBoogie\HTTP\Response;
 use ICanBoogie\Storage\Storage;
 
 class ApplicationAbstractTest extends \PHPUnit\Framework\TestCase
@@ -23,16 +22,15 @@ class ApplicationAbstractTest extends \PHPUnit\Framework\TestCase
 	 */
 	static private $app;
 
-	static public function setupBeforeClass()
+	public static function setUpBeforeClass(): void
 	{
 		self::$app = app();
 	}
 
-    /**
-     * @expectedException \ICanBoogie\ApplicationAlreadyInstantiated
-     */
     public function test_subsequent_construct_should_throw_exception()
     {
+	    $this->expectException(ApplicationAlreadyInstantiated::class);
+
         new Application;
     }
 
@@ -43,11 +41,10 @@ class ApplicationAbstractTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(self::$app, $o->app);
     }
 
-	/**
-	 * @expectedException \ICanBoogie\ApplicationAlreadyBooted
-	 */
 	public function test_second_boot()
 	{
+		$this->expectException(ApplicationAlreadyBooted::class);
+
 		self::$app->boot();
 	}
 
@@ -75,7 +72,7 @@ class ApplicationAbstractTest extends \PHPUnit\Framework\TestCase
 	{
         $app = self::$app;
 		$config = $app->config;
-		$this->assertInternalType('array', $config);
+		$this->assertIsArray($config);
 		$this->assertNotEmpty($config);
 		$this->assertArrayHasKey('exception_handler', $config);
 
