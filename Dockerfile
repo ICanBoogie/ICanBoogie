@@ -2,7 +2,7 @@ FROM php:7.2-cli-buster
 
 RUN apt-get update && \
 	apt-get install -y autoconf pkg-config && \
-    pecl channel-update pecl.php.net && \
+	pecl channel-update pecl.php.net && \
 	pecl install xdebug && \
 	docker-php-ext-enable opcache xdebug
 

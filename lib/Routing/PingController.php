@@ -16,6 +16,8 @@ final class PingController extends Controller
 
 	/**
 	 * @inheritdoc
+	 *
+	 * @param Request<string, mixed> $request
 	 */
 	protected function action(Request $request): string
 	{

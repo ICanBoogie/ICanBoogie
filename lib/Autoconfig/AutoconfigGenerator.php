@@ -386,7 +386,7 @@ EOT;
 		}
 
 		$extension_render = implode(array_map(function ($rendered_entry) {
-			return "\n{$rendered_entry}\n";
+			return "\n$rendered_entry\n";
 		}, $rendered_entries));
 
 		return <<<EOT
@@ -475,7 +475,7 @@ EOT;
 			{
 				[ $path_code, $weight ] = $item;
 
-				return "{$path_code} => {$weight}";
+				return "$path_code => $weight";
 			}
 		);
 	}
@@ -508,7 +508,7 @@ EOT;
 		{
 			file_put_contents($this->destination, $this->render());
 
-			echo "Created Autoconfig in {$this->destination}\n";
+			echo "Created Autoconfig in $this->destination\n";
 		}
 		catch (Throwable $e)
 		{

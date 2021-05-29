@@ -22,18 +22,14 @@ interface LoggerInterface extends \Psr\Log\LoggerInterface
 	/**
 	 * Return the messages of a specified level
 	 *
-	 * @param string $level
-	 *
 	 * @return string[]
 	 */
-	public function get_messages($level);
+	public function get_messages(string $level): array;
 
 	/**
 	 * Return and clear the messages of a specified level
 	 *
-	 * @param string $level
-	 *
 	 * @return string[]
 	 */
-	public function fetch_messages($level);
+	public function fetch_messages(string $level): array;
 }

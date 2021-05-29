@@ -27,12 +27,8 @@ final class Logger implements LoggerInterface
 	{
 		static $logger;
 
-		if (!$logger)
-		{
-			$logger = new self($app);
-		}
-
-		return $logger;
+		return $logger
+			?? $logger = new self($app);
 	}
 
 	/**
@@ -50,7 +46,7 @@ final class Logger implements LoggerInterface
 		{
 			[ $message, $context ] = $message_and_context;
 
-			$rc[] = (string) self::format_message($message, $context);
+			$rc[] = self::format_message($message, $context);
 		}
 
 		return $rc;
@@ -79,7 +75,7 @@ final class Logger implements LoggerInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function log($level, $message, array $context = [])
+	public function log($level, $message, array $context = []): void
 	{
 		$messages = &$this->get_stash()[$level];
 		$messages[] = [ $message, $context ];
@@ -97,7 +93,7 @@ final class Logger implements LoggerInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function get_messages($level)
+	public function get_messages($level): array
 	{
 		$messages = &$this->get_stash()[$level];
 
@@ -112,7 +108,7 @@ final class Logger implements LoggerInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function fetch_messages($level)
+	public function fetch_messages($level): array
 	{
 		$messages = $this->get_messages($level);
 
@@ -124,10 +120,8 @@ final class Logger implements LoggerInterface
 	/**
 	 * Returns stash reference.
 	 */
-	private function &get_stash(): array
+	private function &get_stash(): SessionFlash
 	{
-		$stash = &$this->app->session['flash_messages'];
-
-		return $stash;
+		return $this->app->session->flash;
 	}
 }

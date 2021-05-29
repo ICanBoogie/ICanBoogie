@@ -82,7 +82,7 @@ abstract class ApplicationAbstract
 	public const STATUS_TERMINATED = 9;
 
 	/**
-	 * @var Application
+	 * @var Application|null
 	 */
 	static private $instance;
 
@@ -317,8 +317,8 @@ abstract class ApplicationAbstract
 	/**
 	 * Returns configuration manager.
 	 *
-	 * @param array $paths Path list.
-	 * @param array $synthesizers Configuration synthesizers.
+	 * @param string[] $paths Path list.
+	 * @param array<string, array> $synthesizers Configuration synthesizers.
 	 */
 	private function create_config_manager(array $paths, array $synthesizers): Config
 	{
@@ -368,8 +368,6 @@ abstract class ApplicationAbstract
 
 	/**
 	 * Changes the status of the application.
-	 *
-	 * @param callable $callable
 	 *
 	 * @return mixed
 	 */

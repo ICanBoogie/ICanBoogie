@@ -1,6 +1,7 @@
 <p><img height="120" src="https://cdn.rawgit.com/ICanBoogie/app-hello/master/web/assets/icanboogie.svg" alt="ICanBoogie" /></p>
 
 [![Release](https://img.shields.io/packagist/v/ICanBoogie/ICanBoogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
+[![Build Status](https://img.shields.io/github/workflow/status/ICanBoogie/ICanBoogie/test)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Atest)
 [![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/ICanBoogie/master.svg)](https://scrutinizer-ci.com/g/ICanBoogie/ICanBoogie)
 [![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/ICanBoogie/master.svg)](https://coveralls.io/r/ICanBoogie/ICanBoogie)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/icanboogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
@@ -125,7 +126,7 @@ not been instantiated yet.
 
 ## Requirements
 
-The minimum requirement is PHP 5.6.
+The package requires PHP 7.2 or later.
 
 
 
@@ -133,10 +134,8 @@ The minimum requirement is PHP 5.6.
 
 ## Installation
 
-The recommended way to install this package is through [Composer](http://getcomposer.org/):
-
-```
-$ composer require icanboogie/icanboogie
+```bash
+composer require icanboogie/icanboogie
 ```
 
 Don't forget to modify the _script_ section of your "composer.json" file if you want to benefit
@@ -185,17 +184,6 @@ The following bindings are available to help in integrating components:
 
 
 
-### Cloning the repository
-
-The package is [available on GitHub](https://github.com/ICanBoogie/ICanBoogie), its repository can be
-cloned with the following command line:
-
-	$ git clone https://github.com/ICanBoogie/ICanBoogie.git
-
-
-
-
-
 ## Documentation
 
 The documentation for the package and its dependencies can be generated with the `make doc`
@@ -210,9 +198,9 @@ The documentation for the complete framework is also available online: <https://
 
 ## Testing
 
-The test suite is ran with the `make test` command. [Composer](http://getcomposer.org/) is
-automatically installed as well as all dependencies required to run the suite. You can later
-clean the directory with the `make clean` command.
+Run `make test-container` to create and log into the test container, then run `make test` to run the
+test suite. Alternatively, run `make test-coverage` to run the test suite with test coverage. Open
+`build/coverage/index.html` to see the breakdown of the code coverage.
 
 
 
@@ -220,7 +208,7 @@ clean the directory with the `make clean` command.
 
 ## License
 
-**ICanBoogie** is licensed under the New BSD License - See the [LICENSE](LICENSE) file for details.
+**ICanBoogie** is released under the [New BSD License](LICENSE).
 
 
 

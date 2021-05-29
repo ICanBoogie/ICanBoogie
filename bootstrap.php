@@ -13,18 +13,14 @@ namespace ICanBoogie;
 
 /**
  * The ROOT directory of the ICanBoogie framework.
- *
- * @var string
  */
 defined('ICanBoogie\ROOT')
 or define('ICanBoogie\ROOT', rtrim(__DIR__, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
 
 /**
  * Path to the ICanBoogie's assets directory.
- *
- * @var string
  */
-define('ICanBoogie\ASSETS', ROOT . 'assets' . DIRECTORY_SEPARATOR);
+const ASSETS = ROOT . 'assets' . DIRECTORY_SEPARATOR;
 
 /**
  * Document root of the application.
@@ -33,8 +29,6 @@ define('ICanBoogie\ASSETS', ROOT . 'assets' . DIRECTORY_SEPARATOR);
  * system. e.g. "c:path/to/my/root" is changed to "c:path\to\my\root" if the directory
  * separator is "\".
  *
- * @var string
- *
  * @deprecated
  */
 defined('ICanBoogie\DOCUMENT_ROOT')
@@ -42,8 +36,6 @@ or define('ICanBoogie\DOCUMENT_ROOT', rtrim(strtr($_SERVER['DOCUMENT_ROOT'] ?: g
 
 /**
  * Pathname to the autoconfig file.
- *
- *  @var string
  */
 defined('ICanBoogie\AUTOCONFIG_PATHNAME')
 or define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'autoconfig.php');

@@ -14,10 +14,10 @@ namespace ICanBoogie;
 /**
  * Extends the {@link Session} class to fire `ICanBoogie\Session::start` when a session is started.
  */
-class SessionWithEvent extends Session
+final class SessionWithEvent extends Session
 {
 	/**
-	 * @var static
+	 * @var self
 	 */
 	static private $instance;
 

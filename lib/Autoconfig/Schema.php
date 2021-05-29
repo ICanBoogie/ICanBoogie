@@ -123,7 +123,7 @@ final class Schema
 		{
 			$errors = '';
 
-			foreach ((array) $validator->getErrors() as $error)
+			foreach ($validator->getErrors() as $error)
 			{
 				$errors .= "\n- " . ($error['property'] ? $error['property'] . ': ' : '') . $error['message'];
 			}

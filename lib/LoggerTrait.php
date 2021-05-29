@@ -22,13 +22,8 @@ trait LoggerTrait
 	 * A successful event.
 	 *
 	 * Example: An operation was successfully performed.
-	 *
-	 * @param string $message
-	 * @param array $context
-	 *
-	 * @return null
 	 */
-	public function success($message, array $context = [])
+	public function success(string $message, array $context = []): void
 	{
 		$this->log(LogLevel::SUCCESS, $message, $context);
 	}
