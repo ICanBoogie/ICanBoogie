@@ -29,7 +29,7 @@
 		"icanboogie/bind-prototype": "^5.0",
 		"icanboogie/bind-routing": "^5.0",
 		"icanboogie/config": "^1.2",
-		"icanboogie/session": "^2.0",
+		"icanboogie/session": "^3.0",
 		"icanboogie/storage": "^3.0",
 		"psr/log": "^1.0"
 	},

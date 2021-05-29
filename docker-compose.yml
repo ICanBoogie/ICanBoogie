@@ -5,5 +5,5 @@ services:
     build: .
     volumes:
     - .:/app:delegated
-    - ~/.composer:/root/.composer
+    - ~/.composer:/root/.composer:delegated
     working_dir: /app
