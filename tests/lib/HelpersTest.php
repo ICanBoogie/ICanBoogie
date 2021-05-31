@@ -74,20 +74,16 @@ class HelpersTest extends \PHPUnit\Framework\TestCase
 		$cwd = getcwd();
 		$package_root = dirname($cwd);
 
-		$this->assertSame([
+		$this->assertEquals([
 
 			Autoconfig::BASE_PATH => $cwd,
-
 			Autoconfig::APP_PATH => "$cwd/app",
-
 			Autoconfig::APP_PATHS => [
 
 				"$cwd/app/all/",
 				"$cwd/app/default/",
 
 			],
-
-
 			Autoconfig::LOCALE_PATH => [
 
 				"$package_root/locale"
@@ -103,13 +99,11 @@ class HelpersTest extends \PHPUnit\Framework\TestCase
 				'routes' => [ 'ICanBoogie\Binding\Routing\Hooks::synthesize_routes_config' ]
 
 			],
-
 			Autoconfig::AUTOCONFIG_FILTERS => [
 
 				'ICanBoogie\Autoconfig\Hooks::filter_autoconfig'
 
 			],
-
 			Autoconfig::CONFIG_PATH => [
 
 				"$package_root/config" => Autoconfig::CONFIG_WEIGHT_APP,

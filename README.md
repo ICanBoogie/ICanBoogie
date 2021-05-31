@@ -56,21 +56,21 @@ usually located in "locale" folders. Components configure themselves thanks to I
 ## Summary
 
 - [Working with ICanBoogie](https://icanboogie.org/docs/4.0/icanboogie#working-with-icanboogie)
-	- [Getters and setters](https://icanboogie.org/docs/4.0/icanboogie#getters-and-setters)
-	- [Dependency injection, inversion of control](https://icanboogie.org/docs/4.0/icanboogie#dependency-injection-inversion-of-control)
-	- [Objects as strings](https://icanboogie.org/docs/4.0/icanboogie#objects-as-strings)
-	- [Invokable objects](https://icanboogie.org/docs/4.0/icanboogie#invokable-objects)
-	- [Collections as arrays](https://icanboogie.org/docs/4.0/icanboogie#collections-as-arrays)
-	- [Creating an instance from data](https://icanboogie.org/docs/4.0/icanboogie#creating-an-instance-from-data)
+    - [Getters and setters](https://icanboogie.org/docs/4.0/icanboogie#getters-and-setters)
+    - [Dependency injection, inversion of control](https://icanboogie.org/docs/4.0/icanboogie#dependency-injection-inversion-of-control)
+    - [Objects as strings](https://icanboogie.org/docs/4.0/icanboogie#objects-as-strings)
+    - [Invokable objects](https://icanboogie.org/docs/4.0/icanboogie#invokable-objects)
+    - [Collections as arrays](https://icanboogie.org/docs/4.0/icanboogie#collections-as-arrays)
+    - [Creating an instance from data](https://icanboogie.org/docs/4.0/icanboogie#creating-an-instance-from-data)
 - [The life and death of your application](https://icanboogie.org/docs/4.0/life-and-death)
 - [Multi-site support](https://icanboogie.org/docs/4.0/multi-site)
-	- [Instance name](https://icanboogie.org/docs/4.0/multi-site#instance-name)
-	- [Resolving applications paths](https://icanboogie.org/docs/4.0/multi-site#resolving-applications-paths)
+    - [Instance name](https://icanboogie.org/docs/4.0/multi-site#instance-name)
+    - [Resolving applications paths](https://icanboogie.org/docs/4.0/multi-site#resolving-applications-paths)
 - [Autoconfig](https://icanboogie.org/docs/4.0/autoconfig)
     - [Participating in the _autoconfig_ process](https://icanboogie.org/docs/4.0/autoconfig#participating-in-the-autoconfig-process)
-	- [Generating the _autoconfig_ file](https://icanboogie.org/docs/4.0/autoconfig#generating-the-autoconfig-file)
-	- [Obtaining the _autoconfig_](https://icanboogie.org/docs/4.0/autoconfig#obtaining-the-autoconfig)
-	- [Altering the _autoconfig_ at runtime](https://icanboogie.org/docs/4.0/autoconfig#altering-the-autoconfig-at-runtime)
+    - [Generating the _autoconfig_ file](https://icanboogie.org/docs/4.0/autoconfig#generating-the-autoconfig-file)
+    - [Obtaining the _autoconfig_](https://icanboogie.org/docs/4.0/autoconfig#obtaining-the-autoconfig)
+    - [Altering the _autoconfig_ at runtime](https://icanboogie.org/docs/4.0/autoconfig#altering-the-autoconfig-at-runtime)
 - [Configuring the application](https://icanboogie.org/docs/4.0/configuration)
 - [Events](https://icanboogie.org/docs/4.0/life-and-death#events)
 - [Bindings](https://icanboogie.org/docs/4.0/bindings)
@@ -143,9 +143,9 @@ from the _autoconfig_ feature:
 
 ```json
 {
-	"scripts": {
-		"post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"
-	}
+    "scripts": {
+        "post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"
+    }
 }
 ```
 
