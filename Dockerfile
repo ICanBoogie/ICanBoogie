@@ -18,7 +18,6 @@ error_reporting=E_ALL\n\
 date.timezone=UTC\n\
 ' >> /usr/local/etc/php/conf.d/php.ini
 
-ENV PHP_IDE_CONFIG serverName=icanboogie-tests
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
 RUN apt-get update && \

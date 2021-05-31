@@ -1,7 +1,6 @@
 # customization
 
 PACKAGE_NAME = icanboogie/icanboogie
-PACKAGE_VERSION = 5.0
 # we need a PHPUnit in a standalone package or it will trigger the autoload and mess with the constants.
 PHPUNIT_VERSION = phpunit-8-5.phar
 PHPUNIT = build/$(PHPUNIT_VERSION)
@@ -13,11 +12,11 @@ usage:
 	@echo "test:  Runs the test suite.\ndoc:   Creates the documentation.\nclean: Removes the documentation, the dependencies and the Composer files."
 
 vendor:
-	@COMPOSER_ROOT_VERSION=$(PACKAGE_VERSION) composer install
+	@composer install
 
 .PHONY: update
 update:
-	@COMPOSER_ROOT_VERSION=$(PACKAGE_VERSION) composer update
+	@composer update
 
 test-dependencies: vendor $(PHPUNIT)
 
@@ -51,7 +50,7 @@ doc: vendor
 	@apigen generate \
 	--source lib \
 	--destination build/docs/ \
-	--title "$(PACKAGE_NAME) v$(PACKAGE_VERSION)" \
+	--title "$(PACKAGE_NAME)" \
 	--template-theme "bootstrap"
 
 .PHONY: clean
@@ -59,4 +58,3 @@ clean:
 	@rm -fR build
 	@rm -fR vendor
 	@rm -f composer.lock
-

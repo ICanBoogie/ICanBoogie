@@ -2,6 +2,7 @@
 	"name": "icanboogie/icanboogie",
 	"type": "library",
 	"description": "High-performance micro-framework for PHP",
+	"version": "5.0",
 	"keywords": [
 		"framework"
 	],
