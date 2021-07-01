@@ -42,7 +42,7 @@ final class AutoconfigGenerator
 	/**
 	 * @var Package[]
 	 */
-	private $packages;
+	private array $packages;
 
 	/**
 	 * @return array<string, Package>
@@ -73,30 +73,23 @@ final class AutoconfigGenerator
 		return null;
 	}
 
-	/**
-	 * @var string
-	 */
-	private $destination;
-
-	/**
-	 * @var Filesystem
-	 */
-	private $filesystem;
+	private string $destination;
+	private Filesystem $filesystem;
 
 	/**
 	 * @var array<string, mixed>
 	 */
-	private $fragments = [];
+	private array $fragments = [];
 
 	/**
 	 * @var array<string, int>
 	 */
-	private $weights = [];
+	private array $weights = [];
 
 	/**
 	 * @var ExtensionAbstract[]
 	 */
-	private $extensions = [];
+	private array $extensions = [];
 
 	/**
 	 * @param Package[] $packages

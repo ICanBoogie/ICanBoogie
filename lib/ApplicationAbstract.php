@@ -81,10 +81,7 @@ abstract class ApplicationAbstract
 	public const STATUS_TERMINATING = 8;
 	public const STATUS_TERMINATED = 9;
 
-	/**
-	 * @var Application|null
-	 */
-	static private $instance;
+	static private ?Application $instance = null;
 
 	/**
 	 * Returns the unique instance of the application.
@@ -96,10 +93,8 @@ abstract class ApplicationAbstract
 
 	/**
 	 * One of `STATUS_*`.
-	 *
-	 * @var int
 	 */
-	private $status = self::STATUS_VOID;
+	private int $status = self::STATUS_VOID;
 
 	/**
 	 * Whether the application is configured.
@@ -154,12 +149,9 @@ abstract class ApplicationAbstract
 	 *
 	 * @var array<string, mixed>
 	 */
-	private $construct_options = [];
+	private array $construct_options = [];
 
-	/**
-	 * @var TimeZone|null
-	 */
-	private $timezone;
+	private ?TimeZone $timezone = null;
 
 	/**
 	 * Sets the working time zone.

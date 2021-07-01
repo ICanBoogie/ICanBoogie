@@ -26,13 +26,6 @@ final class RunEvent extends Event
 {
 	public const TYPE = 'run';
 
-	/**
-	 * Initial request.
-	 *
-	 * @var Request
-	 */
-	private $request;
-
 	protected function get_request(): Request
 	{
 		return $this->request;
@@ -41,10 +34,10 @@ final class RunEvent extends Event
 	/**
 	 * The event is constructed with the type {@link TYPE}.
 	 */
-	public function __construct(Application $target, Request $request)
-	{
-		$this->request = $request;
-
+	public function __construct(
+		Application $target,
+		private Request $request
+	) {
 		parent::__construct($target, self::TYPE);
 	}
 }

@@ -4,11 +4,6 @@ namespace ICanBoogie\Routing;
 
 return [
 
-	'api:ping' => [
-
-		RouteDefinition::PATTERN => '/api/ping',
-		RouteDefinition::CONTROLLER => PingController::class
-
-	]
+	'api:ping' => new Route('/api/ping', 'app.ping'),
 
 ];

@@ -25,8 +25,6 @@ final class Hooks
 	/**
 	 * Generate the _autoconfig_ file on 'autoload_dump' Composer event.
 	 *
-	 * @param Event $event
-	 *
 	 * @throws Throwable
 	 */
 	static public function on_autoload_dump(Event $event): void
