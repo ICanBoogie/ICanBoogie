@@ -16,10 +16,7 @@ namespace ICanBoogie\Autoconfig;
  */
 abstract class ExtensionAbstract
 {
-	/**
-	 * @var AutoconfigGenerator
-	 */
-	private $generator;
+	private AutoconfigGenerator $generator;
 
 	public function __construct(AutoconfigGenerator $generator)
 	{

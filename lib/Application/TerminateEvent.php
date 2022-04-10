@@ -29,20 +29,10 @@ final class TerminateEvent extends Event
 {
 	public const TYPE = 'terminate';
 
-	/**
-	 * @var Request
-	 */
-	private $request;
-
 	protected function get_request(): Request
 	{
 		return $this->request;
 	}
-
-	/**
-	 * @var Response
-	 */
-	private $response;
 
 	protected function get_response(): Response
 	{
@@ -52,11 +42,11 @@ final class TerminateEvent extends Event
 	/**
 	 * The event is constructed with the type {@link TYPE}.
 	 */
-	public function __construct(Application $target, Request $request, Response $response)
-	{
-		$this->request = $request;
-		$this->response = $response;
-
+	public function __construct(
+		Application $target,
+		private Request $request,
+		private Response $response
+	) {
 		parent::__construct($target, self::TYPE);
 	}
 }

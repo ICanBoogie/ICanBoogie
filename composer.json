@@ -2,7 +2,7 @@
 	"name": "icanboogie/icanboogie",
 	"type": "library",
 	"description": "High-performance micro-framework for PHP",
-	"version": "5.0",
+	"version": "6.0",
 	"keywords": [
 		"framework"
 	],
@@ -23,12 +23,12 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"require": {
-		"php": ">=7.2.5",
+		"php": ">=8.0",
 		"ext-json": "*",
-		"icanboogie/bind-event": "^5.0",
-		"icanboogie/bind-http": "^5.0",
-		"icanboogie/bind-prototype": "^5.0",
-		"icanboogie/bind-routing": "^5.0",
+		"icanboogie/bind-event": "^6.0",
+		"icanboogie/bind-http": "^6.0",
+		"icanboogie/bind-prototype": "^6.0",
+		"icanboogie/bind-routing": "^6.0",
 		"icanboogie/config": "^1.2",
 		"icanboogie/session": "^3.0",
 		"icanboogie/storage": "^3.0",
