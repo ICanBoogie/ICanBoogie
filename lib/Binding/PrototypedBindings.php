@@ -20,5 +20,4 @@ use ICanBoogie\Application;
  */
 trait PrototypedBindings
 {
-
 }

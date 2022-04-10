@@ -12,7 +12,6 @@
 namespace ICanBoogie;
 
 use function dirname;
-
 use function ob_start;
 
 use const DIRECTORY_SEPARATOR;

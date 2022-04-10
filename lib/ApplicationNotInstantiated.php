@@ -21,13 +21,13 @@ use Throwable;
  */
 final class ApplicationNotInstantiated extends LogicException
 {
-	public const DEFAULT_MESSAGE = "The application has not been instantiated yet.";
+    public const DEFAULT_MESSAGE = "The application has not been instantiated yet.";
 
-	/**
-	 * @inheritdoc
-	 */
-	public function __construct(string $message = self::DEFAULT_MESSAGE, Throwable $previous = null)
-	{
-		parent::__construct($message, 0, $previous);
-	}
+    /**
+     * @inheritdoc
+     */
+    public function __construct(string $message = self::DEFAULT_MESSAGE, Throwable $previous = null)
+    {
+        parent::__construct($message, 0, $previous);
+    }
 }

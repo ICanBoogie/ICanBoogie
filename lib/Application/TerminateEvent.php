@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  * This file is part of the ICanBoogie package.
  *
@@ -27,26 +26,26 @@ use ICanBoogie\HTTP\Response;
  */
 final class TerminateEvent extends Event
 {
-	public const TYPE = 'terminate';
+    public const TYPE = 'terminate';
 
-	protected function get_request(): Request
-	{
-		return $this->request;
-	}
+    protected function get_request(): Request
+    {
+        return $this->request;
+    }
 
-	protected function get_response(): Response
-	{
-		return $this->response;
-	}
+    protected function get_response(): Response
+    {
+        return $this->response;
+    }
 
-	/**
-	 * The event is constructed with the type {@link TYPE}.
-	 */
-	public function __construct(
-		Application $target,
-		private Request $request,
-		private Response $response
-	) {
-		parent::__construct($target, self::TYPE);
-	}
+    /**
+     * The event is constructed with the type {@link TYPE}.
+     */
+    public function __construct(
+        Application $target,
+        private Request $request,
+        private Response $response
+    ) {
+        parent::__construct($target, self::TYPE);
+    }
 }

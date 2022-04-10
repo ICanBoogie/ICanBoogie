@@ -24,20 +24,20 @@ use ICanBoogie\HTTP\Request;
  */
 final class RunEvent extends Event
 {
-	public const TYPE = 'run';
+    public const TYPE = 'run';
 
-	protected function get_request(): Request
-	{
-		return $this->request;
-	}
+    protected function get_request(): Request
+    {
+        return $this->request;
+    }
 
-	/**
-	 * The event is constructed with the type {@link TYPE}.
-	 */
-	public function __construct(
-		Application $target,
-		private Request $request
-	) {
-		parent::__construct($target, self::TYPE);
-	}
+    /**
+     * The event is constructed with the type {@link TYPE}.
+     */
+    public function __construct(
+        Application $target,
+        private Request $request
+    ) {
+        parent::__construct($target, self::TYPE);
+    }
 }

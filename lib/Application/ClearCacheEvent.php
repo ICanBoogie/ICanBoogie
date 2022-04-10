@@ -23,13 +23,13 @@ use ICanBoogie\Event;
  */
 final class ClearCacheEvent extends Event
 {
-	public const TYPE = 'clear_cache';
+    public const TYPE = 'clear_cache';
 
-	/**
-	 * The event is constructed with the type {@link TYPE}.
-	 */
-	public function __construct(Application $target)
-	{
-		parent::__construct($target, self::TYPE);
-	}
+    /**
+     * The event is constructed with the type {@link TYPE}.
+     */
+    public function __construct(Application $target)
+    {
+        parent::__construct($target, self::TYPE);
+    }
 }

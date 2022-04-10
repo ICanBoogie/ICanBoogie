@@ -19,17 +19,17 @@ namespace ICanBoogie;
  */
 interface LoggerInterface extends \Psr\Log\LoggerInterface
 {
-	/**
-	 * Return the messages of a specified level
-	 *
-	 * @return string[]
-	 */
-	public function get_messages(string $level): array;
+    /**
+     * Return the messages of a specified level
+     *
+     * @return string[]
+     */
+    public function get_messages(string $level): array;
 
-	/**
-	 * Return and clear the messages of a specified level
-	 *
-	 * @return string[]
-	 */
-	public function fetch_messages(string $level): array;
+    /**
+     * Return and clear the messages of a specified level
+     *
+     * @return string[]
+     */
+    public function fetch_messages(string $level): array;
 }

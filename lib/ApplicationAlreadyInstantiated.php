@@ -21,10 +21,10 @@ use Throwable;
  */
 final class ApplicationAlreadyInstantiated extends LogicException
 {
-	public const DEFAULT_MESSAGE = "The application is already instantiated.";
+    public const DEFAULT_MESSAGE = "The application is already instantiated.";
 
-	public function __construct(string $message = self::DEFAULT_MESSAGE, Throwable $previous = null)
-	{
-		parent::__construct($message, 0, $previous);
-	}
+    public function __construct(string $message = self::DEFAULT_MESSAGE, Throwable $previous = null)
+    {
+        parent::__construct($message, 0, $previous);
+    }
 }

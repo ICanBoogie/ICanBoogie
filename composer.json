@@ -36,7 +36,7 @@
 	},
 	"require-dev": {
 		"composer/composer": "^2.0",
-		"phpstan/phpstan": "^0.12.63"
+		"phpstan/phpstan": "^0.12.99"
 	},
 	"suggest": {
 		"icanboogie/bind-activerecord": "ActiveRecord Object-relational mapping.",

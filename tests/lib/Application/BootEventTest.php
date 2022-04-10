@@ -17,27 +17,26 @@ use function ICanBoogie\app;
 
 class BootEventTest extends \PHPUnit\Framework\TestCase
 {
-	public function test_instance()
-	{
-		$app = $this
-			->getMockBuilder(Application::class)
-			->disableOriginalConstructor()
-			->getMock();
+    public function test_instance()
+    {
+        $app = $this
+            ->getMockBuilder(Application::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-		/* @var $app Application */
+        /* @var $app Application */
 
-		$called = false;
+        $called = false;
 
-		app()->events->once(function (BootEvent $event, Application $target) use ($app, &$called) {
+        app()->events->once(function (BootEvent $event, Application $target) use ($app, &$called) {
 
-			$this->assertSame($app, $target);
-			$event->stop();
-			$called = true;
+            $this->assertSame($app, $target);
+            $event->stop();
+            $called = true;
+        });
 
-		});
+        new BootEvent($app);
 
-		new BootEvent($app);
-
-		$this->assertTrue($called);
-	}
+        $this->assertTrue($called);
+    }
 }

@@ -16,31 +16,30 @@ namespace ICanBoogie;
  */
 final class SessionWithEvent extends Session
 {
-	/**
-	 * @var self
-	 */
-	static private $instance;
+    /**
+     * @var self
+     */
+    private static $instance;
 
-	static public function for_app(Application $app): self
-	{
-		return self::$instance
-			?? self::$instance = new self($app->config[AppConfig::SESSION]);
-	}
+    public static function for_app(Application $app): self
+    {
+        return self::$instance
+            ?? self::$instance = new self($app->config[AppConfig::SESSION]);
+    }
 
-	/**
-	 * @inheritdoc
-	 *
-	 * Fires `ICanBoogie\Session::start` event of class {@link Session\StartEvent}.
-	 */
-	public function start(): bool
-	{
-		$started = parent::start();
+    /**
+     * @inheritdoc
+     *
+     * Fires `ICanBoogie\Session::start` event of class {@link Session\StartEvent}.
+     */
+    public function start(): bool
+    {
+        $started = parent::start();
 
-		if ($started)
-		{
-			new Session\StartEvent($this);
-		}
+        if ($started) {
+            new Session\StartEvent($this);
+        }
 
-		return $started;
-	}
+        return $started;
+    }
 }

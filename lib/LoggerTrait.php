@@ -16,15 +16,15 @@ namespace ICanBoogie;
  */
 trait LoggerTrait
 {
-	use \Psr\Log\LoggerTrait;
+    use \Psr\Log\LoggerTrait;
 
-	/**
-	 * A successful event.
-	 *
-	 * Example: An operation was successfully performed.
-	 */
-	public function success(string $message, array $context = []): void
-	{
-		$this->log(LogLevel::SUCCESS, $message, $context);
-	}
+    /**
+     * A successful event.
+     *
+     * Example: An operation was successfully performed.
+     */
+    public function success(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::SUCCESS, $message, $context);
+    }
 }

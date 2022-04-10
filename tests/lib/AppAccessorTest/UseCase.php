@@ -7,5 +7,6 @@ use ICanBoogie\AppAccessor;
 
 class UseCase
 {
-	use AccessorTrait, AppAccessor;
+    use AccessorTrait;
+    use AppAccessor;
 }

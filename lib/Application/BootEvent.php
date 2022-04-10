@@ -23,13 +23,13 @@ use ICanBoogie\Event;
  */
 final class BootEvent extends Event
 {
-	public const TYPE = 'boot';
+    public const TYPE = 'boot';
 
-	/**
-	 * The event is constructed with the type {@link TYPE}.
-	 */
-	public function __construct(Application $target)
-	{
-		parent::__construct($target, self::TYPE);
-	}
+    /**
+     * The event is constructed with the type {@link TYPE}.
+     */
+    public function __construct(Application $target)
+    {
+        parent::__construct($target, self::TYPE);
+    }
 }

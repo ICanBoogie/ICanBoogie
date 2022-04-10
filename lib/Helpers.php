@@ -20,67 +20,65 @@ use RuntimeException;
  */
 final class Helpers
 {
-	/**
-	 * @var array<string, callable>
-	 */
-	static private $jumptable = [
+    /**
+     * @var array<string, callable>
+     */
+    private static array $jumpTable = [
 
-		'generate_token' => [ __CLASS__, 'default_generate_token' ]
+        'generate_token' => [ __CLASS__, 'default_generate_token' ]
 
-	];
+    ];
 
-	/**
-	 * Calls the callback of a patchable function.
-	 *
-	 * @param string $name Name of the function.
-	 * @param mixed[] $arguments Arguments.
-	 *
-	 * @return mixed
-	 *
-	 * @uses default_generate_token()
-	 */
-	static public function __callstatic(string $name, array $arguments)
-	{
-		$method = self::$jumptable[$name];
+    /**
+     * Calls the callback of a patchable function.
+     *
+     * @param string $name Name of the function.
+     * @param mixed[] $arguments Arguments.
+     *
+     * @return mixed
+     *
+     * @uses default_generate_token()
+     */
+    public static function __callstatic(string $name, array $arguments)
+    {
+        $method = self::$jumpTable[$name];
 
-		return $method(...$arguments);
-	}
+        return $method(...$arguments);
+    }
 
-	/**
-	 * Patches a patchable function.
-	 *
-	 * @param string $name Name of the function.
-	 * @param callable $callback Callback.
-	 *
-	 * @throws RuntimeException is attempt to patch an undefined function.
-	 *
-	 * @codeCoverageIgnore
-	 */
-	static public function patch(string $name, callable $callback): void
-	{
-		if (empty(self::$jumptable[$name]))
-		{
-			throw new RuntimeException("Undefined patchable: $name.");
-		}
+    /**
+     * Patches a patchable function.
+     *
+     * @param string $name Name of the function.
+     * @param callable $callback Callback.
+     *
+     * @throws RuntimeException is attempt to patch an undefined function.
+     *
+     * @codeCoverageIgnore
+     */
+    public static function patch(string $name, callable $callback): void
+    {
+        if (empty(self::$jumpTable[$name])) {
+            throw new RuntimeException("Undefined patchable: $name.");
+        }
 
-		self::$jumptable[$name] = $callback;
-	}
+        self::$jumpTable[$name] = $callback;
+    }
 
-	/*
-	 * Default implementations
-	 */
+    /*
+     * Default implementations
+     */
 
-	static private function default_generate_token(int $length = 8, string $possible = TOKEN_NARROW): string
-	{
-		$token = '';
-		$y = strlen($possible) - 1;
+    private static function default_generate_token(int $length = 8, string $possible = TOKEN_NARROW): string
+    {
+        $token = '';
+        $y = strlen($possible) - 1;
 
-		while ($length--)
-		{
-			$i = mt_rand(0, $y);
-			$token .= $possible[$i];
-		}
+        while ($length--) {
+            $i = mt_rand(0, $y);
+            $token .= $possible[$i];
+        }
 
-		return $token;
-	}
+        return $token;
+    }
 }

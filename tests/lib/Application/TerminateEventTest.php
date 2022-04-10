@@ -19,41 +19,40 @@ use function ICanBoogie\app;
 
 class TerminateEventTest extends \PHPUnit\Framework\TestCase
 {
-	public function test_instance()
-	{
-		$app = $this
-			->getMockBuilder(Application::class)
-			->disableOriginalConstructor()
-			->getMock();
+    public function test_instance()
+    {
+        $app = $this
+            ->getMockBuilder(Application::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-		$request = $this
-			->getMockBuilder(Request::class)
-			->disableOriginalConstructor()
-			->getMock();
+        $request = $this
+            ->getMockBuilder(Request::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-		$response = $this
-			->getMockBuilder(Response::class)
-			->disableOriginalConstructor()
-			->getMock();
+        $response = $this
+            ->getMockBuilder(Response::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-		/* @var $app Application */
-		/* @var $request Request */
-		/* @var $response Response */
+        /* @var $app Application */
+        /* @var $request Request */
+        /* @var $response Response */
 
-		$called = false;
+        $called = false;
 
-		app()->events->once(function(TerminateEvent $event, Application $target) use ($app, $request, $response, &$called) {
+        app()->events->once(function (TerminateEvent $event, Application $target) use ($app, $request, $response, &$called) {
 
-			$this->assertSame($app, $target);
-			$this->assertSame($request, $event->request);
-			$this->assertSame($response, $event->response);
-			$event->stop();
-			$called = true;
+            $this->assertSame($app, $target);
+            $this->assertSame($request, $event->request);
+            $this->assertSame($response, $event->response);
+            $event->stop();
+            $called = true;
+        });
 
-		});
+        new TerminateEvent($app, $request, $response);
 
-		new TerminateEvent($app, $request, $response);
-
-		$this->assertTrue($called);
-	}
+        $this->assertTrue($called);
+    }
 }

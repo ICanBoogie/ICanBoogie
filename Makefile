@@ -2,7 +2,7 @@
 
 PACKAGE_NAME = icanboogie/icanboogie
 # we need a PHPUnit in a standalone package or it will trigger the autoload and mess with the constants.
-PHPUNIT_VERSION = phpunit-8-5.phar
+PHPUNIT_VERSION = phpunit-9-5.phar
 PHPUNIT = build/$(PHPUNIT_VERSION)
 
 # do not edit the following lines
@@ -41,8 +41,13 @@ test-coveralls: test-dependencies
 
 .PHONY: test-container
 test-container:
-	@-docker-compose -f ./docker-compose.yml run --rm app bash
-	@docker-compose -f ./docker-compose.yml down -v
+	@docker-compose run --rm app bash
+	@docker-compose down -v
+
+.PHONY: lint
+lint:
+	@phpcs -s
+	@vendor/bin/phpstan
 
 .PHONY: doc
 doc: vendor

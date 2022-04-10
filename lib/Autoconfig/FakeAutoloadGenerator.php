@@ -18,8 +18,8 @@ use Composer\Autoload\AutoloadGenerator;
  */
 final class FakeAutoloadGenerator extends AutoloadGenerator
 {
-	static public function sort_package_map(AutoloadGenerator $generator, array $packageMap): array
-	{
-		return $generator->sortPackageMap($packageMap);
-	}
+    public static function sort_package_map(AutoloadGenerator $generator, array $packageMap): array
+    {
+        return $generator->sortPackageMap($packageMap);
+    }
 }

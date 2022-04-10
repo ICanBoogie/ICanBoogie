@@ -15,41 +15,41 @@ use LogicException;
 
 class AppConfigTest extends \PHPUnit\Framework\TestCase
 {
-	public function testShouldThrowExceptionOnInvalidRepository()
-	{
-		$this->expectException(LogicException::class);
+    public function testShouldThrowExceptionOnInvalidRepository()
+    {
+        $this->expectException(LogicException::class);
 
-		AppConfig::synthesize([ [
+        AppConfig::synthesize([ [
 
-			AppConfig::REPOSITORY => __DIR__ . 'AppConfigTest.php/' . uniqid()
+            AppConfig::REPOSITORY => __DIR__ . 'AppConfigTest.php/' . uniqid()
 
-		] ]);
-	}
+        ] ]);
+    }
 
-	public function testInterpolateRepository()
-	{
-		$repository = __DIR__;
+    public function testInterpolateRepository()
+    {
+        $repository = __DIR__;
 
-		$config = AppConfig::synthesize([ [
+        $config = AppConfig::synthesize([ [
 
-			AppConfig::REPOSITORY => $repository,
-			AppConfig::REPOSITORY_CACHE => "{repository}/cache",
-			AppConfig::REPOSITORY_CACHE_CONFIGS => "{repository}/cache/configs",
-			AppConfig::REPOSITORY_FILES => "{repository}/files",
-			AppConfig::REPOSITORY_TMP => "{repository}/tmp",
-			AppConfig::REPOSITORY_VARS => "{repository}/vars",
+            AppConfig::REPOSITORY => $repository,
+            AppConfig::REPOSITORY_CACHE => "{repository}/cache",
+            AppConfig::REPOSITORY_CACHE_CONFIGS => "{repository}/cache/configs",
+            AppConfig::REPOSITORY_FILES => "{repository}/files",
+            AppConfig::REPOSITORY_TMP => "{repository}/tmp",
+            AppConfig::REPOSITORY_VARS => "{repository}/vars",
 
-		] ]);
+        ] ]);
 
-		$this->assertSame([
+        $this->assertSame([
 
-			AppConfig::REPOSITORY => "$repository/",
-			AppConfig::REPOSITORY_CACHE => "$repository/cache/",
-			AppConfig::REPOSITORY_CACHE_CONFIGS => "$repository/cache/configs/",
-			AppConfig::REPOSITORY_FILES => "$repository/files/",
-			AppConfig::REPOSITORY_TMP => "$repository/tmp/",
-			AppConfig::REPOSITORY_VARS => "$repository/vars/",
+            AppConfig::REPOSITORY => "$repository/",
+            AppConfig::REPOSITORY_CACHE => "$repository/cache/",
+            AppConfig::REPOSITORY_CACHE_CONFIGS => "$repository/cache/configs/",
+            AppConfig::REPOSITORY_FILES => "$repository/files/",
+            AppConfig::REPOSITORY_TMP => "$repository/tmp/",
+            AppConfig::REPOSITORY_VARS => "$repository/vars/",
 
-		], $config);
-	}
+        ], $config);
+    }
 }

@@ -1,7 +1,6 @@
 <p><img height="120" src="https://cdn.rawgit.com/ICanBoogie/app-hello/master/web/assets/icanboogie.svg" alt="ICanBoogie" /></p>
 
 [![Release](https://img.shields.io/packagist/v/ICanBoogie/ICanBoogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
-[![Build Status](https://img.shields.io/github/workflow/status/ICanBoogie/ICanBoogie/test)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Atest)
 [![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/ICanBoogie/master.svg)](https://scrutinizer-ci.com/g/ICanBoogie/ICanBoogie)
 [![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/ICanBoogie/master.svg)](https://coveralls.io/r/ICanBoogie/ICanBoogie)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/icanboogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
@@ -176,15 +175,13 @@ The following bindings are available to help in integrating components:
 
 
 
-## Documentation
+## Continuous Integration
 
-The documentation for the package and its dependencies can be generated with the `make doc`
-command. The documentation is generated in the `docs` directory using [ApiGen](http://apigen.org/).
-The package directory can later by cleaned with the `make clean` command.
+The project is continuously tested by [GitHub actions](https://github.com/ICanBoogie/ICanBoogie/actions).
 
-The documentation for the complete framework is also available online: <https://icanboogie.org/docs/>
-
-
+[![Tests](https://github.com/ICanBoogie/ICanBoogie/workflows/test/badge.svg?branch=master)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Atest)
+[![Static Analysis](https://github.com/ICanBoogie/ICanBoogie/workflows/static-analysis/badge.svg?branch=master)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Astatic-analysis)
+[![Code Style](https://github.com/ICanBoogie/ICanBoogie/workflows/code-style/badge.svg?branch=master)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Acode-style)
 
 
 
@@ -196,11 +193,22 @@ test suite. Alternatively, run `make test-coverage` to run the test suite with t
 
 
 
+## Code of Conduct
+
+This project adheres to a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project and its
+community, you are expected to uphold this code.
+
+
+
+## Contributing
+
+Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+
 
 
 ## License
 
-**ICanBoogie** is released under the [New BSD License](LICENSE).
+**ICanBoogie** is released under the [BSD-3-Clause](LICENSE).
 
 
 

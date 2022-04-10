@@ -16,5 +16,5 @@ namespace ICanBoogie;
  */
 final class LogLevel extends \Psr\Log\LogLevel
 {
-	public const SUCCESS = 'success';
+    public const SUCCESS = 'success';
 }

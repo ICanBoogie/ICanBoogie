@@ -18,34 +18,33 @@ use function ICanBoogie\app;
 
 class RunEventTest extends \PHPUnit\Framework\TestCase
 {
-	public function test_instance()
-	{
-		$app = $this
-			->getMockBuilder(Application::class)
-			->disableOriginalConstructor()
-			->getMock();
+    public function test_instance()
+    {
+        $app = $this
+            ->getMockBuilder(Application::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-		$request = $this
-			->getMockBuilder(Request::class)
-			->disableOriginalConstructor()
-			->getMock();
+        $request = $this
+            ->getMockBuilder(Request::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-		/* @var $app Application */
-		/* @var $request Request */
+        /* @var $app Application */
+        /* @var $request Request */
 
-		$called = false;
+        $called = false;
 
-		app()->events->once(function (RunEvent $event, Application $target) use ($app, $request, &$called) {
+        app()->events->once(function (RunEvent $event, Application $target) use ($app, $request, &$called) {
 
-			$this->assertSame($app, $target);
-			$this->assertSame($request, $event->request);
-			$event->stop();
-			$called = true;
+            $this->assertSame($app, $target);
+            $this->assertSame($request, $event->request);
+            $event->stop();
+            $called = true;
+        });
 
-		});
+        new RunEvent($app, $request);
 
-		new RunEvent($app, $request);
-
-		$this->assertTrue($called);
-	}
+        $this->assertTrue($called);
+    }
 }

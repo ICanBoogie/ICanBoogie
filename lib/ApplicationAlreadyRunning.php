@@ -21,10 +21,10 @@ use Throwable;
  */
 final class ApplicationAlreadyRunning extends LogicException
 {
-	public const DEFAULT_MESSAGE = "The application is already running.";
+    public const DEFAULT_MESSAGE = "The application is already running.";
 
-	public function __construct(string $message = self::DEFAULT_MESSAGE, Throwable $previous = null)
-	{
-		parent::__construct($message, 0, $previous);
-	}
+    public function __construct(string $message = self::DEFAULT_MESSAGE, Throwable $previous = null)
+    {
+        parent::__construct($message, 0, $previous);
+    }
 }
