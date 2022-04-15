@@ -37,6 +37,10 @@ use function realpath;
  */
 final class AutoconfigGenerator
 {
+    /**
+     * @uses get_packages
+     * @uses get_root_package
+     */
     use AccessorTrait;
 
     /**

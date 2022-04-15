@@ -5,7 +5,7 @@ namespace ICanBoogie\Routing;
 use ICanBoogie\Binding\PrototypedBindings;
 use ICanBoogie\HTTP\Request;
 
-final class PingController extends Controller
+final class PingController extends ControllerAbstract
 {
     use PrototypedBindings;
 
@@ -21,7 +21,7 @@ final class PingController extends Controller
      */
     protected function action(Request $request): string
     {
-        $this->response->content_type = 'text/plain';
+        $this->response->headers->content_type = 'text/plain';
         $session = $this->app->session;
 
         // @codeCoverageIgnoreStart

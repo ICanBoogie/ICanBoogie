@@ -21,17 +21,15 @@
 		"source": "https://github.com/ICanBoogie/ICanBoogie"
 	},
 	"minimum-stability": "dev",
-	"prefer-stable": true,
 	"require": {
-		"php": ">=8.0",
+		"php": ">=8.1",
 		"ext-json": "*",
 		"icanboogie/bind-event": "^6.0",
 		"icanboogie/bind-http": "^6.0",
 		"icanboogie/bind-prototype": "^6.0",
 		"icanboogie/bind-routing": "^6.0",
-		"icanboogie/config": "^1.2",
-		"icanboogie/session": "^3.0",
-		"icanboogie/storage": "^3.0",
+		"icanboogie/config": "^6.0",
+		"icanboogie/session": "^6.0",
 		"psr/log": "^1.0"
 	},
 	"require-dev": {

@@ -18,25 +18,18 @@ use ICanBoogie\HTTP\Request;
 /**
  * Event class for the `ICanBoogie\Application::run` event.
  *
- * @property-read Request $request
- *
  * @codeCoverageIgnore
  */
 final class RunEvent extends Event
 {
     public const TYPE = 'run';
 
-    protected function get_request(): Request
-    {
-        return $this->request;
-    }
-
     /**
      * The event is constructed with the type {@link TYPE}.
      */
     public function __construct(
         Application $target,
-        private Request $request
+        public readonly Request $request
     ) {
         parent::__construct($target, self::TYPE);
     }
