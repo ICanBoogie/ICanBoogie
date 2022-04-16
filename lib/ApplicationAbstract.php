@@ -66,6 +66,7 @@ abstract class ApplicationAbstract
     use Binding\Event\ApplicationBindings;
     use Binding\HTTP\ApplicationBindings;
     use Binding\Routing\ApplicationBindings;
+    use Binding\SymfonyDependencyInjection\ApplicationBindings;
 
     /**
      * Status of the application.

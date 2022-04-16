@@ -30,6 +30,7 @@
 		"icanboogie/bind-routing": "^6.0",
 		"icanboogie/config": "^6.0",
 		"icanboogie/session": "^6.0",
+        "icanboogie/bind-symfony-dependency-injection": "^6.0",
 		"psr/log": "^1.0"
 	},
 	"require-dev": {
