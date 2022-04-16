@@ -12,8 +12,9 @@
 namespace ICanBoogie;
 
 use ICanBoogie\Autoconfig\Autoconfig;
+use PHPUnit\Framework\TestCase;
 
-class HelpersTest extends \PHPUnit\Framework\TestCase
+class HelpersTest extends TestCase
 {
     public function test_generate_token()
     {
@@ -95,7 +96,8 @@ class HelpersTest extends \PHPUnit\Framework\TestCase
                 'event' => [ 'ICanBoogie\Binding\Event\EventConfigSynthesizer::synthesize' ],
                 'http_dispatchers' => [ 'ICanBoogie\Binding\HTTP\Hooks::synthesize_dispatchers_config', 'http' ],
                 'prototype' => [ 'ICanBoogie\Binding\Prototype\PrototypeConfigSynthesizer::synthesize' ],
-                'routes' => [ 'ICanBoogie\Binding\Routing\Hooks::synthesize_routes_config' ]
+                'routes' => [ 'ICanBoogie\Binding\Routing\Hooks::synthesize_routes_config' ],
+                'container' => [ 'ICanBoogie\Binding\SymfonyDependencyInjection\ContainerConfig::synthesize' ],
 
             ],
             Autoconfig::AUTOCONFIG_FILTERS => [
@@ -111,6 +113,7 @@ class HelpersTest extends \PHPUnit\Framework\TestCase
                 "$package_root/vendor/icanboogie/bind-routing/config" => Autoconfig::CONFIG_WEIGHT_FRAMEWORK,
                 "$cwd/app/all/config" => Autoconfig::CONFIG_WEIGHT_APP,
                 "$cwd/app/default/config" => Autoconfig::CONFIG_WEIGHT_APP,
+                "$package_root/vendor/icanboogie/bind-symfony-dependency-injection/config" => Autoconfig::CONFIG_WEIGHT_FRAMEWORK,
 
             ],
 

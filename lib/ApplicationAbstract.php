@@ -13,6 +13,7 @@ namespace ICanBoogie;
 
 use ICanBoogie\Autoconfig\Autoconfig;
 use ICanBoogie\HTTP\Request;
+use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\HTTP\Status;
 use ICanBoogie\Storage\Storage;
@@ -440,11 +441,23 @@ abstract class ApplicationAbstract
 
             new Application\RunEvent($this, $request);
 
-            $response = $request();
+            $response = $this->service_for_class(Responder::class)->respond($request);
             $response();
 
             $this->terminate($request, $response);
         });
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param class-string<T> $class
+     *
+     * @return T
+     */
+    public function service_for_class(string $class): object
+    {
+        return $this->container->get($class);
     }
 
     /**

@@ -12,7 +12,6 @@
 namespace ICanBoogie;
 
 use ICanBoogie\HTTP\Request;
-use ICanBoogie\HTTP\RequestDispatcher;
 use ICanBoogie\Storage\Storage;
 use PHPUnit\Framework\TestCase;
 
@@ -95,7 +94,6 @@ class ApplicationAbstractTest extends TestCase
 
             [ 'vars',              Storage::class ],
             [ 'configs',           Config::class ],
-            [ 'dispatcher',        RequestDispatcher::class ],
             [ 'initial_request',   Request::class ],
             [ 'request',           Request::class ],
             [ 'events',            EventCollection::class ],
