@@ -49,9 +49,9 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
 
         /* @var $app Application */
 
-        $logger = Logger::get_logger($app);
+        $logger = Logger::for_app($app);
         $this->assertInstanceOf(Logger::class, $logger);
-        $this->assertSame($logger, Logger::get_logger($app));
+        $this->assertSame($logger, Logger::for_app($app));
     }
 
     public function test_log()

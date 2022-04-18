@@ -23,12 +23,11 @@ final class Logger implements LoggerInterface
     /**
      * Returns the application's logger, create it if needed.
      */
-    public static function get_logger(Application $app): LoggerInterface
+    public static function for_app(Application $app): LoggerInterface
     {
         static $logger;
 
-        return $logger
-            ?? $logger = new self($app);
+        return $logger ??= new self($app);
     }
 
     /**
