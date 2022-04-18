@@ -13,10 +13,12 @@ namespace ICanBoogie\Application;
 
 use ICanBoogie\Application;
 use ICanBoogie\HTTP\Request;
+use PHPUnit\Framework\TestCase;
 
 use function ICanBoogie\app;
+use function ICanBoogie\emit;
 
-class RunEventTest extends \PHPUnit\Framework\TestCase
+class RunEventTest extends TestCase
 {
     public function test_instance()
     {
@@ -43,7 +45,7 @@ class RunEventTest extends \PHPUnit\Framework\TestCase
             $called = true;
         });
 
-        new RunEvent($app, $request);
+        emit(new RunEvent($app, $request));
 
         $this->assertTrue($called);
     }

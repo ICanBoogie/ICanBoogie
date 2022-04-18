@@ -14,6 +14,7 @@ namespace ICanBoogie\Application;
 use ICanBoogie\Application;
 
 use function ICanBoogie\app;
+use function ICanBoogie\emit;
 
 class BootEventTest extends \PHPUnit\Framework\TestCase
 {
@@ -35,7 +36,7 @@ class BootEventTest extends \PHPUnit\Framework\TestCase
             $called = true;
         });
 
-        new BootEvent($app);
+        emit(new BootEvent($app));
 
         $this->assertTrue($called);
     }

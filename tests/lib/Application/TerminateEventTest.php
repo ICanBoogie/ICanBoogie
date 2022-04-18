@@ -14,12 +14,18 @@ namespace ICanBoogie\Application;
 use ICanBoogie\Application;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
+use PHPUnit\Framework\TestCase;
+use Throwable;
 
 use function ICanBoogie\app;
+use function ICanBoogie\emit;
 
-class TerminateEventTest extends \PHPUnit\Framework\TestCase
+final class TerminateEventTest extends TestCase
 {
-    public function test_instance()
+    /**
+     * @throws Throwable
+     */
+    public function test_instance(): void
     {
         $app = $this
             ->getMockBuilder(Application::class)
@@ -51,7 +57,7 @@ class TerminateEventTest extends \PHPUnit\Framework\TestCase
             $called = true;
         });
 
-        new TerminateEvent($app, $request, $response);
+        emit(new TerminateEvent($app, $request, $response));
 
         $this->assertTrue($called);
     }

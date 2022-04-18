@@ -381,7 +381,7 @@ abstract class ApplicationAbstract
 
             assert($this instanceof Application);
 
-            new Application\ConfigureEvent($this);
+            emit(new Application\ConfigureEvent($this));
         });
     }
 
@@ -406,7 +406,7 @@ abstract class ApplicationAbstract
         $this->change_status(self::STATUS_BOOTING, function () {
             assert($this instanceof Application);
 
-            new Application\BootEvent($this);
+            emit(new Application\BootEvent($this));
 
             $_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
         });
@@ -439,7 +439,7 @@ abstract class ApplicationAbstract
 
             assert($this instanceof Application);
 
-            new Application\RunEvent($this, $request);
+            emit(new Application\RunEvent($this, $request));
 
             $response = $this->service_for_class(Responder::class)->respond($request);
             $response();
@@ -503,7 +503,7 @@ abstract class ApplicationAbstract
         $this->change_status(self::STATUS_TERMINATING, function () use ($request, $response): void {
             assert($this instanceof Application);
 
-            new Application\TerminateEvent($this, $request, $response);
+            emit(new Application\TerminateEvent($this, $request, $response));
         });
     }
 
@@ -514,7 +514,7 @@ abstract class ApplicationAbstract
     {
         assert($this instanceof Application);
 
-        new Application\ClearCacheEvent($this);
+        emit(new Application\ClearCacheEvent($this));
     }
 }
 

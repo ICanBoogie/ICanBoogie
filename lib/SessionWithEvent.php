@@ -16,15 +16,11 @@ namespace ICanBoogie;
  */
 final class SessionWithEvent extends Session
 {
-    /**
-     * @var self
-     */
-    private static $instance;
+    static private SessionWithEvent $instance;
 
     public static function for_app(Application $app): self
     {
-        return self::$instance
-            ?? self::$instance = new self($app->config[AppConfig::SESSION]);
+        return self::$instance ??= new self($app->config[AppConfig::SESSION]);
     }
 
     /**
@@ -37,7 +33,7 @@ final class SessionWithEvent extends Session
         $started = parent::start();
 
         if ($started) {
-            new Session\StartEvent($this);
+            emit(new Session\StartEvent($this));
         }
 
         return $started;

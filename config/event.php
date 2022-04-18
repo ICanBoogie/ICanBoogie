@@ -2,6 +2,10 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\Application\ClearCacheEvent;
+
+use function ICanBoogie\Event\qualify_type;
+
 $hooks = Hooks::class . '::';
 
 /**
@@ -9,6 +13,6 @@ $hooks = Hooks::class . '::';
  */
 return [
 
-	Application::class . '::clear_cache' => $hooks . 'on_clear_cache'
+	qualify_type(Application::class, ClearCacheEvent::TYPE) => $hooks . 'on_clear_cache'
 
 ];
