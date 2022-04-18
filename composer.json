@@ -21,6 +21,10 @@
 		"source": "https://github.com/ICanBoogie/ICanBoogie"
 	},
 	"minimum-stability": "dev",
+    "replace": {
+        "symfony/polyfill-php73": "*",
+        "symfony/polyfill-php80": "*"
+    },
 	"require": {
 		"php": ">=8.1",
 		"ext-json": "*",
@@ -31,11 +35,11 @@
 		"icanboogie/config": "^6.0",
 		"icanboogie/session": "^6.0",
         "icanboogie/bind-symfony-dependency-injection": "^6.0",
-		"psr/log": "^1.0"
+		"psr/log": "^3.0"
 	},
 	"require-dev": {
 		"composer/composer": "^2.0",
-		"phpstan/phpstan": "^0.12.99"
+		"phpstan/phpstan": "^1.5.6"
 	},
 	"suggest": {
 		"icanboogie/bind-activerecord": "ActiveRecord Object-relational mapping.",

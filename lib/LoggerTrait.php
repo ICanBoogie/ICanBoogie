@@ -11,6 +11,8 @@
 
 namespace ICanBoogie;
 
+use Stringable;
+
 /**
  * Adds the `success()` method to the PSR.
  */
@@ -23,7 +25,7 @@ trait LoggerTrait
      *
      * Example: An operation was successfully performed.
      */
-    public function success(string $message, array $context = []): void
+    public function success(string|Stringable $message, array $context = []): void
     {
         $this->log(LogLevel::SUCCESS, $message, $context);
     }
