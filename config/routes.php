@@ -2,8 +2,10 @@
 
 namespace ICanBoogie\Routing;
 
-return [
+use ICanBoogie\Binding\Routing\ConfigBuilder;
 
-	'api:ping' => new Route('/api/ping', 'app.ping'),
+return function (ConfigBuilder $config) {
 
-];
+    $config->route('/api/ping', 'api:ping');
+
+};
