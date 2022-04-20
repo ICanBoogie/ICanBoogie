@@ -21,13 +21,11 @@ use ICanBoogie\Session;
  */
 final class StartEvent extends Event
 {
-    public const TYPE = 'start';
-
     /**
      * The event is constructed with the type {@link TYPE}.
      */
     public function __construct(Session $target)
     {
-        parent::__construct($target, self::TYPE);
+        parent::__construct($target);
     }
 }

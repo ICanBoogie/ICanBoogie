@@ -22,8 +22,6 @@ use ICanBoogie\HTTP\Request;
  */
 final class RunEvent extends Event
 {
-    public const TYPE = 'run';
-
     /**
      * The event is constructed with the type {@link TYPE}.
      */
@@ -31,6 +29,6 @@ final class RunEvent extends Event
         Application $target,
         public readonly Request $request
     ) {
-        parent::__construct($target, self::TYPE);
+        parent::__construct($target);
     }
 }

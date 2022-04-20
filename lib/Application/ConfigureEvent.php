@@ -23,13 +23,11 @@ use ICanBoogie\Event;
  */
 final class ConfigureEvent extends Event
 {
-    public const TYPE = 'configure';
-
     /**
      * The event is constructed with the type {@link TYPE}.
      */
     public function __construct(Application $target)
     {
-        parent::__construct($target, self::TYPE);
+        parent::__construct($target);
     }
 }

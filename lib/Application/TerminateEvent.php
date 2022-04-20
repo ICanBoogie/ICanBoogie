@@ -26,8 +26,6 @@ use ICanBoogie\HTTP\Response;
  */
 final class TerminateEvent extends Event
 {
-    public const TYPE = 'terminate';
-
     /**
      * The event is constructed with the type {@link TYPE}.
      */
@@ -36,6 +34,6 @@ final class TerminateEvent extends Event
         public readonly Request $request,
         public readonly Response $response
     ) {
-        parent::__construct($target, self::TYPE);
+        parent::__construct($target);
     }
 }
