@@ -15,19 +15,14 @@ use ICanBoogie\Application;
 use ICanBoogie\Event;
 
 /**
- * Event class for the `ICanBoogie\Application::boot` event.
- *
- * The event is fired after the application has booted.
+ * The event is emitted after the application has booted.
  *
  * @codeCoverageIgnore
  */
 final class BootEvent extends Event
 {
-    /**
-     * The event is constructed with the type {@link TYPE}.
-     */
-    public function __construct(Application $target)
+    public function __construct(Application $sender)
     {
-        parent::__construct($target);
+        parent::__construct($sender);
     }
 }

@@ -15,19 +15,14 @@ use ICanBoogie\Application;
 use ICanBoogie\Event;
 
 /**
- * Event class for the `ICanBoogie\Application::configure` event.
- *
- * The event is fired when the application is configured.
+ * The event is emitted when the application is configured.
  *
  * @codeCoverageIgnore
  */
 final class ConfigureEvent extends Event
 {
-    /**
-     * The event is constructed with the type {@link TYPE}.
-     */
-    public function __construct(Application $target)
+    public function __construct(Application $sender)
     {
-        parent::__construct($target);
+        parent::__construct($sender);
     }
 }

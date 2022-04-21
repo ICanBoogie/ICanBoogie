@@ -17,23 +17,18 @@ use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Response;
 
 /**
- * Event class for the `ICanBoogie\Application::terminate` event
- *
- * The event is fired after the response to the initial request was sent and that the application
- * is ready to be terminated.
+ * The event is emitted after the response to the initial request was sent and that the application is ready to be
+ * terminated.
  *
  * @codeCoverageIgnore
  */
 final class TerminateEvent extends Event
 {
-    /**
-     * The event is constructed with the type {@link TYPE}.
-     */
     public function __construct(
-        Application $target,
+        Application $sender,
         public readonly Request $request,
         public readonly Response $response
     ) {
-        parent::__construct($target);
+        parent::__construct($sender);
     }
 }

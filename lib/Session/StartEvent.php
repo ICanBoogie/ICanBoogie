@@ -24,8 +24,8 @@ final class StartEvent extends Event
     /**
      * The event is constructed with the type {@link TYPE}.
      */
-    public function __construct(Session $target)
+    public function __construct(Session $sender)
     {
-        parent::__construct($target);
+        parent::__construct($sender);
     }
 }

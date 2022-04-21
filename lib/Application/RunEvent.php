@@ -16,19 +16,16 @@ use ICanBoogie\Event;
 use ICanBoogie\HTTP\Request;
 
 /**
- * Event class for the `ICanBoogie\Application::run` event.
+ * The event is emitted when the application runs.
  *
  * @codeCoverageIgnore
  */
 final class RunEvent extends Event
 {
-    /**
-     * The event is constructed with the type {@link TYPE}.
-     */
     public function __construct(
-        Application $target,
+        Application $sender,
         public readonly Request $request
     ) {
-        parent::__construct($target);
+        parent::__construct($sender);
     }
 }

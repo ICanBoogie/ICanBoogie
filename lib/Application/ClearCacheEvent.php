@@ -15,19 +15,14 @@ use ICanBoogie\Application;
 use ICanBoogie\Event;
 
 /**
- * Event class for the `ICanBoogie\Application::clear_cache` event.
- *
- * The event is fired when all the cache of the application must be cleared.
+ * The event is emitted when caches must be cleared.
  *
  * @codeCoverageIgnore
  */
 final class ClearCacheEvent extends Event
 {
-    /**
-     * The event is constructed with the type {@link TYPE}.
-     */
-    public function __construct(Application $target)
+    public function __construct(Application $sender)
     {
-        parent::__construct($target);
+        parent::__construct($sender);
     }
 }
