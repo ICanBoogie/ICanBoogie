@@ -14,16 +14,16 @@ namespace ICanBoogie\Routing;
 use ICanBoogie\HTTP\Request;
 use PHPUnit\Framework\TestCase;
 
+use function ICanBoogie\app;
+
 class PingControllerTest extends TestCase
 {
-    public function test_process()
+    public function test_process(): void
     {
-        $this->markTestSkipped("Routing is broken");
-
-        $controller = new PingController();
-        $response = $controller(Request::from('/api/ping'));
+        $controller = new PingController(app());
+        $response = $controller->respond(Request::from('/api/ping'));
         $this->assertEquals("pong", $response->body);
-        $response = $controller(Request::from('/api/ping?timer'));
+        $response = $controller->respond(Request::from('/api/ping?timer'));
         $this->assertStringStartsWith("pong, in", $response->body);
     }
 }

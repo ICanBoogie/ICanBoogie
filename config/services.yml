@@ -1,0 +1,8 @@
+services:
+  _defaults:
+    autowire: true
+
+  ICanBoogie\Routing\PingController:
+    tags:
+    - { name: action_responder }
+    - { name: action_alias, action: 'api:ping' }
