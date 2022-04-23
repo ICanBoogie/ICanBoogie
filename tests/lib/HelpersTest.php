@@ -95,7 +95,7 @@ class HelpersTest extends TestCase
                 'debug' => [ 'ICanBoogie\Debug::synthesize_config' ],
                 'event' => [ 'ICanBoogie\Binding\Event\EventConfigSynthesizer::synthesize' ],
                 'http_dispatchers' => [ 'ICanBoogie\Binding\HTTP\Hooks::synthesize_dispatchers_config', 'http' ],
-                'prototype' => [ 'ICanBoogie\Binding\Prototype\PrototypeConfigSynthesizer::synthesize' ],
+                'prototype' => [ 'ICanBoogie\Binding\Prototype\ConfigBuilder' ],
                 'routes' => [ 'ICanBoogie\Binding\Routing\ConfigBuilder' ],
                 'container' => [ 'ICanBoogie\Binding\SymfonyDependencyInjection\ConfigBuilder' ],
 
