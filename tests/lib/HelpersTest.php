@@ -93,7 +93,7 @@ class HelpersTest extends TestCase
 
                 'app' => [ 'ICanBoogie\AppConfig::synthesize' ],
                 'debug' => [ 'ICanBoogie\Debug::synthesize_config' ],
-                'event' => [ 'ICanBoogie\Binding\Event\EventConfigSynthesizer::synthesize' ],
+                'event' => [ 'ICanBoogie\Binding\Event\ConfigBuilder' ],
                 'http_dispatchers' => [ 'ICanBoogie\Binding\HTTP\Hooks::synthesize_dispatchers_config', 'http' ],
                 'prototype' => [ 'ICanBoogie\Binding\Prototype\ConfigBuilder' ],
                 'routes' => [ 'ICanBoogie\Binding\Routing\ConfigBuilder' ],
