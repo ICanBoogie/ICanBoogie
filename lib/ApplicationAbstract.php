@@ -15,6 +15,7 @@ use ICanBoogie\Autoconfig\Autoconfig;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Response;
+use ICanBoogie\HTTP\ResponseStatus;
 use ICanBoogie\HTTP\Status;
 use ICanBoogie\Storage\Storage;
 
@@ -201,7 +202,7 @@ abstract class ApplicationAbstract
     private function get_storage_for_configs(): Storage
     {
         return $this->storage_for_configs
-            ?? $this->storage_for_configs = $this->create_storage($this->config[ AppConfig::STORAGE_FOR_CONFIGS ]);
+            ??= $this->create_storage($this->config[ AppConfig::STORAGE_FOR_CONFIGS ]);
     }
 
     /**
@@ -295,10 +296,7 @@ abstract class ApplicationAbstract
      */
     private function bind_object_class(): void
     {
-        Prototype::from(Prototyped::class)['get_app'] = function () {
-
-            return $this;
-        };
+        Prototype::from(Prototyped::class)['get_app'] = fn() => $this;
     }
 
     /**
@@ -332,7 +330,7 @@ abstract class ApplicationAbstract
         }
 
         if ($config[AppConfig::CACHE_CONFIGS]) {
-            $this->configs->cache = $this->storage_for_configs;
+            $this->configs->cache = $this->get_storage_for_configs();
         }
     }
 
@@ -473,13 +471,13 @@ abstract class ApplicationAbstract
     /**
      * Initializes default response header.
      *
-     * The default response has the {@link Status::INTERNAL_SERVER_ERROR} status code and
-     * the appropriate header fields so it is not cached. That way, if something goes wrong
-     * and an error message is displayed it won't be cached by a proxi.
+     * The default response has the {@link ResponseStatus::STATUS_INTERNAL_SERVER_ERROR} status code and the appropriate
+     * header fields, so it is not cached. That way, if something goes wrong and an error message is displayed it won't
+     * be cached by a proxy.
      */
     private function initialize_response_header(): void
     {
-        http_response_code(Status::INTERNAL_SERVER_ERROR);
+        http_response_code(ResponseStatus::STATUS_INTERNAL_SERVER_ERROR);
 
         // @codeCoverageIgnoreStart
         if (!headers_sent()) {
