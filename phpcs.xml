@@ -3,6 +3,7 @@
          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
     <file>lib</file>
     <file>tests</file>
+    <exclude-pattern>tests/repository/*</exclude-pattern>
 
     <arg name="colors"/>
 

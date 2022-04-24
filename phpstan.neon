@@ -1,4 +1,7 @@
 parameters:
-    level: max
-    paths:
-        - lib
+  level: max
+  paths:
+  - lib
+  ignoreErrors:
+  - '#.*get_.*is unused.#'
+  - '#.*set_.*is unused.#'

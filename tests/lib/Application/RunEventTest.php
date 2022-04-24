@@ -20,20 +20,14 @@ use function ICanBoogie\emit;
 
 class RunEventTest extends TestCase
 {
-    public function test_instance()
+    public function test_instance(): void
     {
         $app = $this
             ->getMockBuilder(Application::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $request = $this
-            ->getMockBuilder(Request::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        /* @var $app Application */
-        /* @var $request Request */
+        $request = Request::from([]);
 
         $called = false;
 

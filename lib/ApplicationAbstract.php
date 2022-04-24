@@ -16,7 +16,6 @@ use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\HTTP\ResponseStatus;
-use ICanBoogie\HTTP\Status;
 use ICanBoogie\Storage\Storage;
 
 use function assert;
@@ -48,25 +47,26 @@ use function timezone_name_from_abbr;
  * @property array $config The "app" configuration.
  * @property-read LoggerInterface $logger The message logger.
  * @property-read Storage $storage_for_configs
+ * @property-read Request $request
  */
 abstract class ApplicationAbstract
 {
     /**
-     * @uses ApplicationAbstract::get_is_configured()
-     * @uses ApplicationAbstract::get_is_booting()
-     * @uses ApplicationAbstract::get_is_booted()
-     * @uses ApplicationAbstract::get_is_running()
-     * @uses ApplicationAbstract::get_is_terminating()
-     * @uses ApplicationAbstract::get_is_terminated()
-     * @uses ApplicationAbstract::get_timezone()
-     * @uses ApplicationAbstract::set_timezone()
-     * @uses ApplicationAbstract::get_storage_for_configs()
-     * @uses ApplicationAbstract::lazy_get_vars()
-     * @uses ApplicationAbstract::lazy_get_config()
+     * @uses get_is_configured
+     * @uses get_is_booting
+     * @uses get_is_booted
+     * @uses get_is_running
+     * @uses get_is_terminating
+     * @uses get_is_terminated
+     * @uses get_timezone
+     * @uses set_timezone
+     * @uses get_storage_for_configs
+     * @uses lazy_get_vars
+     * @uses lazy_get_config
+     * @uses get_request
      */
     use PrototypeTrait;
     use Binding\Event\ApplicationBindings;
-    use Binding\HTTP\ApplicationBindings;
     use Binding\Routing\ApplicationBindings;
     use Binding\SymfonyDependencyInjection\ApplicationBindings;
 
@@ -192,9 +192,9 @@ abstract class ApplicationAbstract
     }
 
     /**
-     * @var Storage<string, mixed>
+     * @var Storage<string, mixed>|null
      */
-    private $storage_for_configs;
+    private Storage|null $storage_for_configs;
 
     /**
      * @return Storage<string, mixed>
@@ -302,7 +302,7 @@ abstract class ApplicationAbstract
     /**
      * Returns configuration manager.
      *
-     * @param string[] $paths Path list.
+     * @param array<string, int> $paths Path list.
      * @param array<string, array> $synthesizers Configuration synthesizers.
      */
     private function create_config_manager(array $paths, array $synthesizers): Config
@@ -410,6 +410,13 @@ abstract class ApplicationAbstract
         });
     }
 
+    private Request $request;
+
+    private function get_request(): Request
+    {
+        return $this->request ??= Request::from($_SERVER);
+    }
+
     /**
      * Run the application.
      *
@@ -431,9 +438,7 @@ abstract class ApplicationAbstract
         }
 
         $this->change_status(self::STATUS_RUNNING, function () use ($request): void {
-            if (!$request) {
-                $request = $this->initial_request;
-            }
+            $this->request = $request ??= Request::from($_SERVER);
 
             assert($this instanceof Application);
 

@@ -94,7 +94,6 @@ class ApplicationAbstractTest extends TestCase
 
             [ 'vars',              Storage::class ],
             [ 'configs',           Config::class ],
-            [ 'initial_request',   Request::class ],
             [ 'request',           Request::class ],
             [ 'events',            EventCollection::class ],
             [ 'timezone',          TimeZone::class ]

@@ -16,7 +16,7 @@ namespace ICanBoogie;
  */
 final class SessionWithEvent extends Session
 {
-    static private SessionWithEvent $instance;
+    private static SessionWithEvent $instance;
 
     public static function for_app(Application $app): self
     {

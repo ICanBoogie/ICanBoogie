@@ -32,19 +32,10 @@ final class TerminateEventTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $request = $this
-            ->getMockBuilder(Request::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response = $this
-            ->getMockBuilder(Response::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $request = Request::from([]);
+        $response = new Response();
 
         /* @var $app Application */
-        /* @var $request Request */
-        /* @var $response Response */
 
         $called = false;
 

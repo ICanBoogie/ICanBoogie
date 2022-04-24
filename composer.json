@@ -20,8 +20,15 @@
 		"issues": "https://github.com/ICanBoogie/ICanBoogie/issues",
 		"source": "https://github.com/ICanBoogie/ICanBoogie"
 	},
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
 	"minimum-stability": "dev",
     "prefer-stable": true,
+    "prefer-dist": true,
     "replace": {
         "symfony/polyfill-php73": "*",
         "symfony/polyfill-php80": "*"
@@ -71,9 +78,6 @@
 	},
 	"scripts": {
 		"post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"
-	},
-	"config": {
-		"sort-packages": true
 	},
 	"extra": {
 		"icanboogie": {
