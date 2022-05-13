@@ -11,45 +11,107 @@
 
 namespace ICanBoogie;
 
-use LogicException;
+use PHPUnit\Framework\TestCase;
+use Test\ICanBoogie\SetStateHelper;
 
-class AppConfigTest extends \PHPUnit\Framework\TestCase
+final class AppConfigTest extends TestCase
 {
-    public function testShouldThrowExceptionOnInvalidRepository()
+    public function test_default_repository(): void
     {
-        $this->expectException(LogicException::class);
+        $config = new AppConfig();
 
-        AppConfig::synthesize([ [
+        $this->assertEquals([
 
-            AppConfig::REPOSITORY => __DIR__ . 'AppConfigTest.php/' . uniqid()
+            "repository/",
+            "repository/cache/",
+            "repository/cache/configs/",
+            "repository/files/",
+            "repository/tmp/",
+            "repository/var/",
 
-        ] ]);
+        ], $this->repository_to_array($config));
     }
 
-    public function testInterpolateRepository()
+    public function test_custom_repository(): void
     {
-        $repository = __DIR__;
+        $config = new AppConfig(repository: 'madonna');
 
-        $config = AppConfig::synthesize([ [
+        $this->assertEquals([
 
-            AppConfig::REPOSITORY => $repository,
-            AppConfig::REPOSITORY_CACHE => "{repository}/cache",
-            AppConfig::REPOSITORY_CACHE_CONFIGS => "{repository}/cache/configs",
-            AppConfig::REPOSITORY_FILES => "{repository}/files",
-            AppConfig::REPOSITORY_TMP => "{repository}/tmp",
-            AppConfig::REPOSITORY_VARS => "{repository}/vars",
+            "madonna/",
+            "madonna/cache/",
+            "madonna/cache/configs/",
+            "madonna/files/",
+            "madonna/tmp/",
+            "madonna/var/",
 
-        ] ]);
+        ], $this->repository_to_array($config));
+    }
 
-        $this->assertSame([
+    public function test_custom_repository_cache(): void
+    {
+        $config = new AppConfig(repository_cache: 'madonna');
 
-            AppConfig::REPOSITORY => "$repository/",
-            AppConfig::REPOSITORY_CACHE => "$repository/cache/",
-            AppConfig::REPOSITORY_CACHE_CONFIGS => "$repository/cache/configs/",
-            AppConfig::REPOSITORY_FILES => "$repository/files/",
-            AppConfig::REPOSITORY_TMP => "$repository/tmp/",
-            AppConfig::REPOSITORY_VARS => "$repository/vars/",
+        $this->assertEquals([
 
-        ], $config);
+            "repository/",
+            "madonna/",
+            "madonna/configs/",
+            "repository/files/",
+            "repository/tmp/",
+            "repository/var/",
+
+        ], $this->repository_to_array($config));
+    }
+
+    public function test_custom_repository_all(): void
+    {
+        $config = new AppConfig(
+            repository: 'my-repository',
+            repository_cache: 'my-cache',
+            repository_cache_configs: 'my-configs',
+            repository_files: 'my-files',
+            repository_tmp: 'my-tmp',
+            repository_var: 'my-var'
+        );
+
+        $this->assertEquals([
+
+            "my-repository/",
+            "my-cache/",
+            "my-configs/",
+            "my-files/",
+            "my-tmp/",
+            "my-var/",
+
+        ], $this->repository_to_array($config));
+    }
+
+    public function test_export(): void
+    {
+        $config = new AppConfig(
+            cache_catalogs: true,
+            cache_configs: true,
+            error_handler: [ Hooks::class, 'on_clear_cache' ],
+        );
+
+        $this->assertEquals($config, SetStateHelper::export_import($config));
+    }
+
+    /**
+     * @return string[]
+     */
+    private function repository_to_array(AppConfig $config): array
+    {
+        return [
+
+            $config->repository,
+            $config->repository_cache,
+            $config->repository_cache_configs,
+            $config->repository_files,
+            $config->repository_tmp,
+            $config->repository_var,
+
+        ];
     }
 }

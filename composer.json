@@ -70,7 +70,8 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"ICanBoogie\\": "tests/lib"
+			"ICanBoogie\\": "tests/lib",
+			"Test\\ICanBoogie\\": "tests/lib"
 		},
 		"classmap": [
 			"tests/Application.php"
@@ -84,8 +85,8 @@
 			"config-path": "config/",
 			"locale-path": "locale/",
 			"config-constructor": {
-				"app": "ICanBoogie\\AppConfig::synthesize",
-				"debug": "ICanBoogie\\Debug::synthesize_config"
+				"app": "ICanBoogie\\AppConfigBuilder",
+				"debug": "ICanBoogie\\DebugConfigBuilder"
 			},
 			"autoconfig-filters": [
 				"ICanBoogie\\Autoconfig\\Hooks::filter_autoconfig"

@@ -8,7 +8,10 @@
 		"config-constructor": {
 
 			"type": "object",
-			"description": "A hash of config name (keys) and a callback (values) that is used to create the config. If the config is created from another config, append that config name after the callback separated with a '#' sign."
+            "patternProperties": {
+                ".{1,}": { "type": "string" }
+            },
+			"description": "A hashmap where _key_ is a config name and _value_ a config builder class."
 
 		},
 

@@ -69,9 +69,7 @@ class ApplicationAbstractTest extends TestCase
     {
         $app = self::$app;
         $config = $app->config;
-        $this->assertIsArray($config);
-        $this->assertNotEmpty($config);
-        $this->assertArrayHasKey('exception_handler', $config);
+        $this->assertInstanceOf(AppConfig::class, $config);
 
         unset($app->config);
         $this->assertSame($config, $app->config);

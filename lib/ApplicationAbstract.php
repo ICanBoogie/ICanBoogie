@@ -12,6 +12,7 @@
 namespace ICanBoogie;
 
 use ICanBoogie\Autoconfig\Autoconfig;
+use ICanBoogie\Config\Builder;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Response;
@@ -25,10 +26,14 @@ use function header;
 use function headers_sent;
 use function http_response_code;
 use function is_numeric;
+use function json_encode;
 use function microtime;
 use function set_error_handler;
 use function set_exception_handler;
 use function timezone_name_from_abbr;
+use function trigger_error;
+
+use const E_USER_DEPRECATED;
 
 /**
  * Application abstract.
@@ -44,7 +49,7 @@ use function timezone_name_from_abbr;
  * @property Session $session User's session.
  * @property string $language Locale language.
  * @property string|int $timezone Time zone.
- * @property array $config The "app" configuration.
+ * @property AppConfig $config The "app" configuration.
  * @property-read LoggerInterface $logger The message logger.
  * @property-read Storage $storage_for_configs
  * @property-read Request $request
@@ -150,9 +155,9 @@ abstract class ApplicationAbstract
     /**
      * Options passed during construct.
      *
-     * @var array<string, mixed>
+     * @phpstan-var array<Autoconfig::*, mixed>
      */
-    private array $construct_options = [];
+    public readonly array $auto_config;
 
     private ?TimeZone $timezone = null;
 
@@ -202,7 +207,7 @@ abstract class ApplicationAbstract
     private function get_storage_for_configs(): Storage
     {
         return $this->storage_for_configs
-            ??= $this->create_storage($this->config[ AppConfig::STORAGE_FOR_CONFIGS ]);
+            ??= $this->create_storage($this->config->storage_for_config);
     }
 
     /**
@@ -212,25 +217,23 @@ abstract class ApplicationAbstract
      */
     private function lazy_get_vars(): Storage
     {
-        return $this->create_storage($this->config[AppConfig::STORAGE_FOR_VARS]);
+        return $this->create_storage($this->config->storage_for_vars);
     }
 
     /**
      * Returns the `app` configuration.
-     *
-     * @return array<string, mixed>
      */
-    private function lazy_get_config(): array
+    private function lazy_get_config(): AppConfig
     {
-        return array_merge_recursive($this->configs['app'], $this->construct_options);
+        return $this->configs['app'];
     }
 
     /**
-     * @param array<string, mixed> $options Initial options to create the application.
+     * @param array<Autoconfig::*, mixed> $auto_config Initial options to create the application.
      *
      * @throws ApplicationAlreadyInstantiated in attempt to create a second instance.
      */
-    public function __construct(array $options = [])
+    public function __construct(array $auto_config = [])
     {
         $this->assert_not_instantiated();
 
@@ -239,7 +242,7 @@ abstract class ApplicationAbstract
         self::$instance = $this;
 
         $this->status = self::STATUS_INSTANTIATING;
-        $this->construct_options = $options;
+        $this->auto_config = $auto_config;
 
         if (!date_default_timezone_get()) {
             date_default_timezone_set('UTC');
@@ -247,8 +250,8 @@ abstract class ApplicationAbstract
 
         $this->bind_object_class();
         $this->configs = $this->create_config_manager(
-            $options[ Autoconfig::CONFIG_PATH ],
-            $options[ Autoconfig::CONFIG_CONSTRUCTOR ]
+            $auto_config[Autoconfig::CONFIG_PATH],
+            $auto_config[Autoconfig::CONFIG_CONSTRUCTOR]
         );
         $this->apply_config($this->config);
 
@@ -303,7 +306,7 @@ abstract class ApplicationAbstract
      * Returns configuration manager.
      *
      * @param array<string, int> $paths Path list.
-     * @param array<string, array> $synthesizers Configuration synthesizers.
+     * @param array<string, class-string<Builder>> $synthesizers Configuration synthesizers.
      */
     private function create_config_manager(array $paths, array $synthesizers): Config
     {
@@ -312,24 +315,22 @@ abstract class ApplicationAbstract
 
     /**
      * Applies low-level configuration.
-     *
-     * @param array<string, mixed> $config
      */
-    private function apply_config(array $config): void
+    private function apply_config(AppConfig $config): void
     {
-        $error_handler = $config[AppConfig::ERROR_HANDLER];
+        $error_handler = $config->error_handler;
 
         if ($error_handler) {
             set_error_handler($error_handler);
         }
 
-        $exception_handler = $config[AppConfig::EXCEPTION_HANDLER];
+        $exception_handler = $config->exception_handler;
 
         if ($exception_handler) {
             set_exception_handler($exception_handler);
         }
 
-        if ($config[AppConfig::CACHE_CONFIGS]) {
+        if ($config->cache_configs) {
             $this->configs->cache = $this->get_storage_for_configs();
         }
     }

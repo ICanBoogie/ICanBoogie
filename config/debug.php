@@ -1,5 +1,9 @@
 <?php
 
+namespace ICanBoogie;
+
+return fn(DebugConfigBuilder $config) => null;
+
 return [
 
 	'code_sample' => true,

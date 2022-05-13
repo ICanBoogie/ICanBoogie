@@ -28,6 +28,7 @@ use function getcwd;
 use function implode;
 use function ksort;
 use function realpath;
+use function var_dump;
 
 /**
  * @codeCoverageIgnore
@@ -426,10 +427,8 @@ EOT;
         return $this->render_array_entry(
             Autoconfig::CONFIG_CONSTRUCTOR,
             $synthesized,
-            function ($constructor, $name): string {
-                [ $callback, $from ] = explode('#', $constructor) + [ 1 => null ];
-
-                return "'$name' => [ '$callback'" . ($from ? ", '$from'" : '') . " ]";
+            function ($builder_class, $name): string {
+                return "'$name' => '$builder_class'";
             }
         );
     }
