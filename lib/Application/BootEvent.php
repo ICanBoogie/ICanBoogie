@@ -21,8 +21,9 @@ use ICanBoogie\Event;
  */
 final class BootEvent extends Event
 {
-    public function __construct(Application $sender)
-    {
-        parent::__construct($sender);
+    public function __construct(
+        public readonly Application $app
+    ) {
+        parent::__construct();
     }
 }

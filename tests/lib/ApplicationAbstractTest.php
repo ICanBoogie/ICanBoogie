@@ -11,6 +11,7 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\Application\ClearCacheEvent;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\Storage\Storage;
 use PHPUnit\Framework\TestCase;
@@ -115,7 +116,7 @@ class ApplicationAbstractTest extends TestCase
         $invoked = false;
 
         $app = app();
-        $app->events->once(function (Application\ClearCacheEvent $event, Application $target) use (&$invoked) {
+        $app->events->once(function (ClearCacheEvent $event) use (&$invoked) {
             $invoked = true;
         });
 

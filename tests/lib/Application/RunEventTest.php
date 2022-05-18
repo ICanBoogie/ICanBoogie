@@ -31,9 +31,8 @@ class RunEventTest extends TestCase
 
         $called = false;
 
-        app()->events->once(function (RunEvent $event, Application $target) use ($app, $request, &$called) {
-
-            $this->assertSame($app, $target);
+        app()->events->once(function (RunEvent $event) use ($app, $request, &$called) {
+            $this->assertSame($app, $event->app);
             $this->assertSame($request, $event->request);
             $event->stop();
             $called = true;

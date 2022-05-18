@@ -25,10 +25,10 @@ use ICanBoogie\HTTP\Response;
 final class TerminateEvent extends Event
 {
     public function __construct(
-        Application $sender,
+        public readonly Application $app,
         public readonly Request $request,
         public readonly Response $response
     ) {
-        parent::__construct($sender);
+        parent::__construct();
     }
 }

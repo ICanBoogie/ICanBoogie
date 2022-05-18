@@ -39,9 +39,9 @@ final class TerminateEventTest extends TestCase
 
         $called = false;
 
-        app()->events->once(function (TerminateEvent $event, Application $target) use ($app, $request, $response, &$called) {
+        app()->events->once(function (TerminateEvent $event) use ($app, $request, $response, &$called) {
 
-            $this->assertSame($app, $target);
+            $this->assertSame($app, $event->app);
             $this->assertSame($request, $event->request);
             $this->assertSame($response, $event->response);
             $event->stop();

@@ -11,6 +11,10 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\Application\BootEvent;
+use ICanBoogie\Application\ClearCacheEvent;
+use ICanBoogie\Application\ConfigureEvent;
+use ICanBoogie\Application\TerminateEvent;
 use ICanBoogie\Autoconfig\Autoconfig;
 use ICanBoogie\Config\Builder;
 use ICanBoogie\HTTP\Request;
@@ -26,14 +30,10 @@ use function header;
 use function headers_sent;
 use function http_response_code;
 use function is_numeric;
-use function json_encode;
 use function microtime;
 use function set_error_handler;
 use function set_exception_handler;
 use function timezone_name_from_abbr;
-use function trigger_error;
-
-use const E_USER_DEPRECATED;
 
 /**
  * Application abstract.
@@ -184,16 +184,13 @@ abstract class ApplicationAbstract
     /**
      * Returns the working time zone.
      *
-     * If the time zone is not defined yet it defaults to the value of
+     * If the time zone is not defined yet, it defaults to the value of
      * {@link date_default_timezone_get()} or "UTC".
      */
     private function get_timezone(): TimeZone
     {
-        if (!$this->timezone) {
-            $this->timezone = TimeZone::from(date_default_timezone_get() ?: 'UTC');
-        }
-
-        return $this->timezone;
+        return $this->timezone
+            ??= TimeZone::from(date_default_timezone_get() ?: 'UTC');
     }
 
     /**
@@ -366,9 +363,7 @@ abstract class ApplicationAbstract
     /**
      * Configures the application.
      *
-     * The `configure` event of class {@link Application\ConfigureEvent} is fired after the
-     * application is configured. Event hooks may use this event to further configure the
-     * application.
+     * Emits {@link ConfigureEvent} once the application is configured.
      */
     private function configure(): void
     {
@@ -380,14 +375,14 @@ abstract class ApplicationAbstract
 
             assert($this instanceof Application);
 
-            emit(new Application\ConfigureEvent($this));
+            emit(new ConfigureEvent($this));
         });
     }
 
     /**
      * Boot the modules and configure Debug, Prototype and Events.
      *
-     * The `boot` event of class {@link Application\BootEvent} is fired after the boot is finished.
+     * Emits {@link BootEvent} after the boot is finished.
      *
      * The `ICANBOOGIE_READY_TIME_FLOAT` key is added to the `$_SERVER` super global with the
      * micro-time at which the boot finished.
@@ -405,7 +400,7 @@ abstract class ApplicationAbstract
         $this->change_status(self::STATUS_BOOTING, function () {
             assert($this instanceof Application);
 
-            emit(new Application\BootEvent($this));
+            emit(new BootEvent($this));
 
             $_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
         });
@@ -427,7 +422,7 @@ abstract class ApplicationAbstract
      *
      * The {@link boot()} method is invoked if the application has not booted yet.
      *
-     * @param Request<string, mixed>|null $request The request to handle. If `null`, the initial request is used.
+     * @param Request|null $request The request to handle. If `null`, the initial request is used.
      */
     public function run(Request $request = null): void
     {
@@ -466,8 +461,6 @@ abstract class ApplicationAbstract
 
     /**
      * Alias to `run()`
-     *
-     * @param Request<string, mixed>|null $request
      */
     public function __invoke(Request $request = null): void
     {
@@ -497,28 +490,25 @@ abstract class ApplicationAbstract
     /**
      * Terminate the application.
      *
-     * Fires the `ICanBoogie\Application::terminate` event of class
-     * {@link Application\TerminateEvent}.
-     *
-     * @param Request<string, mixed> $request
+     * Emits {@link TerminateEvent}.
      */
     private function terminate(Request $request, Response $response): void
     {
         $this->change_status(self::STATUS_TERMINATING, function () use ($request, $response): void {
             assert($this instanceof Application);
 
-            emit(new Application\TerminateEvent($this, $request, $response));
+            emit(new TerminateEvent($this, $request, $response));
         });
     }
 
     /**
-     * Fires the `ICanBoogie\Application::clear_cache` event.
+     * Emits {@link ClearCacheEvent}
      */
     public function clear_cache(): void
     {
         assert($this instanceof Application);
 
-        emit(new Application\ClearCacheEvent($this));
+        emit(new ClearCacheEvent($this));
     }
 }
 

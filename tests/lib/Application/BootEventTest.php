@@ -12,11 +12,12 @@
 namespace ICanBoogie\Application;
 
 use ICanBoogie\Application;
+use PHPUnit\Framework\TestCase;
 
 use function ICanBoogie\app;
 use function ICanBoogie\emit;
 
-class BootEventTest extends \PHPUnit\Framework\TestCase
+class BootEventTest extends TestCase
 {
     public function test_instance()
     {
@@ -29,9 +30,8 @@ class BootEventTest extends \PHPUnit\Framework\TestCase
 
         $called = false;
 
-        app()->events->once(function (BootEvent $event, Application $target) use ($app, &$called) {
-
-            $this->assertSame($app, $target);
+        app()->events->once(function (BootEvent $event) use ($app, &$called) {
+            $this->assertSame($app, $event->app);
             $event->stop();
             $called = true;
         });

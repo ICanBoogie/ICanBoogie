@@ -3,5 +3,5 @@ parameters:
   paths:
   - lib
   ignoreErrors:
-  - '#.*get_.*is unused.#'
-  - '#.*set_.*is unused.#'
+  - '#get_.* is unused#'
+  - '#set_.* is unused#'

@@ -14,6 +14,19 @@
   `ApplicationAbstract::$auto_config`. `AppConfig` constants that were used as array keys are now
   removed.
 
+- `Application` events no long use a sender and include a `app` property instead.
+
+    ```php
+    <?php
+
+    $events->attach(function (BootEvent $event, Application $sender) { ... });
+    ```
+    ```php
+    <?php
+
+    $events->attach(function (BootEvent $event) { ... });
+    ```
+
 ### Deprecated Features
 
 N/A

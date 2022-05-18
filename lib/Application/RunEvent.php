@@ -23,9 +23,9 @@ use ICanBoogie\HTTP\Request;
 final class RunEvent extends Event
 {
     public function __construct(
-        Application $sender,
+        public readonly Application $app,
         public readonly Request $request
     ) {
-        parent::__construct($sender);
+        parent::__construct();
     }
 }
