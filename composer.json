@@ -85,8 +85,8 @@
 			"config-path": "config/",
 			"locale-path": "locale/",
 			"config-constructor": {
-				"app": "ICanBoogie\\AppConfigBuilder",
-				"debug": "ICanBoogie\\DebugConfigBuilder"
+				"ICanBoogie\\AppConfig": "ICanBoogie\\AppConfigBuilder",
+				"ICanBoogie\\DebugConfig": "ICanBoogie\\DebugConfigBuilder"
 			},
 			"autoconfig-filters": [
 				"ICanBoogie\\Autoconfig\\Hooks::filter_autoconfig"

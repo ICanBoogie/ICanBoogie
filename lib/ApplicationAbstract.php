@@ -222,7 +222,7 @@ abstract class ApplicationAbstract
      */
     private function lazy_get_config(): AppConfig
     {
-        return $this->configs['app'];
+        return $this->configs[AppConfig::class];
     }
 
     /**
@@ -368,8 +368,8 @@ abstract class ApplicationAbstract
     private function configure(): void
     {
         $this->change_status(self::STATUS_CONFIGURING, function () {
-            Debug::configure($this->configs['debug']);
-            Prototype::bind($this->configs['prototype']);
+            Debug::configure($this->configs[DebugConfig::class]);
+            Prototype::bind($this->configs[Prototype\Config::class]);
 
             $this->events;
 
