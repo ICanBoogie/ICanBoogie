@@ -15,6 +15,11 @@ use ICanBoogie\Config\Builder;
 
 final class AppConfigBuilder implements Builder
 {
+    public static function get_fragment_filename(): string
+    {
+        return 'app';
+    }
+
     private bool $cache_catalogs = false;
 
     public function enable_catalog_caching(): self

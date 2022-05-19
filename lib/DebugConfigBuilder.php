@@ -17,6 +17,11 @@ use function in_array;
 
 final class DebugConfigBuilder implements Builder
 {
+    public static function get_fragment_filename(): string
+    {
+        return 'debug';
+    }
+
     private string $mode = Debug::MODE_DEV;
 
     public function set_mode(string $mode): self
