@@ -28,7 +28,12 @@ use function getcwd;
 use function implode;
 use function ksort;
 use function realpath;
+use function sort;
+use function sprintf;
 use function var_dump;
+
+use const SORT_DESC;
+use const SORT_NUMERIC;
 
 /**
  * @codeCoverageIgnore

@@ -23,6 +23,8 @@ use ICanBoogie\HTTP\Response;
 use ICanBoogie\HTTP\ResponseStatus;
 use ICanBoogie\Storage\Storage;
 
+use function array_reverse;
+use function asort;
 use function assert;
 use function date_default_timezone_get;
 use function date_default_timezone_set;
@@ -34,6 +36,10 @@ use function microtime;
 use function set_error_handler;
 use function set_exception_handler;
 use function timezone_name_from_abbr;
+
+use function var_dump;
+
+use const SORT_NUMERIC;
 
 /**
  * Application abstract.
@@ -303,11 +309,13 @@ abstract class ApplicationAbstract
      * Returns configuration manager.
      *
      * @param array<string, int> $paths Path list.
-     * @param array<string, class-string<Builder>> $synthesizers Configuration synthesizers.
+     * @param array<string, class-string<Builder>> $builders
      */
-    private function create_config_manager(array $paths, array $synthesizers): Config
+    private function create_config_manager(array $paths, array $builders): Config
     {
-        return new Config($paths, $synthesizers);
+        asort($paths, SORT_NUMERIC);
+
+        return new Config(array_keys($paths), $builders);
     }
 
     /**
