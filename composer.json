@@ -29,10 +29,6 @@
 	"minimum-stability": "dev",
     "prefer-stable": true,
     "prefer-dist": true,
-    "replace": {
-        "symfony/polyfill-php73": "*",
-        "symfony/polyfill-php80": "*"
-    },
 	"require": {
 		"php": ">=8.1",
 		"ext-json": "*",

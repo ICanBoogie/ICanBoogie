@@ -16,7 +16,7 @@ use ICanBoogie\HTTP\Request;
 use ICanBoogie\Storage\Storage;
 use PHPUnit\Framework\TestCase;
 
-class ApplicationAbstractTest extends TestCase
+final class ApplicationAbstractTest extends TestCase
 {
     private static Application $app;
 
@@ -25,55 +25,51 @@ class ApplicationAbstractTest extends TestCase
         self::$app = app();
     }
 
-    public function test_subsequent_construct_should_throw_exception()
+    public function test_subsequent_construct_should_throw_exception(): void
     {
         $this->expectException(ApplicationAlreadyInstantiated::class);
 
         new Application();
     }
 
-    public function test_object_should_have_app_property()
+    public function test_object_should_have_app_property(): void
     {
         /* @var $o Prototyped|Binding\PrototypedBindings */
         $o = new Prototyped();
         $this->assertSame(self::$app, $o->app);
     }
 
-    public function test_second_boot()
+    public function test_second_boot(): void
     {
         $this->expectException(ApplicationAlreadyBooted::class);
 
         self::$app->boot();
     }
 
-    public function test_is_configured()
+    public function test_is_configured(): void
     {
         $this->assertTrue(self::$app->is_configured);
     }
 
-    public function test_is_booting()
+    public function test_is_booting(): void
     {
         $this->assertFalse(self::$app->is_booting);
     }
 
-    public function test_is_booted()
+    public function test_is_booted(): void
     {
         $this->assertTrue(self::$app->is_booted);
     }
 
-    public function test_is_running()
+    public function test_is_running(): void
     {
         $this->assertFalse(self::$app->is_running);
     }
 
-    public function test_get_config()
+    public function test_get_config(): void
     {
         $app = self::$app;
-        $config = $app->config;
-        $this->assertInstanceOf(AppConfig::class, $config);
-
-        unset($app->config);
-        $this->assertSame($config, $app->config);
+        $this->assertInstanceOf(AppConfig::class, $app->config);
     }
 
     /**
@@ -102,16 +98,12 @@ class ApplicationAbstractTest extends TestCase
 
     public function test_set_timezone(): void
     {
-        self::$app->timezone = 3600;
-        $this->assertInstanceOf(TimeZone::class, self::$app->timezone);
-        $this->assertEquals('Europe/Paris', (string) self::$app->timezone);
-
         self::$app->timezone = 'Europe/Madrid';
         $this->assertInstanceOf(TimeZone::class, self::$app->timezone);
         $this->assertEquals('Europe/Madrid', (string) self::$app->timezone);
     }
 
-    public function test_clear_cache()
+    public function test_clear_cache(): void
     {
         $invoked = false;
 

@@ -2,7 +2,7 @@
 
 PACKAGE_NAME = icanboogie/icanboogie
 # we need a PHPUnit in a standalone package or it will trigger the autoload and mess with the constants.
-PHPUNIT_VERSION = phpunit-9-5.phar
+PHPUNIT_VERSION = phpunit-9-6.phar
 PHPUNIT = build/$(PHPUNIT_VERSION)
 
 # do not edit the following lines
@@ -36,15 +36,23 @@ test-coverage: test-dependencies
 .PHONY: test-coveralls
 test-coveralls: test-dependencies
 	@mkdir -p build/logs
-	@$(PHPUNIT) --coverage-clover ../build/logs/clover.xml
+	@XDEBUG_MODE=coverage $(PHPUNIT) --coverage-clover ../build/logs/clover.xml
 
 .PHONY: test-cleanup
 test-cleanup:
 	@rm -rf tests/sandbox/*
 
 .PHONY: test-container
-test-container:
-	@-docker-compose run --rm app bash
+test-container: test-container-81
+
+.PHONY: test-container-81
+test-container-81:
+	@-docker-compose run --rm app81 bash
+	@docker-compose down -v
+
+.PHONY: test-container-82
+test-container-82:
+	@-docker-compose run --rm app82 bash
 	@docker-compose down -v
 
 .PHONY: lint

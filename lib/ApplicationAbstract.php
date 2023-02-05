@@ -23,7 +23,6 @@ use ICanBoogie\HTTP\Response;
 use ICanBoogie\HTTP\ResponseStatus;
 use ICanBoogie\Storage\Storage;
 
-use function array_reverse;
 use function asort;
 use function assert;
 use function date_default_timezone_get;
@@ -31,13 +30,9 @@ use function date_default_timezone_set;
 use function header;
 use function headers_sent;
 use function http_response_code;
-use function is_numeric;
 use function microtime;
 use function set_error_handler;
 use function set_exception_handler;
-use function timezone_name_from_abbr;
-
-use function var_dump;
 
 use const SORT_NUMERIC;
 
@@ -50,12 +45,10 @@ use const SORT_NUMERIC;
  * @property-read bool $is_running `true` if the application is running, `false` otherwise.
  * @property-read bool $is_terminating `true` if the application is terminating, `false` otherwise.
  * @property-read bool $is_terminated `true` if the application is terminated, `false` otherwise.
- * @property Config $configs Configurations manager.
  * @property Storage $vars Persistent variables registry.
  * @property Session $session User's session.
  * @property string $language Locale language.
  * @property string|int $timezone Time zone.
- * @property AppConfig $config The "app" configuration.
  * @property-read LoggerInterface $logger The message logger.
  * @property-read Storage $storage_for_configs
  * @property-read Request $request
@@ -72,8 +65,7 @@ abstract class ApplicationAbstract
      * @uses get_timezone
      * @uses set_timezone
      * @uses get_storage_for_configs
-     * @uses lazy_get_vars
-     * @uses lazy_get_config
+     * @uses get_vars
      * @uses get_request
      */
     use PrototypeTrait;
@@ -173,15 +165,11 @@ abstract class ApplicationAbstract
      * When the time zone is set the default time zone is also set with
      * {@link date_default_timezone_set()}.
      *
-     * @param TimeZone|string|int $timezone An instance of {@link TimeZone},
-     * the name of a time zone, or numeric equivalent e.g. 3600.
+     * @param string|TimeZone $timezone An instance of {@link TimeZone},
+     * or the name of a time zone.
      */
-    private function set_timezone($timezone): void
+    private function set_timezone(string|TimeZone $timezone): void
     {
-        if (is_numeric($timezone)) {
-            $timezone = timezone_name_from_abbr("", (int) $timezone, 0);
-        }
-
         $this->timezone = TimeZone::from($timezone);
 
         date_default_timezone_set((string) $this->timezone);
@@ -213,23 +201,22 @@ abstract class ApplicationAbstract
             ??= $this->create_storage($this->config->storage_for_config);
     }
 
+    private Storage $vars;
+
     /**
      * Returns the non-volatile variables registry.
      *
      * @return Storage<string, mixed>
      */
-    private function lazy_get_vars(): Storage
+    private function get_vars(): Storage
     {
-        return $this->create_storage($this->config->storage_for_vars);
+        return $this->vars
+            ??= $this->create_storage($this->config->storage_for_vars);
     }
 
-    /**
-     * Returns the `app` configuration.
-     */
-    private function lazy_get_config(): AppConfig
-    {
-        return $this->configs->config_for_class(AppConfig::class);
-    }
+    public readonly Config $configs;
+    public readonly AppConfig $config;
+    public readonly EventCollection $events;
 
     /**
      * @param array<Autoconfig::*, mixed> $auto_config Initial options to create the application.
@@ -256,7 +243,9 @@ abstract class ApplicationAbstract
             $auto_config[Autoconfig::CONFIG_PATH],
             $auto_config[Autoconfig::CONFIG_CONSTRUCTOR]
         );
+        $this->config = $this->configs->config_for_class(AppConfig::class);
         $this->apply_config($this->config);
+        $this->events = \ICanBoogie\Binding\Event\Hooks::get_events($this);
 
         $this->status = self::STATUS_INSTANTIATED;
     }
@@ -356,10 +345,8 @@ abstract class ApplicationAbstract
 
     /**
      * Changes the status of the application.
-     *
-     * @return mixed
      */
-    private function change_status(int $status, callable $callable)
+    private function change_status(int $status, callable $callable): ?int
     {
         $this->status = $status;
         $rc = $callable();
@@ -377,9 +364,7 @@ abstract class ApplicationAbstract
     {
         $this->change_status(self::STATUS_CONFIGURING, function () {
             Debug::configure($this->configs->config_for_class(DebugConfig::class));
-            Prototype::bind($this->configs->config_for_class(Prototype\Config::class));
-
-            $this->events;
+            Binding\Prototype\AutoConfig::configure($this);
 
             assert($this instanceof Application);
 
@@ -418,6 +403,7 @@ abstract class ApplicationAbstract
 
     private function get_request(): Request
     {
+        // @phpstan-ignore-next-line
         return $this->request ??= Request::from($_SERVER);
     }
 
@@ -464,6 +450,7 @@ abstract class ApplicationAbstract
      */
     public function service_for_class(string $class): object
     {
+        // @phpstan-ignore-next-line
         return $this->container->get($class);
     }
 

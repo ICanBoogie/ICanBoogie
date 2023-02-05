@@ -1,8 +1,22 @@
 ---
 version: "3.2"
 services:
-  app:
-    build: .
+  app81:
+    build:
+      context: .
+      args:
+        PHP_VERSION: 8.1
+    environment:
+      PHP_IDE_CONFIG: 'serverName=icanboogie'
+    volumes:
+    - .:/app:delegated
+    - ~/.composer:/root/.composer:delegated
+    working_dir: /app
+  app82:
+    build:
+      context: .
+      args:
+        PHP_VERSION: 8.2
     environment:
       PHP_IDE_CONFIG: 'serverName=icanboogie'
     volumes:
