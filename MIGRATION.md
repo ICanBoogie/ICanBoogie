@@ -6,6 +6,7 @@
 
 - Added `AppConfigBuilder`.
 - Added `DebugConfigBuilder` and `DebugConfig`.
+- Added `ApplicationAbstract::service_for_class()` and `::service_for_id()`.
 
 ### Backward Incompatible Changes
 
@@ -29,8 +30,8 @@
 
 ### Deprecated Features
 
-N/A
+None
 
 ### Other Changes
 
-N/A
+None

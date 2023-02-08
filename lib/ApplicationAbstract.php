@@ -455,6 +455,23 @@ abstract class ApplicationAbstract
     }
 
     /**
+     * @template T of object
+     *
+     * @param string $id
+     * @param class-string<T> $class
+     *
+     * @return T
+     */
+    public function service_for_id(string $id, string $class): object
+    {
+        $service = $this->container->get($id);
+
+        assert($service instanceof $class);
+
+        return $service;
+    }
+
+    /**
      * Alias to `run()`
      */
     public function __invoke(Request $request = null): void
