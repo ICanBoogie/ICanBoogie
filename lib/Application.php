@@ -53,7 +53,7 @@ use const SORT_NUMERIC;
  * @property-read Storage $storage_for_configs
  * @property-read Request $request
  */
-class Application implements ServiceProvider
+class Application implements ConfigProvider, ServiceProvider
 {
     /**
      * @uses get_is_configured
@@ -251,6 +251,35 @@ class Application implements ServiceProvider
     }
 
     /**
+     * @inheritDoc
+     */
+    public function config_for_class(string $class): object
+    {
+        return $this->configs->config_for_class($class);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function service_for_class(string $class): object
+    {
+        // @phpstan-ignore-next-line
+        return $this->container->get($class);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function service_for_id(string $id, string $class): object
+    {
+        $service = $this->container->get($id);
+
+        assert($service instanceof $class);
+
+        return $service;
+    }
+
+    /**
      * Asserts that the class is not instantiated yet.
      *
      * @throws ApplicationAlreadyInstantiated if the class is already instantiated.
@@ -431,36 +460,6 @@ class Application implements ServiceProvider
 
             $this->terminate($request, $response);
         });
-    }
-
-    /**
-     * @template T of object
-     *
-     * @param class-string<T> $class
-     *
-     * @return T
-     */
-    public function service_for_class(string $class): object
-    {
-        // @phpstan-ignore-next-line
-        return $this->container->get($class);
-    }
-
-    /**
-     * @template T of object
-     *
-     * @param string $id
-     * @param class-string<T> $class
-     *
-     * @return T
-     */
-    public function service_for_id(string $id, string $class): object
-    {
-        $service = $this->container->get($id);
-
-        assert($service instanceof $class);
-
-        return $service;
     }
 
     /**

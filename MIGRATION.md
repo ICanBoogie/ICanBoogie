@@ -6,8 +6,8 @@
 
 - Added `AppConfigBuilder`.
 - Added `DebugConfigBuilder` and `DebugConfig`.
-- Added `Application::service_for_class()` and `::service_for_id()`.
-- Added the `ServiceProvider` interfaced, implemented by `Application`.
+- Added the `ServiceProvider` interface
+- `Application` implements `ConfigProvider`, `ServiceProvider`.
 
 ### Backward Incompatible Changes
 
