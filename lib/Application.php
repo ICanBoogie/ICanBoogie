@@ -53,7 +53,7 @@ use const SORT_NUMERIC;
  * @property-read Storage $storage_for_configs
  * @property-read Request $request
  */
-class Application
+class Application implements ServiceProvider
 {
     /**
      * @uses get_is_configured
