@@ -46,9 +46,6 @@ final class AppConfig
      * @param bool $cache_configs
      *     Whether configurations should be cached.
      *
-     * @param bool $cache_modules
-     *     Whether module descriptors should be cached.
-     *
      * @param callable|null $storage_for_config
      *     The storage engine for configurations.
      *
@@ -121,7 +118,6 @@ final class AppConfig
     public function __construct(
         public readonly bool $cache_catalogs = false,
         public readonly bool $cache_configs = false,
-        public readonly bool $cache_modules = false,
         public readonly mixed $storage_for_config = null,
         public readonly mixed $storage_for_vars = null,
         public readonly mixed $error_handler = null,

@@ -52,22 +52,6 @@ final class AppConfigBuilder implements Builder
         return $this;
     }
 
-    private bool $cache_modules = false;
-
-    public function enable_module_caching(): self
-    {
-        $this->cache_modules = true;
-
-        return $this;
-    }
-
-    public function disable_module_caching(): self
-    {
-        $this->cache_modules = false;
-
-        return $this;
-    }
-
     /**
      * @var callable|null
      */
@@ -192,7 +176,6 @@ final class AppConfigBuilder implements Builder
         return new AppConfig(
             cache_catalogs: $this->cache_catalogs,
             cache_configs: $this->cache_configs,
-            cache_modules: $this->cache_modules,
             storage_for_config: $this->storage_for_config,
             storage_for_vars: $this->storage_for_vars,
             error_handler: $this->error_handler,
