@@ -6,14 +6,13 @@
 
 - Added `AppConfigBuilder`.
 - Added `DebugConfigBuilder` and `DebugConfig`.
-- Added `ApplicationAbstract::service_for_class()` and `::service_for_id()`.
+- Added `Application::service_for_class()` and `::service_for_id()`.
 
 ### Backward Incompatible Changes
 
-- `ApplicationAbstract::$config` is now a `AppConfig` instance instead of an array, and it does no
-  longer include Autoconfig parameters, which are now available under
-  `ApplicationAbstract::$auto_config`. `AppConfig` constants that were used as array keys are now
-  removed.
+- Renamed `ApplicationAbstract` as `Application`. The concept of extending `Application` extending `ApplicationAbstract` to add binding is gone, as bindings are being phased out in favor of dependency injection container usage.
+
+- `Application::$config` is now a `AppConfig` instance instead of an array, and it does no longer include Autoconfig parameters, which are now available under `Application::$auto_config`. `AppConfig` constants that were used as array keys are now removed.
 
 - `Application` events no long use a sender and include a `app` property instead.
 

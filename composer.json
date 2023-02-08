@@ -68,10 +68,7 @@
 		"psr-4": {
 			"ICanBoogie\\": "tests/lib",
 			"Test\\ICanBoogie\\": "tests/lib"
-		},
-		"classmap": [
-			"tests/Application.php"
-		]
+		}
 	},
 	"scripts": {
 		"post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"

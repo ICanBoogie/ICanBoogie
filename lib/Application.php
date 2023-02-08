@@ -53,7 +53,7 @@ use const SORT_NUMERIC;
  * @property-read Storage $storage_for_configs
  * @property-read Request $request
  */
-abstract class ApplicationAbstract
+class Application
 {
     /**
      * @uses get_is_configured
@@ -338,8 +338,6 @@ abstract class ApplicationAbstract
      */
     private function create_storage(callable $factory): Storage
     {
-        assert($this instanceof Application);
-
         return $factory($this);
     }
 
@@ -366,8 +364,6 @@ abstract class ApplicationAbstract
             Debug::configure($this->configs->config_for_class(DebugConfig::class));
             Binding\Prototype\AutoConfig::configure($this);
 
-            assert($this instanceof Application);
-
             emit(new ConfigureEvent($this));
         });
     }
@@ -391,8 +387,6 @@ abstract class ApplicationAbstract
         }
 
         $this->change_status(self::STATUS_BOOTING, function () {
-            assert($this instanceof Application);
-
             emit(new BootEvent($this));
 
             $_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
@@ -429,8 +423,6 @@ abstract class ApplicationAbstract
 
         $this->change_status(self::STATUS_RUNNING, function () use ($request): void {
             $this->request = $request ??= Request::from($_SERVER);
-
-            assert($this instanceof Application);
 
             emit(new Application\RunEvent($this, $request));
 
@@ -507,8 +499,6 @@ abstract class ApplicationAbstract
     private function terminate(Request $request, Response $response): void
     {
         $this->change_status(self::STATUS_TERMINATING, function () use ($request, $response): void {
-            assert($this instanceof Application);
-
             emit(new TerminateEvent($this, $request, $response));
         });
     }
@@ -518,8 +508,6 @@ abstract class ApplicationAbstract
      */
     public function clear_cache(): void
     {
-        assert($this instanceof Application);
-
         emit(new ClearCacheEvent($this));
     }
 }
