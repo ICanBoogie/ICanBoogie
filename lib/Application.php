@@ -70,7 +70,6 @@ class Application implements ConfigProvider, ServiceProvider
      */
     use PrototypeTrait;
     use Binding\Event\ApplicationBindings;
-    use Binding\Routing\ApplicationBindings;
     use Binding\SymfonyDependencyInjection\ApplicationBindings;
 
     /**
@@ -240,7 +239,9 @@ class Application implements ConfigProvider, ServiceProvider
 
         $this->bind_object_class();
         $this->configs = $this->create_config_manager(
+            /** @phpstan-ignore-next-line */
             $auto_config[Autoconfig::CONFIG_PATH],
+            /** @phpstan-ignore-next-line */
             $auto_config[Autoconfig::CONFIG_CONSTRUCTOR]
         );
         $this->config = $this->configs->config_for_class(AppConfig::class);
@@ -327,7 +328,7 @@ class Application implements ConfigProvider, ServiceProvider
      * Returns configuration manager.
      *
      * @param array<string, int> $paths Path list.
-     * @param array<string, class-string<Builder>> $builders
+     * @param array<class-string, class-string<Builder<object>>> $builders
      */
     private function create_config_manager(array $paths, array $builders): Config
     {
@@ -451,6 +452,7 @@ class Application implements ConfigProvider, ServiceProvider
         }
 
         $this->change_status(self::STATUS_RUNNING, function () use ($request): void {
+            /** @phpstan-ignore-next-line */
             $this->request = $request ??= Request::from($_SERVER);
 
             emit(new Application\RunEvent($this, $request));
