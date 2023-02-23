@@ -6,8 +6,9 @@
 
 - Added `AppConfigBuilder`.
 - Added `DebugConfigBuilder` and `DebugConfig`.
-- Added the `ServiceProvider` interface
+- Added the `ServiceProvider` interface.
 - `Application` implements `ConfigProvider`, `ServiceProvider`.
+- Added the console command `cache:clear`.
 
 ### Backward Incompatible Changes
 

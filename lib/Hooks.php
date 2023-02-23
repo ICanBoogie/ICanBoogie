@@ -89,5 +89,6 @@ final class Hooks
     public static function on_clear_cache(Application\ClearCacheEvent $event): void
     {
         $event->app->storage_for_configs->clear();
+        $event->cleared('app.storage_for_configs');
     }
 }

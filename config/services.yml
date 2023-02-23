@@ -6,3 +6,10 @@ services:
     tags:
     - { name: action_responder }
     - { name: action_alias, action: 'api:ping' }
+
+  # Console
+
+  console.command.cache.clear:
+    class: ICanBoogie\Console\ClearCacheCommand
+    tags:
+    - { name: console.command, command: 'cache:clear' }

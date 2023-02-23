@@ -113,6 +113,8 @@ class HelpersTest extends TestCase
                 "$cwd/app/all/config" => Autoconfig::CONFIG_WEIGHT_APP,
                 "$cwd/app/default/config" => Autoconfig::CONFIG_WEIGHT_APP,
                 "$package_root/vendor/icanboogie/bind-symfony-dependency-injection/config" => Autoconfig::CONFIG_WEIGHT_FRAMEWORK,
+                "$package_root/vendor/icanboogie/bind-prototype/config" => Autoconfig::CONFIG_WEIGHT_FRAMEWORK,
+                "$package_root/vendor/icanboogie/console/config" => Autoconfig::CONFIG_WEIGHT_FRAMEWORK,
 
             ],
 

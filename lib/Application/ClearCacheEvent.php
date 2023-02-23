@@ -26,4 +26,14 @@ final class ClearCacheEvent extends Event
     ) {
         parent::__construct();
     }
+
+    /**
+     * @var string[]
+     */
+    public array $cleared = [];
+
+    public function cleared(string $message): void
+    {
+        $this->cleared[] = $message;
+    }
 }
