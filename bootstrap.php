@@ -33,9 +33,3 @@ const ASSETS = ROOT . 'assets' . DIRECTORY_SEPARATOR;
  */
 defined('ICanBoogie\DOCUMENT_ROOT')
 or define('ICanBoogie\DOCUMENT_ROOT', rtrim(strtr($_SERVER['DOCUMENT_ROOT'] ?: getcwd(), DIRECTORY_SEPARATOR == '/' ? '\\' : '/', DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
-
-/**
- * Pathname to the autoconfig file.
- */
-defined('ICanBoogie\AUTOCONFIG_PATHNAME')
-or define('ICanBoogie\AUTOCONFIG_PATHNAME', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'autoconfig.php');

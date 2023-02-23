@@ -13,16 +13,21 @@ namespace ICanBoogie;
 
 use ICanBoogie\Autoconfig\Autoconfig;
 
+use function defined;
+use function dirname;
+use function file_exists;
+use function implode;
+
+use const DIRECTORY_SEPARATOR;
+
 /*
  * Application
  */
 
 /**
  * Resolves application instance name.
- *
- * @return string
  */
-function resolve_instance_name()
+function resolve_instance_name(): string
 {
     $instance = getenv('ICANBOOGIE_INSTANCE');
 
@@ -39,9 +44,6 @@ function resolve_instance_name()
 
 /**
  * Resolves the paths where the application can look for config, locale, modules, and more.
- *
- * @param string $root
- * @param string|null $instance
  *
  * @return string[] An array of absolute paths, ordered from the less specific to
  * the most specific.
@@ -107,16 +109,30 @@ function get_autoconfig(): array
         return $autoconfig;
     }
 
-    if (!file_exists(AUTOCONFIG_PATHNAME)) {
-        $file = AUTOCONFIG_PATHNAME;
+    if (!defined('ICANBOOGIE_AUTOCONFIG')) {
+        $tries = [
+            dirname(__DIR__) . DIRECTORY_SEPARATOR . 'autoconfig.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'icanboogie' . DIRECTORY_SEPARATOR . 'autoconfig.php',
+        ];
 
-        trigger_error(
-            "The autoconfig file is missing: $file. Check the `script` section of your composer.json file. https://icanboogie.org/docs/4.0/autoconfig#generating-the-autoconfig-file",
-            E_USER_ERROR
-        );
+        foreach ($tries as $try) {
+            if (file_exists($try)) {
+                define('ICANBOOGIE_AUTOCONFIG', $try);
+                break;
+            }
+        }
+
+        if (!defined('ICANBOOGIE_AUTOCONFIG')) {
+            $tries = implode(', ', $tries);
+
+            trigger_error(
+                "The autoconfig file is missing, tried: $tries. Check the `script` section of your composer.json file. https://icanboogie.org/docs/4.0/autoconfig#generating-the-autoconfig-file",
+                E_USER_ERROR
+            );
+        }
     }
 
-    $autoconfig = require AUTOCONFIG_PATHNAME;
+    $autoconfig = require \ICANBOOGIE_AUTOCONFIG;
     $autoconfig[Autoconfig::APP_PATHS] = array_merge(
         $autoconfig[Autoconfig::APP_PATHS],
         resolve_app_paths($autoconfig[Autoconfig::APP_PATH])

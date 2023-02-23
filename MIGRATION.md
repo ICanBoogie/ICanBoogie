@@ -28,10 +28,12 @@
     $events->attach(function (BootEvent $event) { ... });
     ```
 
+- Removed `ICanBoogie\AUTOCONFIG_PATHNAME`. It's been replaced with `ICANBOOGIE_AUTOCONFIG`.
+
 ### Deprecated Features
 
 None
 
 ### Other Changes
 
-None
+- `get_autoconfig` tries multiple places, including `ICANBOOGIE_AUTOCONFIG` if it is defined. PHPUnit can be used as a package now.

@@ -2,8 +2,7 @@
 
 PACKAGE_NAME = icanboogie/icanboogie
 # we need a PHPUnit in a standalone package or it will trigger the autoload and mess with the constants.
-PHPUNIT_VERSION = phpunit-9-6.phar
-PHPUNIT = build/$(PHPUNIT_VERSION)
+PHPUNIT = vendor/bin/phpunit
 
 # do not edit the following lines
 
@@ -17,12 +16,7 @@ vendor:
 # testing
 
 .PHONY: test-dependencies
-test-dependencies: vendor $(PHPUNIT) test-cleanup
-
-$(PHPUNIT):
-	mkdir -p build
-	curl -L https://phar.phpunit.de/$(PHPUNIT_VERSION) -o $(PHPUNIT)
-	chmod +x $(PHPUNIT)
+test-dependencies: vendor test-cleanup
 
 .PHONY: test
 test: test-dependencies
