@@ -86,8 +86,8 @@ final class Hooks
     /**
      * Clears configurations cache.
      */
-    public static function on_clear_cache(Application\ClearCacheEvent $event, Application $app): void
+    public static function on_clear_cache(Application\ClearCacheEvent $event): void
     {
-        $app->storage_for_configs->clear();
+        $event->app->storage_for_configs->clear();
     }
 }
