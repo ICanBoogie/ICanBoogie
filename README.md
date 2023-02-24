@@ -179,9 +179,9 @@ The following bindings are available to help in integrating components:
 
 The project is continuously tested by [GitHub actions](https://github.com/ICanBoogie/ICanBoogie/actions).
 
-[![Tests](https://github.com/ICanBoogie/ICanBoogie/workflows/test/badge.svg?branch=master)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Atest)
-[![Static Analysis](https://github.com/ICanBoogie/ICanBoogie/workflows/static-analysis/badge.svg?branch=master)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Astatic-analysis)
-[![Code Style](https://github.com/ICanBoogie/ICanBoogie/workflows/code-style/badge.svg?branch=master)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Acode-style)
+[![Tests](https://github.com/ICanBoogie/ICanBoogie/workflows/test/badge.svg)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Atest)
+[![Static Analysis](https://github.com/ICanBoogie/ICanBoogie/workflows/static-analysis/badge.svg)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Astatic-analysis)
+[![Code Style](https://github.com/ICanBoogie/ICanBoogie/workflows/code-style/badge.svg)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Acode-style)
 
 
 

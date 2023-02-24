@@ -12,6 +12,7 @@
 namespace ICanBoogie;
 
 use ICanBoogie\Application\ClearCacheEvent;
+use ICanBoogie\Application\InvalidState;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\Storage\Storage;
 use PHPUnit\Framework\TestCase;
@@ -27,21 +28,16 @@ final class ApplicationTest extends TestCase
 
     public function test_only_one_instance(): void
     {
-        $this->expectException(ApplicationAlreadyInstantiated::class);
+        $this->expectException(InvalidState::class);
 
         Application::new([]);
     }
 
     public function test_second_boot(): void
     {
-        $this->expectException(ApplicationAlreadyBooted::class);
+        $this->expectException(InvalidState::class);
 
         self::$app->boot();
-    }
-
-    public function test_is_configured(): void
-    {
-        $this->assertTrue(self::$app->is_configured);
     }
 
     public function test_is_booting(): void

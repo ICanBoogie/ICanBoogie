@@ -13,7 +13,8 @@ namespace ICanBoogie;
 
 use ICanBoogie\Application\BootEvent;
 use ICanBoogie\Application\ClearCacheEvent;
-use ICanBoogie\Application\ConfigureEvent;
+use ICanBoogie\Application\InvalidState;
+use ICanBoogie\Application\RunEvent;
 use ICanBoogie\Application\TerminateEvent;
 use ICanBoogie\Autoconfig\Autoconfig;
 use ICanBoogie\Config\Builder;
@@ -39,7 +40,6 @@ use const SORT_NUMERIC;
 /**
  * Application abstract.
  *
- * @property-read bool $is_configured `true` if the application is configured, `false` otherwise.
  * @property-read bool $is_booting `true` if the application is booting, `false` otherwise.
  * @property-read bool $is_booted `true` if the application is booted, `false` otherwise.
  * @property-read bool $is_running `true` if the application is running, `false` otherwise.
@@ -56,7 +56,6 @@ use const SORT_NUMERIC;
 final class Application implements ConfigProvider, ServiceProvider
 {
     /**
-     * @uses get_is_configured
      * @uses get_is_booting
      * @uses get_is_booted
      * @uses get_is_running
@@ -76,10 +75,6 @@ final class Application implements ConfigProvider, ServiceProvider
      * Status of the application.
      */
     public const STATUS_VOID = 0;
-    public const STATUS_INSTANTIATING = 1;
-    public const STATUS_INSTANTIATED = 2;
-    public const STATUS_CONFIGURING = 3;
-    public const STATUS_CONFIGURED = 4;
     public const STATUS_BOOTING = 5;
     public const STATUS_BOOTED = 6;
     public const STATUS_RUNNING = 7;
@@ -90,11 +85,13 @@ final class Application implements ConfigProvider, ServiceProvider
 
     /**
      * @param array<Autoconfig::*, mixed> $autoconfig
+     *
+     * @throws InvalidState
      */
     public static function new(array $autoconfig): self
     {
         if (isset(self::$instance)) {
-            throw new ApplicationAlreadyInstantiated();
+            throw InvalidState::already_instantiated();
         }
 
         return self::$instance = new self($autoconfig);
@@ -103,26 +100,18 @@ final class Application implements ConfigProvider, ServiceProvider
     /**
      * Returns the unique instance of the application.
      *
-     * @throws ApplicationNotInstantiated if the application has not been instantiated yet ({@see new()}).
+     * @throws InvalidState
      */
     public static function get(): Application
     {
         return self::$instance
-            ?? throw new ApplicationNotInstantiated();
+            ?? throw InvalidState::not_instantiated();
     }
 
     /**
      * One of `STATUS_*`.
      */
     private int $status = self::STATUS_VOID;
-
-    /**
-     * Whether the application is configured.
-     */
-    private function get_is_configured(): bool
-    {
-        return $this->status >= self::STATUS_CONFIGURED;
-    }
 
     /**
      * Whether the application is booting.
@@ -234,12 +223,9 @@ final class Application implements ConfigProvider, ServiceProvider
 
     /**
      * @param array<Autoconfig::*, mixed> $autoconfig Initial options to create the application.
-     *
-     * @throws ApplicationAlreadyInstantiated in attempt to create a second instance.
      */
     private function __construct(array $autoconfig)
     {
-        $this->status = self::STATUS_INSTANTIATING;
         $this->autoconfig = $autoconfig;
 
         if (!date_default_timezone_get()) {
@@ -255,30 +241,19 @@ final class Application implements ConfigProvider, ServiceProvider
         $this->config = $this->configs->config_for_class(AppConfig::class);
         $this->apply_config($this->config);
         $this->events = \ICanBoogie\Binding\Event\Hooks::get_events($this);
-
-        $this->status = self::STATUS_INSTANTIATED;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function config_for_class(string $class): object
     {
         return $this->configs->config_for_class($class);
     }
 
-    /**
-     * @inheritDoc
-     */
     public function service_for_class(string $class): object
     {
         // @phpstan-ignore-next-line
         return $this->container->get($class);
     }
 
-    /**
-     * @inheritDoc
-     */
     public function service_for_id(string $id, string $class): object
     {
         $service = $this->container->get($id);
@@ -286,30 +261,6 @@ final class Application implements ConfigProvider, ServiceProvider
         assert($service instanceof $class);
 
         return $service;
-    }
-
-    /**
-     * Asserts that the application is not booted yet.
-     *
-     * @throws ApplicationAlreadyBooted if the application is already booted.
-     */
-    private function assert_not_booted(): void
-    {
-        if ($this->status >= self::STATUS_BOOTING) {
-            throw new ApplicationAlreadyBooted();
-        }
-    }
-
-    /**
-     * Asserts that the application is not running yet.
-     *
-     * @throws ApplicationAlreadyRunning if the application is already running.
-     */
-    private function assert_not_running(): void
-    {
-        if ($this->status >= self::STATUS_RUNNING) {
-            throw new ApplicationAlreadyRunning();
-        }
     }
 
     /**
@@ -360,55 +311,39 @@ final class Application implements ConfigProvider, ServiceProvider
     }
 
     /**
-     * Changes the status of the application.
-     */
-    private function change_status(int $status, callable $callable): ?int
-    {
-        $this->status = $status;
-        $rc = $callable();
-        $this->status = $status + 1;
-
-        return $rc;
-    }
-
-    /**
-     * Configures the application.
-     *
-     * Emits {@link ConfigureEvent} once the application is configured.
-     */
-    private function configure(): void
-    {
-        $this->change_status(self::STATUS_CONFIGURING, function () {
-            Debug::configure($this->configs->config_for_class(DebugConfig::class));
-            Binding\Prototype\AutoConfig::configure($this);
-
-            emit(new ConfigureEvent($this));
-        });
-    }
-
-    /**
      * Boot the modules and configure Debug, Prototype and Events.
      *
      * Emits {@link BootEvent} after the boot is finished.
      *
      * The `ICANBOOGIE_READY_TIME_FLOAT` key is added to the `$_SERVER` super global with the
      * micro-time at which the boot finished.
-     *
-     * @throws ApplicationAlreadyBooted in attempt to boot the application twice.
      */
     public function boot(): void
     {
-        $this->assert_not_booted();
+        $this->assert_can_boot();
 
-        if (!$this->is_configured) {
-            $this->configure();
+        $this->status = self::STATUS_BOOTING;
+
+        Debug::configure($this->configs->config_for_class(DebugConfig::class));
+        Binding\Prototype\AutoConfig::configure($this);
+
+        emit(new BootEvent($this));
+
+        $_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
+
+        $this->status = self::STATUS_BOOTED;
+    }
+
+    /**
+     * Asserts that the application is not booted yet.
+     *
+     * @throws InvalidState
+     */
+    private function assert_can_boot(): void
+    {
+        if ($this->status >= self::STATUS_BOOTING) {
+            throw InvalidState::already_booted();
         }
-
-        $this->change_status(self::STATUS_BOOTING, function () {
-            emit(new BootEvent($this));
-
-            $_SERVER['ICANBOOGIE_READY_TIME_FLOAT'] = microtime(true);
-        });
     }
 
     private Request $request;
@@ -422,42 +357,44 @@ final class Application implements ConfigProvider, ServiceProvider
     /**
      * Run the application.
      *
-     * In order to avoid error messages triggered by PHP fatal errors to be send with a 200 (Ok)
+     * In order to avoid error messages triggered by PHP fatal errors to be sent with a 200 (Ok)
      * HTTP code, the HTTP code is changed to 500 before the application is run (and booted). When
      * the process runs properly the HTTP code is changed to the appropriate value by the response.
      *
-     * The {@link boot()} method is invoked if the application has not booted yet.
-     *
-     * @param Request|null $request The request to handle. If `null`, the initial request is used.
+     * @param Request|null $request The request to handle. If `null`, a request is created from `$_SERVER`.
      */
     public function run(Request $request = null): void
     {
         $this->initialize_response_header();
-        $this->assert_not_running();
+        $this->assert_can_run();
 
-        if (!$this->is_booted) {
-            $this->boot();
-        }
+        $this->status = self::STATUS_RUNNING;
 
-        $this->change_status(self::STATUS_RUNNING, function () use ($request): void {
-            /** @phpstan-ignore-next-line */
-            $this->request = $request ??= Request::from($_SERVER);
+        /** @phpstan-ignore-next-line */
+        $this->request = $request ??= Request::from($_SERVER);
 
-            emit(new Application\RunEvent($this, $request));
+        emit(new RunEvent($this, $request));
 
-            $response = $this->service_for_class(Responder::class)->respond($request);
-            $response();
+        $response = $this->service_for_class(Responder::class)->respond($request);
+        $response();
 
-            $this->terminate($request, $response);
-        });
+        $this->terminate($request, $response);
     }
 
     /**
-     * Alias to `run()`
+     * Asserts that the application is not running yet.
+     *
+     * @throws InvalidState
      */
-    public function __invoke(Request $request = null): void
+    private function assert_can_run(): void
     {
-        $this->run($request);
+        if ($this->status < self::STATUS_BOOTED) {
+            throw InvalidState::not_booted();
+        }
+
+        if ($this->status >= self::STATUS_RUNNING) {
+            throw InvalidState::already_running();
+        }
     }
 
     /**
@@ -487,9 +424,11 @@ final class Application implements ConfigProvider, ServiceProvider
      */
     private function terminate(Request $request, Response $response): void
     {
-        $this->change_status(self::STATUS_TERMINATING, function () use ($request, $response): void {
-            emit(new TerminateEvent($this, $request, $response));
-        });
+        $this->status = self::STATUS_TERMINATING;
+
+        emit(new TerminateEvent($this, $request, $response));
+
+        $this->status = self::STATUS_TERMINATED;
     }
 
     /**
