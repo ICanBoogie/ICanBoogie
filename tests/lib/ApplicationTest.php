@@ -16,7 +16,7 @@ use ICanBoogie\HTTP\Request;
 use ICanBoogie\Storage\Storage;
 use PHPUnit\Framework\TestCase;
 
-final class ApplicationAbstractTest extends TestCase
+final class ApplicationTest extends TestCase
 {
     private static Application $app;
 
@@ -25,16 +25,15 @@ final class ApplicationAbstractTest extends TestCase
         self::$app = app();
     }
 
-    public function test_subsequent_construct_should_throw_exception(): void
+    public function test_only_one_instance(): void
     {
         $this->expectException(ApplicationAlreadyInstantiated::class);
 
-        new Application();
+        Application::new([]);
     }
 
     public function test_object_should_have_app_property(): void
     {
-        /* @var $o Prototyped|Binding\PrototypedBindings */
         $o = new Prototyped();
         $this->assertSame(self::$app, $o->app);
     }

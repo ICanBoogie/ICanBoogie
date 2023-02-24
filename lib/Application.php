@@ -53,7 +53,7 @@ use const SORT_NUMERIC;
  * @property-read Storage $storage_for_configs
  * @property-read Request $request
  */
-class Application implements ConfigProvider, ServiceProvider
+final class Application implements ConfigProvider, ServiceProvider
 {
     /**
      * @uses get_is_configured
@@ -86,14 +86,29 @@ class Application implements ConfigProvider, ServiceProvider
     public const STATUS_TERMINATING = 8;
     public const STATUS_TERMINATED = 9;
 
-    private static ?Application $instance = null;
+    private static Application $instance;
+
+    /**
+     * @param array<Autoconfig::*, mixed> $autoconfig
+     */
+    public static function new(array $autoconfig): self
+    {
+        if (isset(self::$instance)) {
+            throw new ApplicationAlreadyInstantiated();
+        }
+
+        return self::$instance = new self($autoconfig);
+    }
 
     /**
      * Returns the unique instance of the application.
+     *
+     * @throws ApplicationNotInstantiated if the application has not been instantiated yet ({@see new()}).
      */
-    public static function get(): ?Application
+    public static function get(): Application
     {
-        return self::$instance;
+        return self::$instance
+            ?? throw new ApplicationNotInstantiated();
     }
 
     /**
@@ -154,7 +169,7 @@ class Application implements ConfigProvider, ServiceProvider
      *
      * @phpstan-var array<Autoconfig::*, mixed>
      */
-    public readonly array $auto_config;
+    public readonly array $autoconfig;
 
     private ?TimeZone $timezone = null;
 
@@ -218,20 +233,14 @@ class Application implements ConfigProvider, ServiceProvider
     public readonly EventCollection $events;
 
     /**
-     * @param array<Autoconfig::*, mixed> $auto_config Initial options to create the application.
+     * @param array<Autoconfig::*, mixed> $autoconfig Initial options to create the application.
      *
      * @throws ApplicationAlreadyInstantiated in attempt to create a second instance.
      */
-    public function __construct(array $auto_config = [])
+    private function __construct(array $autoconfig)
     {
-        $this->assert_not_instantiated();
-
-        assert($this instanceof Application);
-
-        self::$instance = $this;
-
         $this->status = self::STATUS_INSTANTIATING;
-        $this->auto_config = $auto_config;
+        $this->autoconfig = $autoconfig;
 
         if (!date_default_timezone_get()) {
             date_default_timezone_set('UTC');
@@ -240,9 +249,9 @@ class Application implements ConfigProvider, ServiceProvider
         $this->bind_object_class();
         $this->configs = $this->create_config_manager(
             /** @phpstan-ignore-next-line */
-            $auto_config[Autoconfig::CONFIG_PATH],
+            $autoconfig[Autoconfig::CONFIG_PATH],
             /** @phpstan-ignore-next-line */
-            $auto_config[Autoconfig::CONFIG_CONSTRUCTOR]
+            $autoconfig[Autoconfig::CONFIG_CONSTRUCTOR]
         );
         $this->config = $this->configs->config_for_class(AppConfig::class);
         $this->apply_config($this->config);
@@ -278,18 +287,6 @@ class Application implements ConfigProvider, ServiceProvider
         assert($service instanceof $class);
 
         return $service;
-    }
-
-    /**
-     * Asserts that the class is not instantiated yet.
-     *
-     * @throws ApplicationAlreadyInstantiated if the class is already instantiated.
-     */
-    private function assert_not_instantiated(): void
-    {
-        if (self::$instance) {
-            throw new ApplicationAlreadyInstantiated();
-        }
     }
 
     /**

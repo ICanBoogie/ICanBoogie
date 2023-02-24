@@ -31,6 +31,8 @@
 
 - Removed `ICanBoogie\AUTOCONFIG_PATHNAME`. It's been replaced with `ICANBOOGIE_AUTOCONFIG`.
 
+- The constructor of `Application` is now private and the class is final. Use `Application::new()` instead.
+
 ### Deprecated Features
 
 None

@@ -148,26 +148,24 @@ function get_autoconfig(): array
 /**
  * Instantiate and boot the application.
  *
- * @param array<string, mixed>|null $options If `null` options are obtained with `get_autoconfig()`.
+ * @param array<Autoconfig::*, mixed>|null $autoconfig
+ *     If `null`, the config is obtained with `get_autoconfig()`.
  */
-function boot(array $options = null): Application
+function boot(array $autoconfig = null): Application
 {
-    $options ??= get_autoconfig();
-    $app = new Application($options);
+    $autoconfig ??= get_autoconfig();
+    $app = Application::new($autoconfig);
     $app->boot();
 
     return $app;
 }
 
 /**
- * Return application instance.
- *
- * @throws ApplicationNotInstantiated if the application has not been instantiated yet.
+ * Returns the {@link Application} instance.
  */
 function app(): Application
 {
-    return Application::get()
-        ?? throw new ApplicationNotInstantiated();
+    return Application::get();
 }
 
 /*
