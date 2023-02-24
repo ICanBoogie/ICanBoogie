@@ -33,6 +33,8 @@
 
 - The constructor of `Application` is now private and the class is final. Use `Application::new()` instead.
 
+- Removed `PrototypedBindings` and `get_app` on `Prototyped`.
+
 ### Deprecated Features
 
 None

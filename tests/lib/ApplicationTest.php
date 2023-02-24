@@ -32,12 +32,6 @@ final class ApplicationTest extends TestCase
         Application::new([]);
     }
 
-    public function test_object_should_have_app_property(): void
-    {
-        $o = new Prototyped();
-        $this->assertSame(self::$app, $o->app);
-    }
-
     public function test_second_boot(): void
     {
         $this->expectException(ApplicationAlreadyBooted::class);

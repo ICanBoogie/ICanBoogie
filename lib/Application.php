@@ -246,7 +246,6 @@ final class Application implements ConfigProvider, ServiceProvider
             date_default_timezone_set('UTC');
         }
 
-        $this->bind_object_class();
         $this->configs = $this->create_config_manager(
             /** @phpstan-ignore-next-line */
             $autoconfig[Autoconfig::CONFIG_PATH],
@@ -311,14 +310,6 @@ final class Application implements ConfigProvider, ServiceProvider
         if ($this->status >= self::STATUS_RUNNING) {
             throw new ApplicationAlreadyRunning();
         }
-    }
-
-    /**
-     * Binds the object class to our instance.
-     */
-    private function bind_object_class(): void
-    {
-        Prototype::from(Prototyped::class)['get_app'] = fn() => $this;
     }
 
     /**
