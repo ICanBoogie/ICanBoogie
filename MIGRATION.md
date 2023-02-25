@@ -8,7 +8,7 @@
 - Added `DebugConfigBuilder` and `DebugConfig`.
 - Added the `ServiceProvider` interface.
 - `Application` implements `ConfigProvider`, `ServiceProvider`.
-- Added the console command `cache:clear`.
+- Added the console commands `cache:clear` and `configs:list` (alias `configs`).
 
 ### Backward Incompatible Changes
 

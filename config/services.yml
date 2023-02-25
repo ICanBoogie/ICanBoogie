@@ -13,3 +13,11 @@ services:
     class: ICanBoogie\Console\ClearCacheCommand
     tags:
     - { name: console.command, command: 'cache:clear' }
+
+  console.command.configs.list:
+    class: ICanBoogie\Console\ListConfigsCommand
+    arguments:
+      $style: '%console.style.table%'
+    tags:
+    - { name: console.command, command: 'configs' }
+    - { name: console.command, command: 'configs:list' }
