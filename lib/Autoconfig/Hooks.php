@@ -14,7 +14,7 @@ namespace ICanBoogie\Autoconfig;
 use Composer\Script\Event;
 use Throwable;
 
-use function file_exists;
+use function is_string;
 use function realpath;
 
 /**
@@ -37,22 +37,9 @@ final class Hooks
         $sorted = FakeAutoloadGenerator::sort_package_map($generator, $packageMap);
 
         $vendor_dir = $composer->getConfig()->get('vendor-dir');
+        assert(is_string($vendor_dir));
         $destination = realpath($vendor_dir) . "/icanboogie/autoconfig.php";
         $config = new AutoconfigGenerator($sorted, $destination);
         $config();
-    }
-
-    /**
-     * Adds the "config" directories found in the app paths to `CONFIG_PATH`.
-     *
-     * @param array<string, mixed> $autoconfig
-     */
-    public static function filter_autoconfig(array &$autoconfig): void
-    {
-        foreach ($autoconfig[Autoconfig::APP_PATHS] as $directory) {
-            if (file_exists($directory . 'config')) {
-                $autoconfig[Autoconfig::CONFIG_PATH][$directory . 'config'] = Autoconfig::CONFIG_WEIGHT_APP;
-            }
-        }
     }
 }

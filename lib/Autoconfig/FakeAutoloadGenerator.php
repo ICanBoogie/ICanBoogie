@@ -1,23 +1,20 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace ICanBoogie\Autoconfig;
 
 use Composer\Autoload\AutoloadGenerator;
+use Composer\Package\PackageInterface;
 
 /**
  * @codeCoverageIgnore
  */
 final class FakeAutoloadGenerator extends AutoloadGenerator
 {
+    /**
+     * @param array<int, array{0: PackageInterface, 1: string}> $packageMap
+     *
+     * @return array<int, array{0: PackageInterface, 1: string}>
+     */
     public static function sort_package_map(AutoloadGenerator $generator, array $packageMap): array
     {
         return $generator->sortPackageMap($packageMap);

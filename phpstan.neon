@@ -3,7 +3,6 @@ parameters:
   paths:
   - lib
   excludePaths:
-  - lib/Autoconfig/*
   - lib/Debug.php
   - lib/Logger.php
   - lib/LoggerTrait.php

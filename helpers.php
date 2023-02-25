@@ -18,6 +18,8 @@ use function dirname;
 use function file_exists;
 use function implode;
 
+use function var_dump;
+
 use const DIRECTORY_SEPARATOR;
 
 /*
@@ -97,11 +99,9 @@ function resolve_app_paths(string $root, string $instance = null): array
 /**
  * Returns the autoconfig.
  *
- * @return array<Autoconfig::*, mixed>
- *
  * @see https://icanboogie.org/docs/4.0/autoconfig#obtaining-the-autoconfig
  */
-function get_autoconfig(): array
+function get_autoconfig(): Autoconfig
 {
     static $autoconfig;
 
@@ -132,14 +132,28 @@ function get_autoconfig(): array
         }
     }
 
-    $autoconfig = require \ICANBOOGIE_AUTOCONFIG;
-    $autoconfig[Autoconfig::APP_PATHS] = array_merge(
-        $autoconfig[Autoconfig::APP_PATHS],
-        resolve_app_paths($autoconfig[Autoconfig::APP_PATH])
-    );
+	/** @var Autoconfig $autoconfig */
 
-    foreach ($autoconfig[Autoconfig::AUTOCONFIG_FILTERS] as $filter) {
-        call_user_func_array($filter, [ &$autoconfig ]);
+    $autoconfig = require \ICANBOOGIE_AUTOCONFIG;
+
+    $additional_app_paths = resolve_app_paths($autoconfig->app_path);
+    $config_paths = $autoconfig->config_paths;
+
+    foreach ($additional_app_paths as $path) {
+        $path = $path . 'config';
+
+        if (file_exists($path)) {
+            $config_paths[$path] = Autoconfig::CONFIG_WEIGHT_APP;
+        }
+    }
+
+    $autoconfig = $autoconfig->with([
+        'app_paths' => array_merge($autoconfig->app_paths, $additional_app_paths),
+        'config_paths' => $config_paths,
+    ]);
+
+    foreach ($autoconfig->filters as $filter) {
+        $autoconfig = $filter($autoconfig);
     }
 
     return $autoconfig;
@@ -148,10 +162,10 @@ function get_autoconfig(): array
 /**
  * Instantiate and boot the application.
  *
- * @param array<Autoconfig::*, mixed>|null $autoconfig
+ * @param Autoconfig|null $autoconfig
  *     If `null`, the config is obtained with `get_autoconfig()`.
  */
-function boot(array $autoconfig = null): Application
+function boot(Autoconfig $autoconfig = null): Application
 {
     $autoconfig ??= get_autoconfig();
     $app = Application::new($autoconfig);

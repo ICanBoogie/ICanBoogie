@@ -79,14 +79,10 @@
   "extra": {
     "icanboogie": {
       "config-path": "config/",
-      "locale-path": "locale/",
       "config-constructor": {
         "ICanBoogie\\AppConfig": "ICanBoogie\\AppConfigBuilder",
         "ICanBoogie\\Debug\\Config": "ICanBoogie\\Debug\\ConfigBuilder"
-      },
-      "autoconfig-filters": [
-        "ICanBoogie\\Autoconfig\\Hooks::filter_autoconfig"
-      ]
+      }
     }
   }
 }

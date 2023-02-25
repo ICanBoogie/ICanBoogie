@@ -24,8 +24,7 @@ final class ListConfigsCommand extends Command
     {
         $rows = [];
 
-        /** @phpstan-ignore-next-line */
-        foreach ($this->app->autoconfig[Autoconfig::CONFIG_CONSTRUCTOR] as $class => $builder) {
+        foreach ($this->app->autoconfig->config_builders as $class => $builder) {
             $rows[] = [
                 $class,
                 $builder,

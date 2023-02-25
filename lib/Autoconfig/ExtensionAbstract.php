@@ -16,25 +16,23 @@ namespace ICanBoogie\Autoconfig;
  */
 abstract class ExtensionAbstract
 {
-    private AutoconfigGenerator $generator;
-
-    public function __construct(AutoconfigGenerator $generator)
-    {
-        $this->generator = $generator;
+    public function __construct(
+        private readonly AutoconfigGenerator $generator
+    ) {
     }
 
     /**
      * Alter the autoconfig schema used to validate fragments.
      *
-     * @param callable $set_property A callable used to set a property,
-     * with the following signature: `void (string $property, array $data)`
+     * @param (callable(string $property, array<string, mixed> $data): void) $set_property
+     *     A callable used to set a property.
      */
     public function alter_schema(callable $set_property): void
     {
     }
 
     /**
-     * @param array<string, mixed> $autoconfig
+     * @param array<Autoconfig::ARG_*, mixed> $autoconfig
      */
     public function synthesize(array &$autoconfig): void
     {

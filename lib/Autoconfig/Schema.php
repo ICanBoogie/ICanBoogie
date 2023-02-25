@@ -14,19 +14,19 @@ namespace ICanBoogie\Autoconfig;
 use Composer\Json\JsonFile;
 use InvalidArgumentException;
 use JsonSchema\Validator;
-use RuntimeException;
 use Throwable;
 
 use function array_walk;
 use function file_get_contents;
 use function is_array;
 use function is_numeric;
+use function is_object;
 use function is_scalar;
 use function json_decode;
-use function json_last_error;
-use function json_last_error_msg;
 use function key;
 use function reset;
+
+use const JSON_THROW_ON_ERROR;
 
 /**
  * A JSON schema.
@@ -48,21 +48,14 @@ final class Schema
 
         JsonFile::parseJson($json, $pathname);
 
-        $decoded = json_decode($json);
+        $decoded = json_decode($json, flags: JSON_THROW_ON_ERROR);
 
-        if (json_last_error()) {
-            throw new RuntimeException(json_last_error_msg());
-        }
+        assert(is_object($decoded));
 
         return $decoded;
     }
 
-    /**
-     * @param mixed $data
-     *
-     * @return mixed
-     */
-    public static function normalize_data($data)
+    public static function normalize_data(mixed $data): mixed
     {
         if ($data && is_array($data)) {
             array_walk($data, function (&$data) {
@@ -80,26 +73,14 @@ final class Schema
         return $data;
     }
 
-    /**
-     * Schema.
-     *
-     * @var mixed
-     */
-    private $schema;
-
-    /**
-     * Validator.
-     *
-     * @var Validator
-     */
-    private $validator;
+    private readonly Validator $validator;
 
     /**
      * @param object $schema Schema data as returned by {@link read()}.
      */
-    public function __construct(object $schema)
-    {
-        $this->schema = $schema;
+    public function __construct(
+        private readonly object $schema
+    ) {
         $this->validator = new Validator();
     }
 
@@ -111,7 +92,7 @@ final class Schema
      *
      * @throws Throwable when the data is not valid.
      */
-    public function validate($data, string $pathname): void
+    public function validate(mixed $data, string $pathname): void
     {
         $validator = $this->validator;
 

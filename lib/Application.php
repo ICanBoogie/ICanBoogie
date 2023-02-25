@@ -85,11 +85,9 @@ final class Application implements ConfigProvider, ServiceProvider
     private static Application $instance;
 
     /**
-     * @param array<Autoconfig::*, mixed> $autoconfig
-     *
      * @throws InvalidState
      */
-    public static function new(array $autoconfig): self
+    public static function new(Autoconfig $autoconfig): self
     {
         if (isset(self::$instance)) {
             throw InvalidState::already_instantiated();
@@ -154,12 +152,7 @@ final class Application implements ConfigProvider, ServiceProvider
         return $this->status === self::STATUS_TERMINATED;
     }
 
-    /**
-     * Options passed during construct.
-     *
-     * @phpstan-var array<Autoconfig::*, mixed>
-     */
-    public readonly array $autoconfig;
+    public readonly Autoconfig $autoconfig;
 
     private ?TimeZone $timezone = null;
 
@@ -225,10 +218,7 @@ final class Application implements ConfigProvider, ServiceProvider
     public readonly EventCollection $events;
     public readonly ContainerInterface $container;
 
-    /**
-     * @param array<Autoconfig::*, mixed> $autoconfig
-     */
-    private function __construct(array $autoconfig)
+    private function __construct(Autoconfig $autoconfig)
     {
         $this->autoconfig = $autoconfig;
 
@@ -237,10 +227,8 @@ final class Application implements ConfigProvider, ServiceProvider
         }
 
         $this->configs = $this->create_config_provider(
-            /** @phpstan-ignore-next-line */
-            $autoconfig[Autoconfig::CONFIG_PATH],
-            /** @phpstan-ignore-next-line */
-            $autoconfig[Autoconfig::CONFIG_CONSTRUCTOR]
+            $autoconfig->config_paths,
+            $autoconfig->config_builders,
         );
         $this->config = $this->configs->config_for_class(AppConfig::class);
         $this->apply_config($this->config);

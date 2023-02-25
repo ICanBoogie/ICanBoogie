@@ -1,6 +1,6 @@
 # Migration
 
-## v5.x to v6.x
+## v5.x to v6.0
 
 ### New features
 
@@ -12,9 +12,10 @@
 
 ### Backward Incompatible Changes
 
-- Renamed `ApplicationAbstract` as `Application`. The concept of extending `Application` extending `ApplicationAbstract` to add binding is gone, as bindings are being phased out in favor of dependency injection container usage.
+- Renamed `ApplicationAbstract` as `Application`. The concept of extending `Application` extending
+`ApplicationAbstract` to add bindings is gone, as bindings are being phased out in favor of dependency injection container usage.
 
-- `Application::$config` is now a `AppConfig` instance instead of an array, and it does no longer include Autoconfig parameters, which are now available under `Application::$auto_config`. `AppConfig` constants that were used as array keys are now removed.
+- The Autoconfig is now represented by a `Autoconfig` instance instead of an array and is available under `Application::$autoconfig`. `Application::$config` is now a `AppConfig` instance instead of an array, and it no longer includes Autoconfig parameters. `AppConfig` constants that were used as array keys are now removed. Also, `ICanBoogie\AUTOCONFIG_PATHNAME` has been replaced with `ICANBOOGIE_AUTOCONFIG`.
 
 - The `EventCollection` instance is now obtained from the container. The `Application::$events` property is now a real property, not a prototype method.
 
@@ -30,8 +31,6 @@
 
     $events->attach(function (BootEvent $event) { ... });
     ```
-
-- Removed `ICanBoogie\AUTOCONFIG_PATHNAME`. It's been replaced with `ICANBOOGIE_AUTOCONFIG`.
 
 - The constructor of `Application` is now private and the class is final. Use `Application::new()` instead.
 

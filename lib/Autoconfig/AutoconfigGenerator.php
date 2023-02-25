@@ -17,23 +17,21 @@ use Composer\Package\RootPackage;
 use Composer\Package\RootPackageInterface;
 use Composer\Util\Filesystem;
 use ICanBoogie\Accessor\AccessorTrait;
+use ICanBoogie\Config\Builder;
 use Throwable;
 
 use function array_keys;
 use function array_map;
 use function array_merge;
-use function explode;
+use function assert;
 use function file_put_contents;
 use function getcwd;
 use function implode;
+use function is_string;
 use function ksort;
 use function realpath;
-use function sort;
-use function sprintf;
-use function var_dump;
 
-use const SORT_DESC;
-use const SORT_NUMERIC;
+use const DIRECTORY_SEPARATOR;
 
 /**
  * @codeCoverageIgnore
@@ -50,12 +48,12 @@ final class AutoconfigGenerator
     use AccessorTrait;
 
     /**
-     * @var Package[]
+     * @var array<int, array{ PackageInterface, string }>
      */
     private array $packages;
 
     /**
-     * @return array<string, Package>
+     * @return array<string, PackageInterface>
      */
     private function get_packages(): iterable
     {
@@ -63,6 +61,8 @@ final class AutoconfigGenerator
             if (!$pathname) {
                 $pathname = getcwd();
             }
+
+            assert(is_string($pathname));
 
             yield $pathname => $package;
         }
@@ -83,7 +83,7 @@ final class AutoconfigGenerator
     private Filesystem $filesystem;
 
     /**
-     * @var array<string, mixed>
+     * @var array<string, array<SchemaOptions::*, mixed>>
      */
     private array $fragments = [];
 
@@ -98,7 +98,7 @@ final class AutoconfigGenerator
     private array $extensions = [];
 
     /**
-     * @param Package[] $packages
+     * @param array<int, array{ PackageInterface, string }> $packages
      *
      * @uses get_root_package
      */
@@ -160,9 +160,30 @@ EOT;
     }
 
     /**
+     * @param array<string, mixed> $items
+     */
+    public function render_array(array $items, callable $renderer): string
+    {
+        $rendered_items = implode(
+            array_map(
+                fn($item, $key) => "\t\t" . $renderer($item, $key) . ",\n",
+                $items,
+                array_keys($items)
+            )
+        );
+
+        return <<<EOT
+[
+
+$rendered_items
+    ]
+EOT;
+    }
+
+    /**
      * Collect autoconfig fragments from packages.
      *
-     * @return array{0: array<string, mixed>, 1: array<string, int>}
+     * @return array{ array<string, array<SchemaOptions::*, mixed>>, array<string, int> }
      *     An array with the collected fragments and their weights.
      */
     private function collect_fragments(): array
@@ -182,6 +203,7 @@ EOT;
             }
 
             $fragments[$pathname] = $fragment;
+            /** @phpstan-ignore-next-line */
             $weights[$pathname] = $this->resolve_config_weight($package, $fragment);
         }
 
@@ -191,15 +213,16 @@ EOT;
     /**
      * Try to find autoconfig fragment of package.
      *
-     * @return array<string, mixed>|null The autoconfig fragment, or `null` if the package doesn't define one.
+     * @return array<SchemaOptions::*, mixed>|null The autoconfig fragment, or `null` if the package doesn't define one.
      */
     private function find_fragment(PackageInterface $package): ?array
     {
+        /** @phpstan-ignore-next-line */
         return $package->getExtra()['icanboogie'] ?? null;
     }
 
     /**
-     * @param array<string, mixed> $fragments
+     * @param array<string, array<SchemaOptions::*, mixed>> $fragments
      *
      * @return ExtensionAbstract[]
      */
@@ -212,6 +235,7 @@ EOT;
                 continue;
             }
 
+            /** @var class-string<ExtensionAbstract> $class */
             $class = $fragment[SchemaOptions::AUTOCONFIG_EXTENSION];
             $extensions[] = new $class($this);
         }
@@ -230,7 +254,7 @@ EOT;
     {
         $data = Schema::read(__DIR__ . '/schema.json');
         $properties = &$data->properties;
-        $set_property = function ($property, array $data) use (&$properties): void {
+        $set_property = function (string $property, array $data) use (&$properties): void {
             $properties->$property = (object) $data;
         };
 
@@ -246,7 +270,7 @@ EOT;
     }
 
     /**
-     * @param array<string, mixed> $fragment
+     * @param array{ config-weight?: int } $fragment
      */
     private function resolve_config_weight(PackageInterface $package, array $fragment): int
     {
@@ -264,57 +288,65 @@ EOT;
     /**
      * Synthesize the autoconfig fragments into a single array.
      *
-     * @return array<string, mixed>
+     * @return array{
+     *     app_paths: array<string>,
+     *     config_paths: array<string, int>,
+     *     config_builders: array<class-string, class-string<Builder<object>>>,
+     *     locale_paths: array<string>,
+     *     filters: array<callable-string>
+     * }
      */
     private function synthesize(): array
     {
         static $mapping = [
 
-            SchemaOptions::CONFIG_CONSTRUCTOR => Autoconfig::CONFIG_CONSTRUCTOR,
-            SchemaOptions::CONFIG_PATH => Autoconfig::CONFIG_PATH,
-            SchemaOptions::LOCALE_PATH => Autoconfig::LOCALE_PATH,
-            SchemaOptions::AUTOCONFIG_FILTERS => Autoconfig::AUTOCONFIG_FILTERS,
-            SchemaOptions::APP_PATHS => Autoconfig::APP_PATHS,
+            SchemaOptions::APP_PATHS => Autoconfig::ARG_APP_PATHS,
+            SchemaOptions::CONFIG_PATH => Autoconfig::ARG_CONFIG_PATHS,
+            SchemaOptions::CONFIG_CONSTRUCTOR => Autoconfig::ARG_CONFIG_BUILDERS,
+            SchemaOptions::LOCALE_PATH => Autoconfig::ARG_LOCALE_PATHS,
+            SchemaOptions::AUTOCONFIG_FILTERS => Autoconfig::ARG_FILTERS,
 
         ];
 
         $config = [
 
-            Autoconfig::CONFIG_CONSTRUCTOR => [],
-            Autoconfig::CONFIG_PATH => [],
-            Autoconfig::LOCALE_PATH => [],
-            Autoconfig::AUTOCONFIG_FILTERS => [],
-            Autoconfig::APP_PATHS => []
+            Autoconfig::ARG_APP_PATHS => [],
+            Autoconfig::ARG_CONFIG_BUILDERS => [],
+            Autoconfig::ARG_CONFIG_PATHS => [],
+            Autoconfig::ARG_LOCALE_PATHS => [],
+            Autoconfig::ARG_FILTERS => [],
 
         ];
 
         foreach ($this->fragments as $path => $fragment) {
             foreach ($fragment as $key => $value) {
                 switch ($key) {
+                    case SchemaOptions::APP_PATHS:
                     case SchemaOptions::CONFIG_CONSTRUCTOR:
                     case SchemaOptions::AUTOCONFIG_FILTERS:
-                    case SchemaOptions::APP_PATHS:
                         $key = $mapping[$key];
                         $config[$key] = array_merge($config[$key], (array) $value);
-
                         break;
 
                     case SchemaOptions::CONFIG_PATH:
                         foreach ((array) $value as $v) {
-                            $config[Autoconfig::CONFIG_PATH][] = [
+                            assert(is_string($v));
+
+                            $config[Autoconfig::ARG_CONFIG_PATHS][] = [
 
                                 $this->find_shortest_path_code("$path/$v"),
                                 $this->weights[$path]
 
                             ];
                         }
-
                         break;
 
                     case SchemaOptions::LOCALE_PATH:
                         $key = $mapping[$key];
 
                         foreach ((array) $value as $v) {
+                            assert(is_string($v));
+
                             $config[$key][] = $this->find_shortest_path_code("$path/$v");
                         }
 
@@ -333,43 +365,23 @@ EOT;
     /**
      * Render the synthesized autoconfig into a string.
      *
-     * @param array<string, mixed> $config Synthesized config.
+     * @param array{
+     *     app_paths: array<string>,
+     *     config_paths: array<string, int>,
+     *     config_builders: array<class-string, class-string<Builder<object>>>,
+     *     locale_paths: array<string>,
+     *     filters: array<callable-string>
+     * } $config
      */
-    private function render(array $config = []): string
+    private function render(array $config): string
     {
-        if (!$config) {
-            $config = $this->synthesize();
-        }
-
         $class = __CLASS__;
 
-        $rendered_entries = [
-
-            $this->render_entry(
-                Autoconfig::BASE_PATH,
-                'getcwd()'
-            ),
-
-            $this->render_entry(
-                Autoconfig::APP_PATH,
-                'getcwd() . DIRECTORY_SEPARATOR . "' . Autoconfig::DEFAULT_APP_DIRECTORY . '"'
-            ),
-
-            $this->render_app_paths($config),
-            $this->render_locale_paths($config),
-            $this->render_config_constructor($config),
-            $this->render_filters($config),
-            $this->render_config_path($config),
-
-        ];
-
-        foreach ($this->extensions as $extension) {
-            $rendered_entries[] = $extension->render();
-        }
-
-        $extension_render = implode(array_map(function ($rendered_entry) {
-            return "\n$rendered_entry\n";
-        }, $rendered_entries));
+        $rendered_app_paths = $this->render_app_paths_array($config);
+        $rendered_config_path = $this->render_config_path($config);
+        $rendered_config_builders = $this->render_config_builders_array($config);
+        $rendered_locale_paths = $this->render_locale_paths_array($config);
+        $rendered_filters = $this->render_filters($config);
 
         return <<<EOT
 <?php
@@ -378,25 +390,41 @@ EOT;
  * DO NOT EDIT THIS FILE
  *
  * @generated by $class
- * @see https://icanboogie.org/docs/4.0/autoconfig
+ * @see https://icanboogie.org/docs/6.0/autoconfig
  */
 
-return [
-$extension_render
-];
+namespace ICanBoogie\Autoconfig;
+
+use function assert;
+use function dirname;
+use function getcwd;
+use function is_string;
+
+use const DIRECTORY_SEPARATOR;
+
+\$cwd = getcwd();
+
+assert(is_string(\$cwd));
+
+return new Autoconfig(
+    base_path: \$cwd . DIRECTORY_SEPARATOR,
+    app_path: \$cwd . DIRECTORY_SEPARATOR . Autoconfig::DEFAULT_APP_DIRECTORY . DIRECTORY_SEPARATOR,
+    app_paths: $rendered_app_paths,
+    config_paths: $rendered_config_path,
+    config_builders: $rendered_config_builders,
+    locale_paths: $rendered_locale_paths,
+    filters: $rendered_filters,
+);
 EOT;
     }
 
     /**
-     * Render the {@link Autoconfig::APP_PATHS} part of the autoconfig.
-     *
-     * @param array<string, mixed> $config
+     * @param array{ app_paths: array<string> } $config
      */
-    private function render_app_paths(array $config): string
+    private function render_app_paths_array(array $config): string
     {
-        return $this->render_array_entry(
-            Autoconfig::APP_PATHS,
-            $config[Autoconfig::APP_PATHS],
+        return $this->render_array(
+            $config[Autoconfig::ARG_APP_PATHS],
             function ($item): string {
                 return (string) $item;
             }
@@ -404,15 +432,12 @@ EOT;
     }
 
     /**
-     * Render the {@link Autoconfig::LOCALE_PATH} part of the autoconfig.
-     *
-     * @param array<string, mixed> $config
+     * @param array{ locale_paths: array<string> } $config
      */
-    private function render_locale_paths(array $config): string
+    private function render_locale_paths_array(array $config): string
     {
-        return $this->render_array_entry(
-            Autoconfig::LOCALE_PATH,
-            $config[Autoconfig::LOCALE_PATH],
+        return $this->render_array(
+            $config[Autoconfig::ARG_LOCALE_PATHS],
             function ($item): string {
                 return (string) $item;
             }
@@ -420,34 +445,28 @@ EOT;
     }
 
     /**
-     * Render the {@link Autoconfig::CONFIG_CONSTRUCTOR} part of the autoconfig.
-     *
-     * @param array<string, mixed> $config
+     * @param array{ config_builders: array<class-string, class-string> } $config
      */
-    private function render_config_constructor(array $config): string
+    private function render_config_builders_array(array $config): string
     {
-        $synthesized = $config[Autoconfig::CONFIG_CONSTRUCTOR];
-        ksort($synthesized);
+        $builders = $config[Autoconfig::ARG_CONFIG_BUILDERS];
+        ksort($builders);
 
-        return $this->render_array_entry(
-            Autoconfig::CONFIG_CONSTRUCTOR,
-            $synthesized,
+        return $this->render_array(
+            $builders,
             function ($builder_class, $name): string {
-                return "'$name' => '$builder_class'";
+                return "\\$name::class => \\$builder_class::class";
             }
         );
     }
 
     /**
-     * Render the {@link Autoconfig::CONFIG_PATH} part of the autoconfig.
-     *
-     * @param array<string, mixed> $config
+     * @param array{ config_paths: array<string, int> } $config
      */
     private function render_config_path(array $config): string
     {
-        return $this->render_array_entry(
-            Autoconfig::CONFIG_PATH,
-            $config[Autoconfig::CONFIG_PATH],
+        return $this->render_array(
+            $config[Autoconfig::ARG_CONFIG_PATHS],
             function ($item): string {
                 [ $path_code, $weight ] = $item;
 
@@ -457,15 +476,14 @@ EOT;
     }
 
     /**
-     * Render the {@link Autoconfig::AUTOCONFIG_FILTERS} part of the autoconfig.
-     *
-     * @param array<string, mixed> $config
+     * @param array{ filters: array<callable-string> } $config
      */
     private function render_filters(array $config): string
     {
-        return $this->render_array_entry(
-            Autoconfig::AUTOCONFIG_FILTERS,
-            $config[Autoconfig::AUTOCONFIG_FILTERS],
+        $data = $config[Autoconfig::ARG_FILTERS];
+
+        return $this->render_array(
+            $data,
             function ($callable): string {
                 return "'$callable'";
             }
@@ -480,7 +498,12 @@ EOT;
     private function write(): void
     {
         try {
-            file_put_contents($this->destination, $this->render());
+            $autoconfig = $this->synthesize();
+
+            file_put_contents(
+                $this->destination,
+                $this->render($autoconfig)
+            );
 
             echo "Created Autoconfig in $this->destination\n";
         } catch (Throwable $e) {

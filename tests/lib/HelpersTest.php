@@ -14,9 +14,9 @@ namespace ICanBoogie;
 use ICanBoogie\Autoconfig\Autoconfig;
 use PHPUnit\Framework\TestCase;
 
-class HelpersTest extends TestCase
+final class HelpersTest extends TestCase
 {
-    public function test_generate_token()
+    public function test_generate_token(): void
     {
         for ($i = 1; $i < 16; $i++) {
             $length = pow(2, $i);
@@ -25,7 +25,7 @@ class HelpersTest extends TestCase
         }
     }
 
-    public function test_generate_token_wide()
+    public function test_generate_token_wide(): void
     {
         $token = generate_token_wide();
 
@@ -34,13 +34,18 @@ class HelpersTest extends TestCase
 
     /**
      * @dataProvider provide_test_resolve_app_paths
+     *
+     * @param string[] $expected
      */
-    public function test_resolve_app_paths($root, $server_name, $expected)
+    public function test_resolve_app_paths(string $root, string $server_name, array $expected): void
     {
         $this->assertEquals($expected, resolve_app_paths($root, $server_name));
     }
 
-    public function provide_test_resolve_app_paths()
+    /**
+     * @return array<array{ string, string, string[] }>
+     */
+    public function provide_test_resolve_app_paths(): array
     {
         $root = __DIR__ . DIRECTORY_SEPARATOR . 'cases' . DIRECTORY_SEPARATOR . 'resolve_app_paths' . DIRECTORY_SEPARATOR;
         $root0 = $root . 'app_0' . DIRECTORY_SEPARATOR;
@@ -69,42 +74,22 @@ class HelpersTest extends TestCase
         ];
     }
 
-    public function test_get_autoconfig()
+    public function test_get_autoconfig(): void
     {
         $cwd = getcwd();
+        assert(is_string($cwd));
         $package_root = dirname($cwd);
 
-        $this->assertEquals([
-
-            Autoconfig::BASE_PATH => $cwd,
-            Autoconfig::APP_PATH => "$cwd/app",
-            Autoconfig::APP_PATHS => [
+        $this->assertEquals(new Autoconfig(
+            base_path: "$cwd/",
+            app_path: "$cwd/app/",
+            app_paths: [
 
                 "$cwd/app/all/",
                 "$cwd/app/default/",
 
             ],
-            Autoconfig::LOCALE_PATH => [
-
-                "$package_root/locale"
-
-            ],
-            Autoconfig::CONFIG_CONSTRUCTOR => [
-
-                'ICanBoogie\AppConfig' => 'ICanBoogie\AppConfigBuilder',
-                'ICanBoogie\Event\Config' => 'ICanBoogie\Binding\Event\ConfigBuilder',
-                'ICanBoogie\Prototype\Config' => 'ICanBoogie\Binding\Prototype\ConfigBuilder',
-                'ICanBoogie\Routing\RouteProvider' => 'ICanBoogie\Binding\Routing\ConfigBuilder',
-                'ICanBoogie\Binding\SymfonyDependencyInjection\Config' => 'ICanBoogie\Binding\SymfonyDependencyInjection\ConfigBuilder',
-                'ICanBoogie\Debug\Config' => 'ICanBoogie\Debug\ConfigBuilder',
-
-            ],
-            Autoconfig::AUTOCONFIG_FILTERS => [
-
-                'ICanBoogie\Autoconfig\Hooks::filter_autoconfig'
-
-            ],
-            Autoconfig::CONFIG_PATH => [
+            config_paths: [
 
                 "$package_root/config" => Autoconfig::CONFIG_WEIGHT_APP,
                 "$package_root/vendor/icanboogie/bind-http/config" => Autoconfig::CONFIG_WEIGHT_FRAMEWORK,
@@ -117,7 +102,22 @@ class HelpersTest extends TestCase
                 "$package_root/vendor/icanboogie/console/config" => Autoconfig::CONFIG_WEIGHT_FRAMEWORK,
 
             ],
+            config_builders: [
 
-        ], get_autoconfig());
+                'ICanBoogie\AppConfig' => 'ICanBoogie\AppConfigBuilder',
+                'ICanBoogie\Event\Config' => 'ICanBoogie\Binding\Event\ConfigBuilder',
+                'ICanBoogie\Prototype\Config' => 'ICanBoogie\Binding\Prototype\ConfigBuilder',
+                'ICanBoogie\Routing\RouteProvider' => 'ICanBoogie\Binding\Routing\ConfigBuilder',
+                'ICanBoogie\Binding\SymfonyDependencyInjection\Config' => 'ICanBoogie\Binding\SymfonyDependencyInjection\ConfigBuilder',
+                'ICanBoogie\Debug\Config' => 'ICanBoogie\Debug\ConfigBuilder',
+
+            ],
+            locale_paths: [
+
+            ],
+            filters: [
+
+            ],
+        ), get_autoconfig());
     }
 }

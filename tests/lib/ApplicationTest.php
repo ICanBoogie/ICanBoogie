@@ -30,7 +30,15 @@ final class ApplicationTest extends TestCase
     {
         $this->expectException(InvalidState::class);
 
-        Application::new([]);
+        Application::new(new Autoconfig\Autoconfig(
+            base_path: '',
+            app_path: '',
+            app_paths: [],
+            config_paths: [],
+            config_builders: [],
+            locale_paths: [],
+            filters: [],
+        ));
     }
 
     public function test_second_boot(): void
