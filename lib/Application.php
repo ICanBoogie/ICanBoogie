@@ -73,7 +73,6 @@ final class Application implements ConfigProvider, ServiceProvider
      * @uses get_request
      */
     use PrototypeTrait;
-    use Binding\Event\ApplicationBindings;
 
     /**
      * Status of the application.
@@ -257,7 +256,13 @@ final class Application implements ConfigProvider, ServiceProvider
                 ?? throw new ServiceNotFoundException($id)
         );
 
-        $this->events = \ICanBoogie\Binding\Event\Hooks::get_events($this);
+        // Once the container is available events can be set up.
+
+        $this->events = $this->service_for_class(EventCollection::class);
+
+        // Enable the usage of `emit()`.
+
+        EventCollectionProvider::define(fn() => $this->events);
     }
 
     public function config_for_class(string $class): object

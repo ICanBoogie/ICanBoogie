@@ -16,6 +16,8 @@
 
 - `Application::$config` is now a `AppConfig` instance instead of an array, and it does no longer include Autoconfig parameters, which are now available under `Application::$auto_config`. `AppConfig` constants that were used as array keys are now removed.
 
+- The `EventCollection` instance is now obtained from the container. The `Application::$events` property is now a real property, not a prototype method.
+
 - `Application` events no long use a sender and include a `app` property instead.
 
     ```php
