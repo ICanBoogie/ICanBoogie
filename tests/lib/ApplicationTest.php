@@ -63,29 +63,25 @@ final class ApplicationTest extends TestCase
         $this->assertFalse(self::$app->is_running);
     }
 
-    public function test_get_config(): void
-    {
-        $app = self::$app;
-        $this->assertInstanceOf(AppConfig::class, $app->config);
-    }
-
     /**
      * @dataProvider provide_test_property_type
      *
-     * @param string $property Property of the application.
-     * @param string $class The expected class of the property.
+     * @param string $property
+     * @param class-string $class
      */
     public function test_property_type(string $property, string $class): void
     {
         $this->assertInstanceOf($class, self::$app->$property);
     }
 
-    public function provide_test_property_type(): array
+    /**
+     * @return array<array{ string, class-string }>
+     */
+    public static function provide_test_property_type(): array
     {
         return [
 
             [ 'vars',              Storage::class ],
-            [ 'configs',           Config::class ],
             [ 'request',           Request::class ],
             [ 'events',            EventCollection::class ],
             [ 'timezone',          TimeZone::class ]

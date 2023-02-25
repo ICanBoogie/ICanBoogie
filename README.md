@@ -173,11 +173,9 @@ The following bindings are available to help in integrating components:
 
 
 
-
-
 ## Continuous Integration
 
-The project is continuously tested by [GitHub actions](https://github.com/ICanBoogie/ICanBoogie/actions).
+The project is continuously tested by [GitHub actions](https://github.com/ICanBoogie/<Name>/actions).
 
 [![Tests](https://github.com/ICanBoogie/ICanBoogie/workflows/test/badge.svg)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Atest)
 [![Static Analysis](https://github.com/ICanBoogie/ICanBoogie/workflows/static-analysis/badge.svg)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Astatic-analysis)
@@ -185,18 +183,10 @@ The project is continuously tested by [GitHub actions](https://github.com/ICanBo
 
 
 
-## Testing
-
-Run `make test-container` to create and log into the test container, then run `make test` to run the
-test suite. Alternatively, run `make test-coverage` to run the test suite with test coverage. Open
-`build/coverage/index.html` to see the breakdown of the code coverage.
-
-
-
 ## Code of Conduct
 
-This project adheres to a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project and its
-community, you are expected to uphold this code.
+This project adheres to a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in
+this project and its community, you are expected to uphold this code.
 
 
 

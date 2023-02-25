@@ -5,7 +5,7 @@ services:
     build:
       context: .
       args:
-        PHP_VERSION: 8.1
+        PHP_VERSION: "8.1"
     environment:
       PHP_IDE_CONFIG: 'serverName=icanboogie'
     volumes:
@@ -16,7 +16,7 @@ services:
     build:
       context: .
       args:
-        PHP_VERSION: 8.2
+        PHP_VERSION: "8.2"
     environment:
       PHP_IDE_CONFIG: 'serverName=icanboogie'
     volumes:

@@ -12,19 +12,9 @@
 namespace ICanBoogie;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 final class ContainerTest extends TestCase
 {
-    private ContainerInterface $container;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->container = app()->container->get('service_container');
-    }
-
     /**
      * @dataProvider provide_parameter
      */
@@ -32,11 +22,14 @@ final class ContainerTest extends TestCase
     {
         $this->assertEquals(
             $expected,
-            $this->container->getParameter($parameter)
+            app()->container->getParameter($parameter)
         );
     }
 
-    public function provide_parameter(): array
+    /**
+     * @return array<array{ string, array<string, class-string> }>
+     */
+    public static function provide_parameter(): array
     {
         return [
 

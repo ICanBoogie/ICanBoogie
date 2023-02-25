@@ -45,7 +45,7 @@ final class HelpersTest extends TestCase
     /**
      * @return array<array{ string, string, string[] }>
      */
-    public function provide_test_resolve_app_paths(): array
+    public static function provide_test_resolve_app_paths(): array
     {
         $root = __DIR__ . DIRECTORY_SEPARATOR . 'cases' . DIRECTORY_SEPARATOR . 'resolve_app_paths' . DIRECTORY_SEPARATOR;
         $root0 = $root . 'app_0' . DIRECTORY_SEPARATOR;
