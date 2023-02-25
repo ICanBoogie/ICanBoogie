@@ -39,6 +39,7 @@
 		"icanboogie/bind-symfony-dependency-injection": "^6.0",
 		"icanboogie/config": "^6.0",
 		"icanboogie/console": "^6.0",
+		"icanboogie/service": "dev-master",
 		"icanboogie/session": "^6.0",
 		"psr/log": "^3.0"
 	},

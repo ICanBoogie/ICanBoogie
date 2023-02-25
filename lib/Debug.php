@@ -40,8 +40,10 @@ class Debug
     /**
      * Configures the class.
      */
-    public static function configure(DebugConfig $config): void
+    public static function configure(Application $app): void
     {
+        $config = $app->config_for_class(DebugConfig::class);
+
         self::$mode = $config->mode;
     }
 

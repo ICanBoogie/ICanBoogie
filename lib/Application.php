@@ -17,12 +17,17 @@ use ICanBoogie\Application\InvalidState;
 use ICanBoogie\Application\RunEvent;
 use ICanBoogie\Application\TerminateEvent;
 use ICanBoogie\Autoconfig\Autoconfig;
+use ICanBoogie\Binding\SymfonyDependencyInjection\ContainerFactory;
 use ICanBoogie\Config\Builder;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\HTTP\ResponseStatus;
 use ICanBoogie\Storage\Storage;
+
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 use function asort;
 use function assert;
@@ -69,7 +74,6 @@ final class Application implements ConfigProvider, ServiceProvider
      */
     use PrototypeTrait;
     use Binding\Event\ApplicationBindings;
-    use Binding\SymfonyDependencyInjection\ApplicationBindings;
 
     /**
      * Status of the application.
@@ -220,9 +224,10 @@ final class Application implements ConfigProvider, ServiceProvider
     public readonly Config $configs;
     public readonly AppConfig $config;
     public readonly EventCollection $events;
+    public readonly ContainerInterface $container;
 
     /**
-     * @param array<Autoconfig::*, mixed> $autoconfig Initial options to create the application.
+     * @param array<Autoconfig::*, mixed> $autoconfig
      */
     private function __construct(array $autoconfig)
     {
@@ -232,7 +237,7 @@ final class Application implements ConfigProvider, ServiceProvider
             date_default_timezone_set('UTC');
         }
 
-        $this->configs = $this->create_config_manager(
+        $this->configs = $this->create_config_provider(
             /** @phpstan-ignore-next-line */
             $autoconfig[Autoconfig::CONFIG_PATH],
             /** @phpstan-ignore-next-line */
@@ -240,6 +245,18 @@ final class Application implements ConfigProvider, ServiceProvider
         );
         $this->config = $this->configs->config_for_class(AppConfig::class);
         $this->apply_config($this->config);
+
+        // Once configurations are available the container can be created.
+
+        $this->container = ContainerFactory::from($this);
+
+        // Enable the usage of `ref()`.
+
+        \ICanBoogie\Service\ServiceProvider::define(
+            fn (string $id): object => $this->container->get($id)
+                ?? throw new ServiceNotFoundException($id)
+        );
+
         $this->events = \ICanBoogie\Binding\Event\Hooks::get_events($this);
     }
 
@@ -264,12 +281,12 @@ final class Application implements ConfigProvider, ServiceProvider
     }
 
     /**
-     * Returns configuration manager.
+     * Creates the configuration provider.
      *
      * @param array<string, int> $paths Path list.
      * @param array<class-string, class-string<Builder<object>>> $builders
      */
-    private function create_config_manager(array $paths, array $builders): Config
+    private function create_config_provider(array $paths, array $builders): Config
     {
         asort($paths, SORT_NUMERIC);
 
@@ -324,7 +341,7 @@ final class Application implements ConfigProvider, ServiceProvider
 
         $this->status = self::STATUS_BOOTING;
 
-        Debug::configure($this->configs->config_for_class(DebugConfig::class));
+        Debug::configure($this);
         Binding\Prototype\AutoConfig::configure($this);
 
         emit(new BootEvent($this));
