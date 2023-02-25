@@ -1,92 +1,92 @@
 {
-	"name": "icanboogie/icanboogie",
-	"type": "library",
-	"description": "High-performance micro-framework for PHP",
-	"version": "6.0",
-	"keywords": [
-		"framework"
-	],
-	"homepage": "https://icanboogie.org/",
-	"license": "BSD-3-Clause",
-	"authors": [
-		{
-			"name": "Olivier Laviale",
-			"email": "olivier.laviale@gmail.com",
-			"homepage": "https://olvlvl.com/",
-			"role": "Developer"
-		}
-	],
-	"support": {
-		"issues": "https://github.com/ICanBoogie/ICanBoogie/issues",
-		"source": "https://github.com/ICanBoogie/ICanBoogie"
-	},
-    "config": {
-        "sort-packages": true,
-        "allow-plugins": {
-            "phpstan/extension-installer": true
-		}
+  "name": "icanboogie/icanboogie",
+  "type": "library",
+  "description": "High-performance micro-framework for PHP",
+  "version": "6.0",
+  "keywords": [
+    "framework"
+  ],
+  "homepage": "https://icanboogie.org/",
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Olivier Laviale",
+      "email": "olivier.laviale@gmail.com",
+      "homepage": "https://olvlvl.com/",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/ICanBoogie/ICanBoogie/issues",
+    "source": "https://github.com/ICanBoogie/ICanBoogie"
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "phpstan/extension-installer": true
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "prefer-dist": true,
+  "require": {
+    "php": ">=8.1",
+    "ext-json": "*",
+    "icanboogie/bind-event": "^6.0",
+    "icanboogie/bind-http": "^6.0",
+    "icanboogie/bind-prototype": "^6.0",
+    "icanboogie/bind-routing": "^6.0",
+    "icanboogie/bind-symfony-dependency-injection": "^6.0",
+    "icanboogie/config": "^6.0",
+    "icanboogie/console": "^6.0",
+    "icanboogie/service": "dev-master",
+    "icanboogie/session": "^6.0",
+    "psr/log": "^3.0"
+  },
+  "require-dev": {
+    "composer/composer": "^2.0",
+    "phpstan/phpstan": "^1.5.6",
+    "phpunit/phpunit": "^9.6"
+  },
+  "suggest": {
+    "icanboogie/bind-activerecord": "ActiveRecord Object-relational mapping.",
+    "icanboogie/bind-cldr": "Provides internationalization to your application.",
+    "icanboogie/bind-render": "Provides a rendering API to your application.",
+    "icanboogie/bind-view": "Provides views to your application.",
+    "icanboogie/i18n": "Provides localization for your application and nice internationalization helpers.",
+    "icanboogie/image": "Provides image resizing, filling, and color resolving.",
+    "icanboogie/module": "Provides support to extend ICanBoogie using modules.",
+    "icanboogie/operation": "Operation oriented controllers API."
+  },
+  "autoload": {
+    "psr-4": {
+      "ICanBoogie\\": "lib"
     },
-	"minimum-stability": "dev",
-    "prefer-stable": true,
-    "prefer-dist": true,
-	"require": {
-		"php": ">=8.1",
-		"ext-json": "*",
-		"icanboogie/bind-event": "^6.0",
-		"icanboogie/bind-http": "^6.0",
-		"icanboogie/bind-prototype": "^6.0",
-		"icanboogie/bind-routing": "^6.0",
-		"icanboogie/bind-symfony-dependency-injection": "^6.0",
-		"icanboogie/config": "^6.0",
-		"icanboogie/console": "^6.0",
-		"icanboogie/service": "dev-master",
-		"icanboogie/session": "^6.0",
-		"psr/log": "^3.0"
-	},
-	"require-dev": {
-		"composer/composer": "^2.0",
-		"phpstan/phpstan": "^1.5.6",
-		"phpunit/phpunit": "^9.6"
-	},
-	"suggest": {
-		"icanboogie/bind-activerecord": "ActiveRecord Object-relational mapping.",
-		"icanboogie/bind-cldr": "Provides internationalization to your application.",
-		"icanboogie/bind-render": "Provides a rendering API to your application.",
-		"icanboogie/bind-view": "Provides views to your application.",
-		"icanboogie/i18n": "Provides localization for your application and nice internationalization helpers.",
-		"icanboogie/image": "Provides image resizing, filling, and color resolving.",
-		"icanboogie/module": "Provides support to extend ICanBoogie using modules.",
-		"icanboogie/operation": "Operation oriented controllers API."
-	},
-	"autoload": {
-		"psr-4": {
-			"ICanBoogie\\": "lib"
-		},
-		"files": [
-			"bootstrap.php",
-			"helpers.php"
-		]
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"ICanBoogie\\": "tests/lib",
-			"Test\\ICanBoogie\\": "tests/lib"
-		}
-	},
-	"scripts": {
-		"post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"
-	},
-	"extra": {
-		"icanboogie": {
-			"config-path": "config/",
-			"locale-path": "locale/",
-			"config-constructor": {
-				"ICanBoogie\\AppConfig": "ICanBoogie\\AppConfigBuilder",
-				"ICanBoogie\\DebugConfig": "ICanBoogie\\DebugConfigBuilder"
-			},
-			"autoconfig-filters": [
-				"ICanBoogie\\Autoconfig\\Hooks::filter_autoconfig"
-			]
-		}
-	}
+    "files": [
+      "bootstrap.php",
+      "helpers.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ICanBoogie\\": "tests/lib",
+      "Test\\ICanBoogie\\": "tests/lib"
+    }
+  },
+  "scripts": {
+    "post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"
+  },
+  "extra": {
+    "icanboogie": {
+      "config-path": "config/",
+      "locale-path": "locale/",
+      "config-constructor": {
+        "ICanBoogie\\AppConfig": "ICanBoogie\\AppConfigBuilder",
+        "ICanBoogie\\Debug\\Config": "ICanBoogie\\Debug\\ConfigBuilder"
+      },
+      "autoconfig-filters": [
+        "ICanBoogie\\Autoconfig\\Hooks::filter_autoconfig"
+      ]
+    }
+  }
 }

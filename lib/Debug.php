@@ -11,6 +11,8 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\Debug\Config;
+
 /**
  * @codeCoverageIgnore
  */
@@ -42,7 +44,7 @@ class Debug
      */
     public static function configure(ConfigProvider $config_provider): void
     {
-        $config = $config_provider->config_for_class(DebugConfig::class);
+        $config = $config_provider->config_for_class(Config::class);
 
         self::$mode = $config->mode;
     }

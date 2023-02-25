@@ -18,8 +18,7 @@ final class ClearCacheCommand extends Command
 
     public function __construct(
         private readonly Application $app
-    )
-    {
+    ) {
         parent::__construct();
     }
 

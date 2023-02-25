@@ -24,9 +24,7 @@ use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\HTTP\ResponseStatus;
 use ICanBoogie\Storage\Storage;
-
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 use function asort;
@@ -204,6 +202,7 @@ final class Application implements ConfigProvider, ServiceProvider
     private function get_storage_for_configs(): Storage
     {
         return $this->storage_for_configs
+            /** @phpstan-ignore-next-line */
             ??= $this->create_storage($this->config->storage_for_config);
     }
 
@@ -217,6 +216,7 @@ final class Application implements ConfigProvider, ServiceProvider
     private function get_vars(): Storage
     {
         return $this->vars
+            /** @phpstan-ignore-next-line */
             ??= $this->create_storage($this->config->storage_for_vars);
     }
 

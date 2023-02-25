@@ -2,6 +2,12 @@ parameters:
   level: max
   paths:
   - lib
+  excludePaths:
+  - lib/Autoconfig/*
+  - lib/Debug.php
+  - lib/Logger.php
+  - lib/LoggerTrait.php
   ignoreErrors:
   - '#get_.* is unused#'
   - '#set_.* is unused#'
+  - '#default_generate_token\(\) is unused#'

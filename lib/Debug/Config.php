@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie;
+namespace ICanBoogie\Debug;
 
-final class DebugConfig
+final class Config
 {
     /**
      * @param array<string, mixed> $an_array

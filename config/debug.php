@@ -2,7 +2,9 @@
 
 namespace ICanBoogie;
 
-return fn(DebugConfigBuilder $config) => null;
+use ICanBoogie\Debug\ConfigBuilder;
+
+return fn(ConfigBuilder $config) => null;
 
 return [
 

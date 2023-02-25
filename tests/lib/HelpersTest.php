@@ -92,11 +92,11 @@ class HelpersTest extends TestCase
             Autoconfig::CONFIG_CONSTRUCTOR => [
 
                 'ICanBoogie\AppConfig' => 'ICanBoogie\AppConfigBuilder',
-                'ICanBoogie\DebugConfig' => 'ICanBoogie\DebugConfigBuilder',
                 'ICanBoogie\Event\Config' => 'ICanBoogie\Binding\Event\ConfigBuilder',
                 'ICanBoogie\Prototype\Config' => 'ICanBoogie\Binding\Prototype\ConfigBuilder',
                 'ICanBoogie\Routing\RouteProvider' => 'ICanBoogie\Binding\Routing\ConfigBuilder',
                 'ICanBoogie\Binding\SymfonyDependencyInjection\Config' => 'ICanBoogie\Binding\SymfonyDependencyInjection\ConfigBuilder',
+                'ICanBoogie\Debug\Config' => 'ICanBoogie\Debug\ConfigBuilder',
 
             ],
             Autoconfig::AUTOCONFIG_FILTERS => [

@@ -13,6 +13,9 @@ namespace ICanBoogie;
 
 use ICanBoogie\Config\Builder;
 
+/**
+ * @implements Builder<AppConfig>
+ */
 final class AppConfigBuilder implements Builder
 {
     public static function get_fragment_filename(): string

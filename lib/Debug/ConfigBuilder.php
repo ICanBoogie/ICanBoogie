@@ -9,13 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace ICanBoogie;
+namespace ICanBoogie\Debug;
 
 use ICanBoogie\Config\Builder;
+use ICanBoogie\Debug;
 
 use function in_array;
 
-final class DebugConfigBuilder implements Builder
+/**
+ * @implements Builder<Config>
+ */
+final class ConfigBuilder implements Builder
 {
     public static function get_fragment_filename(): string
     {
@@ -33,9 +37,9 @@ final class DebugConfigBuilder implements Builder
         return $this;
     }
 
-    public function build(): DebugConfig
+    public function build(): Config
     {
-        return new DebugConfig(
+        return new Config(
             mode: $this->mode
         );
     }
