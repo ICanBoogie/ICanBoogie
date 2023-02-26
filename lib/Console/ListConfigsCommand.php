@@ -3,7 +3,7 @@
 namespace ICanBoogie\Console;
 
 use ICanBoogie\Application;
-use ICanBoogie\Autoconfig\Autoconfig;
+use ICanBoogie\Config\Builder;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,15 +24,18 @@ final class ListConfigsCommand extends Command
     {
         $rows = [];
 
+        /** @phpstan-var class-string<Builder<object>> $builder */
+
         foreach ($this->app->autoconfig->config_builders as $class => $builder) {
             $rows[] = [
+                $builder::get_fragment_filename(),
                 $class,
                 $builder,
             ];
         }
 
         $table = new Table($output);
-        $table->setHeaders([ 'Config', 'Builder' ]);
+        $table->setHeaders([ 'Fragment', 'Config', 'Builder' ]);
         $table->setRows($rows);
         $table->setStyle($this->style);
         $table->render();
