@@ -32,7 +32,7 @@ final class Hooks
      */
     public static function create_storage_for_configs(Application $app): Storage
     {
-        $directory = $app->config->repository_cache_configs;
+        $directory = $app->config->var_cache_configs;
         $storage = new FileStorage($directory, new FileStorage\Adapter\PHPAdapter());
 
         return self::with_apc_storage($storage, 'icanboogie:config:');
@@ -48,14 +48,14 @@ final class Hooks
      */
     public static function create_storage_for_vars(Application $app): Storage
     {
-        $directory = $app->config->repository_var;
+        $directory = $app->config->var_lib;
         $storage = new FileStorage($directory);
 
         return self::with_apc_storage($storage, 'icanboogie:vars:');
     }
 
     /**
-     * If APC is available the method return a storage collection with a {@link APCStorage}
+     * If APC is available the method returns a storage collection with a {@link APCStorage}
      * instance and the specified storage instance.
      *
      * @param Storage<string, mixed> $storage

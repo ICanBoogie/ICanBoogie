@@ -16,25 +16,25 @@ use Test\ICanBoogie\SetStateHelper;
 
 final class AppConfigTest extends TestCase
 {
-    public function test_default_repository(): void
+    public function test_default_var(): void
     {
         $config = new AppConfig();
 
         $this->assertEquals([
 
-            "repository/",
-            "repository/cache/",
-            "repository/cache/configs/",
-            "repository/files/",
-            "repository/tmp/",
-            "repository/var/",
+            "var/",
+            "var/cache/",
+            "var/cache/configs/",
+            "var/files/",
+            "var/lib/",
+            "var/tmp/",
 
-        ], $this->repository_to_array($config));
+        ], $this->var_to_array($config));
     }
 
-    public function test_custom_repository(): void
+    public function test_custom_var(): void
     {
-        $config = new AppConfig(repository: 'madonna');
+        $config = new AppConfig(var: 'madonna');
 
         $this->assertEquals([
 
@@ -42,49 +42,49 @@ final class AppConfigTest extends TestCase
             "madonna/cache/",
             "madonna/cache/configs/",
             "madonna/files/",
+            "madonna/lib/",
             "madonna/tmp/",
-            "madonna/var/",
 
-        ], $this->repository_to_array($config));
+        ], $this->var_to_array($config));
     }
 
-    public function test_custom_repository_cache(): void
+    public function test_custom_var_cache(): void
     {
-        $config = new AppConfig(repository_cache: 'madonna');
+        $config = new AppConfig(var_cache: 'madonna');
 
         $this->assertEquals([
 
-            "repository/",
+            "var/",
             "madonna/",
             "madonna/configs/",
-            "repository/files/",
-            "repository/tmp/",
-            "repository/var/",
+            "var/files/",
+            "var/lib/",
+            "var/tmp/",
 
-        ], $this->repository_to_array($config));
+        ], $this->var_to_array($config));
     }
 
-    public function test_custom_repository_all(): void
+    public function test_custom_var_all(): void
     {
         $config = new AppConfig(
-            repository: 'my-repository',
-            repository_cache: 'my-cache',
-            repository_cache_configs: 'my-configs',
-            repository_files: 'my-files',
-            repository_tmp: 'my-tmp',
-            repository_var: 'my-var'
+            var: 'my-var',
+            var_cache: 'my-cache',
+            var_cache_configs: 'my-configs',
+            var_files: 'my-files',
+            var_lib: 'my-lib',
+            var_tmp: 'my-tmp',
         );
 
         $this->assertEquals([
 
-            "my-repository/",
+            "my-var/",
             "my-cache/",
             "my-configs/",
             "my-files/",
+            "my-lib/",
             "my-tmp/",
-            "my-var/",
 
-        ], $this->repository_to_array($config));
+        ], $this->var_to_array($config));
     }
 
     public function test_export(): void
@@ -101,16 +101,16 @@ final class AppConfigTest extends TestCase
     /**
      * @return string[]
      */
-    private function repository_to_array(AppConfig $config): array
+    private function var_to_array(AppConfig $config): array
     {
         return [
 
-            $config->repository,
-            $config->repository_cache,
-            $config->repository_cache_configs,
-            $config->repository_files,
-            $config->repository_tmp,
-            $config->repository_var,
+            $config->var,
+            $config->var_cache,
+            $config->var_cache_configs,
+            $config->var_files,
+            $config->var_lib,
+            $config->var_tmp,
 
         ];
     }

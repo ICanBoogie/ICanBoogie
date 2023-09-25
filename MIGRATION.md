@@ -43,3 +43,4 @@ None
 ### Other Changes
 
 - `get_autoconfig` tries multiple places, including `ICANBOOGIE_AUTOCONFIG` if it is defined. PHPUnit can be used as a package now.
+- Variable data files are now store in `var` instead of `repository`, to mimic Linux.

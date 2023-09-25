@@ -103,56 +103,56 @@ final class AppConfigBuilder implements Builder
         return $this;
     }
 
-    private ?string $repository = null;
+    private ?string $var = null;
 
-    public function set_repository(string $value): self
+    public function set_var(string $value): self
     {
-        $this->repository = $value;
+        $this->var = $value;
 
         return $this;
     }
 
-    private ?string $repository_cache = null;
+    private ?string $var_cache = null;
 
-    public function set_repository_cache(string $value): self
+    public function set_var_cache(string $value): self
     {
-        $this->repository_cache = $value;
+        $this->var_cache = $value;
 
         return $this;
     }
 
-    private ?string $repository_cache_configs = null;
+    private ?string $var_cache_configs = null;
 
-    public function set_repository_cache_configs(string $value): self
+    public function set_var_cache_configs(string $value): self
     {
-        $this->repository_cache_configs = $value;
+        $this->var_cache_configs = $value;
 
         return $this;
     }
 
-    private ?string $repository_files = null;
+    private ?string $var_files = null;
 
-    public function set_repository_files(string $value): self
+    public function set_var_files(string $value): self
     {
-        $this->repository_files = $value;
+        $this->var_files = $value;
 
         return $this;
     }
 
-    private ?string $repository_tmp = null;
+    private ?string $var_tmp = null;
 
-    public function set_repository_tmp(string $value): self
+    public function set_var_tmp(string $value): self
     {
-        $this->repository_tmp = $value;
+        $this->var_tmp = $value;
 
         return $this;
     }
 
-    private ?string $repository_vars = null;
+    private ?string $var_lib = null;
 
-    public function set_repository_vars(string $value): self
+    public function set_var_lib(string $value): self
     {
-        $this->repository_vars = $value;
+        $this->var_lib = $value;
 
         return $this;
     }
@@ -183,12 +183,12 @@ final class AppConfigBuilder implements Builder
             storage_for_vars: $this->storage_for_vars,
             error_handler: $this->error_handler,
             exception_handler: $this->exception_handler,
-            repository: $this->repository,
-            repository_cache: $this->repository_cache,
-            repository_cache_configs: $this->repository_cache_configs,
-            repository_files: $this->repository_files,
-            repository_tmp: $this->repository_tmp,
-            repository_var: $this->repository_vars,
+            var: $this->var,
+            var_cache: $this->var_cache,
+            var_cache_configs: $this->var_cache_configs,
+            var_files: $this->var_files,
+            var_tmp: $this->var_tmp,
+            var_lib: $this->var_lib,
             session: $this->session,
         );
     }
