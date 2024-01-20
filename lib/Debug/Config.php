@@ -11,7 +11,7 @@
 
 namespace ICanBoogie\Debug;
 
-final class Config
+final readonly class Config
 {
     /**
      * @param array<string, mixed> $an_array
@@ -22,7 +22,7 @@ final class Config
     }
 
     public function __construct(
-        public readonly string $mode = 'dev',
+        public string $mode = 'dev',
     ) {
     }
 }

@@ -2,6 +2,10 @@
 
 ## v5.x to v6.0
 
+### New Requirements
+
+- PHP 8.2+
+
 ### New features
 
 - Added `AppConfigBuilder`.

@@ -15,6 +15,8 @@ namespace ICanBoogie;
  * Accessor for the `$app` property.
  *
  * @property-read Application $app
+ *
+ * @deprecated Use dependency injection instead
  */
 trait AppAccessor
 {

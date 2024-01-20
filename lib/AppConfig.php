@@ -15,7 +15,7 @@ use function rtrim;
 
 use const DIRECTORY_SEPARATOR;
 
-final class AppConfig
+final readonly class AppConfig
 {
     public const DEFAULT_DIRECTORY_FOR_VAR = 'var';
     public const DEFAULT_DIRECTORY_FOR_CACHE = 'cache';
@@ -38,42 +38,42 @@ final class AppConfig
      * @var non-empty-string
      */
 
-    public readonly string $var;
+    public string $var;
 
     /**
      * This directory used to store cache data.
      *
      * @var non-empty-string
      */
-    public readonly string $var_cache;
+    public string $var_cache;
 
     /**
      * This directory used to store cache config data.
      *
      * @var non-empty-string
      */
-    public readonly string $var_cache_configs;
+    public string $var_cache_configs;
 
     /**
      * This directory used to store files.
      *
      * @var non-empty-string
      */
-    public readonly string $var_files;
+    public string $var_files;
 
     /**
      * The directory used to store state information.
      *
      * @var non-empty-string
      */
-    public readonly string $var_lib;
+    public string $var_lib;
 
     /**
      * This directory used to store temporary files.
      *
      * @var non-empty-string
      */
-    public readonly string $var_tmp;
+    public string $var_tmp;
 
     /**
      * @param bool $cache_catalogs
@@ -152,19 +152,19 @@ final class AppConfig
      *     Session parameters.
      */
     public function __construct(
-        public readonly bool $cache_catalogs = false,
-        public readonly bool $cache_configs = false,
-        public readonly mixed $storage_for_config = null,
-        public readonly mixed $storage_for_vars = null,
-        public readonly mixed $error_handler = null,
-        public readonly mixed $exception_handler = null,
+        public bool $cache_catalogs = false,
+        public bool $cache_configs = false,
+        public mixed $storage_for_config = null,
+        public mixed $storage_for_vars = null,
+        public mixed $error_handler = null,
+        public mixed $exception_handler = null,
         ?string $var = null,
         ?string $var_cache = null,
         ?string $var_cache_configs = null,
         ?string $var_files = null,
         ?string $var_lib = null,
         ?string $var_tmp = null,
-        public readonly array $session = [],
+        public array $session = [],
     ) {
         $this->var = $var = $this->ensure_trailing_separator(
             $var ?? self::DEFAULT_DIRECTORY_FOR_VAR

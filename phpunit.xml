@@ -1,14 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.3/phpunit.xsd"
-         bootstrap="tests/bootstrap.php"
-         cacheDirectory=".phpunit.cache"
-         executionOrder="depends,defects"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
          beStrictAboutCoverageMetadata="true"
          beStrictAboutOutputDuringTests="true"
+         bootstrap="tests/bootstrap.php"
+         cacheDirectory=".phpunit.cache"
          colors="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         executionOrder="depends,defects"
 >
-    <coverage/>
     <testsuites>
         <testsuite name="icanboogie/icanboogie">
             <directory>tests</directory>
