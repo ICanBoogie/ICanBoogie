@@ -103,8 +103,16 @@ final class AppConfigBuilder implements Builder
         return $this;
     }
 
+    /**
+     * @var non-empty-string|null
+     */
     private ?string $var = null;
 
+    /**
+     * @param non-empty-string $value
+     *
+     * @return $this
+     */
     public function set_var(string $value): self
     {
         $this->var = $value;
@@ -112,8 +120,16 @@ final class AppConfigBuilder implements Builder
         return $this;
     }
 
+    /**
+     * @var non-empty-string|null
+     */
     private ?string $var_cache = null;
 
+    /**
+     * @param non-empty-string $value
+     *
+     * @return $this
+     */
     public function set_var_cache(string $value): self
     {
         $this->var_cache = $value;
@@ -121,8 +137,16 @@ final class AppConfigBuilder implements Builder
         return $this;
     }
 
+    /**
+     * @var non-empty-string|null
+     */
     private ?string $var_cache_configs = null;
 
+    /**
+     * @param non-empty-string $value
+     *
+     * @return $this
+     */
     public function set_var_cache_configs(string $value): self
     {
         $this->var_cache_configs = $value;
@@ -130,8 +154,16 @@ final class AppConfigBuilder implements Builder
         return $this;
     }
 
+    /**
+     * @var non-empty-string|null
+     */
     private ?string $var_files = null;
 
+    /**
+     * @param non-empty-string $value
+     *
+     * @return $this
+     */
     public function set_var_files(string $value): self
     {
         $this->var_files = $value;
@@ -139,8 +171,16 @@ final class AppConfigBuilder implements Builder
         return $this;
     }
 
+    /**
+     * @var non-empty-string|null
+     */
     private ?string $var_tmp = null;
 
+    /**
+     * @param non-empty-string $value
+     *
+     * @return $this
+     */
     public function set_var_tmp(string $value): self
     {
         $this->var_tmp = $value;
@@ -148,8 +188,16 @@ final class AppConfigBuilder implements Builder
         return $this;
     }
 
+    /**
+     * @var non-empty-string|null
+     */
     private ?string $var_lib = null;
 
+    /**
+     * @param non-empty-string $value
+     *
+     * @return $this
+     */
     public function set_var_lib(string $value): self
     {
         $this->var_lib = $value;
@@ -187,8 +235,8 @@ final class AppConfigBuilder implements Builder
             var_cache: $this->var_cache,
             var_cache_configs: $this->var_cache_configs,
             var_files: $this->var_files,
-            var_tmp: $this->var_tmp,
             var_lib: $this->var_lib,
+            var_tmp: $this->var_tmp,
             session: $this->session,
         );
     }
