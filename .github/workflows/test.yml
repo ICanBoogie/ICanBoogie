@@ -21,7 +21,7 @@ jobs:
       with:
         coverage: xdebug
         php-version: "${{ matrix.php-version }}"
-        ini-values: memory_limit=-1, apc.enable_cli=On
+        ini-values: memory_limit=-1, apc.enable_cli=On, zend.assertions=On
         tools: composer:v2
         extensions: apcu
     - name: Cache dependencies

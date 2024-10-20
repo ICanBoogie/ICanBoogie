@@ -98,7 +98,7 @@ final class AutoconfigGenerator
     private array $extensions = [];
 
     /**
-     * @param array<int, array{ PackageInterface, string }> $packages
+     * @param array<int, array{ PackageInterface, string|null }> $packages
      *
      * @uses get_root_package
      */

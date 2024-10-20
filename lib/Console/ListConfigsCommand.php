@@ -4,15 +4,15 @@ namespace ICanBoogie\Console;
 
 use ICanBoogie\Application;
 use ICanBoogie\Config\Builder;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: "configs:list", description: "List configurations", aliases: [ "configs" ])]
 final class ListConfigsCommand extends Command
 {
-    protected static $defaultDescription = "List configurations";
-
     public function __construct(
         private readonly Application $app,
         private readonly string $style,
@@ -24,7 +24,7 @@ final class ListConfigsCommand extends Command
     {
         $rows = [];
 
-        /** @phpstan-var class-string<Builder<object>> $builder */
+        /** @var class-string<Builder<object>> $builder */
 
         foreach ($this->app->autoconfig->config_builders as $class => $builder) {
             $rows[] = [

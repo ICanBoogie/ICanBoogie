@@ -180,6 +180,7 @@ final class Application implements ConfigProvider, ServiceProvider
      */
     private function get_timezone(): TimeZone
     {
+        /** @var TimeZone */
         return $this->timezone
             ??= TimeZone::from(date_default_timezone_get() ?: 'UTC');
     }
@@ -233,7 +234,7 @@ final class Application implements ConfigProvider, ServiceProvider
         $this->config = $this->configs->config_for_class(AppConfig::class);
         $this->apply_config($this->config);
 
-        // Once configurations are available the container can be created.
+        // The container can be created once configurations are available.
 
         $this->container = ContainerFactory::from($this);
 
@@ -241,10 +242,9 @@ final class Application implements ConfigProvider, ServiceProvider
 
         \ICanBoogie\Service\ServiceProvider::define(
             fn (string $id): object => $this->container->get($id)
-                ?? throw new ServiceNotFoundException($id)
         );
 
-        // Once the container is available events can be set up.
+        // Events can be set up once the container is available.
 
         $this->events = $this->service_for_class(EventCollection::class);
 
@@ -258,9 +258,16 @@ final class Application implements ConfigProvider, ServiceProvider
         return $this->configs->config_for_class($class);
     }
 
+    /**
+     * @template T of object
+     *
+     * @param class-string<T> $class
+     *
+     * @return T
+     */
     public function service_for_class(string $class): object
     {
-        // @phpstan-ignore-next-line
+        /** @var T */
         return $this->container->get($class);
     }
 
@@ -268,7 +275,7 @@ final class Application implements ConfigProvider, ServiceProvider
     {
         $service = $this->container->get($id);
 
-        assert($service instanceof $class);
+        assert($service instanceof $class, "The service is not of the expected class");
 
         return $service;
     }
@@ -321,7 +328,7 @@ final class Application implements ConfigProvider, ServiceProvider
     }
 
     /**
-     * Boot the modules and configure Debug, Prototype and Events.
+     * Boot the modules and configure Debug, Prototype, and Events.
      *
      * Emits {@link BootEvent} after the boot is finished.
      *
@@ -360,16 +367,16 @@ final class Application implements ConfigProvider, ServiceProvider
 
     private function get_request(): Request
     {
-        // @phpstan-ignore-next-line
+        /** @var Request */
         return $this->request ??= Request::from($_SERVER);
     }
 
     /**
      * Run the application.
      *
-     * In order to avoid error messages triggered by PHP fatal errors to be sent with a 200 (Ok)
-     * HTTP code, the HTTP code is changed to 500 before the application is run (and booted). When
-     * the process runs properly the HTTP code is changed to the appropriate value by the response.
+     * To avoid error messages triggered by PHP fatal errors to be sent with a 200 (Ok) HTTP code, the HTTP code is
+     * changed to 500 before the application is run (and booted). When the process runs properly, the response changes
+     * the HTTP code to the appropriate value.
      *
      * @param Request|null $request The request to handle. If `null`, a request is created from `$_SERVER`.
      */
@@ -380,7 +387,6 @@ final class Application implements ConfigProvider, ServiceProvider
 
         $this->status = self::STATUS_RUNNING;
 
-        /** @phpstan-ignore-next-line */
         $this->request = $request ??= Request::from($_SERVER);
 
         emit(new RunEvent($this, $request));

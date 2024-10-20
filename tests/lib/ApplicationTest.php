@@ -11,6 +11,7 @@
 
 namespace ICanBoogie;
 
+use AssertionError;
 use ICanBoogie\Application\ClearCacheEvent;
 use ICanBoogie\Application\InvalidState;
 use ICanBoogie\HTTP\Request;
@@ -100,13 +101,33 @@ final class ApplicationTest extends TestCase
     {
         $invoked = false;
 
-        $app = app();
-        $app->events->once(function (ClearCacheEvent $event) use (&$invoked) {
+        self::$app->events->once(function (ClearCacheEvent $event) use (&$invoked) {
             $invoked = true;
         });
 
-        $app->clear_cache();
+        self::$app->clear_cache();
 
         $this->assertTrue($invoked);
+    }
+
+    public function test_service_for_class(): void
+    {
+        $actual = self::$app->service_for_class(Application::class);
+
+        $this->assertSame(self::$app, $actual);
+    }
+
+    public function test_service_for_id(): void
+    {
+        $actual = self::$app->service_for_id('test.app', Application::class);
+
+        $this->assertSame(self::$app, $actual);
+    }
+
+    public function test_service_for_id_fails_on_class_mismatch(): void
+    {
+        $this->expectException(AssertionError::class);
+        $this->expectExceptionMessage("The service is not of the expected class");
+        self::$app->service_for_id('test.app', ClearCacheEvent::class);
     }
 }
