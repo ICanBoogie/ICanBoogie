@@ -179,7 +179,9 @@ function boot(Autoconfig $autoconfig = null): Application
  */
 function app(): Application
 {
-    return Application::get();
+    static $app;
+
+    return $app ??= Application::get();
 }
 
 /*
