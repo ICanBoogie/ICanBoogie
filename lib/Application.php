@@ -341,7 +341,6 @@ final class Application implements ConfigProvider, ServiceProvider
 
         $this->status = self::STATUS_BOOTING;
 
-        Debug::configure($this);
         Binding\Prototype\AutoConfig::configure($this);
 
         emit(new BootEvent($this));

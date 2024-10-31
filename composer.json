@@ -77,8 +77,7 @@
     "icanboogie": {
       "config-path": "config/",
       "config-constructor": {
-        "ICanBoogie\\AppConfig": "ICanBoogie\\AppConfigBuilder",
-        "ICanBoogie\\Debug\\Config": "ICanBoogie\\Debug\\ConfigBuilder"
+        "ICanBoogie\\AppConfig": "ICanBoogie\\AppConfigBuilder"
       }
     }
   }
