@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace ICanBoogie;
 
 use ICanBoogie\Application\BootEvent;
@@ -25,7 +16,6 @@ use ICanBoogie\HTTP\Response;
 use ICanBoogie\HTTP\ResponseStatus;
 use ICanBoogie\Storage\Storage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 use function asort;
 use function assert;
@@ -52,7 +42,6 @@ use const SORT_NUMERIC;
  * @property Session $session User's session.
  * @property string $language Locale language.
  * @property string|int $timezone Time zone.
- * @property-read LoggerInterface $logger The message logger.
  * @property-read Storage $storage_for_configs
  * @property-read Request $request
  */
@@ -416,7 +405,7 @@ final class Application implements ConfigProvider, ServiceProvider
      * Initializes default response header.
      *
      * The default response has the {@link ResponseStatus::STATUS_INTERNAL_SERVER_ERROR} status code and the appropriate
-     * header fields, so it is not cached. That way, if something goes wrong and an error message is displayed it won't
+     * header fields, so it is not cached. That way, if something goes wrong and an error message is displayed, it won't
      * be cached by a proxy.
      */
     private function initialize_response_header(): void

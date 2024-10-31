@@ -107,11 +107,6 @@ The following helper functions are defined:
 - `app()`: Returns the [Application][] instance, or throws [ApplicationNotInstantiated][] if it has
 not been instantiated yet.
 - `boot()`: Instantiates a [Application][] instance with the _autoconfig_ and boots it.
-- `log()`: Logs a debug message.
-- `log_success()`: Logs a success message.
-- `log_error()`: Logs an error message.
-- `log_info()`: Logs an info message.
-- `log_time()`: Logs a debug message associated with a timing information.
 
 
 

@@ -42,7 +42,9 @@
 
 - Removed functions to generate tokens: `generate_token`, `generate_token_wide`.
 
-- Removed `Debug` features.
+- Removed debug features.
+
+- Removed logger features.
 
 ### Deprecated Features
 

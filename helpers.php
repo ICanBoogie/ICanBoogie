@@ -4,12 +4,7 @@ namespace ICanBoogie;
 
 use ICanBoogie\Autoconfig\Autoconfig;
 
-use function defined;
-use function dirname;
-use function file_exists;
 use function implode;
-
-use function var_dump;
 
 use const DIRECTORY_SEPARATOR;
 
@@ -40,90 +35,6 @@ function app(): Application
     static $app;
 
     return $app ??= Application::get();
-}
-
-/*
- * Logger
- */
-
-/**
- * Logs a debug message.
- *
- * @param string $message Message pattern.
- * @param array $params The parameters used to format the message.
- * @param string $level
- */
-function log($message, array $params = [], $level = LogLevel::DEBUG)
-{
-    static $logger;
-
-    if (!$logger) {
-        $logger = app()->logger;
-    }
-
-    $logger->{$level}($message, $params);
-}
-
-/**
- * Logs a success message.
- *
- * @param string $message Message pattern.
- * @param array $params The parameters used to format the message.
- */
-function log_success($message, array $params = [])
-{
-    log($message, $params, LogLevel::SUCCESS);
-}
-
-/**
- * Logs an error message.
- *
- * @param string $message Message pattern.
- * @param array $params The parameters used to format the message.
- */
-function log_error($message, array $params = [])
-{
-    log($message, $params, LogLevel::ERROR);
-}
-
-/**
- * Logs an info message.
- *
- * @param string $message Message pattern.
- * @param array $params The parameters used to format the message.
- */
-function log_info($message, array $params = [])
-{
-    log($message, $params, LogLevel::INFO);
-}
-
-/**
- * Logs a debug message associated with a timing information.
- *
- * @param string $message Message pattern.
- * @param array $params The parameters used to format the message.
- */
-function log_time($message, array $params = [])
-{
-    static $last;
-
-    $now = microtime(true);
-
-    $add = '<var>[';
-
-    $add .= '∑' . number_format($now - $_SERVER['REQUEST_TIME_FLOAT'], 3, '\'', '') . '"';
-
-    if ($last) {
-        $add .= ', +' . number_format($now - $last, 3, '\'', '') . '"';
-    }
-
-    $add .= ']</var>';
-
-    $last = $now;
-
-    $message = $add . ' ' . $message;
-
-    log($message, $params);
 }
 
 /*
