@@ -49,6 +49,8 @@
 - Removed `Application::$timezone`.
 - Removed session concerns, including the responder for `/api/ping`.
 
+- Removed `Debug` features.
+
 ### Deprecated Features
 
 None
