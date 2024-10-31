@@ -40,6 +40,8 @@
 
 - Removed `PrototypedBindings` and `get_app` on `Prototyped`.
 
+- Removed functions to generate tokens: `generate_token`, `generate_token_wide`.
+
 ### Deprecated Features
 
 None

@@ -9,4 +9,3 @@ parameters:
   ignoreErrors:
   - '#get_.* is unused#'
   - '#set_.* is unused#'
-  - '#default_generate_token\(\) is unused#'
