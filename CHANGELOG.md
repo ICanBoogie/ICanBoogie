@@ -48,6 +48,8 @@
 
 - Removed `AppAccessor`.
 
+- Removed JavaScript assets.
+
 ### Deprecated Features
 
 None

@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace ICanBoogie;
 
 /**
@@ -16,11 +7,6 @@ namespace ICanBoogie;
  */
 defined('ICanBoogie\ROOT')
 or define('ICanBoogie\ROOT', rtrim(__DIR__, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
-
-/**
- * Path to the ICanBoogie's assets directory.
- */
-const ASSETS = ROOT . 'assets' . DIRECTORY_SEPARATOR;
 
 /**
  * Document root of the application.
