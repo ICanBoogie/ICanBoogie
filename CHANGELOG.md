@@ -50,7 +50,7 @@
 
 - Removed JavaScript assets.
 
-- Remove function `strip_root`.
+- Remove functions `strip_root`, `excerpt`.
 
 ### Deprecated Features
 
