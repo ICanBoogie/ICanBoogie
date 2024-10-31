@@ -46,6 +46,8 @@
 
 - Removed logger features.
 
+- Removed `AppAccessor`.
+
 ### Deprecated Features
 
 None
