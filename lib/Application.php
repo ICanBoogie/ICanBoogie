@@ -242,6 +242,13 @@ final class Application implements ConfigProvider, ServiceProvider
         EventCollectionProvider::define(fn() => $this->events);
     }
 
+    private function get_session(): Session
+    {
+        static $session;
+
+        return $session ??= SessionWithEvent::for_app($this);
+    }
+
     public function config_for_class(string $class): object
     {
         return $this->configs->config_for_class($class);

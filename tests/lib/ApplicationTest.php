@@ -82,10 +82,11 @@ final class ApplicationTest extends TestCase
     {
         return [
 
-            [ 'vars',              Storage::class ],
-            [ 'request',           Request::class ],
-            [ 'events',            EventCollection::class ],
-            [ 'timezone',          TimeZone::class ]
+            [ 'vars',     Storage::class ],
+            [ 'request',  Request::class ],
+            [ 'events',   EventCollection::class ],
+            [ 'timezone', TimeZone::class ],
+            [ 'session',  Session::class ],
 
         ];
     }
