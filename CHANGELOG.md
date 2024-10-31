@@ -1,4 +1,4 @@
-# Migration
+# CHANGELOG
 
 ## v5.x to v6.0
 
@@ -48,3 +48,6 @@ None
 
 - `get_autoconfig` tries multiple places, including `ICANBOOGIE_AUTOCONFIG` if it is defined. PHPUnit can be used as a package now.
 - Variable data files are now store in `var` instead of `repository`, to mimic Linux.
+- The autoconfig features have been moved to `icanboogie/autoconfig`.
+  It is a Composer plugin that listens to `post-autoload-dump` events.
+  It is no longer required to specify the event in ICanBoogie projects.

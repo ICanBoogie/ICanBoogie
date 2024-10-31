@@ -21,13 +21,17 @@
     "source": "https://github.com/ICanBoogie/ICanBoogie"
   },
   "config": {
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": {
+      "icanboogie/autoconfig": true
+    }
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
     "php": ">=8.2",
     "ext-json": "*",
+    "icanboogie/autoconfig": "^6.0",
     "icanboogie/bind-event": "^6.0",
     "icanboogie/bind-http": "^6.0",
     "icanboogie/bind-prototype": "^6.0",
@@ -68,9 +72,6 @@
       "ICanBoogie\\": "tests/lib",
       "Test\\ICanBoogie\\": "tests/lib"
     }
-  },
-  "scripts": {
-    "post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"
   },
   "extra": {
     "icanboogie": {

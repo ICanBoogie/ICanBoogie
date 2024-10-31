@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace ICanBoogie;
 
 use ICanBoogie\Autoconfig\Autoconfig;
@@ -27,147 +18,14 @@ use const DIRECTORY_SEPARATOR;
  */
 
 /**
- * Resolves application instance name.
- */
-function resolve_instance_name(): string
-{
-    $instance = getenv('ICANBOOGIE_INSTANCE');
-
-    if (!$instance && PHP_SAPI == 'cli') {
-        $instance = 'cli';
-    }
-
-    if (!$instance && !empty($_SERVER['SERVER_NAME'])) {
-        $instance = $_SERVER['SERVER_NAME'];
-    }
-
-    return $instance;
-}
-
-/**
- * Resolves the paths where the application can look for config, locale, modules, and more.
- *
- * @return string[] An array of absolute paths, ordered from the less specific to
- * the most specific.
- *
- * @see https://icanboogie.org/docs/4.0/multi-site
- */
-function resolve_app_paths(string $root, string $instance = null): array
-{
-    static $cache = [];
-
-    $instance ??= resolve_instance_name();
-
-    $cache_key = $root . '#' . $instance;
-
-    if (isset($cache[$cache_key])) {
-        return $cache[$cache_key];
-    }
-
-    $root = rtrim($root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-    $parts = explode('.', $instance);
-    $paths = [];
-
-    while ($parts) {
-        $try = $root . implode('.', $parts);
-
-        if (!file_exists($try)) {
-            array_shift($parts);
-
-
-            continue;
-        }
-
-        $paths[] = $try . DIRECTORY_SEPARATOR;
-
-        break;
-    }
-
-    if (!$paths && file_exists($root . 'default')) {
-        $paths[] = $root . 'default' . DIRECTORY_SEPARATOR;
-    }
-
-    if (file_exists($root . 'all')) {
-        array_unshift($paths, $root . 'all' . DIRECTORY_SEPARATOR);
-    }
-
-    $cache[$cache_key] = $paths;
-
-    return $paths;
-}
-
-/**
- * Returns the autoconfig.
- *
- * @see https://icanboogie.org/docs/4.0/autoconfig#obtaining-the-autoconfig
- */
-function get_autoconfig(): Autoconfig
-{
-    static $autoconfig;
-
-    if ($autoconfig) {
-        return $autoconfig;
-    }
-
-    if (!defined('ICANBOOGIE_AUTOCONFIG')) {
-        $tries = [
-            dirname(__DIR__) . DIRECTORY_SEPARATOR . 'autoconfig.php',
-            __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'icanboogie' . DIRECTORY_SEPARATOR . 'autoconfig.php',
-        ];
-
-        foreach ($tries as $try) {
-            if (file_exists($try)) {
-                define('ICANBOOGIE_AUTOCONFIG', $try);
-                break;
-            }
-        }
-
-        if (!defined('ICANBOOGIE_AUTOCONFIG')) {
-            $tries = implode(', ', $tries);
-
-            trigger_error(
-                "The autoconfig file is missing, tried: $tries. Check the `script` section of your composer.json file. https://icanboogie.org/docs/4.0/autoconfig#generating-the-autoconfig-file",
-                E_USER_ERROR
-            );
-        }
-    }
-
-	/** @var Autoconfig $autoconfig */
-
-    $autoconfig = require \ICANBOOGIE_AUTOCONFIG;
-
-    $additional_app_paths = resolve_app_paths($autoconfig->app_path);
-    $config_paths = $autoconfig->config_paths;
-
-    foreach ($additional_app_paths as $path) {
-        $path = $path . 'config';
-
-        if (file_exists($path)) {
-            $config_paths[$path] = Autoconfig::CONFIG_WEIGHT_APP;
-        }
-    }
-
-    $autoconfig = $autoconfig->with([
-        'app_paths' => array_merge($autoconfig->app_paths, $additional_app_paths),
-        'config_paths' => $config_paths,
-    ]);
-
-    foreach ($autoconfig->filters as $filter) {
-        $autoconfig = $filter($autoconfig);
-    }
-
-    return $autoconfig;
-}
-
-/**
  * Instantiate and boot the application.
  *
  * @param Autoconfig|null $autoconfig
- *     If `null`, the config is obtained with `get_autoconfig()`.
+ *     If `null`, the config is obtained with {@see Autoconfig::get()}.
  */
 function boot(Autoconfig $autoconfig = null): Application
 {
-    $autoconfig ??= get_autoconfig();
+    $autoconfig ??= Autoconfig::get();
     $app = Application::new($autoconfig);
     $app->boot();
 

@@ -1,11 +1,11 @@
 <p><img height="120" src="https://cdn.rawgit.com/ICanBoogie/app-hello/master/web/assets/icanboogie.svg" alt="ICanBoogie" /></p>
 
 [![Release](https://img.shields.io/packagist/v/ICanBoogie/ICanBoogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
-[![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/ICanBoogie/master.svg)](https://scrutinizer-ci.com/g/ICanBoogie/ICanBoogie)
-[![Code Coverage](https://img.shields.io/coveralls/ICanBoogie/ICanBoogie/master.svg)](https://coveralls.io/r/ICanBoogie/ICanBoogie)
+[![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/ICanBoogie/6.0.svg)](https://scrutinizer-ci.com/g/ICanBoogie/ICanBoogie)
+[![Coverage Status](https://coveralls.io/repos/github/ICanBoogie/ICanBoogie/badge.svg?branch=6.0)](https://coveralls.io/github/ICanBoogie/ICanBoogie?branch=6.0)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/icanboogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
 
-**ICanBoogie** is a high-performance micro-framework. It is written with speed, flexibility and
+**ICanBoogie** is a high-performance micro-framework. It is written with speed, flexibility, and
 lightness in mind. **ICanBoogie** doesn't try to be an all-in-one do-it-all solution but provides the
 essential features to quickly and easily build web applications. It is easily extensible, and a
 variety of packages are available to complement its features with [rendering](https://github.com/icanboogie/render), [views](https://github.com/icanboogie/view), [routing](https://github.com/icanboogie/routing),
@@ -127,17 +127,6 @@ not been instantiated yet.
 
 ```bash
 composer require icanboogie/icanboogie
-```
-
-Don't forget to modify the _script_ section of your "composer.json" file if you want to benefit
-from the _autoconfig_ feature:
-
-```json
-{
-    "scripts": {
-        "post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"
-    }
-}
 ```
 
 The following packages are required, you might want to check them out:
