@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace ICanBoogie;
 
 use function rtrim;
@@ -116,35 +107,35 @@ final readonly class AppConfig
      * @param non-empty-string|null $var_cache
      *     The path to the _cache_ directory.
      *
-     *     The directory does not have to be a sub-folder of `$var`.
+     *     The directory doesn't have to be a subfolder of `$var`.
      *
      *     Defaults to: `$var/cache/`.
      *
      * @param non-empty-string|null $var_cache_configs
      *     The path to the _cache config_ directory.
      *
-     *     The directory does not have to be a sub-folder of `$var`.
+     *     The directory doesn't have to be a subfolder of `$var`.
      *
      *     Defaults to: `$var_cache/configs/`.
      *
      * @param non-empty-string|null $var_files
      *     The path to the _files_ directory.
      *
-     *     The directory does not have to be a sub-folder of `$var`.
+     *     The directory doesn't have to be a subfolder of `$var`.
      *
      *     Defaults to: `$var/files/`.
      *
      * @param non-empty-string|null $var_tmp
      *     The path to the _tmp_ directory.
      *
-     *     The directory does not have to be a sub-folder of `$var`.
+     *     The directory does not have to be a subfolder of `$var`.
      *
      *     Defaults to: `$var/tmp/`.
      *
      * @param non-empty-string|null $var_lib
      *     The path to the _var_ directory.
      *
-     *     The directory does not have to be a sub-folder of `$var`.
+     *     The directory does not have to be a subfolder of `$var`.
      *
      *     Defaults to: `$var/var/`.
      *

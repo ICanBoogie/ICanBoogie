@@ -11,17 +11,13 @@ essential features to quickly and easily build web applications. It is easily ex
 variety of packages are available to complement its features with [rendering](https://github.com/icanboogie/render), [views](https://github.com/icanboogie/view), [routing](https://github.com/icanboogie/routing),
 [operations](https://github.com/icanboogie/operation), [internationalization](https://github.com/icanboogie/cldr), [translation](https://github.com/icanboogie/i18n), [ActiveRecord](https://github.com/icanboogie/activerecord), [facets](https://github.com/icanboogie/facets), [mailer](https://github.com/icanboogie/mailer)…
 
-Together with [Brickrouge](http://brickrouge.org) and [Patron](https://github.com/Icybee/Patron),
-**ICanBoogie** is one of the components that make the CMS [Icybee](http://icybee.org). You might want
-to check these projects too.
-
 
 
 
 
 ### What does _micro_ mean?
 
-_"Micro"_ means that the core features of ICanBoogie are kept to the essential, the core is simple
+_"Micro"_ means that the core features of ICanBoogie are kept to the essential; the core is simple
 but greatly extensible. For instance, ICanBoogie won't force an ORM on you, although its
 [ActiveRecord](https://github.com/ICanBoogie/ActiveRecord) implementation is pretty nice. In the
 same fashion, its routing mechanisms are quite agnostic and let you use your very own
@@ -36,8 +32,7 @@ dispatcher if you want to.
 ICanBoogie and its components are usually very configurable and come with sensible defaults and a
 few conventions. Configurations are usually located in "config" folders, while locale messages are
 usually located in "locale" folders. Components configure themselves thanks to ICanBoogie's
-[Autoconfig][] feature, and won't require much of you other than a line in your
-`composer.json` file.
+[Autoconfig][] feature, and often don't require more that a line in your `composer.json` file.
 
 
 
@@ -45,8 +40,7 @@ usually located in "locale" folders. Components configure themselves thanks to I
 
 ### Acknowledgement
 
-[MooTools](http://mootools.net/), [Ruby on Rails](http://rubyonrails.org),
-[Yii](http://www.yiiframework.com), and of course [Bacara](http://www.youtube.com/watch?v=KGuFn0RPgaE).
+[MooTools](http://mootools.net/), [Ruby on Rails](http://rubyonrails.org), and, of course, [Bacara](http://www.youtube.com/watch?v=KGuFn0RPgaE).
 
 
 
@@ -88,11 +82,14 @@ gives timing information as well.
 ```php
 <?php
 
+/** @var \ICanBoogie\Application $app */
+
 use ICanBoogie\HTTP\Request;
 
 $request = Request::from('/api/ping?timer');
 
-echo $request()->body;
+$app->run($request);
+
 // pong, in 4.875 ms (ready in 3.172 ms)
 ```
 

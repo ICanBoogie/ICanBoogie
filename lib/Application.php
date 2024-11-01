@@ -31,7 +31,7 @@ use function set_exception_handler;
 use const SORT_NUMERIC;
 
 /**
- * Application abstract.
+ * The application singleton.
  *
  * @property-read bool $is_booting `true` if the application is booting, `false` otherwise.
  * @property-read bool $is_booted `true` if the application is booted, `false` otherwise.
@@ -58,6 +58,7 @@ final class Application implements ConfigProvider, ServiceProvider
      * @uses get_storage_for_configs
      * @uses get_vars
      * @uses get_request
+     * @uses get_session
      */
     use PrototypeTrait;
 
@@ -149,9 +150,9 @@ final class Application implements ConfigProvider, ServiceProvider
      * Sets the working time zone.
      *
      * When the time zone is set the default time zone is also set with
-     * {@link date_default_timezone_set()}.
+     * {@see date_default_timezone_set()}.
      *
-     * @param string|TimeZone $timezone An instance of {@link TimeZone},
+     * @param string|TimeZone $timezone An instance of {@see TimeZone},
      * or the name of a time zone.
      */
     private function set_timezone(string|TimeZone $timezone): void
@@ -165,7 +166,7 @@ final class Application implements ConfigProvider, ServiceProvider
      * Returns the working time zone.
      *
      * If the time zone is not defined yet, it defaults to the value of
-     * {@link date_default_timezone_get()} or "UTC".
+     * {@see date_default_timezone_get()} or "UTC".
      */
     private function get_timezone(): TimeZone
     {
@@ -326,7 +327,7 @@ final class Application implements ConfigProvider, ServiceProvider
     /**
      * Boot the modules and configure Debug, Prototype, and Events.
      *
-     * Emits {@link BootEvent} after the boot is finished.
+     * Emits {@see BootEvent} after the boot is finished.
      *
      * The `ICANBOOGIE_READY_TIME_FLOAT` key is added to the `$_SERVER` super global with the
      * micro-time at which the boot finished.
@@ -411,7 +412,7 @@ final class Application implements ConfigProvider, ServiceProvider
     /**
      * Initializes default response header.
      *
-     * The default response has the {@link ResponseStatus::STATUS_INTERNAL_SERVER_ERROR} status code and the appropriate
+     * The default response has the {@see ResponseStatus::STATUS_INTERNAL_SERVER_ERROR} status code and the appropriate
      * header fields, so it is not cached. That way, if something goes wrong and an error message is displayed, it won't
      * be cached by a proxy.
      */
@@ -431,7 +432,7 @@ final class Application implements ConfigProvider, ServiceProvider
     /**
      * Terminate the application.
      *
-     * Emits {@link TerminateEvent}.
+     * Emits {@see TerminateEvent}.
      */
     private function terminate(Request $request, Response $response): void
     {
@@ -443,7 +444,7 @@ final class Application implements ConfigProvider, ServiceProvider
     }
 
     /**
-     * Emits {@link ClearCacheEvent}
+     * Emits {@see ClearCacheEvent}
      */
     public function clear_cache(): void
     {

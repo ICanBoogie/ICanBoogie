@@ -11,8 +11,10 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\Session\StartEvent;
+
 /**
- * Extends the {@link Session} class to fire `ICanBoogie\Session::start` when a session is started.
+ * Extends the {@see Session} to emit {@see StartEvent} when the session starts.
  */
 final class SessionWithEvent extends Session
 {
@@ -26,14 +28,14 @@ final class SessionWithEvent extends Session
     /**
      * @inheritdoc
      *
-     * Fires `ICanBoogie\Session::start` event of class {@link Session\StartEvent}.
+     * Emits {@see StartEvent} when the session starts.
      */
     public function start(): bool
     {
         $started = parent::start();
 
         if ($started) {
-            emit(new Session\StartEvent($this));
+            emit(new StartEvent($this));
         }
 
         return $started;

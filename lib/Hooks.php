@@ -25,8 +25,8 @@ final class Hooks
      * Creates a storage engine for synthesized configurations.
      *
      * If APC is available the method returns a storage collection or {@link APCStorage} and
-     * {@link FileStorage}, otherwise a {@link FileStorage} is returned.
-     * {@link FileStorage\Adapter\PHPAdapter} is used as adapter for {@link FileStorage}.
+     * {@see FileStorage}, otherwise a {@see FileStorage} is returned.
+     * {@see FileStorage\Adapter\PHPAdapter} is used as adapter for {@see FileStorage}.
      *
      * @return Storage<string, mixed>
      */
@@ -41,8 +41,8 @@ final class Hooks
     /**
      * Creates a storage engine for synthesized configurations.
      *
-     * If APC is available the method returns a storage collection or {@link APCStorage} and
-     * {@link FileStorage}, otherwise a {@link FileStorage} is returned.
+     * If APC is available the method returns a storage collection or {@see APCStorage} and
+     * {@see FileStorage}, otherwise a {@see FileStorage} is returned.
      *
      * @return Storage<string, mixed>
      */
@@ -55,7 +55,7 @@ final class Hooks
     }
 
     /**
-     * If APC is available the method returns a storage collection with a {@link APCStorage}
+     * If APC is available the method returns a storage collection with a {@see APCStorage}
      * instance and the specified storage instance.
      *
      * @param Storage<string, mixed> $storage
