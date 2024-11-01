@@ -1,6 +1,6 @@
 <?php
 
-namespace ICanBoogie\Routing;
+namespace ICanBoogie\Responder;
 
 use ICanBoogie\Application;
 use ICanBoogie\HTTP\Request;
@@ -10,7 +10,7 @@ use ICanBoogie\HTTP\Response;
 use function array_key_exists;
 use function microtime;
 
-final class PingController implements Responder
+final class PingResponder implements Responder
 {
     private const PARAM_TIMER = 'timer';
 

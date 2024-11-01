@@ -1,6 +1,6 @@
 <?php
 
-namespace ICanBoogie\Routing;
+namespace ICanBoogie\Responder;
 
 use ICanBoogie\Binding\Routing\ConfigBuilder;
 
