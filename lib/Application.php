@@ -376,7 +376,7 @@ final class Application implements ConfigProvider, ServiceProvider
      *
      * @param Request|null $request The request to handle. If `null`, a request is created from `$_SERVER`.
      */
-    public function run(Request $request = null): void
+    public function run(?Request $request = null): void
     {
         $this->initialize_response_header();
         $this->assert_can_run();

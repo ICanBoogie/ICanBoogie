@@ -2,10 +2,6 @@ parameters:
   level: max
   paths:
   - lib
-  excludePaths:
-  - lib/Debug.php
-  - lib/Logger.php
-  - lib/LoggerTrait.php
   ignoreErrors:
   - '#get_.* is unused#'
   - '#set_.* is unused#'

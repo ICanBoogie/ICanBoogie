@@ -18,7 +18,7 @@ use const DIRECTORY_SEPARATOR;
  * @param Autoconfig|null $autoconfig
  *     If `null`, the config is obtained with {@see Autoconfig::get()}.
  */
-function boot(Autoconfig $autoconfig = null): Application
+function boot(?Autoconfig $autoconfig = null): Application
 {
     $autoconfig ??= Autoconfig::get();
     $app = Application::new($autoconfig);

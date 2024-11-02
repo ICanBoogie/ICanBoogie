@@ -2,13 +2,12 @@
 
 namespace ICanBoogie;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ContainerTest extends TestCase
 {
-    /**
-     * @dataProvider provide_parameter
-     */
+    #[DataProvider('provide_parameter')]
     public function test_parameter(string $parameter, mixed $expected): void
     {
         $this->assertEquals(

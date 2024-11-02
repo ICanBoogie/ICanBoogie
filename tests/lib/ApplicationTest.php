@@ -16,6 +16,7 @@ use ICanBoogie\Application\ClearCacheEvent;
 use ICanBoogie\Application\InvalidState;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\Storage\Storage;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ApplicationTest extends TestCase
@@ -65,11 +66,9 @@ final class ApplicationTest extends TestCase
     }
 
     /**
-     * @dataProvider provide_test_property_type
-     *
-     * @param string $property
      * @param class-string $class
      */
+    #[DataProvider('provide_test_property_type')]
     public function test_property_type(string $property, string $class): void
     {
         $this->assertInstanceOf($class, self::$app->$property);
