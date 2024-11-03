@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the ICanBoogie package.
- *
- * (c) Olivier Laviale <olivier.laviale@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace ICanBoogie;
 
 use ICanBoogie\Storage\APCStorage;
@@ -24,7 +15,7 @@ final class Hooks
     /**
      * Creates a storage engine for synthesized configurations.
      *
-     * If APC is available the method returns a storage collection or {@link APCStorage} and
+     * If APC is available the method returns a storage collection or {@see APCStorage} and
      * {@see FileStorage}, otherwise a {@see FileStorage} is returned.
      * {@see FileStorage\Adapter\PHPAdapter} is used as adapter for {@see FileStorage}.
      *

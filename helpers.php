@@ -2,15 +2,8 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\Application\InvalidState;
 use ICanBoogie\Autoconfig\Autoconfig;
-
-use function implode;
-
-use const DIRECTORY_SEPARATOR;
-
-/*
- * Application
- */
 
 /**
  * Instantiate and boot the application.
@@ -28,7 +21,9 @@ function boot(?Autoconfig $autoconfig = null): Application
 }
 
 /**
- * Returns the {@link Application} instance.
+ * Returns the {@see Application} instance.
+ *
+ * @throws InvalidState if the application is not ready.
  */
 function app(): Application
 {

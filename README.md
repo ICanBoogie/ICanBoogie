@@ -1,7 +1,6 @@
 <p><img height="120" src="https://cdn.rawgit.com/ICanBoogie/app-hello/master/web/assets/icanboogie.svg" alt="ICanBoogie" /></p>
 
 [![Release](https://img.shields.io/packagist/v/ICanBoogie/ICanBoogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
-[![Coverage Status](https://coveralls.io/repos/github/ICanBoogie/ICanBoogie/badge.svg?branch=7.0)](https://coveralls.io/github/ICanBoogie/ICanBoogie?branch=7.0)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/icanboogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
 
 **ICanBoogie** is a high-performance micro-framework. It is written with speed, flexibility, and
