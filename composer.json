@@ -44,19 +44,8 @@
     "psr/log": "^3.0"
   },
   "require-dev": {
-    "composer/composer": "^2.0",
     "phpstan/phpstan": "^1.12",
     "phpunit/phpunit": "^11.4"
-  },
-  "suggest": {
-    "icanboogie/bind-activerecord": "ActiveRecord Object-relational mapping.",
-    "icanboogie/bind-cldr": "Provides internationalization to your application.",
-    "icanboogie/bind-render": "Provides a rendering API to your application.",
-    "icanboogie/bind-view": "Provides views to your application.",
-    "icanboogie/i18n": "Provides localization for your application and nice internationalization helpers.",
-    "icanboogie/image": "Provides image resizing, filling, and color resolving.",
-    "icanboogie/module": "Provides support to extend ICanBoogie using modules.",
-    "icanboogie/operation": "Operation oriented controllers API."
   },
   "autoload": {
     "psr-4": {
