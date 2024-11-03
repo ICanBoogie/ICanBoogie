@@ -76,7 +76,7 @@ final class Hooks
      */
     private static function make_apc_prefix(): string
     {
-        return substr(sha1(ROOT), 0, 8) . ':';
+        return substr(sha1(getcwd() ?: __DIR__), 0, 8) . ':';
     }
 
     /*

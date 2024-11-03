@@ -52,7 +52,6 @@
       "ICanBoogie\\": "lib"
     },
     "files": [
-      "bootstrap.php",
       "helpers.php"
     ]
   },

@@ -38,19 +38,14 @@
 
 - The constructor of `Application` is now private and the class is final. Use `Application::new()` instead.
 
+#### Removed features
+
 - Removed `PrototypedBindings` and `get_app` on `Prototyped`.
-
-- Removed functions to generate tokens: `generate_token`, `generate_token_wide`.
-
-- Removed debug features.
-
-- Removed logger features.
-
+- Removed debug and logger features.
 - Removed `AppAccessor`.
-
 - Removed JavaScript assets.
-
-- Remove functions `strip_root`, `excerpt`.
+- Removed functions `strip_root`, `excerpt`, `generate_token`, `generate_token_wide`.
+- Removed constants `ROOT` and `DOCUMENT_ROOT`.
 
 ### Deprecated Features
 
