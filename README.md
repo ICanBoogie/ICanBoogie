@@ -1,8 +1,7 @@
 <p><img height="120" src="https://cdn.rawgit.com/ICanBoogie/app-hello/master/web/assets/icanboogie.svg" alt="ICanBoogie" /></p>
 
 [![Release](https://img.shields.io/packagist/v/ICanBoogie/ICanBoogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
-[![Code Quality](https://img.shields.io/scrutinizer/g/ICanBoogie/ICanBoogie/6.0.svg)](https://scrutinizer-ci.com/g/ICanBoogie/ICanBoogie)
-[![Coverage Status](https://coveralls.io/repos/github/ICanBoogie/ICanBoogie/badge.svg?branch=6.0)](https://coveralls.io/github/ICanBoogie/ICanBoogie?branch=6.0)
+[![Coverage Status](https://coveralls.io/repos/github/ICanBoogie/ICanBoogie/badge.svg?branch=7.0)](https://coveralls.io/github/ICanBoogie/ICanBoogie?branch=7.0)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/icanboogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
 
 **ICanBoogie** is a high-performance micro-framework. It is written with speed, flexibility, and
@@ -158,9 +157,9 @@ The following bindings are available to help in integrating components:
 
 The project is continuously tested by [GitHub actions](https://github.com/ICanBoogie/<Name>/actions).
 
-[![Tests](https://github.com/ICanBoogie/ICanBoogie/workflows/test/badge.svg)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Atest)
-[![Static Analysis](https://github.com/ICanBoogie/ICanBoogie/workflows/static-analysis/badge.svg)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Astatic-analysis)
-[![Code Style](https://github.com/ICanBoogie/ICanBoogie/workflows/code-style/badge.svg)](https://github.com/ICanBoogie/ICanBoogie/actions?query=workflow%3Acode-style)
+[![Tests](https://github.com/ICanBoogie/ICanBoogie/actions/workflows/test.yml/badge.svg?branch=6.0)](https://github.com/ICanBoogie/ICanBoogie/actions/workflows/test.yml)
+[![Static Analysis](https://github.com/ICanBoogie/ICanBoogie/actions/workflows/static-analysis.yml/badge.svg?branch=6.0)](https://github.com/ICanBoogie/ICanBoogie/actions/workflows/static-analysis.yml)
+[![Code Style](https://github.com/ICanBoogie/ICanBoogie/actions/workflows/code-style.yml/badge.svg?branch=6.0)](https://github.com/ICanBoogie/ICanBoogie/actions/workflows/code-style.yml)
 
 
 
@@ -174,14 +173,6 @@ this project and its community, you are expected to uphold this code.
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-
-
-## License
-
-**ICanBoogie** is released under the [BSD-3-Clause](LICENSE).
-
-
 
 
 
