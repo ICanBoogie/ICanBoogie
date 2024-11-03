@@ -33,42 +33,18 @@ use const SORT_NUMERIC;
 
 /**
  * The application singleton.
- *
- * @property-read bool $is_booting `true` if the application is booting, `false` otherwise.
- * @property-read bool $is_booted `true` if the application is booted, `false` otherwise.
- * @property-read bool $is_running `true` if the application is running, `false` otherwise.
- * @property-read bool $is_terminating `true` if the application is terminating, `false` otherwise.
- * @property-read bool $is_terminated `true` if the application is terminated, `false` otherwise.
- * @property Storage $vars Persistent variables registry.
- * @property string $language Locale language.
- * @property-read Storage $storage_for_configs
- * @property-read Request $request
  */
 final class Application implements ConfigProvider, ServiceProvider
 {
     /**
-     * @uses get_is_booting
-     * @uses get_is_booted
-     * @uses get_is_running
-     * @uses get_is_terminating
-     * @uses get_is_terminated
-     * @uses get_timezone
-     * @uses set_timezone
-     * @uses get_storage_for_configs
-     * @uses get_vars
-     * @uses get_request
-     */
-    use PrototypeTrait;
-
-    /**
      * Status of the application.
      */
-    public const STATUS_VOID = 0;
-    public const STATUS_BOOTING = 5;
-    public const STATUS_BOOTED = 6;
-    public const STATUS_RUNNING = 7;
-    public const STATUS_TERMINATING = 8;
-    public const STATUS_TERMINATED = 9;
+    private const int STATUS_VOID = 0;
+    private const int STATUS_BOOTING = 5;
+    private const int STATUS_BOOTED = 6;
+    private const int STATUS_RUNNING = 7;
+    private const int STATUS_TERMINATING = 8;
+    private const int STATUS_TERMINATED = 9;
 
     private static Application $instance;
 
@@ -103,41 +79,36 @@ final class Application implements ConfigProvider, ServiceProvider
     /**
      * Whether the application is booting.
      */
-    private function get_is_booting(): bool
-    {
-        return $this->status === self::STATUS_BOOTING;
+    public bool $is_booting {
+        get => $this->status === self::STATUS_BOOTING;
     }
 
     /**
      * Whether the application is booted.
      */
-    private function get_is_booted(): bool
-    {
-        return $this->status >= self::STATUS_BOOTED;
+    public bool $is_booted {
+        get => $this->status === self::STATUS_BOOTED;
     }
 
     /**
      * Whether the application is running.
      */
-    private function get_is_running(): bool
-    {
-        return $this->status === self::STATUS_RUNNING;
+    public bool $is_running {
+        get => $this->status === self::STATUS_RUNNING;
     }
 
     /**
      * Whether the application is terminating.
      */
-    private function get_is_terminating(): bool
-    {
-        return $this->status === self::STATUS_TERMINATING;
+    public bool $is_terminating {
+        get => $this->status === self::STATUS_TERMINATING;
     }
 
     /**
      * Whether the application is terminated.
      */
-    private function get_is_terminated(): bool
-    {
-        return $this->status === self::STATUS_TERMINATED;
+    public bool $is_terminated {
+        get => $this->status === self::STATUS_TERMINATED;
     }
 
     public readonly Autoconfig $autoconfig;
@@ -145,29 +116,18 @@ final class Application implements ConfigProvider, ServiceProvider
     /**
      * @var Storage<string, mixed>
      */
-    private Storage $storage_for_configs;
-
-    /**
-     * @return Storage<string, mixed>
-     */
-    private function get_storage_for_configs(): Storage
-    {
-        return $this->storage_for_configs
-            /** @phpstan-ignore-next-line */
+    public Storage $storage_for_configs {
+        get => $this->storage_for_configs
             ??= $this->create_storage($this->config->storage_for_config);
     }
-
-    private Storage $vars;
 
     /**
      * Returns the non-volatile variables registry.
      *
      * @return Storage<string, mixed>
      */
-    private function get_vars(): Storage
-    {
-        return $this->vars
-            /** @phpstan-ignore-next-line */
+    public Storage $vars {
+        get => $this->vars
             ??= $this->create_storage($this->config->storage_for_vars);
     }
 
@@ -262,7 +222,7 @@ final class Application implements ConfigProvider, ServiceProvider
         }
 
         if ($config->cache_configs && $this->configs instanceof BasicConfigProvider) {
-            $this->configs->cache = $this->get_storage_for_configs();
+            $this->configs->cache = $this->storage_for_configs;
         }
     }
 
@@ -313,12 +273,11 @@ final class Application implements ConfigProvider, ServiceProvider
         }
     }
 
-    private Request $request;
-
-    private function get_request(): Request
-    {
-        /** @var Request */
-        return $this->request ??= Request::from($_SERVER); // @phpstan-ignore argument.type
+    /**
+     * The initial request.
+     */
+    public Request $request {
+        get => $this->request ??= Request::from($_SERVER); // @phpstan-ignore argument.type
     }
 
     /**

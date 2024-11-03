@@ -2,7 +2,7 @@
   "name": "icanboogie/icanboogie",
   "type": "library",
   "description": "High-performance micro-framework for PHP",
-  "version": "6.0",
+  "version": "7.0",
   "keywords": [
     "framework"
   ],
@@ -29,22 +29,22 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": ">=8.2",
+    "php": ">=8.4",
     "ext-json": "*",
-    "icanboogie/autoconfig": "^6.0",
-    "icanboogie/bind-event": "^6.0",
-    "icanboogie/bind-http": "^6.0",
-    "icanboogie/bind-prototype": "^6.0",
-    "icanboogie/bind-routing": "^6.0",
-    "icanboogie/bind-symfony-dependency-injection": "^6.0",
-    "icanboogie/config": "^6.0",
-    "icanboogie/console": "^6.0",
+    "icanboogie/autoconfig": "^7.0",
+    "icanboogie/bind-event": "^7.0",
+    "icanboogie/bind-http": "^7.0",
+    "icanboogie/bind-prototype": "7.0.x-dev",
+    "icanboogie/bind-routing": "^7.0",
+    "icanboogie/bind-symfony-dependency-injection": "^7.0",
+    "icanboogie/config": "^7.0",
+    "icanboogie/console": "^7.0",
     "icanboogie/service": "dev-master",
     "psr/log": "^3.0"
   },
   "require-dev": {
-    "phpstan/phpstan": "^2.0",
-    "phpunit/phpunit": "^11.4"
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^11.5"
   },
   "autoload": {
     "psr-4": {

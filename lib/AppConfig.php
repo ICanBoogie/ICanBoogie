@@ -8,12 +8,12 @@ use const DIRECTORY_SEPARATOR;
 
 final readonly class AppConfig
 {
-    public const DEFAULT_DIRECTORY_FOR_VAR = 'var';
-    public const DEFAULT_DIRECTORY_FOR_CACHE = 'cache';
-    public const DEFAULT_DIRECTORY_FOR_CACHE_CONFIGS = 'configs';
-    public const DEFAULT_DIRECTORY_FOR_FILES = 'files';
-    public const DEFAULT_DIRECTORY_FOR_LIB = 'lib';
-    public const DEFAULT_DIRECTORY_FOR_TMP = 'tmp';
+    public const string DEFAULT_DIRECTORY_FOR_VAR = 'var';
+    public const string DEFAULT_DIRECTORY_FOR_CACHE = 'cache';
+    public const string DEFAULT_DIRECTORY_FOR_CACHE_CONFIGS = 'configs';
+    public const string DEFAULT_DIRECTORY_FOR_FILES = 'files';
+    public const string DEFAULT_DIRECTORY_FOR_LIB = 'lib';
+    public const string DEFAULT_DIRECTORY_FOR_TMP = 'tmp';
 
     /**
      * @param array<string, mixed> $an_array
