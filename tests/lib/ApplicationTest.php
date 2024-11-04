@@ -75,17 +75,9 @@ final class ApplicationTest extends TestCase
             [ 'vars',     Storage::class ],
             [ 'request',  Request::class ],
             [ 'events',   EventCollection::class ],
-            [ 'timezone', TimeZone::class ],
             [ 'session',  Session::class ],
 
         ];
-    }
-
-    public function test_set_timezone(): void
-    {
-        self::$app->timezone = 'Europe/Madrid';
-        $this->assertInstanceOf(TimeZone::class, self::$app->timezone);
-        $this->assertEquals('Europe/Madrid', (string) self::$app->timezone);
     }
 
     public function test_clear_cache(): void

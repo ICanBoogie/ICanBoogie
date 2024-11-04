@@ -46,6 +46,7 @@
 - Removed JavaScript assets.
 - Removed functions `strip_root`, `excerpt`, `generate_token`, `generate_token_wide`.
 - Removed constants `ROOT` and `DOCUMENT_ROOT`.
+- Remove `Application::$timezone`.
 
 ### Deprecated Features
 

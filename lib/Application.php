@@ -41,7 +41,6 @@ use const SORT_NUMERIC;
  * @property Storage $vars Persistent variables registry.
  * @property Session $session User's session.
  * @property string $language Locale language.
- * @property string|int $timezone Time zone.
  * @property-read Storage $storage_for_configs
  * @property-read Request $request
  */
@@ -143,37 +142,6 @@ final class Application implements ConfigProvider, ServiceProvider
     }
 
     public readonly Autoconfig $autoconfig;
-
-    private ?TimeZone $timezone = null;
-
-    /**
-     * Sets the working time zone.
-     *
-     * When the time zone is set the default time zone is also set with
-     * {@see date_default_timezone_set()}.
-     *
-     * @param string|TimeZone $timezone An instance of {@see TimeZone},
-     * or the name of a time zone.
-     */
-    private function set_timezone(string|TimeZone $timezone): void
-    {
-        $this->timezone = TimeZone::from($timezone);
-
-        date_default_timezone_set((string) $this->timezone);
-    }
-
-    /**
-     * Returns the working time zone.
-     *
-     * If the time zone is not defined yet, it defaults to the value of
-     * {@see date_default_timezone_get()} or "UTC".
-     */
-    private function get_timezone(): TimeZone
-    {
-        /** @var TimeZone */
-        return $this->timezone
-            ??= TimeZone::from(date_default_timezone_get() ?: 'UTC');
-    }
 
     /**
      * @var Storage<string, mixed>|null
