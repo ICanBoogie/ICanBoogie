@@ -145,9 +145,9 @@ final class Application implements ConfigProvider, ServiceProvider
     public readonly Autoconfig $autoconfig;
 
     /**
-     * @var Storage<string, mixed>|null
+     * @var Storage<string, mixed>
      */
-    private Storage|null $storage_for_configs;
+    private Storage $storage_for_configs;
 
     /**
      * @return Storage<string, mixed>
@@ -216,6 +216,7 @@ final class Application implements ConfigProvider, ServiceProvider
     {
         static $session;
 
+        /** @var Session */
         return $session ??= SessionWithEvent::for_app($this);
     }
 
@@ -333,7 +334,7 @@ final class Application implements ConfigProvider, ServiceProvider
     private function get_request(): Request
     {
         /** @var Request */
-        return $this->request ??= Request::from($_SERVER);
+        return $this->request ??= Request::from($_SERVER); // @phpstan-ignore argument.type
     }
 
     /**
@@ -352,7 +353,7 @@ final class Application implements ConfigProvider, ServiceProvider
 
         $this->status = self::STATUS_RUNNING;
 
-        $this->request = $request ??= Request::from($_SERVER);
+        $this->request = $request ??= Request::from($_SERVER); // @phpstan-ignore argument.type
 
         emit(new RunEvent($this, $request));
 

@@ -16,11 +16,19 @@ final class PingResponder implements Responder
 
     private static function format_time(float $finish): string
     {
-        return number_format(($finish - $_SERVER['REQUEST_TIME_FLOAT']) * 1000, 3, '.', '') . ' ms';
+        /** @var float $request_time */
+        $request_time = $_SERVER['REQUEST_TIME_FLOAT'];
+
+        return number_format(
+            ($finish - $request_time) * 1000,
+            3,
+            '.',
+            '',
+        ) . ' ms';
     }
 
     public function __construct(
-        private readonly Application $app
+        private readonly Application $app,
     ) {
     }
 
@@ -37,7 +45,10 @@ final class PingResponder implements Responder
         $rc = 'pong';
 
         if (array_key_exists(self::PARAM_TIMER, $request->query_params)) {
-            $boot_time = self::format_time($_SERVER['ICANBOOGIE_READY_TIME_FLOAT']);
+            /** @var float $timestamp */
+            $timestamp = $_SERVER['ICANBOOGIE_READY_TIME_FLOAT'];
+
+            $boot_time = self::format_time($timestamp);
             $run_time = self::format_time(microtime(true));
 
             $rc .= ", in $run_time (ready in $boot_time)";
