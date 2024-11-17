@@ -10,6 +10,7 @@ use ICanBoogie\Application\TerminateEvent;
 use ICanBoogie\Autoconfig\Autoconfig;
 use ICanBoogie\Binding\SymfonyDependencyInjection\ContainerFactory;
 use ICanBoogie\Config\Builder;
+use ICanBoogie\ConfigProvider\BasicConfigProvider;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Response;
@@ -172,7 +173,7 @@ final class Application implements ConfigProvider, ServiceProvider
             ??= $this->create_storage($this->config->storage_for_vars);
     }
 
-    public readonly Config $configs;
+    public readonly ConfigProvider $configs;
     public readonly AppConfig $config;
     public readonly EventCollection $events;
     public readonly ContainerInterface $container;
@@ -251,11 +252,11 @@ final class Application implements ConfigProvider, ServiceProvider
      * @param array<string, int> $paths Path list.
      * @param array<class-string, class-string<Builder<object>>> $builders
      */
-    private function create_config_provider(array $paths, array $builders): Config
+    private function create_config_provider(array $paths, array $builders): ConfigProvider
     {
         asort($paths, SORT_NUMERIC);
 
-        return new Config(array_keys($paths), $builders);
+        return new BasicConfigProvider(array_keys($paths), $builders);
     }
 
     /**
@@ -275,7 +276,7 @@ final class Application implements ConfigProvider, ServiceProvider
             set_exception_handler($exception_handler);
         }
 
-        if ($config->cache_configs) {
+        if ($config->cache_configs && $this->configs instanceof BasicConfigProvider) {
             $this->configs->cache = $this->get_storage_for_configs();
         }
     }

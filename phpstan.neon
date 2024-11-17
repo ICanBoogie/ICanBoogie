@@ -1,7 +1,7 @@
+# $schema: https://phpstan.olvlvl.com/schema.json
 parameters:
   level: max
   paths:
   - lib
   ignoreErrors:
   - '#get_.* is unused#'
-  - '#set_.* is unused#'
