@@ -75,7 +75,6 @@ final class ApplicationTest extends TestCase
             [ 'vars',     Storage::class ],
             [ 'request',  Request::class ],
             [ 'events',   EventCollection::class ],
-            [ 'session',  Session::class ],
 
         ];
     }

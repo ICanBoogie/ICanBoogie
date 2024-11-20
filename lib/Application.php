@@ -40,7 +40,6 @@ use const SORT_NUMERIC;
  * @property-read bool $is_terminating `true` if the application is terminating, `false` otherwise.
  * @property-read bool $is_terminated `true` if the application is terminated, `false` otherwise.
  * @property Storage $vars Persistent variables registry.
- * @property Session $session User's session.
  * @property string $language Locale language.
  * @property-read Storage $storage_for_configs
  * @property-read Request $request
@@ -58,7 +57,6 @@ final class Application implements ConfigProvider, ServiceProvider
      * @uses get_storage_for_configs
      * @uses get_vars
      * @uses get_request
-     * @uses get_session
      */
     use PrototypeTrait;
 
@@ -210,14 +208,6 @@ final class Application implements ConfigProvider, ServiceProvider
         // Enable the usage of `emit()`.
 
         EventCollectionProvider::define(fn() => $this->events);
-    }
-
-    private function get_session(): Session
-    {
-        static $session;
-
-        /** @var Session */
-        return $session ??= SessionWithEvent::for_app($this);
     }
 
     public function config_for_class(string $class): object

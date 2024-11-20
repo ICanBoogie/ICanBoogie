@@ -196,23 +196,6 @@ final class AppConfigBuilder implements Builder
         return $this;
     }
 
-    /**
-     * @phpstan-var array<SessionOptions::OPTION_*, mixed>
-     */
-    private array $session = [];
-
-    /**
-     * @phpstan-param array<SessionOptions::OPTION_*, mixed> $value
-     *
-     * @return $this
-     */
-    public function set_session(array $value): self
-    {
-        $this->session = $value;
-
-        return $this;
-    }
-
     public function build(): AppConfig
     {
         return new AppConfig(
@@ -228,7 +211,6 @@ final class AppConfigBuilder implements Builder
             var_files: $this->var_files,
             var_lib: $this->var_lib,
             var_tmp: $this->var_tmp,
-            session: $this->session,
         );
     }
 }

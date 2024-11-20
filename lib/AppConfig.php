@@ -128,19 +128,16 @@ final readonly class AppConfig
      * @param non-empty-string|null $var_tmp
      *     The path to the _tmp_ directory.
      *
-     *     The directory does not have to be a subfolder of `$var`.
+     *     The directory doesn't have to be a subfolder of `$var`.
      *
      *     Defaults to: `$var/tmp/`.
      *
      * @param non-empty-string|null $var_lib
      *     The path to the _var_ directory.
      *
-     *     The directory does not have to be a subfolder of `$var`.
+     *     The directory doesn't have to be a subfolder of `$var`.
      *
      *     Defaults to: `$var/var/`.
-     *
-     * @phpstan-param array<SessionOptions::OPTION_*, mixed> $session
-     *     Session parameters.
      */
     public function __construct(
         public bool $cache_catalogs = false,
@@ -155,7 +152,6 @@ final readonly class AppConfig
         ?string $var_files = null,
         ?string $var_lib = null,
         ?string $var_tmp = null,
-        public array $session = [],
     ) {
         $this->var = $var = $this->ensure_trailing_separator(
             $var ?? self::DEFAULT_DIRECTORY_FOR_VAR
