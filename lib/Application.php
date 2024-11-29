@@ -192,21 +192,15 @@ final class Application implements ConfigProvider, ServiceProvider
         $this->apply_config($this->config);
 
         // The container can be created once configurations are available.
-
         $this->container = ContainerFactory::from($this);
 
         // Enable the usage of `ref()`.
-
-        \ICanBoogie\Service\ServiceProvider::define(
-            fn (string $id): object => $this->container->get($id)
-        );
+        \ICanBoogie\Service\ServiceProvider::define($this->container->get(...));
 
         // Events can be set up once the container is available.
-
         $this->events = $this->service_for_class(EventCollection::class);
 
         // Enable the usage of `emit()`.
-
         EventCollectionProvider::define(fn() => $this->events);
     }
 
