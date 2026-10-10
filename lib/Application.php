@@ -294,7 +294,7 @@ final class Application implements ConfigProvider, ServiceProvider
      * The initial request.
      */
     public Request $request {
-        get => $this->request ??= Request::from($_SERVER); // @phpstan-ignore argument.type
+        get => $this->request ??= Request::from_server($_SERVER); // @phpstan-ignore argument.type
     }
 
     /**
@@ -312,8 +312,7 @@ final class Application implements ConfigProvider, ServiceProvider
         $this->assert_can_run();
 
         $this->status = self::STATUS_RUNNING;
-
-        $this->request = $request ??= Request::from($_SERVER); // @phpstan-ignore argument.type
+        $this->request = $request ??= Request::from_server($_SERVER);
 
         emit(new RunEvent($this, $request));
 

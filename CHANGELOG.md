@@ -21,6 +21,7 @@ None
 ### Other Changes
 
 - Use `CachedConfigProvider`.
+- Use `Request::from_server()`.
 
 
 
