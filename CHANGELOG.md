@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## 7.0.0
+
+### New Requirements
+
+- PHP 8.4+
+
+### New features
+
+None
+
+### Deprecated Features
+
+None
+
+### Backward Incompatible Changes
+
+None
+
+### Other Changes
+
+- Use `CachedConfigProvider`.
+
+
+
 ## v5.x to v6.0
 
 ### New Requirements
@@ -62,3 +86,28 @@ None
 - The autoconfig features have been moved to `icanboogie/autoconfig`.
   It is a Composer plugin that listens to `post-autoload-dump` events.
   It is no longer required to specify the event in ICanBoogie projects.
+
+
+<!--
+
+### New Requirements
+
+None
+
+### New features
+
+None
+
+### Deprecated Features
+
+None
+
+### Backward Incompatible Changes
+
+None
+
+### Other Changes
+
+None
+
+-->

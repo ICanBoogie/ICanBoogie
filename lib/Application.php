@@ -11,6 +11,7 @@ use ICanBoogie\Autoconfig\Autoconfig;
 use ICanBoogie\Binding\SymfonyDependencyInjection\ContainerFactory;
 use ICanBoogie\Config\Builder;
 use ICanBoogie\ConfigProvider\BasicConfigProvider;
+use ICanBoogie\ConfigProvider\CachedConfigProvider;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Response;
@@ -131,7 +132,7 @@ final class Application implements ConfigProvider, ServiceProvider
             ??= $this->create_storage($this->config->storage_for_vars);
     }
 
-    public readonly ConfigProvider $configs;
+    public ConfigProvider $configs;
     public readonly AppConfig $config;
     public readonly EventCollection $events;
     public readonly ContainerInterface $container;
@@ -199,9 +200,21 @@ final class Application implements ConfigProvider, ServiceProvider
      */
     private function create_config_provider(array $paths, array $builders): ConfigProvider
     {
+        return new BasicConfigProvider(self::sort_config_paths($paths), $builders);
+    }
+
+    /**
+     * Sorts configuration paths by weight and returns their keys.
+     *
+     * @param array<string, int> $paths Path list.
+     *
+     * @return string[]
+     */
+    private static function sort_config_paths(array $paths): array
+    {
         asort($paths, SORT_NUMERIC);
 
-        return new BasicConfigProvider(array_keys($paths), $builders);
+        return array_keys($paths);
     }
 
     /**
@@ -222,7 +235,11 @@ final class Application implements ConfigProvider, ServiceProvider
         }
 
         if ($config->cache_configs && $this->configs instanceof BasicConfigProvider) {
-            $this->configs->cache = $this->storage_for_configs;
+            $this->configs = new CachedConfigProvider(
+                $this->configs,
+                $this->storage_for_configs,
+                self::sort_config_paths($this->autoconfig->config_paths),
+            );
         }
     }
 
