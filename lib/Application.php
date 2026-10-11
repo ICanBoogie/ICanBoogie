@@ -15,7 +15,7 @@ use ICanBoogie\ConfigProvider\CachedConfigProvider;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Response;
-use ICanBoogie\HTTP\ResponseStatus;
+use ICanBoogie\HTTP\Status;
 use ICanBoogie\Storage\Storage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -341,13 +341,13 @@ final class Application implements ConfigProvider, ServiceProvider
     /**
      * Initializes default response header.
      *
-     * The default response has the {@see ResponseStatus::STATUS_INTERNAL_SERVER_ERROR} status code and the appropriate
+     * The default response has the {@see Status::INTERNAL_SERVER_ERROR} status code and the appropriate
      * header fields, so it is not cached. That way, if something goes wrong and an error message is displayed, it won't
      * be cached by a proxy.
      */
     private function initialize_response_header(): void
     {
-        http_response_code(ResponseStatus::STATUS_INTERNAL_SERVER_ERROR);
+        http_response_code(Status::INTERNAL_SERVER_ERROR);
 
         // @codeCoverageIgnoreStart
         if (!headers_sent()) {
