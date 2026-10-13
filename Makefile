@@ -41,5 +41,5 @@ test-container-84:
 
 .PHONY: lint
 lint:
-	@XDEBUG_MODE=off phpcs -s
+	#@XDEBUG_MODE=off phpcs -s # doesn't support property hooks
 	@XDEBUG_MODE=off vendor/bin/phpstan
