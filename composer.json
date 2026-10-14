@@ -42,6 +42,7 @@
     "icanboogie/config": "^7.0",
     "icanboogie/console": "^7.0",
     "icanboogie/service": "dev-master",
+    "icanboogie/storage": "^6.0",
     "psr/log": "^3.0"
   },
   "require-dev": {

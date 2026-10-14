@@ -36,6 +36,14 @@ return fn(ConfigBuilder $config) => $config
     ->attach(ClearCacheEvent::class, [ Hooks::class, 'on_clear_cache' ]);
 ```
 
+`attach()` catches an event whatever its sender. If an event has a sender (it passes an object to
+`parent::__construct()`, e.g. `RecoverEvent` with its exception), use `attach_to($sender_class, …)` to only catch
+the events of that sender. Listeners are matched against the sender's class, its parent
+classes, then its interfaces, so `Throwable` catches every exception and error. See the
+[bind-event README](https://github.com/ICanBoogie/bind-event) for `#[Listener]`, public services, and
+troubleshooting. `php vendor/bin/icanboogie events`
+lists the configured listeners.
+
 ### At runtime
 
 ```php

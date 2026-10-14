@@ -20,6 +20,7 @@ None
 
 ### Other Changes
 
+- Require `icanboogie/storage` directly, `icanboogie/config` no longer brings it.
 - Use `CachedConfigProvider`.
 - Use `Request::from_server()`.
 - Replaced PHP Code Sniffer with PHP-CS-Fixer.

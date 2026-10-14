@@ -34,5 +34,5 @@ ENV PATH="/opt/composer/vendor/bin:${PATH}"
 
 RUN composer global require friendsofphp/php-cs-fixer
 
-# the root version of a package in a dependency cycle, see HOUSEKEEPING.md
+# Packages in a dependency cycle must set the root version
 ENV COMPOSER_ROOT_VERSION=7.0.x-dev
