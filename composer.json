@@ -2,7 +2,6 @@
   "name": "icanboogie/icanboogie",
   "type": "library",
   "description": "High-performance micro-framework for PHP",
-  "version": "7.0",
   "keywords": [
     "framework"
   ],
@@ -21,6 +20,9 @@
     "source": "https://github.com/ICanBoogie/ICanBoogie"
   },
   "config": {
+    "platform": {
+      "php": "8.4.1"
+    },
     "sort-packages": true,
     "allow-plugins": {
       "icanboogie/autoconfig": true
@@ -34,7 +36,7 @@
     "icanboogie/autoconfig": "^7.0",
     "icanboogie/bind-event": "^7.0",
     "icanboogie/bind-http": "^7.0",
-    "icanboogie/bind-prototype": "7.0.x-dev",
+    "icanboogie/bind-prototype": "^7.0",
     "icanboogie/bind-routing": "^7.0",
     "icanboogie/bind-symfony-dependency-injection": "^7.0",
     "icanboogie/config": "^7.0",
@@ -43,8 +45,8 @@
     "psr/log": "^3.0"
   },
   "require-dev": {
-    "phpstan/phpstan": "^2.1",
-    "phpunit/phpunit": "^11.5"
+    "phpstan/phpstan": "^2.3",
+    "phpunit/phpunit": "^13.4"
   },
   "autoload": {
     "psr-4": {

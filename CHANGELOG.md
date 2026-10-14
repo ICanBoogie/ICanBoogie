@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 7.0.0
+## v7.0.0
 
 ### New Requirements
 
@@ -22,10 +22,14 @@ None
 
 - Use `CachedConfigProvider`.
 - Use `Request::from_server()`.
+- Replaced PHP Code Sniffer with PHP-CS-Fixer.
+- Tooling updated: PHPUnit 13.4, PHPStan 2.3, CI tests the lowest and the latest dependencies.
+- PHPStan runs at level `max`. `Application` throws a `LogicException` instead of a `TypeError` when a storage factory (`storage_for_config`, `storage_for_vars`) is not configured.
+- Removed the dead `rawgit.com` logo from the README.
 
 
 
-## v5.x to v6.0
+## v6.0.0
 
 ### New Requirements
 

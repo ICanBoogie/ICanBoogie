@@ -2,6 +2,8 @@
 
 namespace ICanBoogie;
 
+use ICanBoogie\Storage\Storage;
+
 use function rtrim;
 
 use const DIRECTORY_SEPARATOR;
@@ -73,7 +75,7 @@ final readonly class AppConfig
      * @param bool $cache_configs
      *     Whether configurations should be cached.
      *
-     * @param callable|null $storage_for_config
+     * @param (callable(Application): Storage<string, mixed>)|null $storage_for_config
      *     The storage engine for configurations.
      *
      *     The value may be a class name or a callable that would create the instance. The callable
@@ -83,7 +85,7 @@ final readonly class AppConfig
      *     callable(\ICanBoogie\Application $app): \ICanBoogie\Storage\Storage
      *     ```
      *
-     * @param callable|null $storage_for_vars
+     * @param (callable(Application): Storage<string, mixed>)|null $storage_for_vars
      *     The storage engine for variables.
      *
      *     The value may be a class name or a callable that would create the instance. The callable

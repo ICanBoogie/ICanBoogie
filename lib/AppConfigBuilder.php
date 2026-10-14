@@ -3,6 +3,7 @@
 namespace ICanBoogie;
 
 use ICanBoogie\Config\Builder;
+use ICanBoogie\Storage\Storage;
 
 /**
  * @implements Builder<AppConfig>
@@ -47,10 +48,13 @@ final class AppConfigBuilder implements Builder
     }
 
     /**
-     * @var callable|null
+     * @var (callable(Application): Storage<string, mixed>)|null
      */
     private mixed $storage_for_config = null;
 
+    /**
+     * @param callable(Application): Storage<string, mixed> $value
+     */
     public function set_storage_for_config(callable $value): self
     {
         $this->storage_for_config = $value;
@@ -59,10 +63,13 @@ final class AppConfigBuilder implements Builder
     }
 
     /**
-     * @var callable|null
+     * @var (callable(Application): Storage<string, mixed>)|null
      */
     private mixed $storage_for_vars = null;
 
+    /**
+     * @param callable(Application): Storage<string, mixed> $value
+     */
     public function set_storage_for_vars(callable $value): self
     {
         $this->storage_for_vars = $value;

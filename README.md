@@ -1,5 +1,3 @@
-<p><img height="120" src="https://cdn.rawgit.com/ICanBoogie/app-hello/master/web/assets/icanboogie.svg" alt="ICanBoogie" /></p>
-
 [![Release](https://img.shields.io/packagist/v/ICanBoogie/ICanBoogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/icanboogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
 
@@ -127,7 +125,7 @@ The following bindings are available to help in integrating components:
 
 ## Continuous Integration
 
-The project is continuously tested by [GitHub Actions](https://github.com/ICanBoogie/<Name>/actions).
+The project is continuously tested by [GitHub Actions](https://github.com/ICanBoogie/ICanBoogie/actions).
 
 [![Tests](https://github.com/ICanBoogie/ICanBoogie/actions/workflows/test.yml/badge.svg?branch=7.0)](https://github.com/ICanBoogie/ICanBoogie/actions/workflows/test.yml)
 [![Static Analysis](https://github.com/ICanBoogie/ICanBoogie/actions/workflows/static-analysis.yml/badge.svg?branch=7.0)](https://github.com/ICanBoogie/ICanBoogie/actions/workflows/static-analysis.yml)

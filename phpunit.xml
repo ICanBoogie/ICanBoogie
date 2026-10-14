@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.4/phpunit.xsd"
-         beStrictAboutCoverageMetadata="true"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/13.4/phpunit.xsd"
          beStrictAboutOutputDuringTests="true"
          bootstrap="tests/bootstrap.php"
          colors="true"
@@ -9,7 +8,9 @@
          displayDetailsOnTestsThatTriggerNotices="true"
          displayDetailsOnTestsThatTriggerWarnings="true"
          displayDetailsOnPhpunitDeprecations="true"
-         executionOrder="depends,defects"
+         displayDetailsOnPhpunitNotices="true"
+         displayDetailsOnIncompleteTests="true"
+         executionOrder="defects"
 >
     <testsuites>
         <testsuite name="icanboogie/icanboogie">

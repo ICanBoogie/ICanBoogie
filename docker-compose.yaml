@@ -6,8 +6,23 @@ services:
       args:
         PHP_VERSION: "8.4"
     environment:
-      PHP_IDE_CONFIG: 'serverName=icanboogie'
+      PHP_IDE_CONFIG: 'serverName=icanboogie-icanboogie'
     volumes:
       - .:/app:delegated
-      - ~/.composer:/root/.composer:delegated
+      - composer-cache:/opt/composer/cache
     working_dir: /app
+
+  app85:
+    build:
+      context: .
+      args:
+        PHP_VERSION: "8.5"
+    environment:
+      PHP_IDE_CONFIG: 'serverName=icanboogie-icanboogie'
+    volumes:
+      - .:/app:delegated
+      - composer-cache:/opt/composer/cache
+    working_dir: /app
+
+volumes:
+  composer-cache: ~

@@ -36,10 +36,15 @@ test-container: test-container-84
 
 .PHONY: test-container-84
 test-container-84:
-	@-docker-compose run --rm app84 bash
-	@docker-compose down -v
+	@-docker compose run --rm app84 bash
+	@docker compose down -v
+
+.PHONY: test-container-85
+test-container-85:
+	@-docker compose run --rm app85 bash
+	@docker compose down -v
 
 .PHONY: lint
 lint:
-	#@XDEBUG_MODE=off phpcs -s # doesn't support property hooks
+	@XDEBUG_MODE=off php-cs-fixer check --diff
 	@XDEBUG_MODE=off vendor/bin/phpstan

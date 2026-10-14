@@ -17,6 +17,7 @@ use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Response;
 use ICanBoogie\HTTP\Status;
 use ICanBoogie\Storage\Storage;
+use LogicException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use function asort;
@@ -125,7 +126,7 @@ final class Application implements ConfigProvider, ServiceProvider
     /**
      * Returns the non-volatile variables registry.
      *
-     * @return Storage<string, mixed>
+     * @var Storage<string, mixed>
      */
     public Storage $vars {
         get => $this->vars
@@ -246,12 +247,16 @@ final class Application implements ConfigProvider, ServiceProvider
     /**
      * Creates a storage engine, using a factory.
      *
-     * @param callable(Application): Storage<string, mixed> $factory
+     * @param (callable(Application): Storage<string, mixed>)|null $factory
      *
      * @return Storage<string, mixed>
      */
-    private function create_storage(callable $factory): Storage
+    private function create_storage(?callable $factory): Storage
     {
+        if ($factory === null) {
+            throw new LogicException("A storage factory is not configured. Check the `storage_for_*` options of AppConfig.");
+        }
+
         return $factory($this);
     }
 
@@ -294,7 +299,7 @@ final class Application implements ConfigProvider, ServiceProvider
      * The initial request.
      */
     public Request $request {
-        get => $this->request ??= Request::from_server($_SERVER); // @phpstan-ignore argument.type
+        get => $this->request ??= Request::from_server();
     }
 
     /**
@@ -312,7 +317,7 @@ final class Application implements ConfigProvider, ServiceProvider
         $this->assert_can_run();
 
         $this->status = self::STATUS_RUNNING;
-        $this->request = $request ??= Request::from_server($_SERVER);
+        $this->request = $request ??= Request::from_server();
 
         emit(new RunEvent($this, $request));
 

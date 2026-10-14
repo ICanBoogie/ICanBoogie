@@ -1,8 +1,10 @@
 # $schema: https://phpstan.olvlvl.com/schema.json
 parameters:
   level: max
+  phpVersion: 80400
   paths:
-  - lib
-  - tests
-  ignoreErrors:
-  - '#get_.* is unused#'
+    - lib
+    - tests
+  excludePaths:
+    - tests/lib/sandbox/*
+    - tests/var/*

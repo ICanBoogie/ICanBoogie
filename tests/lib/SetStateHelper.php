@@ -2,6 +2,7 @@
 
 namespace Test\ICanBoogie;
 
+use function assert;
 use function file_put_contents;
 use function uniqid;
 use function var_export;
@@ -25,6 +26,10 @@ final class SetStateHelper
 
         file_put_contents($pathname, $code);
 
-        return require $pathname;
+        $imported = require $pathname;
+
+        assert($imported instanceof $object);
+
+        return $imported;
     }
 }
