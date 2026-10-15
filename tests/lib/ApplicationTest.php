@@ -1,14 +1,19 @@
 <?php
 
-namespace ICanBoogie;
+namespace Test\ICanBoogie;
 
 use AssertionError;
+use ICanBoogie\Application;
 use ICanBoogie\Application\ClearCacheEvent;
 use ICanBoogie\Application\InvalidState;
+use ICanBoogie\Autoconfig\Autoconfig;
+use ICanBoogie\EventCollection;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\Storage\Storage;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+
+use function ICanBoogie\app;
 
 final class ApplicationTest extends TestCase
 {
@@ -23,7 +28,7 @@ final class ApplicationTest extends TestCase
     {
         $this->expectException(InvalidState::class);
 
-        Application::new(new Autoconfig\Autoconfig(
+        Application::new(new Autoconfig(
             base_path: '',
             app_path: '',
             app_paths: [],
@@ -109,7 +114,7 @@ final class ApplicationTest extends TestCase
     public function test_service_for_id_fails_on_class_mismatch(): void
     {
         $this->expectException(AssertionError::class);
-        $this->expectExceptionMessage("The service is not of the expected class");
+        $this->expectExceptionMessageIsOrContains("The service is not of the expected class");
         self::$app->service_for_id('test.app', ClearCacheEvent::class);
     }
 }

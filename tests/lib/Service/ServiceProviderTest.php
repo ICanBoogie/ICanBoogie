@@ -1,12 +1,14 @@
 <?php
 
-namespace ICanBoogie\Service;
+namespace Test\ICanBoogie\Service;
 
 use Closure;
+use ICanBoogie\Service\ServiceProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 use function ICanBoogie\app;
+use function ICanBoogie\Service\ref;
 
 final class ServiceProviderTest extends TestCase
 {

@@ -1,9 +1,10 @@
 <?php
 
-namespace ICanBoogie;
+namespace Test\ICanBoogie;
 
+use ICanBoogie\AppConfig;
+use ICanBoogie\Hooks;
 use PHPUnit\Framework\TestCase;
-use Test\ICanBoogie\SetStateHelper;
 
 final class AppConfigTest extends TestCase
 {

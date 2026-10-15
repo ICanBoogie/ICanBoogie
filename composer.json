@@ -59,7 +59,6 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "ICanBoogie\\": "tests/lib",
       "Test\\ICanBoogie\\": "tests/lib"
     }
   },

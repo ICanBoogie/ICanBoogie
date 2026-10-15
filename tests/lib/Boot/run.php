@@ -8,22 +8,27 @@
 namespace Test\ICanBoogie\Boot;
 
 use ICanBoogie\Application;
-use ICanBoogie\Application\BootEvent;
 use ICanBoogie\Autoconfig\Autoconfig;
 use Throwable;
 
-use function array_map;
 use function array_slice;
 use function chdir;
 use function dirname;
+use function is_callable;
+use function is_string;
 use function json_encode;
-use function strval;
 
 chdir(dirname(__DIR__, 2));
 
 require __DIR__ . '/../../../vendor/autoload.php';
 
-$callables = array_map(strval(...), array_slice((array) $_SERVER['argv'], 1));
+$callables = [];
+
+foreach (array_slice((array) $_SERVER['argv'], 1) as $callable) {
+    if (is_string($callable) && is_callable($callable)) {
+        $callables[] = $callable;
+    }
+}
 
 $app = Application::new(
     Autoconfig::get()->with([ 'boot_callables' => $callables ])

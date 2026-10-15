@@ -1,7 +1,8 @@
 <?php
 
-namespace ICanBoogie\Console;
+namespace Test\ICanBoogie\Console;
 
+use ICanBoogie\Console\ClearCacheCommand;
 use ICanBoogie\Console\Test\CommandTestCase;
 
 final class ClearCacheCommandTest extends CommandTestCase

@@ -1,6 +1,6 @@
 <?php
 
-namespace ICanBoogie;
+namespace Test\ICanBoogie;
 
 use PHPUnit\Framework\TestCase;
 use Test\ICanBoogie\Boot\BootCallables;
