@@ -1,3 +1,5 @@
+<p><img height="120" src="https://raw.githubusercontent.com/ICanBoogie/app-hello/master/web/assets/icanboogie.svg" alt="ICanBoogie" /></p>
+
 [![Release](https://img.shields.io/packagist/v/ICanBoogie/ICanBoogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
 [![Packagist](https://img.shields.io/packagist/dt/icanboogie/icanboogie.svg)](https://packagist.org/packages/icanboogie/icanboogie)
 
