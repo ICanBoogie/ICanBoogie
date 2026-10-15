@@ -30,7 +30,7 @@ The usual way is an `event.php` config fragment. The framework attaches its cach
 namespace ICanBoogie;
 
 use ICanBoogie\Application\ClearCacheEvent;
-use ICanBoogie\Binding\Event\ConfigBuilder;
+use ICanBoogie\Event\ConfigBuilder;
 
 return fn(ConfigBuilder $config) => $config
     ->attach(ClearCacheEvent::class, [ Hooks::class, 'on_clear_cache' ]);
