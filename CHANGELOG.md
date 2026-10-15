@@ -8,7 +8,7 @@
 
 ### New features
 
-None
+- `Application::boot()` invokes the callables that packages register with the `autoboot` key of `composer.json`, with the application as argument, before emitting `BootEvent`. See `docs/autoconfig.md`.
 
 ### Deprecated Features
 
@@ -16,7 +16,7 @@ None
 
 ### Backward Incompatible Changes
 
-None
+- `Application::boot()` no longer calls `Binding\Prototype\AutoConfig::configure()`; `icanboogie/bind-prototype` registers its own boot callable. Requires `icanboogie/autoconfig` and `icanboogie/bind-prototype` versions that support `autoboot`.
 
 ### Other Changes
 

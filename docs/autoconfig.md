@@ -16,6 +16,7 @@ The result is an `ICanBoogie\Autoconfig\Autoconfig` instance, available as `$app
 | `config_builders` | Config classes with the builder class that creates them (`Config => Builder`).  |
 | `locale_paths`    | Locale directories.                                                             |
 | `filters`         | Callables that may amend the autoconfig.                                        |
+| `boot_callables`  | Callables `boot()` invokes with the application, in dependency order.           |
 
 ## Participating
 
@@ -44,9 +45,51 @@ Supported options:
 - `config-constructor`: maps a config class to the builder that creates it.
 - `locale-path`: a directory of locale messages.
 - `app-path`, `app-paths`: application directories.
+- `autoboot`: one or more `Vendor\Class::method` callables invoked while the application boots, see
+  [Booting packages](#booting-packages).
 - `autoconfig-extension`, `autoconfig-filters`: extend or amend the generated autoconfig.
 
 The authoritative list is the plugin's `schema.json`.
+
+## Booting packages
+
+A package that must wire itself in when the application boots registers a static callable with
+`autoboot`:
+
+```json
+{
+  "extra": {
+    "icanboogie": {
+      "autoboot": "ICanBoogie\\Binding\\Prototype\\Boot::boot"
+    }
+  }
+}
+```
+
+```php
+<?php
+
+use ICanBoogie\Application;
+
+final class Boot
+{
+    public static function boot(Application $app): void
+    {
+        // …
+    }
+}
+```
+
+`boot()` invokes the callables with the application, after the application is constructed and
+before `BootEvent` is emitted. Packages boot in dependency order, and a package's callables keep
+their declared order. Exceptions are not caught.
+
+Autoboot is for packages wiring themselves in; `BootEvent` is for reacting to a booted application.
+Code that never calls `boot()` (a Composer script, a standalone CLI script) doesn't run boot
+callables.
+
+To change what a package registered, use an `autoconfig-filters` callable that returns
+`$autoconfig->with([ 'boot_callables' => … ])`.
 
 ## Obtaining the autoconfig
 

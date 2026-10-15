@@ -29,7 +29,8 @@ constructor:
 `$app->boot()`:
 
 1. throws `InvalidState` if the application has already booted;
-2. configures the Prototype package;
+2. invokes the callables registered with [`autoboot`](autoconfig.md#booting-packages) with the
+   application as argument, in dependency order;
 3. emits `Application\BootEvent`;
 4. stores the time at which boot finished in `$_SERVER['ICANBOOGIE_READY_TIME_FLOAT']`.
 

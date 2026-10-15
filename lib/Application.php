@@ -261,7 +261,10 @@ final class Application implements ConfigProvider, ServiceProvider
     }
 
     /**
-     * Boot the modules and configure Debug, Prototype, and Events.
+     * Boot the application.
+     *
+     * Invokes the callables registered with the `autoboot` key of `composer.json`, in dependency
+     * order, with the application as argument. Exceptions are not caught.
      *
      * Emits {@see BootEvent} after the boot is finished.
      *
@@ -274,7 +277,9 @@ final class Application implements ConfigProvider, ServiceProvider
 
         $this->status = self::STATUS_BOOTING;
 
-        Binding\Prototype\AutoConfig::configure($this);
+        foreach ($this->autoconfig->boot_callables as $callable) {
+            $callable($this);
+        }
 
         emit(new BootEvent($this));
 
@@ -322,7 +327,7 @@ final class Application implements ConfigProvider, ServiceProvider
         emit(new RunEvent($this, $request));
 
         $response = $this->service_for_class(Responder::class)->respond($request);
-        $response();
+        $response($request);
 
         $this->terminate($request, $response);
     }
