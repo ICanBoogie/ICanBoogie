@@ -1,0 +1,12 @@
+services:
+  _defaults:
+    autowire: true
+    public: true
+
+  Test\ICanBoogie\ServerTiming\FirstProvider: ~
+  Test\ICanBoogie\ServerTiming\SecondProvider: ~
+  Test\ICanBoogie\ServerTiming\FailingProvider: ~
+  Test\ICanBoogie\ServerTiming\FixedResponder: ~
+
+  ICanBoogie\HTTP\Responder:
+    alias: Test\ICanBoogie\ServerTiming\FixedResponder

@@ -5,6 +5,10 @@ namespace ICanBoogie;
 use ICanBoogie\Config\Builder;
 use ICanBoogie\Storage\Storage;
 
+use function array_filter;
+use function array_values;
+use function in_array;
+
 /**
  * @implements Builder<AppConfig>
  */
@@ -203,6 +207,58 @@ final class AppConfigBuilder implements Builder
         return $this;
     }
 
+    private bool $server_timing = false;
+
+    public function enable_server_timing(): self
+    {
+        $this->server_timing = true;
+
+        return $this;
+    }
+
+    public function disable_server_timing(): self
+    {
+        $this->server_timing = false;
+
+        return $this;
+    }
+
+    /**
+     * @var list<class-string<ServerTimingProvider>>
+     */
+    private array $server_timing_providers = [];
+
+    /**
+     * Appends a provider, adding the same class twice is a no-op.
+     *
+     * Adding a provider does not enable the feature, see {@see enable_server_timing()}.
+     *
+     * @param class-string<ServerTimingProvider> $provider
+     */
+    public function add_server_timing_provider(string $provider): self
+    {
+        if (!in_array($provider, $this->server_timing_providers, true)) {
+            $this->server_timing_providers[] = $provider;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Removes a provider, for instance one added by a package.
+     *
+     * @param class-string<ServerTimingProvider> $provider
+     */
+    public function remove_server_timing_provider(string $provider): self
+    {
+        $this->server_timing_providers = array_values(array_filter(
+            $this->server_timing_providers,
+            fn(string $other) => $other !== $provider
+        ));
+
+        return $this;
+    }
+
     public function build(): AppConfig
     {
         return new AppConfig(
@@ -218,6 +274,8 @@ final class AppConfigBuilder implements Builder
             var_files: $this->var_files,
             var_lib: $this->var_lib,
             var_tmp: $this->var_tmp,
+            server_timing: $this->server_timing,
+            server_timing_providers: $this->server_timing_providers,
         );
     }
 }

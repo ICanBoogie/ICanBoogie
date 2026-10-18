@@ -18,7 +18,8 @@
 __Unit.__ Measures come from `microtime(true)`, which has microsecond resolution. A start time is a
 Unix timestamp such as `1760745600.123456`, and a duration is a difference of two such values, such
 as `0.0123` for 12.3 ms. `Server-Timing` `dur` is in milliseconds, so providers multiply by 1000
-(`0.0123` becomes `12.3`) and must not truncate.
+(`0.0123` becomes `12.3`) and must not truncate. `ServerTimingMetric` rounds the duration to 2 decimals
+when it renders the header, so providers do not round.
 
 __Nesting.__ Records carry a start time and a duration, and are added when the measured work ends.
 Work can nest (a listener emits an event, a config builder requests a config), so summing durations
@@ -162,13 +163,17 @@ way. Installing a `bind-*` package is enough for its metrics to appear once the 
 
 ```php
 $response = $this->service_for_class(Responder::class)->respond($request);
-$this->alter_server_timing($response);
+
+if ($this->config->server_timing) {
+    // resolve the providers, and call `alter()` on each
+}
+
 $response($request);
 ```
 
-The step is a private method of `Application`. When `config->server_timing` is `false`, it returns
-immediately and nothing is resolved. Otherwise it resolves **all** configured providers from the
-container, then calls `alter($response->headers->server_timing)` on each. Resolving first keeps the
+When `config->server_timing` is `false`, nothing is resolved and the header is not read. Otherwise the
+step resolves **all** configured providers from the container, then calls
+`alter($response->headers->server_timing)` on each. Resolving first keeps the
 cost of building providers (configs, connections) out of what the telemetry providers read. A config
 built during an `alter()` call, after `ConfigServerTimingProvider` has read the records, is missed
 by the `config` metric. This is a documented, known inaccuracy.
@@ -183,7 +188,7 @@ details such as class names or SQL.
 
 | Package             | Provider                           | Metric                                                           |
 |---------------------|------------------------------------|------------------------------------------------------------------|
-| `icanboogie`        | `AppServerTimingProvider`          | `app;dur=…;desc="Application"`, from `REQUEST_TIME_FLOAT` to now |
+| `icanboogie`        | `AppServerTimingProvider`          | `app;dur=…`, from `REQUEST_TIME_FLOAT` to now                    |
 | `icanboogie`        | `ConfigServerTimingProvider`       | `config;dur=…;desc="N configs"`, from `ConfigProfiler`           |
 | `bind-event`        | `EventServerTimingProvider`        | `event;dur=…;desc="N used, N unused, N calls"`                   |
 | `bind-activerecord` | `ActiveRecordServerTimingProvider` | `db;dur=…;desc="N queries"`, sum of the established connections  |

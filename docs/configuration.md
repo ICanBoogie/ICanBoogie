@@ -68,20 +68,23 @@ A config class with no registered builder throws `NoBuilderDefined`.
 
 `AppConfig` is built by `AppConfigBuilder` from the `app.php` fragments.
 
-| Builder method                                           | Description                                                 |
-|----------------------------------------------------------|-------------------------------------------------------------|
-| `enable_config_caching()` / `disable_config_caching()`   | Whether built configurations are cached. Default: disabled. |
-| `enable_catalog_caching()` / `disable_catalog_caching()` | Whether message catalogs are cached. Default: disabled.     |
-| `set_storage_for_config(callable)`                       | Factory `fn(Application): Storage` for the config cache.    |
-| `set_storage_for_vars(callable)`                         | Factory `fn(Application): Storage` for `$app->vars`.        |
-| `set_error_handler(callable)`                            | Installed with `set_error_handler()` on instantiation.      |
-| `set_exception_handler(callable)`                        | Installed with `set_exception_handler()` on instantiation.  |
-| `set_var(string)`                                        | The `var` directory. Default: `var/`.                       |
-| `set_var_cache(string)`                                  | Default: `{var}/cache/`.                                    |
-| `set_var_cache_configs(string)`                          | Default: `{var_cache}/configs/`.                            |
-| `set_var_files(string)`                                  | Default: `{var}/files/`.                                    |
-| `set_var_tmp(string)`                                    | Default: `{var}/tmp/`.                                      |
-| `set_var_lib(string)`                                    | Default: `{var}/lib/`.                                      |
+| Builder method                                           | Description                                                      |
+|----------------------------------------------------------|------------------------------------------------------------------|
+| `enable_config_caching()` / `disable_config_caching()`   | Whether built configurations are cached. Default: disabled.      |
+| `enable_catalog_caching()` / `disable_catalog_caching()` | Whether message catalogs are cached. Default: disabled.          |
+| `set_storage_for_config(callable)`                       | Factory `fn(Application): Storage` for the config cache.         |
+| `set_storage_for_vars(callable)`                         | Factory `fn(Application): Storage` for `$app->vars`.             |
+| `set_error_handler(callable)`                            | Installed with `set_error_handler()` on instantiation.           |
+| `set_exception_handler(callable)`                        | Installed with `set_exception_handler()` on instantiation.       |
+| `set_var(string)`                                        | The `var` directory. Default: `var/`.                            |
+| `set_var_cache(string)`                                  | Default: `{var}/cache/`.                                         |
+| `set_var_cache_configs(string)`                          | Default: `{var_cache}/configs/`.                                 |
+| `set_var_files(string)`                                  | Default: `{var}/files/`.                                         |
+| `set_var_tmp(string)`                                    | Default: `{var}/tmp/`.                                           |
+| `set_var_lib(string)`                                    | Default: `{var}/lib/`.                                           |
+| `enable_server_timing()` / `disable_server_timing()`     | Whether the `Server-Timing` header is filled. Default: disabled. |
+| `add_server_timing_provider(string)`                     | Appends a `ServerTimingProvider` class, once.                    |
+| `remove_server_timing_provider(string)`                  | Removes a provider, for instance one added by a package.         |
 
 Directory values always end with a directory separator. Only `var` is the base for the defaults; the
 other directories needn't be subfolders of it.
@@ -89,6 +92,78 @@ other directories needn't be subfolders of it.
 The framework's own `config/app.php` sets the storage factories to
 `Hooks::create_storage_for_configs` and `Hooks::create_storage_for_vars`. Both return a
 `FileStorage`, fronted by an `APCStorage` when APCu is available.
+
+## Server-Timing
+
+With `enable_server_timing()`, `Application::run()` lets the registered providers add metrics to the
+`Server-Timing` header of the response, so they show up in the browser's dev tools:
+
+```
+Server-Timing: app;dur=28.9, config;dur=1;desc="4 configs"
+```
+
+A provider implements `ICanBoogie\ServerTimingProvider`, and is a **public** service of the
+container, because the application resolves it with `$container->get()`:
+
+```php
+<?php
+
+namespace Acme;
+
+use ICanBoogie\HTTP\Headers\ServerTiming;
+use ICanBoogie\ServerTimingProvider;
+
+final class CacheServerTimingProvider implements ServerTimingProvider
+{
+    public function alter(ServerTiming $timing): void
+    {
+        $timing->add('cache', 3.2, "12 hits"); // the duration is in milliseconds
+    }
+}
+```
+
+```yaml
+# config/services.yml
+Acme\CacheServerTimingProvider:
+  public: true
+```
+
+```php
+<?php
+
+// config/app.php
+
+namespace ICanBoogie;
+
+return fn(AppConfigBuilder $config) => $config
+    ->add_server_timing_provider(\Acme\CacheServerTimingProvider::class);
+```
+
+Packages register their providers from their `app.php` fragment. The application's fragment is applied
+after those of the packages, so it can call `remove_server_timing_provider()`. Providers are called in
+the order they were added, and adding a provider does not enable the feature.
+
+| Provider                                                | Package                        | Metric                                   |
+|---------------------------------------------------------|--------------------------------|------------------------------------------|
+| `AppServerTimingProvider`                               | `icanboogie/icanboogie`        | `app`, from the start of the request     |
+| `ConfigServerTimingProvider`                            | `icanboogie/icanboogie`        | `config`, building configurations        |
+| `Binding\Event\EventServerTimingProvider`               | `icanboogie/bind-event`        | `event`, listeners calls                 |
+| `Binding\ActiveRecord\ActiveRecordServerTimingProvider` | `icanboogie/bind-activerecord` | `db`, queries of established connections |
+
+Metrics are aggregated, and nested work (a listener emitting an event, a config requesting a config)
+is counted once. `ICanBoogie\ServerTimingProvider\Intervals::union_length()` helps providers do the same.
+
+Things to know:
+
+- **Do not enable it in production.** The header is readable by any client, and exposes timings and
+  counts about the internals of the application. It is meant for development and staging.
+- Exceptions thrown by a provider are not caught, they escape `Application::run()` and the response is
+  not sent.
+- The header covers the work that precedes the response. Sending the response and `TerminateEvent` are
+  not measured.
+- Error responses get the header only when the exception is turned into a response by the responder,
+  typically with the `WithRescue` middleware.
+- Long-running workers are not supported: the profilers are static and never reset.
 
 ## Config caching
 

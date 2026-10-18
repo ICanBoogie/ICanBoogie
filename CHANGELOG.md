@@ -10,6 +10,8 @@
 
 - `Application::boot()` invokes the callables that packages register with the `autoboot` key of `composer.json`, with the application as argument, before emitting `BootEvent`. See `docs/autoconfig.md`.
 
+- Opt-in `Server-Timing` header: `AppConfigBuilder::enable_server_timing()`, `add_server_timing_provider()` and `remove_server_timing_provider()`, the `ServerTimingProvider` interface, and the `AppServerTimingProvider` and `ConfigServerTimingProvider` providers. `Application::run()` lets the providers alter the response before it is sent. See `docs/configuration.md` and `docs/adr/0001-server-timing.md`.
+
 ### Deprecated Features
 
 None

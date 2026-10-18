@@ -12,6 +12,7 @@ use ICanBoogie\Binding\SymfonyDependencyInjection\ContainerFactory;
 use ICanBoogie\Config\Builder;
 use ICanBoogie\ConfigProvider\BasicConfigProvider;
 use ICanBoogie\ConfigProvider\CachedConfigProvider;
+use ICanBoogie\HTTP\Headers\ServerTiming;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\HTTP\Responder;
 use ICanBoogie\HTTP\Response;
@@ -20,6 +21,7 @@ use ICanBoogie\Storage\Storage;
 use LogicException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+use function array_map;
 use function asort;
 use function assert;
 use function date_default_timezone_get;
@@ -327,9 +329,35 @@ final class Application implements ConfigProvider, ServiceProvider
         emit(new RunEvent($this, $request));
 
         $response = $this->service_for_class(Responder::class)->respond($request);
+
+        if ($this->config->server_timing) {
+            $this->alter_server_timing($response->headers->server_timing);
+        }
+
         $response($request);
 
         $this->terminate($request, $response);
+    }
+
+    /**
+     * Lets the {@see ServerTimingProvider} providers add their metrics to the response.
+     *
+     * The providers are all resolved before the first one is called, so building them does not
+     * skew what the others read. This is an explicit step instead of an event, because emitting an
+     * event would alter what the event profiler measures.
+     *
+     * Exceptions are not caught.
+     */
+    private function alter_server_timing(ServerTiming $server_timing): void
+    {
+        $providers = array_map(
+            $this->service_for_class(...),
+            $this->config->server_timing_providers
+        );
+
+        foreach ($providers as $provider) {
+            $provider->alter($server_timing);
+        }
     }
 
     /**

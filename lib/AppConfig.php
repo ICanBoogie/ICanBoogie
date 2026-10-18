@@ -140,6 +140,15 @@ final readonly class AppConfig
      *     The directory doesn't have to be a subfolder of `$var`.
      *
      *     Defaults to: `$var/var/`.
+     *
+     * @param bool $server_timing
+     *     Whether the `Server-Timing` header of the response is altered by the providers. Off by
+     *     default, the header exposes internal timings to every client, and should not be enabled in
+     *     production.
+     *
+     * @param list<class-string<ServerTimingProvider>> $server_timing_providers
+     *     The providers that contribute metrics to the `Server-Timing` header, in the order they are
+     *     called. They are only resolved when `$server_timing` is enabled.
      */
     public function __construct(
         public bool $cache_catalogs = false,
@@ -154,6 +163,8 @@ final readonly class AppConfig
         ?string $var_files = null,
         ?string $var_lib = null,
         ?string $var_tmp = null,
+        public bool $server_timing = false,
+        public array $server_timing_providers = [],
     ) {
         $this->var = $var = $this->ensure_trailing_separator(
             $var ?? self::DEFAULT_DIRECTORY_FOR_VAR

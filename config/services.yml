@@ -3,6 +3,15 @@ services:
   _defaults:
     autowire: true
 
+  # Server-Timing
+
+  # The providers are resolved from the container by `Application`, they must be public.
+  ICanBoogie\AppServerTimingProvider:
+    public: true
+
+  ICanBoogie\ConfigServerTimingProvider:
+    public: true
+
   # Console
 
   console.command.cache.clear:

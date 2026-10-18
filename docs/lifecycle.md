@@ -43,7 +43,10 @@ constructor:
 2. throws `InvalidState` if the application hasn't booted, or is already running;
 3. stores the request (defaults to `Request::from_server($_SERVER)`) in `$app->request`;
 4. emits `Application\RunEvent`;
-5. gets the response from the `ICanBoogie\HTTP\Responder` service, and sends it.
+5. gets the response from the `ICanBoogie\HTTP\Responder` service;
+6. when [`Server-Timing`](configuration.md#server-timing) is enabled, lets the providers add their
+   metrics to the response;
+7. sends the response.
 
 ## Terminate
 
