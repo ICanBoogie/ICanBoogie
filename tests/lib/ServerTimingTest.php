@@ -42,12 +42,28 @@ final class ServerTimingTest extends TestCase
         );
     }
 
+    public function test_providers_of_packages_participate(): void
+    {
+        $actual = $this->run_scenario('with_packages');
+
+        $this->assertIsString($actual['server_timing']);
+        $this->assertMatchesRegularExpression(
+            '/(^|, )event;dur=[\d.]+;desc="[^"]+"(,|$)/',
+            $actual['server_timing']
+        );
+        $this->assertMatchesRegularExpression('/(^|, )app;dur=/', $actual['server_timing']);
+        $this->assertMatchesRegularExpression('/(^|, )config;dur=/', $actual['server_timing']);
+    }
+
     public function test_provider_can_be_removed(): void
     {
         $actual = $this->run_scenario('without_app');
 
         $this->assertIsString($actual['server_timing']);
-        $this->assertMatchesRegularExpression('/^config;dur=[\d.]+;desc="\d+ configs"$/', $actual['server_timing']);
+        $this->assertMatchesRegularExpression(
+            '/^config;dur=[\d.]+;desc="\d+ configs"$/',
+            $actual['server_timing']
+        );
     }
 
     public function test_metrics_of_the_response_are_kept(): void
@@ -76,7 +92,10 @@ final class ServerTimingTest extends TestCase
     {
         $actual = $this->run_scenario('failing');
 
-        $this->assertSame([ 'error' => 'RuntimeException', 'message' => 'Provider failed.' ], $actual);
+        $this->assertSame(
+            [ 'error' => 'RuntimeException', 'message' => 'Provider failed.' ],
+            $actual
+        );
     }
 
     /**
@@ -85,7 +104,9 @@ final class ServerTimingTest extends TestCase
     private function run_scenario(string $scenario): array
     {
         $output = shell_exec(
-            escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(__DIR__ . '/ServerTiming/run.php') . ' ' . escapeshellarg($scenario)
+            escapeshellarg(PHP_BINARY)
+            . ' ' . escapeshellarg(__DIR__ . '/ServerTiming/run.php')
+            . ' ' . escapeshellarg($scenario)
         );
 
         $this->assertIsString($output);
