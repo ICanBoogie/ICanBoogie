@@ -21,6 +21,7 @@ final class AppConfigBuilder implements Builder
 
     private bool $cache_catalogs = false;
 
+    #[\Deprecated("catalogs are no longer supported", since: '7.0')]
     public function enable_catalog_caching(): self
     {
         $this->cache_catalogs = true;
@@ -28,6 +29,7 @@ final class AppConfigBuilder implements Builder
         return $this;
     }
 
+    #[\Deprecated("catalogs are no longer supported", since: '7.0')]
     public function disable_catalog_caching(): self
     {
         $this->cache_catalogs = false;
@@ -37,6 +39,14 @@ final class AppConfigBuilder implements Builder
 
     private bool $cache_configs = false;
 
+    public function use_config_caching(bool $use): self
+    {
+        $this->cache_configs = $use;
+
+        return $this;
+    }
+
+    #[\Deprecated("use use_config_caching()", since: '7.0')]
     public function enable_config_caching(): self
     {
         $this->cache_configs = true;
@@ -44,6 +54,7 @@ final class AppConfigBuilder implements Builder
         return $this;
     }
 
+    #[\Deprecated("use use_config_caching()", since: '7.0')]
     public function disable_config_caching(): self
     {
         $this->cache_configs = false;

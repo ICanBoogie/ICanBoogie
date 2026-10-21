@@ -12,9 +12,12 @@
 
 - Opt-in `Server-Timing` header: `AppConfigBuilder::enable_server_timing()`, `add_server_timing_provider()` and `remove_server_timing_provider()`, the `ServerTimingProvider` interface, and the `AppServerTimingProvider` and `ConfigServerTimingProvider` providers. `Application::run()` lets the providers alter the response before it is sent. See `docs/configuration.md` and `docs/adr/0001-server-timing.md`.
 
+- Added `AppConfigBuilder::use_config_caching(bool)`, which takes a value that can come from the environment, e.g. `Env::bool('APP_CACHE', false)`.
+
 ### Deprecated Features
 
-None
+- `AppConfigBuilder::enable_config_caching()` and `disable_config_caching()`, use `use_config_caching()`.
+- `AppConfigBuilder::enable_catalog_caching()` and `disable_catalog_caching()`, catalogs are no longer supported.
 
 ### Backward Incompatible Changes
 

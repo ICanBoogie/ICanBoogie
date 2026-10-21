@@ -15,7 +15,7 @@ A fragment is a PHP file, named after a builder, located in a config directory r
 namespace ICanBoogie;
 
 return fn(AppConfigBuilder $config) => $config
-    ->enable_config_caching()
+    ->use_config_caching(true)
     ->set_var('/path/to/var');
 ```
 
@@ -70,8 +70,7 @@ A config class with no registered builder throws `NoBuilderDefined`.
 
 | Builder method                                           | Description                                                      |
 |----------------------------------------------------------|------------------------------------------------------------------|
-| `enable_config_caching()` / `disable_config_caching()`   | Whether built configurations are cached. Default: disabled.      |
-| `enable_catalog_caching()` / `disable_catalog_caching()` | Whether message catalogs are cached. Default: disabled.          |
+| `use_config_caching(bool)`                               | Whether built configurations are cached. Default: disabled.      |
 | `set_storage_for_config(callable)`                       | Factory `fn(Application): Storage` for the config cache.         |
 | `set_storage_for_vars(callable)`                         | Factory `fn(Application): Storage` for `$app->vars`.             |
 | `set_error_handler(callable)`                            | Installed with `set_error_handler()` on instantiation.           |
@@ -167,7 +166,7 @@ Things to know:
 
 ## Config caching
 
-With `enable_config_caching()`, the application wraps its provider in a `CachedConfigProvider`,
+With `use_config_caching(true)`, the application wraps its provider in a `CachedConfigProvider`,
 which stores built configurations in `$app->storage_for_configs`. Cache keys are derived from the
 config paths and the config class; changes to fragment files are **not** detected, so clear the
 cache after changing configuration, using `cache:clear` (see [Console](console.md)).

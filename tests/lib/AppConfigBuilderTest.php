@@ -17,6 +17,32 @@ final class AppConfigBuilderTest extends TestCase
         $this->assertSame([], $actual->server_timing_providers);
     }
 
+    public function test_config_caching_is_disabled_by_default(): void
+    {
+        $actual = new AppConfigBuilder()->build();
+
+        $this->assertFalse($actual->cache_configs);
+    }
+
+    public function test_use_config_caching(): void
+    {
+        $actual = new AppConfigBuilder()
+            ->use_config_caching(true)
+            ->build();
+
+        $this->assertTrue($actual->cache_configs);
+    }
+
+    public function test_use_config_caching_can_turn_it_off(): void
+    {
+        $actual = new AppConfigBuilder()
+            ->use_config_caching(true)
+            ->use_config_caching(false)
+            ->build();
+
+        $this->assertFalse($actual->cache_configs);
+    }
+
     public function test_enable_then_disable_server_timing(): void
     {
         $actual = new AppConfigBuilder()
